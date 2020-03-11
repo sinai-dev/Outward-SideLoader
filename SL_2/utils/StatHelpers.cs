@@ -11,9 +11,13 @@ namespace SideLoader_2
     {
         // -------------------------- ITEM STAT HELPER FUNCTIONS ------------------------
 
-        // This helper function is to set the appropriate scaled damage depending on the attack id (which part of combo).
-        // Outward has no function to handle this in their api, according to Keos these are managed in a separate tool.
-        // So I just copied the modifiers that they use for each class.
+        /// <summary>
+        /// Set the appropriate scaled damage depending on the attack ID (which part of combo)<br></br>
+        /// </summary>
+        /// <param name="type">Type of Weapon being used</param>
+        /// <param name="attackID">0 and 1 are Light, 2 is Special, 3 and 4 are Combo</param>
+        /// <param name="stepDamage">List of damage (float) in order. See WeaponStats.AttackData.Damage</param>
+        /// <param name="stepImpact">Base Impact of the Weapon</param>
 
         public static void SetScaledDamages(Weapon.WeaponType type, int attackID, ref List<float> stepDamage, ref float stepImpact)
         {
@@ -146,7 +150,9 @@ namespace SideLoader_2
             return;
         }
 
-        // damage names pretty print / helper
+        /// <summary>
+        /// Pretty-prints the Damage Types, in the order of DamageType.Types
+        /// </summary>
         public static string[] DamageNames = new string[10]
         {
             "Physical",
@@ -161,24 +167,28 @@ namespace SideLoader_2
             "None"
         };
 
-        // weapon type pretty print
-        public static Dictionary<string, Weapon.WeaponType> weaponTypes = new Dictionary<string, Weapon.WeaponType>() {
-            { "Sword 1H", Weapon.WeaponType.Sword_1H },
-            { "Axe 1H", Weapon.WeaponType.Axe_1H },
-            { "Mace 1H", Weapon.WeaponType.Mace_1H },
-            { "Sword 2H", Weapon.WeaponType.Sword_2H },
-            { "Axe 2H", Weapon.WeaponType.Axe_2H },
-            { "Mace 2H", Weapon.WeaponType.Mace_2H },
-            { "Polearm", Weapon.WeaponType.Halberd_2H },
-            { "Spear", Weapon.WeaponType.Spear_2H },
-            { "Shield", Weapon.WeaponType.Shield },
-            { "Bow", Weapon.WeaponType.Bow },
-            { "Pistol", Weapon.WeaponType.Pistol_OH },
-            { "Chakram", Weapon.WeaponType.Chakram_OH },
-            { "Dagger", Weapon.WeaponType.Dagger_OH }
+        /// <summary>
+        /// Pretty-prints the Weapon Types from dictionary
+        /// </summary>
+        public static Dictionary<Weapon.WeaponType, string> weaponTypes = new Dictionary<Weapon.WeaponType, string>() {
+            { Weapon.WeaponType.Sword_1H,   "1H Sword" },
+            { Weapon.WeaponType.Axe_1H,     "1H Axe" },
+            { Weapon.WeaponType.Mace_1H,    "1H Mace" },
+            { Weapon.WeaponType.Sword_2H,   "2H Sword" },
+            { Weapon.WeaponType.Axe_2H,     "2H Axe" },
+            { Weapon.WeaponType.Mace_2H,    "2H Mace" },
+            { Weapon.WeaponType.Halberd_2H ,"Polearm" },
+            { Weapon.WeaponType.Spear_2H ,  "Spear" },
+            { Weapon.WeaponType.Shield ,    "Shield" }, 
+            { Weapon.WeaponType.Bow ,       "Bow" },
+            { Weapon.WeaponType.Pistol_OH , "Pistol" }, 
+            { Weapon.WeaponType.Chakram_OH ,"Chakram" },
+            { Weapon.WeaponType.Dagger_OH,  "Dagger" },
         };
 
-        // relevant status effects dictionary
+        /// <summary>
+        /// Status Identifiers which can be used as a Hit Effect
+        /// </summary>
         public static List<string> StatusNames = new List<string>()
         {
             "Bleeding",

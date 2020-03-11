@@ -86,7 +86,7 @@
     <Compile Include="ClassHolders\Effect\Affects\AffectStaminaHolder.cs" />
     <Compile Include="ClassHolders\Effect\Affects\AffectStat.cs" />
     <Compile Include="ClassHolders\Effect\EffectConditionHolder.cs" />
-    <Compile Include="ClassHolders\Effect\EffectHolder.cs" />
+    <Compile Include="ClassHolders\EffectHolder.cs" />
     <Compile Include="ClassHolders\Effect\ImbueWeaponHolder.cs" />
     <Compile Include="ClassHolders\Effect\PunctualDamageHolder.cs" />
     <Compile Include="ClassHolders\Effect\ReduceDurabilityHolder.cs" />
@@ -100,7 +100,6 @@
     <Compile Include="ClassHolders\Item\ItemStats\EquipmentStatsHolder.cs" />
     <Compile Include="ClassHolders\Item\ItemStats\ItemStatsHolder.cs" />
     <Compile Include="ClassHolders\Item\ItemStats\WeaponStatsHolder.cs" />
-    <Compile Include="ClassHolders\Item\QuestHolder.cs" />
     <Compile Include="ClassHolders\Item\SkillHolder.cs" />
     <Compile Include="ClassHolders\Item\TrapEffectHolder.cs" />
     <Compile Include="ClassHolders\Item\TrapHolder.cs" />
@@ -109,6 +108,8 @@
     <Compile Include="SL_AssetBundles.cs" />
     <Compile Include="SL_Audio.cs" />
     <Compile Include="SL_Characters.cs" />
+    <Compile Include="SL_Pack\SLPack.cs" />
+    <Compile Include="SL_Scenes.cs" />
     <Compile Include="SL_Skills.cs" />
     <Compile Include="SL_Textures.cs" />
     <Compile Include="SL_Items.cs" />
@@ -116,6 +117,9 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="utils\StatHelpers.cs" />
     <Compile Include="utils\SinAPI.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="SL_Menu\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

@@ -6,7 +6,7 @@ using UnityEngine;
 using System.IO;
 using System.Xml.Serialization;
 
-namespace Dataminer
+namespace SideLoader_2
 {
     public class RecipeHolder
     {
@@ -62,7 +62,7 @@ namespace Dataminer
                     string saveName = recipeHolder.Name + " (" + recipeHolder.RecipeID + ")";
 
                     ListManager.Recipes.Add(recipeHolder.RecipeID.ToString(), recipeHolder);
-                    Dataminer.SerializeXML(dir, saveName, recipeHolder, typeof(RecipeHolder), new Type[] { typeof(ItemQuantityHolder) });
+                    SideLoader_2.SerializeXML(dir, saveName, recipeHolder, typeof(RecipeHolder), new Type[] { typeof(ItemQuantityHolder) });
                 }
             }
         }

@@ -10,11 +10,10 @@ using UnityEngine.SceneManagement;
 
 namespace SideLoader_2
 {
-    /// <summary>
-    /// Use SL.Instance to access the active SideLoader instance. 
-    /// </summary>
+    /// <summary> Use SL.Instance to access the active SideLoader instance. </summary>
     public class SL : PartialityMod
     {
+        /// <summary>The active SideLoader Instance</summary>
         public static SideLoader Instance;
 
         public SL()
@@ -40,47 +39,22 @@ namespace SideLoader_2
         }
     }
 
-    /// <summary>
-    /// For internal use only. Use SL.Instance to access the active SideLoader instance.
-    /// </summary>
+    /// <summary> For internal use only. Use SL.Instance to access the active SideLoader instance. </summary>
     public class SideLoader : MonoBehaviour
     {
-        public static readonly string MODNAME = "OTW_SideLoader";
+        public static readonly string MODNAME = "SideLoader";
         public static readonly string VERSION = "2.0.0";
 
         public static readonly string SL_FOLDER = @"Mods\SideLoader";
 
-        /// <summary>
-        /// Use this to check if SideLoader is ready to use.
-        /// </summary>
-        public bool InitDone { get; private set; } = false;
+        public delegate void SceneLoaded();
+        public static event SceneLoaded OnSceneLoaded;
 
-        /// <summary>
-        /// INTERNAL USE ONLY. For coroutines. Don't use this to check if SL is done loading.
-        /// </summary>
-        public bool Loading = false;
+        public Dictionary<string, SLPack> Packs = new Dictionary<string, SLPack>();
 
-        // List of supported Resource types (each type represents a SL Pack folder)
-        public string[] SupportedResources = 
-        {
-            ResourceTypes.Texture,
-            ResourceTypes.AssetBundle,
-            ResourceTypes.CustomItems,
-            ResourceTypes.Audio,
-        };
-
-        // Coroutines to run on load (in this order)
-        private readonly List<IEnumerator> LoadingCoroutines = new List<IEnumerator>
-        {
-            SL_AssetBundles.Instance.LoadAssetBundles(),
-            SL_Textures.Instance.LoadTextures(),
-            SL_Audio.Instance.LoadAudioClips(),
-            SL_Items.Instance.LoadItemXMLs(),
-            SL_Textures.Instance.ReplaceActiveTextures() // replace active textures after everything else
-        };
-
-        // Just used for startup
-        public Dictionary<string, List<string>> FilePaths = new Dictionary<string, List<string>>();
+        public bool PacksLoaded { get; private set; } = false;
+        public delegate void LoadedPacks();
+        public static event LoadedPacks OnPacksLoaded;
 
         internal void Awake()
         {
@@ -103,96 +77,55 @@ namespace SideLoader_2
             gameObject.AddComponent<SL_Items>();
             gameObject.AddComponent<SL_Audio>();
 
-            // read folders, store all file paths in FilePaths dictionary
-            CheckFolders();
-
             // wait for RPM to finish loading
             while (ResourcesPrefabManager.Instance == null || !ResourcesPrefabManager.Instance.Loaded) 
             {
                 yield return null;
             }
 
-            foreach (var coroutine in LoadingCoroutines)
+            // Load SLPacks
+            foreach (string dir in Directory.GetDirectories(SL_FOLDER))
             {
-                Loading = true;
-                StartCoroutine(coroutine);
-                while (Loading)
+                try
                 {
-                    yield return null;
+                    var pack = new SLPack();
+
+                    pack.LoadFromFolder(dir);
+                    pack.ApplyPack();
+
+                    Packs.Add(pack.Name, pack);
+
+                }
+                catch (Exception e)
+                {
+                    Log("Error loading SLPack from folder: " + dir + "\r\nMessage: " + e.Message + "\r\nStackTrace: " + e.StackTrace, 1);
                 }
             }
 
             Log("Finished initialization.", 0);
 
-            InitDone = true;
-        }
+            PacksLoaded = true;
 
-        // Checks all the folders in the SideLoader folder and makes a list of all Assets which should be loaded.
-        private void CheckFolders()
-        {
-            int totalFiles = 0;
-
-            Log("Checking for SideLoader packs...");
-
-            foreach (string pack in Directory.GetDirectories(SL_FOLDER))
-            {
-                Log("Checking pack " + pack + "...");
-
-                foreach (string resourceType in SupportedResources)
-                {
-                    // Make sure we have the key initialized
-                    if (!FilePaths.ContainsKey(resourceType))
-                        FilePaths.Add(resourceType, new List<string>());
-
-                    string dir = pack + @"\" + resourceType;
-
-                    if (!Directory.Exists(dir))
-                    {
-                        continue;
-                    }
-
-                    string[] paths = Directory.GetFiles(dir);
-
-                    foreach (string file in paths)
-                    {
-                        if (resourceType == ResourceTypes.AssetBundle && (file.EndsWith(".manifest") || file.EndsWith(".meta")))
-                        {
-                            continue;
-                        }
-
-                        string assetPath = new FileInfo(file).Name;
-                        FilePaths[resourceType].Add(dir + @"\" + assetPath);
-
-                        totalFiles++; // add to total asset counter
-                    }
-                }
-            }
-
-            Log(string.Format("Found {0} total files to load.", totalFiles));
+            OnPacksLoaded?.Invoke();
         }
 
         // This is called when Unity says the scene is done loading, but we still want to wait for Outward to be done.
         private void SceneManager_sceneLoaded(Scene _scene, LoadSceneMode _loadSceneMode)
         {
-            // We don't care about doing this for the Main Menu. Active textures are replaced after game has loaded anyway.
-            if (_scene.name != "MainMenu_Empty")
-            {
-                StartCoroutine(OnSceneDoneLoading());
-            }
+            StartCoroutine(WaitForSceneReady());
         }
 
-        // SceneChange callbacks go here
-        private IEnumerator OnSceneDoneLoading()
+        private IEnumerator WaitForSceneReady()
         {
-            while (!NetworkLevelLoader.Instance.IsOverallLoadingDone || !NetworkLevelLoader.Instance.AllPlayerDoneLoading)
+            while (!ResourcesPrefabManager.Instance.Loaded || !NetworkLevelLoader.Instance.IsOverallLoadingDone || !NetworkLevelLoader.Instance.AllPlayerDoneLoading)
             {
-                yield return new WaitForSeconds(0.1f);
+                yield return null;
             }
 
-            StartCoroutine(SL_Textures.Instance.ReplaceActiveTextures());
+            OnSceneLoaded?.Invoke();
         }
 
-        // Small Logging helper
+        /// <summary>Debug.Log with [SideLoader] prefix.</summary> <param name="errorLevel">-1 = Debug.Log, 0 = Debug.LogWarning, 1 = Debug.LogError</param>
         public static void Log(string log, int errorLevel = -1)
         {
             log = "[SideLoader] " + log;
@@ -209,13 +142,11 @@ namespace SideLoader_2
                 Debug.Log(log);
             }
         }
-    }
 
-    public static class ResourceTypes
-    {
-        public static string Texture = "Texture2D";
-        public static string AssetBundle = "AssetBundles";
-        public static string CustomItems = "CustomItems";
-        public static string Audio = "Audio";
-    }
+        /// <summary>Remove invalid filename characters from a string</summary>
+        public static string ReplaceInvalidChars(string s)
+        {
+            return string.Join("_", s.Split(Path.GetInvalidFileNameChars()));
+        }
+}
 }

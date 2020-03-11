@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace Dataminer
+namespace SideLoader_2
 {
     public class AffectHealthHolder : EffectHolder
     {

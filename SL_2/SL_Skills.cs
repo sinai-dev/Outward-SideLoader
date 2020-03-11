@@ -9,7 +9,7 @@ namespace SideLoader_2
 {
     /// <summary>
     /// This class just contains a few helper functions for setting up skills. Custom Skills are still mostly defined from the CustomItems class.<br></br>
-    /// Most importantly at the moment, this class contains helpers for setting up Skill Trees.
+    /// At the moment, this class contains helpers for setting up Skill Trees
     /// </summary>
     public class SL_Skills : MonoBehaviour
     {
@@ -23,10 +23,10 @@ namespace SideLoader_2
         // set a skill tree icon for a skill
         public static void SetSkillSmallIcon(int id, string textureName)
         {
-            if (SL_Textures.Instance.TextureData.ContainsKey(textureName))
+            if (SL_Textures.TextureReplacements.ContainsKey(textureName))
             {
                 Skill skill = ResourcesPrefabManager.Instance.GetItemPrefab(id) as Skill;
-                var tex = SL_Textures.Instance.TextureData[textureName];
+                var tex = SL_Textures.TextureReplacements[textureName];
                 tex.filterMode = FilterMode.Bilinear;
                 skill.SkillTreeIcon = SL_Textures.CreateSprite(tex);
             }

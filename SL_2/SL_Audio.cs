@@ -12,8 +12,7 @@ namespace SideLoader_2
     {
         public static SL_Audio Instance;
 
-        public Dictionary<string, AudioClip> AudioClips = new Dictionary<string, AudioClip>();
-
+        public static Dictionary<string, AudioClip> CustomMusic = new Dictionary<string, AudioClip>();
         private AudioSource m_currentMusicScource;
 
         internal void Start()
@@ -26,41 +25,50 @@ namespace SideLoader_2
             On.GlobalAudioManager.PlayMusic += PlayMusicHook;
         }
 
-        public IEnumerator LoadAudioClips()
+        public static AudioClip LoadAudioClip(string filePath)
         {
-            for (int i = 0; i < SL.Instance.FilePaths[ResourceTypes.Audio].Count(); i++)
+            filePath = @"file://" + Path.GetFullPath(filePath);
+
+            return WWWAudioExtensions.GetAudioClip(new WWW(filePath));
+        }
+
+        public IEnumerator LoadCustomMusic()
+        {
+            if (Directory.Exists(SideLoader.SL_FOLDER + "/CustomMusic"))
             {
-                string filePath = @"file://" + Path.GetFullPath(SL.Instance.FilePaths[ResourceTypes.Audio][i]);
-                string fileName = Path.GetFileNameWithoutExtension(filePath);
-
-                AudioClip clip = WWWAudioExtensions.GetAudioClip(new WWW(filePath));
-                DontDestroyOnLoad(clip);
-
-                if (clip != null)
+                foreach (string filePath in Directory.GetFiles(SideLoader.SL_FOLDER + "/CustomMusic"))
                 {
-                    while (clip.loadState != AudioDataLoadState.Loaded)
-                        yield return new WaitForSeconds(0.1f);
+                    string fileName = Path.GetFileNameWithoutExtension(filePath);
 
-                    if (AudioClips.ContainsKey(fileName))
+                    var clip = LoadAudioClip(filePath);
+
+                    if (clip != null)
                     {
-                        AudioClips[fileName] = clip;
-                    }
-                    else
-                    {
-                        AudioClips.Add(fileName, clip);
+                        DontDestroyOnLoad(clip);
+
+                        while (clip.loadState != AudioDataLoadState.Loaded)
+                            yield return null;
+
+                        if (CustomMusic.ContainsKey(fileName))
+                        {
+                            CustomMusic[fileName] = clip;
+                        }
+                        else
+                        {
+                            CustomMusic.Add(fileName, clip);
+                        }
+
+                        // todo if its main menu music, call PlayMusic
                     }
                 }
             }
-
-            SL.Instance.Loading = false;
-            yield return null;
         }
 
         private AudioSource PlayMusicHook(On.GlobalAudioManager.orig_PlayMusic orig, GlobalAudioManager self, GlobalAudioManager.Sounds _sound, float _fade)
         {
             string songName = _sound.ToString();
 
-            if (AudioClips.ContainsKey(songName)
+            if (CustomMusic.ContainsKey(songName)
                 && At.GetValue(typeof(GlobalAudioManager), self, "s_musicSources") is DictionaryExt<GlobalAudioManager.Sounds, GlobalAudioManager.MusicSource> dict)
             {
                 // set our custom clip to the actual GlobalAudioManager dictionary, so it works with the game systems as expected
@@ -74,7 +82,7 @@ namespace SideLoader_2
                     dict.Add(_sound, new GlobalAudioManager.MusicSource(component));
                 }
 
-                dict[_sound].Source.clip = AudioClips[_sound.ToString()];
+                dict[_sound].Source.clip = CustomMusic[_sound.ToString()];
 
                 At.SetValue(dict, typeof(GlobalAudioManager), self, "s_musicSources");
 

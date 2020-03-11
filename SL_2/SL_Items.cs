@@ -14,7 +14,7 @@ namespace SideLoader_2
     {
         public static SL_Items Instance;
 
-        public Dictionary<int, Item> LoadedCustomItems = new Dictionary<int, Item>();
+        public static Dictionary<int, Item> LoadedCustomItems = new Dictionary<int, Item>();
 
         internal void Awake()
         {

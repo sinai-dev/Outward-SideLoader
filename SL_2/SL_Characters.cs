@@ -9,7 +9,7 @@ using UnityEngine.AI;
 namespace SideLoader_2
 {
 	/// <summary>
-	/// This class contains some useful helper functions for setting up custom NPCs, as well as AI characters (ally or enemy)
+	/// This class just contains some useful helper functions for setting up custom NPCs or AI Characters
 	/// </summary>
 	public class SL_Characters : MonoBehaviour
     {

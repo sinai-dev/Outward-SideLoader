@@ -12,42 +12,22 @@ namespace SideLoader_2
     {
         public static SL_AssetBundles Instance;
 
-        public Dictionary<string, AssetBundle> LoadedBundles = new Dictionary<string, AssetBundle>();
-
         internal void Awake()
         {
             Instance = this;
         }
 
-        public IEnumerator LoadAssetBundles()
+        public static AssetBundle LoadAssetBundle(string filepath)
         {
-            float start = Time.time;
-            SideLoader.Log("Loading Asset Bundles...");
-
-            // get all bundle folders
-            foreach (string filepath in SL.Instance.FilePaths[ResourceTypes.AssetBundle])
+            try
             {
-                try
-                {
-                    var bundle = AssetBundle.LoadFromFile(filepath);
-
-                    if (bundle != null && bundle is AssetBundle)
-                    {
-                        LoadedBundles.Add(Path.GetFileNameWithoutExtension(filepath), bundle);
-
-                        SideLoader.Log(" - Loaded bundle: " + filepath);
-                    }
-                }
-                catch (Exception e)
-                {
-                    SideLoader.Log(string.Format("Error loading bundle: {0}\r\nMessage: {1}\r\nStack Trace: {2}", filepath, e.Message, e.StackTrace), 1);
-                }
-
-                yield return null;
+                return AssetBundle.LoadFromFile(filepath);
             }
-
-            SL.Instance.Loading = false;
-            SideLoader.Log("Asset Bundles loaded. Time: " + (Time.time - start));
+            catch (Exception e)
+            {
+                SideLoader.Log(string.Format("Error loading bundle: {0}\r\nMessage: {1}\r\nStack Trace: {2}", filepath, e.Message, e.StackTrace), 1);
+                return null;
+            }
         }
     }
 }
