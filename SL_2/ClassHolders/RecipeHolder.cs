@@ -14,8 +14,8 @@ namespace SideLoader_2
         public string Name;
         public int RecipeID;
 
-        public List<string> Ingredients = new List<string>();
-        public List<ItemQuantityHolder> Results = new List<ItemQuantityHolder>();
+        public List<Ingredient> Ingredients = new List<Ingredient>();
+        public List<ItemQty> Results = new List<ItemQty>();
 
         public static RecipeHolder ParseRecipe(Recipe recipe)
         {
@@ -30,19 +30,27 @@ namespace SideLoader_2
             {
                 if (ingredient.ActionType == RecipeIngredient.ActionTypes.AddSpecificIngredient)
                 {
-                    recipeHolder.Ingredients.Add(ingredient.AddedIngredient.Name);
+                    recipeHolder.Ingredients.Add(new Ingredient() 
+                    {
+                        Type = ingredient.ActionType,
+                        Ingredient_ItemID = ingredient.AddedIngredient.ItemID
+                    });
                 }
                 else
                 {
-                    recipeHolder.Ingredients.Add(ingredient.AddedIngredientType.Tag.TagName);
+                    recipeHolder.Ingredients.Add(new Ingredient() 
+                    {
+                        Type = ingredient.ActionType,
+                        Ingredient_Tag = ingredient.AddedIngredientType.Tag.TagName
+                    });
                 }
             }
 
             foreach (ItemQuantity item in recipe.Results)
             {
-                recipeHolder.Results.Add(new ItemQuantityHolder
+                recipeHolder.Results.Add(new ItemQty
                 {
-                    ItemName = item.Item.Name,
+                    ItemID = item.Item.ItemID,
                     Quantity = item.Quantity
                 });
             }
@@ -50,26 +58,17 @@ namespace SideLoader_2
             return recipeHolder;
         }
 
-        public static void ParseAllRecipes()
+        public class Ingredient
         {
-            if (At.GetValue(typeof(RecipeManager), RecipeManager.Instance, "m_recipes") is Dictionary<string, Recipe> recipes)
-            {
-                foreach (Recipe recipe in recipes.Values)
-                {
-                    var recipeHolder = ParseRecipe(recipe);
+            public RecipeIngredient.ActionTypes Type;
 
-                    string dir = Folders.Prefabs + "/Recipes";
-                    string saveName = recipeHolder.Name + " (" + recipeHolder.RecipeID + ")";
-
-                    ListManager.Recipes.Add(recipeHolder.RecipeID.ToString(), recipeHolder);
-                    SideLoader_2.SerializeXML(dir, saveName, recipeHolder, typeof(RecipeHolder), new Type[] { typeof(ItemQuantityHolder) });
-                }
-            }
+            public int Ingredient_ItemID;
+            public string Ingredient_Tag;
         }
 
-        public class ItemQuantityHolder
+        public class ItemQty
         {
-            public string ItemName;
+            public int ItemID;
             public int Quantity;
         }
     }

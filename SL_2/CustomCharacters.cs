@@ -11,9 +11,9 @@ namespace SideLoader_2
 	/// <summary>
 	/// This class just contains some useful helper functions for setting up custom NPCs or AI Characters
 	/// </summary>
-	public class SL_Characters : MonoBehaviour
+	public class CustomCharacters : MonoBehaviour
     {
-        public static SL_Characters Instance;
+        public static CustomCharacters Instance;
 
         public static GameObject BasicAIPrefab = null;
 
@@ -161,8 +161,7 @@ namespace SideLoader_2
 			var combatEnd = new GameObject("EndCombatEffects").AddComponent(new AIESwitchState { ToState = wanderState });
 			combatEnd.transform.parent = combatState.transform;
 
-			_AIStatesPrefab.gameObject.SetActive(false);
-			BasicAIPrefab = Instantiate(_AIStatesPrefab.gameObject);
+			BasicAIPrefab = _AIStatesPrefab.gameObject;
 			DontDestroyOnLoad(BasicAIPrefab);
 			BasicAIPrefab.SetActive(false);
 		}

@@ -14,10 +14,10 @@
     <Deterministic>true</Deterministic>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
+    <DebugSymbols>false</DebugSymbols>
+    <DebugType>none</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>.\</OutputPath>
+    <OutputPath>..\</OutputPath>
     <DefineConstants>
     </DefineConstants>
     <ErrorReport>prompt</ErrorReport>
@@ -64,6 +64,7 @@
     <Reference Include="System.Xml" />
     <Reference Include="UnityEngine">
       <HintPath>..\..\..\..\Steam\steamapps\common\Outward\Outward_Data\Managed\UnityEngine.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="UnityEngine.UI">
       <HintPath>..\..\..\..\Steam\steamapps\common\Outward\Outward_Data\Managed\UnityEngine.UI.dll</HintPath>
@@ -101,25 +102,21 @@
     <Compile Include="ClassHolders\Item\ItemStats\ItemStatsHolder.cs" />
     <Compile Include="ClassHolders\Item\ItemStats\WeaponStatsHolder.cs" />
     <Compile Include="ClassHolders\Item\SkillHolder.cs" />
-    <Compile Include="ClassHolders\Item\TrapEffectHolder.cs" />
-    <Compile Include="ClassHolders\Item\TrapHolder.cs" />
     <Compile Include="ClassHolders\Item\WeaponHolder.cs" />
     <Compile Include="ClassHolders\RecipeHolder.cs" />
-    <Compile Include="SL_AssetBundles.cs" />
-    <Compile Include="SL_Audio.cs" />
-    <Compile Include="SL_Characters.cs" />
-    <Compile Include="SL_Pack\SLPack.cs" />
-    <Compile Include="SL_Scenes.cs" />
-    <Compile Include="SL_Skills.cs" />
-    <Compile Include="SL_Textures.cs" />
-    <Compile Include="SL_Items.cs" />
-    <Compile Include="SideLoader.cs" />
+    <Compile Include="CustomCharacters.cs" />
+    <Compile Include="CustomItems.cs" />
+    <Compile Include="CustomSkills.cs" />
+    <Compile Include="ModLoader.cs" />
+    <Compile Include="Serializer.cs" />
+    <Compile Include="SLPack.cs" />
+    <Compile Include="CustomScenes.cs" />
+    <Compile Include="CustomTextures.cs" />
+    <Compile Include="SL.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="utils\StatHelpers.cs" />
-    <Compile Include="utils\SinAPI.cs" />
+    <Compile Include="TempDebugGui.cs" />
+    <Compile Include="utils\AccessTools.cs" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="SL_Menu\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

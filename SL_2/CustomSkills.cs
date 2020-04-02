@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -7,35 +6,8 @@ using UnityEngine;
 
 namespace SideLoader_2
 {
-    /// <summary>
-    /// This class just contains a few helper functions for setting up skills. Custom Skills are still mostly defined from the CustomItems class.<br></br>
-    /// At the moment, this class contains helpers for setting up Skill Trees
-    /// </summary>
-    public class SL_Skills : MonoBehaviour
+    public class CustomSkills
     {
-        //public static SL_Skills Instance;
-
-        //internal void Awake()
-        //{
-        //    Instance = this;
-        //}
-
-        // set a skill tree icon for a skill
-        public static void SetSkillSmallIcon(int id, string textureName)
-        {
-            if (SL_Textures.TextureReplacements.ContainsKey(textureName))
-            {
-                Skill skill = ResourcesPrefabManager.Instance.GetItemPrefab(id) as Skill;
-                var tex = SL_Textures.TextureReplacements[textureName];
-                tex.filterMode = FilterMode.Bilinear;
-                skill.SkillTreeIcon = SL_Textures.CreateSprite(tex);
-            }
-            else
-            {
-                SideLoader.Log("Tried to set " + textureName + " as a small icon, but TextureData does not contain this key!", 0);
-            }
-        }
-
         /// <summary>
         /// Use this to generate a custom SkillSchool, and register it to the game's Skill Tree holder.
         /// </summary>
@@ -44,8 +16,8 @@ namespace SideLoader_2
             if ((Resources.Load("_characters/CharacterProgression") as GameObject).transform.Find("Test") is Transform template)
             {
                 // instantiate a copy of the dev template
-                var customObj = Instantiate(template).gameObject;
-                DontDestroyOnLoad(customObj);
+                var customObj = GameObject.Instantiate(template).gameObject;
+                GameObject.DontDestroyOnLoad(customObj);
                 var CustomTree = customObj.GetComponent<SkillSchool>();
 
                 // set the name to the gameobject and the skill tree name/uid
@@ -66,8 +38,16 @@ namespace SideLoader_2
         }
 
         /// <summary>
-        /// Helper for setting up a SkillSlot on a SkillSchool gameobject.
+        /// Helper for setting up a Skill Slot on a custom Skill Tree
         /// </summary>
+        /// <param name="row"></param>
+        /// <param name="name"></param>
+        /// <param name="refSkillID"></param>
+        /// <param name="requiredMoney"></param>
+        /// <param name="requiredSlot"></param>
+        /// <param name="isBreakthrough"></param>
+        /// <param name="column"></param>
+        /// <returns></returns>
         public static SkillSlot CreateSkillSlot(Transform row, string name, int refSkillID, int requiredMoney, BaseSkillSlot requiredSlot = null, bool isBreakthrough = false, int column = 1)
         {
             var slotObj = new GameObject(name);
@@ -89,17 +69,6 @@ namespace SideLoader_2
             }
 
             return slot;
-        }
-
-        /// <summary>
-        /// Small helper for destroying all children on a given Transform 't'. Uses DestroyImmediate().
-        /// </summary>
-        public static void DestroyChildren(Transform t)
-        {
-            while (t.childCount > 0)
-            {
-                DestroyImmediate(t.GetChild(0).gameObject);
-            }
         }
     }
 }
