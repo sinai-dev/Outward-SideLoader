@@ -40,7 +40,7 @@ namespace SideLoader
         /// <summary>
         /// Loads all the assets from the specified SLPack name. Not for calling directly, just place your pack in the SideLoader folder and use SL.Packs["Folder"]
         /// </summary>
-        /// <param name="dir">The name of the SideLoader pack (ie. the name of the folder inside Mods/SideLoader/)</param>
+        /// <param name="name">The name of the SideLoader pack (ie. the name of the folder inside Mods/SideLoader/)</param>
         public static SLPack LoadFromFolder(string name)
         {
             var pack = new SLPack()
