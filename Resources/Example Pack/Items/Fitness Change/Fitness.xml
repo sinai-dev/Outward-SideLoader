@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<SL_Item xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <OnlyChangeVisuals>false</OnlyChangeVisuals>
+  <ReplaceEffects>true</ReplaceEffects>
+  <Target_ItemID>8205040</Target_ItemID>
+  <New_ItemID>8400999</New_ItemID>
+  <Name>Coolness</Name>
+  <Description>Increases your maximum Health by 55.</Description>
+  <LegacyItemID>-1</LegacyItemID>
+  <IsPickable>false</IsPickable>
+  <IsUsable>false</IsUsable>
+  <GroupItemInDisplay>false</GroupItemInDisplay>
+  <HasPhysicsWhenWorld>false</HasPhysicsWhenWorld>
+  <RepairedInRest>true</RepairedInRest>
+  <CastLocomotionEnabled>false</CastLocomotionEnabled>
+  <MobileCastMovementMult>-1</MobileCastMovementMult>
+  <CastModifier>Immobilized</CastModifier>
+  <CastSheatheRequired>1</CastSheatheRequired>
+  <Tags />
+  <EffectTransforms>
+    <SL_EffectTransform>
+      <TransformName>Passive</TransformName>
+      <Effects>
+        <SL_Effect xsi:type="SL_AffectStat">
+          <Stat_Tag>MaxHealth</Stat_Tag>
+          <Stat_ID>77</Stat_ID>
+          <AffectQuantity>55</AffectQuantity>
+          <IsModifier>false</IsModifier>
+        </SL_Effect>
+      </Effects>
+      <ChildEffects />
+    </SL_EffectTransform>
+  </EffectTransforms>
+  <AssetBundleName />
+  <ItemVisuals_PrefabName />
+  <ItemVisuals_PositionOffset>
+    <x>0</x>
+    <y>0</y>
+    <z>0</z>
+  </ItemVisuals_PositionOffset>
+  <ItemVisuals_RotationOffset>
+    <x>0</x>
+    <y>0</y>
+    <z>0</z>
+  </ItemVisuals_RotationOffset>
+  <SpecialVisuals_PrefabName />
+  <SpecialVisuals_PositionOffset>
+    <x>0</x>
+    <y>0</y>
+    <z>0</z>
+  </SpecialVisuals_PositionOffset>
+  <SpecialVisuals_RotationOffset>
+    <x>0</x>
+    <y>0</y>
+    <z>0</z>
+  </SpecialVisuals_RotationOffset>
+  <FemaleVisuals_PrefabName />
+  <FemaleVisuals_PositionOffset>
+    <x>0</x>
+    <y>0</y>
+    <z>0</z>
+  </FemaleVisuals_PositionOffset>
+  <FemaleVisuals_RotationOffset>
+    <x>0</x>
+    <y>0</y>
+    <z>0</z>
+  </FemaleVisuals_RotationOffset>
+  <VisualsHideFace>false</VisualsHideFace>
+  <VisualsHideHair>false</VisualsHideHair>
+</SL_Item>

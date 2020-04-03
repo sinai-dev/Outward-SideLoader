@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="utf-8"?>
+<SL_Weapon xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <OnlyChangeVisuals>false</OnlyChangeVisuals>
+  <ReplaceEffects>true</ReplaceEffects>
+  <Target_ItemID>2000150</Target_ItemID>
+  <New_ItemID>3333333</New_ItemID>
+  
+  <Name>Blitz</Name>  
+  <Description>The Commander said to make this sword fit for Elatt.
+  
+Inflicts Doomed on enemies.</Description>
+  
+  <LegacyItemID>-1</LegacyItemID>
+  <IsPickable>true</IsPickable>
+  <IsUsable>false</IsUsable>
+  <GroupItemInDisplay>false</GroupItemInDisplay>
+  <HasPhysicsWhenWorld>false</HasPhysicsWhenWorld>
+  <RepairedInRest>true</RepairedInRest>
+  <CastLocomotionEnabled>false</CastLocomotionEnabled>
+  <MobileCastMovementMult>-1</MobileCastMovementMult>
+  <CastModifier>Immobilized</CastModifier>
+  <CastSheatheRequired>1</CastSheatheRequired>
+  
+  <EquipSlot>RightHand</EquipSlot>
+  <TwoHandType>None</TwoHandType>
+  <IKType>None</IKType>
+  <VisualDetectabilityAdd>0</VisualDetectabilityAdd>
+  <WeaponType>Sword_1H</WeaponType>
+  
+  <Tags>
+    <string>Blade</string>
+    <string>Weapon</string>
+    <string>Item</string>
+  </Tags>
+  <StatsHolder xsi:type="SL_WeaponStats">
+    <BaseValue>2000</BaseValue>
+    <RawWeight>1</RawWeight>
+    <MaxDurability>999</MaxDurability>
+    <Damage_Resistance>
+      <float>0</float>
+      <float>0</float>
+      <float>0</float>
+      <float>0</float>
+      <float>0</float>
+      <float>0</float>
+      <float>0</float>
+      <float>0</float>
+      <float>0</float>
+    </Damage_Resistance>
+    <Impact_Resistance>0</Impact_Resistance>
+    <Damage_Protection>0</Damage_Protection>
+    <Damage_Bonus>
+      <float>0</float>
+      <float>0</float>
+      <float>0</float>
+      <float>25</float>
+      <float>0</float>
+      <float>0</float>
+      <float>0</float>
+      <float>0</float>
+      <float>0</float>
+    </Damage_Bonus>
+    <Stamina_Use_Penalty>0</Stamina_Use_Penalty>
+    <Mana_Use_Modifier>-10</Mana_Use_Modifier>
+    <Movement_Penalty>0</Movement_Penalty>
+    <Pouch_Bonus>0</Pouch_Bonus>
+    <Heat_Protection>0</Heat_Protection>
+    <Cold_Protection>0</Cold_Protection>
+    <Corruption_Protection>0</Corruption_Protection>
+    <AttackSpeed>1.2</AttackSpeed>
+    <BaseDamage>
+      <SL_Damage>
+        <Damage>25</Damage>
+        <Type>Electric</Type>
+      </SL_Damage>
+      <SL_Damage>
+        <Damage>25</Damage>
+        <Type>Ethereal</Type>
+      </SL_Damage>
+    </BaseDamage>
+    <Impact>50</Impact>
+    <Attacks>
+      <AttackData>
+        <StamCost>5.6</StamCost>
+        <Knockback>27</Knockback>
+        <AttackSpeed>1</AttackSpeed>
+        <Damage>
+          <float>18</float>
+          <float>18</float>
+        </Damage>
+      </AttackData>
+      <AttackData>
+        <StamCost>5.6</StamCost>
+        <Knockback>27</Knockback>
+        <AttackSpeed>1</AttackSpeed>
+        <Damage>
+          <float>18</float>
+          <float>18</float>
+        </Damage>
+      </AttackData>
+      <AttackData>
+        <StamCost>6.72</StamCost>
+        <Knockback>35.1</Knockback>
+        <AttackSpeed>1.1</AttackSpeed>
+        <Damage>
+          <float>23.4</float>
+          <float>23.4</float>
+        </Damage>
+      </AttackData>
+      <AttackData>
+        <StamCost>6.16</StamCost>
+        <Knockback>29.7</Knockback>
+        <AttackSpeed>1.1</AttackSpeed>
+        <Damage>
+          <float>19.8</float>
+          <float>19.8</float>
+        </Damage>
+      </AttackData>
+      <AttackData>
+        <StamCost>6.16</StamCost>
+        <Knockback>29.7</Knockback>
+        <AttackSpeed>1.1</AttackSpeed>
+        <Damage>
+          <float>19.8</float>
+          <float>19.8</float>
+        </Damage>
+      </AttackData>
+    </Attacks>
+  </StatsHolder>
+  
+  <EffectTransforms>
+    <SL_EffectTransform>
+      <TransformName>HitEffects</TransformName>
+      <Effects>
+        <SL_Effect xsi:type="SL_AddStatusEffectBuildUp">
+          <StatusEffect>Doomed</StatusEffect>
+          <Buildup>60</Buildup>
+        </SL_Effect>
+        <SL_Effect xsi:type="SL_AddStatusEffectBuildUp">
+          <StatusEffect>Confusion</StatusEffect>
+          <Buildup>60</Buildup>
+        </SL_Effect>
+      </Effects>
+      <ChildEffects />
+    </SL_EffectTransform>
+  </EffectTransforms>
+  
+  <AssetBundleName>blitz</AssetBundleName>
+  <ItemVisuals_PrefabName>blitz_visual</ItemVisuals_PrefabName>
+  <ItemVisuals_PositionOffset>
+    <x>-0.03</x>
+    <y>0</y>
+    <z>0</z>
+  </ItemVisuals_PositionOffset>
+  <ItemVisuals_RotationOffset>
+    <x>90</x>
+    <y>-90</y>
+    <z>90</z>
+  </ItemVisuals_RotationOffset>
+  
+  <!-- <SpecialVisuals_PrefabName /> -->
+  <!-- <SpecialVisuals_PositionOffset> -->
+    <!-- <x>0</x> -->
+    <!-- <y>0</y> -->
+    <!-- <z>0</z> -->
+  <!-- </SpecialVisuals_PositionOffset> -->
+  <!-- <SpecialVisuals_RotationOffset> -->
+    <!-- <x>0</x> -->
+    <!-- <y>0</y> -->
+    <!-- <z>0</z> -->
+  <!-- </SpecialVisuals_RotationOffset> -->
+  <!-- <FemaleVisuals_PrefabName /> -->
+  <!-- <FemaleVisuals_PositionOffset> -->
+    <!-- <x>0</x> -->
+    <!-- <y>0</y> -->
+    <!-- <z>0</z> -->
+  <!-- </FemaleVisuals_PositionOffset> -->
+  <!-- <FemaleVisuals_RotationOffset> -->
+    <!-- <x>0</x> -->
+    <!-- <y>0</y> -->
+    <!-- <z>0</z> -->
+  <!-- </FemaleVisuals_RotationOffset> -->
+  <!-- <VisualsHideFace>false</VisualsHideFace> -->
+  <!-- <VisualsHideHair>false</VisualsHideHair> -->
+</SL_Weapon>
