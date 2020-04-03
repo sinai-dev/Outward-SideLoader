@@ -51,6 +51,11 @@ namespace SideLoader
             }
         }
 
+        /// <summary>
+        /// For replacing an item's visual prefab with your own prefab. For standard ItemVisuals, this only replaces the 3D model and leaves the rest.
+        /// </summary>
+        /// <param name="origPrefab">The original Transform you are replacing (eg Item.VisualPrefab, Item.SpecialVisualPrefabDefault, etc)</param>
+        /// <param name="newPrefab">Your new prefab Transform.</param>
         public static void SetVisualPrefab(Item item, Transform origPrefab, Transform newPrefab, VisualPrefabType type, Vector3 positionOffset, Vector3 rotationOffset, bool hideFace = false, bool hideHair = false)
         {
             var clone = GameObject.Instantiate(origPrefab.gameObject);
