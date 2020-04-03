@@ -14,7 +14,7 @@ namespace SideLoader
     /// <summary> The main SideLoader class. </summary>
     public class SL : MonoBehaviour
     {
-        //public static SL Instance;
+        public static SL Instance = null;
 
         // Mod Info
         public static readonly string MODNAME = "SideLoader";
@@ -44,13 +44,19 @@ namespace SideLoader
 
         internal void Awake()
         {
+            if (Instance)
+            {
+                SL.Log("Trying to create a SideLoader Instance when one already exists!", 1);
+                Destroy(this);
+                return;
+            }
+
+            Instance = this;
+
             if (!Directory.Exists(SL_FOLDER))
             {
                 Directory.CreateDirectory(SL_FOLDER);
             }
-
-            //// Currently don't actually have a use for SL.Instance. Removing for now.
-            //Instance = this;
         }
 
         // ================ Main Setup ====================
@@ -103,18 +109,15 @@ namespace SideLoader
                 }
             }
 
-            Log("Assets loaded, applying custom items", 0);
+            Log("Applying custom Items", 0);
             INTERNAL_ApplyItems?.Invoke();
 
-            Log("Custom items applied, applying custom recipes", 0);
+            Log("Applying custom Recipes", 0);
             INTERNAL_ApplyRecipes?.Invoke();
 
-            Log("Finished initialization, calling OnPacksLoaded", 0);
             PacksLoaded = true;
+            SL.Log("------ SideLoader Setup Finished ------");
             OnPacksLoaded?.Invoke();
-
-            PacksLoaded = true;
-            SL.Log("------ INIT FINALIZED, PACKSLOADED = TRUE ------");
         }
 
         // =============== Scene Changes Event ====================

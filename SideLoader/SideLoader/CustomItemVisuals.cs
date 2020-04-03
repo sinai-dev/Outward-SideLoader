@@ -14,12 +14,8 @@ namespace SideLoader
         /*                                    CUSTOM ITEM VISUALS                                       */
         // ============================================================================================ //
 
-        /*                              THIS WILL NEED REWORK AFTER DLC
-         * 
-         * The reason these methods are here instead of in ItemHolder is because ItemHolder is more 
-         * focused on the template than the Item itself.
-         * 
-         * These functions don't necessarily require an ItemHolder, so that's why I put them here.
+        /* This will need fixing after DLC (Item.ItemVisual not a direct link, only string reference to Resources path)
+         * Will probably have to hook something like ResourcesPrefabManager.GetItemVisual(int id) / GetSpecialVisual / GetSpecialFemaleVisual
         */
 
         /// <summary> Custom Item Visual prefabs (including retexture-only) </summary>
@@ -66,13 +62,12 @@ namespace SideLoader
 
             if (origPrefab.GetComponentInChildren<SkinnedMeshRenderer>())
             {
-                if (item is ProjectileWeapon)
+                if (item is ProjectileWeapon) // Bows
                 {
-                    // bows are not yet supported, sorry!
                     SL.Log("Custom Visual Prefabs for Bows are not yet supported, sorry!", 0);
                     return;
                 }
-                else
+                else // Armor
                 {
                     if (!newModel.GetComponent<ArmorVisuals>())
                     {
@@ -91,9 +86,10 @@ namespace SideLoader
             }
             else // setting normal item visual prefab.
             {
-                // At the moment, we only use the 3d Model for standard Item Visuals, the rest of the prefab is original from the cloned item.
+                // At the moment, the only thing we replace on ItemVisuals is the 3d model, everything else is a clone.
                 foreach (Transform child in clone.transform)
                 {
+                    // the real 3d model will always have boxcollider and meshrenderer. this is the object we want to replace.
                     if (child.GetComponent<BoxCollider>() && child.GetComponent<MeshRenderer>())
                     {
                         child.gameObject.SetActive(false);
