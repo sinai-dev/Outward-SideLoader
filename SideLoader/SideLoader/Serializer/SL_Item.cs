@@ -45,13 +45,16 @@ namespace SideLoader
         public bool IsPickable = true;
         /// <summary>Can you "Use" the item? ("Use" option from menu)</summary>
         public bool IsUsable = false;
+        public int QtyRemovedOnUse = 1;
         public bool GroupItemInDisplay = false;
         public bool HasPhysicsWhenWorld = false;
         public bool RepairedInRest = true;
+        public Item.BehaviorOnNoDurabilityType BehaviorOnNoDurability = Item.BehaviorOnNoDurabilityType.NotSet;
 
+        public Character.SpellCastType CastType;
+        public Character.SpellCastModifier CastModifier;
         public bool CastLocomotionEnabled;
         public float MobileCastMovementMult = -1f;
-        public Character.SpellCastModifier CastModifier;
         public int CastSheatheRequired;
 
         public List<string> Tags = new List<string>();
@@ -108,8 +111,12 @@ namespace SideLoader
                 item.HasPhysicsWhenWorld = this.HasPhysicsWhenWorld;
                 item.IsPickable = this.IsPickable;
                 item.IsUsable = this.IsUsable;
+                item.QtyRemovedOnUse = this.QtyRemovedOnUse;
                 item.MobileCastMovementMult = this.MobileCastMovementMult;
                 item.RepairedInRest = this.RepairedInRest;
+                item.BehaviorOnNoDurability = this.BehaviorOnNoDurability;
+                item.CastModifier = this.CastModifier;
+                At.SetValue(this.CastType, typeof(Item), item, "m_activateEffectAnimType");
 
                 if (this.Tags != null)
                 {
@@ -140,9 +147,13 @@ namespace SideLoader
 
             } // End "OnlyChangeVisuals == false" section
 
+
             //************************  This will need to change after DLC.  ************************//
 
             ApplyVisuals(pack, item);
+
+            // **************************************************************************************//
+
 
             SL.Log("Finished applying template");
         }
@@ -170,22 +181,22 @@ namespace SideLoader
                         Vector3 pos = Vector3.zero;
                         Vector3 rot = Vector3.zero;
 
-                        var type = (CustomItems.VisualPrefabType)i;
+                        var type = (CustomItemVisuals.VisualPrefabType)i;
                         switch (type)
                         {
-                            case CustomItems.VisualPrefabType.VisualPrefab:
+                            case CustomItemVisuals.VisualPrefabType.VisualPrefab:
                                 prefabName = this.ItemVisuals_PrefabName;
                                 orig = item.VisualPrefab;
                                 pos = this.ItemVisuals_PositionOffset;
                                 rot = this.ItemVisuals_RotationOffset;
                                 break;
-                            case CustomItems.VisualPrefabType.SpecialVisualPrefabDefault:
+                            case CustomItemVisuals.VisualPrefabType.SpecialVisualPrefabDefault:
                                 prefabName = this.SpecialVisuals_PrefabName;
                                 orig = item.SpecialVisualPrefabDefault;
                                 pos = this.SpecialVisuals_PositionOffset;
                                 rot = this.SpecialVisuals_RotationOffset;
                                 break;
-                            case CustomItems.VisualPrefabType.SpecialVisualPrefabFemale:
+                            case CustomItemVisuals.VisualPrefabType.SpecialVisualPrefabFemale:
                                 prefabName = this.FemaleVisuals_PrefabName;
                                 orig = item.SpecialVisualPrefabFemale;
                                 pos = this.FemaleVisuals_PositionOffset;
@@ -206,20 +217,20 @@ namespace SideLoader
                             return;
                         }
 
-                        CustomItems.SetVisualPrefab(item, orig, prefab.transform, type, pos, rot, this.VisualsHideFace, this.VisualsHideHair);
+                        CustomItemVisuals.SetVisualPrefab(item, orig, prefab.transform, type, pos, rot, this.VisualsHideFace, this.VisualsHideHair);
                     }
                 }
             }
 
             if (item.VisualPrefab != null && !customVisualPrefab)
             {
-                CustomItems.CloneVisualPrefab(item, CustomItems.VisualPrefabType.VisualPrefab);
+                CustomItemVisuals.CloneVisualPrefab(item, CustomItemVisuals.VisualPrefabType.VisualPrefab);
             }
 
             if (item.SpecialVisualPrefabDefault != null)
             {
                 if (!customSpecialPrefab)
-                    CustomItems.CloneVisualPrefab(item, CustomItems.VisualPrefabType.SpecialVisualPrefabDefault);
+                    CustomItemVisuals.CloneVisualPrefab(item, CustomItemVisuals.VisualPrefabType.SpecialVisualPrefabDefault);
 
                 if (item.SpecialVisualPrefabDefault.GetComponent<ArmorVisuals>() is ArmorVisuals armorVisuals)
                 {
@@ -231,7 +242,7 @@ namespace SideLoader
             if (item.SpecialVisualPrefabFemale != null)
             {
                 if (!customFemalePrefab)
-                    CustomItems.CloneVisualPrefab(item, CustomItems.VisualPrefabType.SpecialVisualPrefabFemale);
+                    CustomItemVisuals.CloneVisualPrefab(item, CustomItemVisuals.VisualPrefabType.SpecialVisualPrefabFemale);
 
                 if (item.SpecialVisualPrefabFemale.GetComponent<ArmorVisuals>() is ArmorVisuals armorVisuals)
                 {
@@ -243,7 +254,7 @@ namespace SideLoader
             // Texture Replacements
             if (pack != null && !string.IsNullOrEmpty(SubfolderName))
             {
-                CustomItems.TryApplyCustomTextures(this, item);
+                CustomItemVisuals.TryApplyCustomTextures(this, item);
             }
         }
 
@@ -266,8 +277,11 @@ namespace SideLoader
                 HasPhysicsWhenWorld         = item.HasPhysicsWhenWorld,
                 IsPickable                  = item.IsPickable,
                 IsUsable                    = item.IsUsable,
+                QtyRemovedOnUse             = item.QtyRemovedOnUse,
                 MobileCastMovementMult      = item.MobileCastMovementMult,
-                RepairedInRest              = item.RepairedInRest
+                RepairedInRest              = item.RepairedInRest,
+                BehaviorOnNoDurability      = item.BehaviorOnNoDurability,
+                CastType                    = item.ActivateEffectAnimType                
             };
 
             if (item.Stats != null)
@@ -298,10 +312,10 @@ namespace SideLoader
             {
                 return SL_Equipment.ParseEquipment(item as Equipment, itemHolder);
             }
-            //else if (item is Skill)
-            //{
-            //    return SkillHolder.ParseSkill(item as Skill, itemHolder);
-            //}
+            else if (item is Skill)
+            {
+                return SL_Skill.ParseSkill(item as Skill, itemHolder);
+            }
             else
             {
                 return itemHolder;

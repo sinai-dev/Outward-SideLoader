@@ -67,7 +67,7 @@ namespace SideLoader
                 }
             }
 
-            if (type != "" && Type.GetType("SideLoader_2." + type + ", SideLoader_2, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null") is Type t)
+            if (type != "" && Type.GetType("SideLoader." + type + ", SideLoader, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null") is Type t)
             {
                 XmlSerializer xml = new XmlSerializer(t, Types);
                 FileStream file = File.OpenRead(path);

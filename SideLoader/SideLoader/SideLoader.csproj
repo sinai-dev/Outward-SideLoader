@@ -32,6 +32,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="CustomItemVisuals.cs" />
     <Compile Include="Serializer\SL_Damage.cs" />
     <Compile Include="Serializer\SL_EffectTransform.cs" />
     <Compile Include="Serializer\Effect\SL_AddStatusEffectBuildUp.cs" />
@@ -72,7 +73,7 @@
     <Compile Include="CustomTextures.cs" />
     <Compile Include="SL.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="TempDebugGui.cs" />
+    <Compile Include="DebugMenu.cs" />
     <Compile Include="utils\AccessTools.cs" />
   </ItemGroup>
   <ItemGroup>

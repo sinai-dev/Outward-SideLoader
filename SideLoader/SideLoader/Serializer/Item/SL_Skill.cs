@@ -32,7 +32,7 @@ namespace SideLoader
                 StaminaCost = skill.StaminaCost,
                 ManaCost = skill.ManaCost,
                 DurabilityCost = skill.DurabilityCost,
-                DurabilityCostPercent = skill.DurabilityCostPercent
+                DurabilityCostPercent = skill.DurabilityCostPercent,
             };
 
             //try
