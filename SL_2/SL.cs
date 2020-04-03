@@ -77,8 +77,6 @@ namespace SideLoader_2
                 yield return null;
             }
 
-            TempDebug();
-
             // Preliminary SLPack load (load assets, dont apply items/recipes yet)
             foreach (string dir in Directory.GetDirectories(SL_FOLDER))
             {
@@ -114,23 +112,15 @@ namespace SideLoader_2
             SL.Log("------ INIT FINALIZED, PACKSLOADED = TRUE ------");
         }
 
-        private void TempDebug()
-        {
-            //var item = ResourcesPrefabManager.Instance.GetItemPrefab(2000010);
-            //var template = ItemHolder.ParseItemToTemplate(item);
-            //Serializer.SaveToXml("", "test", template);
-
-            //string path = "test.xml";
-            //var obj = Serializer.LoadFromXml(path);
-            //Debug.Log("loaded xml, serialized type is " + obj.GetType());
-        }
-
         // =============== Scene Changes Event ====================
 
         // This is called when Unity says the scene is done loading, but we still want to wait for Outward to be done.
         private void SceneManager_sceneLoaded(Scene _scene, LoadSceneMode _loadSceneMode)
         {
-            StartCoroutine(WaitForSceneReady());
+            if (!_scene.name.ToLower().Contains("lowmemory") && !_scene.name.ToLower().Contains("mainmenu"))
+            {
+                StartCoroutine(WaitForSceneReady());
+            }
         }
 
         private IEnumerator WaitForSceneReady()

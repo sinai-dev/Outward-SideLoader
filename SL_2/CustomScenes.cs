@@ -41,7 +41,7 @@ namespace SideLoader_2
                 yield return null;
             }
 
-            foreach (Character c in CharacterManager.Instance.Characters.Values)
+            foreach (Character c in CharacterManager.Instance.Characters.Values.Where(x => !x.IsAI))
             {
                 c.Teleport(spawnPoint, Quaternion.identity);
             }

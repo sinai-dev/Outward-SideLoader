@@ -59,7 +59,8 @@ namespace SideLoader_2
             // Custom Items
             pack.LoadCustomItems();
 
-            // TODO Custom Recipes
+            // Custom Recipes
+            pack.LoadRecipes();
 
             return pack;
         }
@@ -160,12 +161,17 @@ namespace SideLoader_2
                     try
                     {
                         // load the ItemHolder template and set the pack/folder info
-                        var itemHolder = Serializer.LoadFromXml(entry.Value) as ItemHolder;
+                        var itemHolder = Serializer.LoadFromXml(entry.Value) as SL_Item;
                         itemHolder.SubfolderName = entry.Key;
                         itemHolder.SLPackName = Name;
 
+                        if (itemHolder.OnlyChangeVisuals)
+                        {
+                            itemHolder.New_ItemID = itemHolder.Target_ItemID;
+                        }
+
                         // Clone the target item (and set it to ResourcesPrefabManager dictionary)
-                        CustomItems.CreateCustomItem(itemHolder.Target_ItemID, itemHolder.New_ItemID, itemHolder.Name);
+                        var item = CustomItems.CreateCustomItem(itemHolder.Target_ItemID, itemHolder.New_ItemID, itemHolder.Name);
                         
                         if (!SL.PacksLoaded)
                         {
@@ -182,6 +188,22 @@ namespace SideLoader_2
             }
         }
 
+        private void LoadRecipes()
+        {
+            if (!Directory.Exists(GetSubfolderPath(SubFolders.Recipes)))
+            {
+                return;
+            }
 
+            foreach (var recipePath in Directory.GetFiles(GetSubfolderPath(SubFolders.Recipes)))
+            {
+                var recipeHolder = Serializer.LoadFromXml(recipePath) as SL_Recipe;
+
+                if (recipeHolder != null)
+                {
+                    SL.INTERNAL_ApplyRecipes += recipeHolder.ApplyRecipe;
+                }
+            }
+        }
     }
 }

@@ -14,6 +14,8 @@ namespace SideLoader_2
         private static Rect m_rect = new Rect(5, 5, 250, 250);
 
         private static int SelectedID = 0;
+        private bool m_texturesOnly = false;
+        private bool m_replaceEffects = true;
 
         internal void Awake()
         {
@@ -42,11 +44,17 @@ namespace SideLoader_2
             }
             GUILayout.EndHorizontal();
 
+            m_texturesOnly = GUILayout.Toggle(m_texturesOnly, "Enable 'Only Change Visuals'?");
+            m_replaceEffects = GUILayout.Toggle(m_replaceEffects, "Enable 'Replace Effects'?");
+
             if (GUILayout.Button("Generate template"))
             {
                 if (ResourcesPrefabManager.Instance.GetItemPrefab(SelectedID) is Item item)
                 {
-                    var template = ItemHolder.ParseItemToTemplate(item);
+                    var template = SL_Item.ParseItemToTemplate(item);
+
+                    template.OnlyChangeVisuals = m_texturesOnly;
+                    template.ReplaceEffects = m_replaceEffects;
 
                     var itemfolder = SL.SL_FOLDER + @"\_GENERATED\Items\" + item.gameObject.name;
                     Serializer.SaveToXml(itemfolder, item.Name, template);

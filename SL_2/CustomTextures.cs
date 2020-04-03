@@ -79,7 +79,9 @@ namespace SideLoader_2
             //    }
             //}
 
-            SL.Log("Finished replacing textures, took " + (Time.realtimeSinceStartup - start) + " ms");
+            var time = Math.Round(1000f * (Time.realtimeSinceStartup - start), 2);
+
+            SL.Log("Finished replacing textures, took " + time + " ms");
         }
 
         /// <summary> Simple helper for loading a Texture2D from a .png filepath </summary>
