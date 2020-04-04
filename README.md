@@ -18,7 +18,7 @@ The Outward SideLoader is a tool for loading and configuring custom assets for O
 
 There is full documentation for the SideLoader on the SL Wiki:
 
-* [Wiki](https://github.com/sinaioutlander/Outward-Sideloader/wiki)
+### [SideLoader Wiki](https://github.com/sinaioutlander/Outward-Sideloader/wiki)
 
 ## Examples and Resources
 
