@@ -7,7 +7,8 @@
 The Outward SideLoader is a tool for loading and configuring custom assets for Outward. It is also capable of generating and/or replacing custom Items, Skills and Recipes, as well as replacing textures on materials.
 
 * Uses [Partiality](https://github.com/PartialityModding/PartialityLauncher/releases) (or Partiality Mod Wrapper)
-* Credit to ehaugw for great suggestions, lots of help with testing, and developing the example Swords in the Resources folder
+* Credit to <b>ehaugw</b> for great suggestions, lots of help with testing, and developing the example Swords in the Resources folder
+* Credit to <b>Elec0</b> for the original SideLoader mod which I used to learn from, and allowing me to commandeer the name.
 
 ## How To Install ##
 * [See the NexusMods page](https://www.nexusmods.com/outward/mods/96) for the release and install instructions
