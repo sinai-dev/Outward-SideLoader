@@ -37,11 +37,4 @@
   <AttackSpeed>0</AttackSpeed>
   <BaseDamage />
   <Impact>0</Impact>
-  <Attacks>
-    <AttackData xsi:nil="true" />
-    <AttackData xsi:nil="true" />
-    <AttackData xsi:nil="true" />
-    <AttackData xsi:nil="true" />
-    <AttackData xsi:nil="true" />
-  </Attacks>
 </SL_WeaponStats>

@@ -82,6 +82,38 @@ namespace SideLoader
                 yield return null;
             }
 
+            // *********************************** temp debug ***********************************
+
+            //var enums = new List<Type>()
+            //{
+            //    typeof(Character.SpellCastType),
+            //    typeof(Character.SpellCastModifier),
+            //    typeof(Item.BehaviorOnNoDurabilityType),
+            //    typeof(Equipment.TwoHandedType),
+            //    typeof(Equipment.IKMode),
+            //    typeof(Weapon.WeaponType),
+            //    typeof(Weapon.WeaponSlot),
+            //    typeof(DamageType.Types),
+            //    typeof(EquipmentSlot.EquipmentSlotIDs)
+            //};
+            //foreach (var _enum in enums)
+            //{
+            //    var values = Enum.GetValues(_enum);
+            //    var stringValues = new List<string>();
+            //    foreach (var value in values)
+            //    {
+            //        stringValues.Add(value.ToString());
+            //    }
+            //    File.WriteAllLines(GENERATED_FOLDER + @"\Types\enums\" + _enum.Name + ".txt", stringValues.ToArray());
+            //}
+
+            //foreach (var type in Serializer.Types)
+            //{
+            //    Serializer.SaveToXml(GENERATED_FOLDER + @"\Types", type.Name, Activator.CreateInstance(type));
+            //}
+
+            // **********************************************************************************
+
             // Preliminary SLPack load (load assets, dont apply items/recipes yet)
             foreach (string dir in Directory.GetDirectories(SL_FOLDER))
             {

@@ -20,11 +20,6 @@
   <MobileCastMovementMult>-1</MobileCastMovementMult>
   <CastSheatheRequired>0</CastSheatheRequired>
   <Tags />
-  <StatsHolder>
-    <BaseValue>0</BaseValue>
-    <RawWeight>0</RawWeight>
-    <MaxDurability>0</MaxDurability>
-  </StatsHolder>
   <EffectTransforms />
   <AssetBundleName />
   <ItemVisuals_PrefabName />
