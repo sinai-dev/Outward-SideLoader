@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AttackData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <StamCost>-1</StamCost>
+  <Knockback>-1</Knockback>
+  <AttackSpeed>-1</AttackSpeed>
+  <Damage />
+</AttackData>

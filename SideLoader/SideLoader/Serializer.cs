@@ -108,7 +108,6 @@ namespace SideLoader
             typeof(SL_ItemStats),
             typeof(SL_PunctualDamage),
             typeof(SL_Recipe),
-            typeof(SL_Recipe.ItemQty),
             typeof(SL_RemoveStatusEffect),
             typeof(SL_Skill),
             //typeof(SkillHolder.SkillItemReq),

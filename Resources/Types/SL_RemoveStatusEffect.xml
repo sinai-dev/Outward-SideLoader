@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<SL_RemoveStatusEffect xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <Status_Name />
+  <Status_Tag />
+  <CleanseType>StatusSpecific</CleanseType>
+</SL_RemoveStatusEffect>

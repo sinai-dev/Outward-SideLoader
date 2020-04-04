@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<SL_Bag xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <OnlyChangeVisuals>false</OnlyChangeVisuals>
+  <ReplaceEffects>true</ReplaceEffects>
+  <Target_ItemID>-1</Target_ItemID>
+  <New_ItemID>-1</New_ItemID>
+  <Name />
+  <Description />
+  <LegacyItemID>-1</LegacyItemID>
+  <IsPickable>true</IsPickable>
+  <IsUsable>false</IsUsable>
+  <QtyRemovedOnUse>1</QtyRemovedOnUse>
+  <GroupItemInDisplay>false</GroupItemInDisplay>
+  <HasPhysicsWhenWorld>false</HasPhysicsWhenWorld>
+  <RepairedInRest>true</RepairedInRest>
+  <BehaviorOnNoDurability>NotSet</BehaviorOnNoDurability>
+  <CastType>Normal</CastType>
+  <CastModifier>Immobilized</CastModifier>
+  <CastLocomotionEnabled>false</CastLocomotionEnabled>
+  <MobileCastMovementMult>-1</MobileCastMovementMult>
+  <CastSheatheRequired>0</CastSheatheRequired>
+  <Tags />
+  <StatsHolder>
+    <BaseValue>0</BaseValue>
+    <RawWeight>0</RawWeight>
+    <MaxDurability>0</MaxDurability>
+  </StatsHolder>
+  <EffectTransforms />
+  <AssetBundleName />
+  <ItemVisuals_PrefabName />
+  <ItemVisuals_PositionOffset>
+    <x>0</x>
+    <y>0</y>
+    <z>0</z>
+  </ItemVisuals_PositionOffset>
+  <ItemVisuals_RotationOffset>
+    <x>0</x>
+    <y>0</y>
+    <z>0</z>
+  </ItemVisuals_RotationOffset>
+  <SpecialVisuals_PrefabName />
+  <SpecialVisuals_PositionOffset>
+    <x>0</x>
+    <y>0</y>
+    <z>0</z>
+  </SpecialVisuals_PositionOffset>
+  <SpecialVisuals_RotationOffset>
+    <x>0</x>
+    <y>0</y>
+    <z>0</z>
+  </SpecialVisuals_RotationOffset>
+  <FemaleVisuals_PrefabName />
+  <FemaleVisuals_PositionOffset>
+    <x>0</x>
+    <y>0</y>
+    <z>0</z>
+  </FemaleVisuals_PositionOffset>
+  <FemaleVisuals_RotationOffset>
+    <x>0</x>
+    <y>0</y>
+    <z>0</z>
+  </FemaleVisuals_RotationOffset>
+  <VisualsHideFace>false</VisualsHideFace>
+  <VisualsHideHair>false</VisualsHideHair>
+  <EquipSlot>Helmet</EquipSlot>
+  <TwoHandType>None</TwoHandType>
+  <IKType>None</IKType>
+  <VisualDetectabilityAdd>0</VisualDetectabilityAdd>
+  <Capacity>0</Capacity>
+  <Restrict_Dodge>false</Restrict_Dodge>
+  <InventoryProtection>0</InventoryProtection>
+  <Preserver_Amount>-1</Preserver_Amount>
+  <Nullify_Perish>false</Nullify_Perish>
+</SL_Bag>

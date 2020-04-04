@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<SL_ImbueWeapon xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <Lifespan>0</Lifespan>
+  <ImbueEffect_Preset_ID>0</ImbueEffect_Preset_ID>
+  <Imbue_Slot>MainHand</Imbue_Slot>
+</SL_ImbueWeapon>
