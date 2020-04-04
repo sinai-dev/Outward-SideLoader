@@ -184,6 +184,7 @@ namespace SideLoader
         }
 
         /// <summary>Writes all the values from 'other' to 'comp', then returns comp.</summary>
+        /// CREDIT: https://answers.unity.com/questions/530178/how-to-get-a-component-from-an-object-and-add-it-t.html
         public static T GetCopyOf<T>(Component comp, T other) where T : Component
         {
             Type type = comp.GetType();
