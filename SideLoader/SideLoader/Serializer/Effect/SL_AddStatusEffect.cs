@@ -8,7 +8,7 @@ namespace SideLoader
 {
     public class SL_AddStatusEffect : SL_Effect
     {
-        public string StatusEffect;
+        public string StatusEffect = "";
         public int ChanceToContract;
 
         public new void ApplyToTransform(Transform t)

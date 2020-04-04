@@ -8,7 +8,7 @@ namespace SideLoader
 {
     public class SL_EffectTransform
     {
-        public string TransformName;
+        public string TransformName = "";
         public List<SL_Effect> Effects = new List<SL_Effect>();
 
         //public List<EffectConditionHolder> EffectConditions = new List<EffectConditionHolder>();

@@ -14,14 +14,15 @@ namespace SideLoader
     /// <summary> The main SideLoader class. </summary>
     public class SL : MonoBehaviour
     {
-        public static SL Instance = null;
+        public static SL Instance;
 
         // Mod Info
-        public static readonly string MODNAME = "SideLoader";
-        public static readonly string VERSION = "2.0.0";
+        public static string MODNAME { get => "SideLoader"; }
+        public static string VERSION { get => "2.0.0"; }
 
         // Folders
-        public static readonly string SL_FOLDER = @"Mods\SideLoader";
+        public static string SL_FOLDER { get => @"Mods\SideLoader"; }
+        public static string GENERATED_FOLDER { get => SL_FOLDER + @"\_GENERATED"; }
 
         // Loaded SLPacks
         public static Dictionary<string, SLPack> Packs = new Dictionary<string, SLPack>();
@@ -44,13 +45,6 @@ namespace SideLoader
 
         internal void Awake()
         {
-            if (Instance)
-            {
-                SL.Log("Trying to create a SideLoader Instance when one already exists!", 1);
-                Destroy(this);
-                return;
-            }
-
             Instance = this;
 
             if (!Directory.Exists(SL_FOLDER))
@@ -91,7 +85,7 @@ namespace SideLoader
             // Preliminary SLPack load (load assets, dont apply items/recipes yet)
             foreach (string dir in Directory.GetDirectories(SL_FOLDER))
             {
-                if (Path.GetFileName(dir) == "_GENERATED")
+                if (dir == GENERATED_FOLDER)
                 {
                     // this is SideLoader's folder for generated templates and textures.
                     continue;

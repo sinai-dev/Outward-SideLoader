@@ -8,11 +8,11 @@ namespace SideLoader
 {
     public class SL_EquipmentStats : SL_ItemStats
     {
-        public float[] Damage_Resistance;
+        public float[] Damage_Resistance = new float[9];
         public float Impact_Resistance;
         public float Damage_Protection;
 
-        public float[] Damage_Bonus;
+        public float[] Damage_Bonus = new float[9];
 
         public float Stamina_Use_Penalty;
         public float Mana_Use_Modifier;

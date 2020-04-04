@@ -29,14 +29,14 @@ namespace SideLoader
         public bool ReplaceEffects = true;
 
         /// <summary>The Item ID of the Item you are cloning FROM</summary>
-        public int Target_ItemID;
+        public int Target_ItemID = -1;
         /// <summary>The NEW Item ID for your custom Item (can be the same as target, will overwrite)</summary>
-        public int New_ItemID;
+        public int New_ItemID = -1;
 
         /*************                   Actual Item values                  *************/
 
-        public string Name;
-        public string Description;
+        public string Name = "";
+        public string Description = "";
 
         /// <summary>The Item ID of the Legacy Item (the upgrade of this item when placed in a Legacy Chest)</summary>
         public int LegacyItemID = -1;
@@ -53,9 +53,9 @@ namespace SideLoader
 
         public Character.SpellCastType CastType;
         public Character.SpellCastModifier CastModifier;
-        public bool CastLocomotionEnabled;
+        public bool CastLocomotionEnabled = false;
         public float MobileCastMovementMult = -1f;
-        public int CastSheatheRequired;
+        public int CastSheatheRequired = 0;
 
         public List<string> Tags = new List<string>();
 
@@ -125,7 +125,7 @@ namespace SideLoader
 
                 if (this.StatsHolder != null)
                 {
-                    StatsHolder.ApplyToItem(item.Stats ?? item.GetComponent<ItemStats>());
+                    StatsHolder.ApplyToItem(item.Stats ?? item.transform.GetOrAddComponent<ItemStats>());
                 }
 
                 if (this.EffectTransforms != null && this.EffectTransforms.Count > 0)

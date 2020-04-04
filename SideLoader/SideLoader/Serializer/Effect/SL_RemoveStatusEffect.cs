@@ -9,9 +9,9 @@ namespace SideLoader
     public class SL_RemoveStatusEffect : SL_Effect
     {
         //public string StatusEffect;
-        public string Status_Name;
+        public string Status_Name = "";
         //public string StatusEffect_Family;
-        public string Status_Tag;
+        public string Status_Tag = "";
 
         public RemoveStatusEffect.RemoveTypes CleanseType;
 

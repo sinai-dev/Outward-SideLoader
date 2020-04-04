@@ -5,17 +5,15 @@ namespace SideLoader
 {
     public class SideLoaderModLoader : PartialityMod
     {
-        private static GameObject m_obj = null;
+        private static GameObject m_obj;
 
-        public override void OnEnable()
+        public override void OnLoad()
         {
-            base.OnEnable();
-            if (m_obj != null)
-            {
-                m_obj = new GameObject(SL.MODNAME);
-                GameObject.DontDestroyOnLoad(m_obj);
-                m_obj.AddComponent<SL>();
-            }
+            base.OnLoad();
+
+            m_obj = new GameObject(SL.MODNAME);            
+            GameObject.DontDestroyOnLoad(m_obj);
+            m_obj.AddComponent<SL>();
         }
     }
 }

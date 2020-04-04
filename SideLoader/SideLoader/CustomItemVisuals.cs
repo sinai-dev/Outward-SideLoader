@@ -14,7 +14,8 @@ namespace SideLoader
         /*                                    CUSTOM ITEM VISUALS                                       */
         // ============================================================================================ //
 
-        /* This will need fixing after DLC (Item.ItemVisual not a direct link, only string reference to Resources path)
+        /* 
+         * This will need fixing after DLC (Item.ItemVisual not a direct link, only string reference to Resources path)
          * Will probably have to hook something like ResourcesPrefabManager.GetItemVisual(int id) / GetSpecialVisual / GetSpecialFemaleVisual
         */
 
@@ -29,7 +30,8 @@ namespace SideLoader
             SpecialVisualPrefabFemale
         }
 
-        public static Transform GetCustomItemVisuals(Item item, VisualPrefabType type)
+        /// <summary>Use this to get the current ItemVisuals prefab an item is using (custom or original)</summary>
+        public static Transform GetItemVisuals(Item item, VisualPrefabType type)
         {
             if (!ItemVisuals.ContainsKey(item.ItemID))
             {
@@ -283,14 +285,15 @@ namespace SideLoader
             return null;
         }
 
+        // In english: Match anything up to " (" 
+        private static readonly Regex materialRegex = new Regex(@".+?(?= \()");
+
         /// <summary>
         /// Returns the true name of the given material name (removes "(Clone)" and "(Instance)", etc)
         /// </summary>
         public static string GetSafeMaterialName(string origName)
         {
-            var reg = new Regex(@".+?(?= \()"); // match anything up to " ("
-
-            return reg.Match(origName).Value;
+            return materialRegex.Match(origName).Value;
         }
 
         /// <summary>

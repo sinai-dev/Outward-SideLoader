@@ -79,7 +79,7 @@ namespace SideLoader
                     template.ReplaceEffects = m_replaceEffects;
                     template.New_ItemID = NewID;
 
-                    var itemfolder = SL.SL_FOLDER + @"\_GENERATED\Items\" + item.gameObject.name;
+                    var itemfolder = SL.GENERATED_FOLDER + @"\Items\" + item.gameObject.name;
                     Serializer.SaveToXml(itemfolder, item.Name, template);
 
                     CustomItemVisuals.SaveAllItemTextures(item, itemfolder + @"\Textures");

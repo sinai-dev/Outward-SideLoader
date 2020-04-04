@@ -7,8 +7,8 @@ namespace SideLoader
 {
     public class SL_Damage
     {
-        public float Damage;
-        public DamageType.Types Type;
+        public float Damage = 0f;
+        public DamageType.Types Type = DamageType.Types.Count;
 
         public static DamageList GetDamageList(List<SL_Damage> list)
         {

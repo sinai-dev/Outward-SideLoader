@@ -8,7 +8,7 @@ namespace SideLoader
 {
     public class SL_AddStatusEffectBuildUp : SL_Effect
     {
-        public string StatusEffect;
+        public string StatusEffect = "";
         public float Buildup;
 
         public new void ApplyToTransform(Transform t)

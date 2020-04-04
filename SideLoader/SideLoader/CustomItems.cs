@@ -109,7 +109,7 @@ namespace SideLoader
             // Check if another Custom Item has already modified our target. If so, get the cached original.
             if (OrigItemPrefabs.ContainsKey(cloneTargetID))
             {
-                SL.Log("CustomItems::CreateCustomItem - The target Item has already been modified. Getting the original item.");
+                //SL.Log("CustomItems::CreateCustomItem - The target Item has already been modified. Getting the original item.");
                 target = OrigItemPrefabs[cloneTargetID];
             }
             else
@@ -125,7 +125,7 @@ namespace SideLoader
 
             if (newID == cloneTargetID && !OrigItemPrefabs.ContainsKey(newID))
             {
-                SL.Log("CustomItems::CreateCustomItem - Modifying an original item for the first time, caching it.");
+                //SL.Log("CustomItems::CreateCustomItem - Modifying an original item for the first time, caching it.");
                 OrigItemPrefabs.Add(target.ItemID, target);
             }
 
