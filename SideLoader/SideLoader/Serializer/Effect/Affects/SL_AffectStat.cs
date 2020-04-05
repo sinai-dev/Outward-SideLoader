@@ -15,7 +15,7 @@ namespace SideLoader
 
         public new void ApplyToTransform(Transform t)
         {
-            var tag = TagSourceManager.Instance.GetTag(Stat_Tag);
+            var tag = CustomItems.GetTag(Stat_Tag);
 
             if (tag == null || tag == Tag.None)
             {

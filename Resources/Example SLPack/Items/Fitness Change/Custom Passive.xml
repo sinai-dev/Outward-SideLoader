@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<SL_Skill xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <OnlyChangeVisuals>false</OnlyChangeVisuals>
+  <ReplaceEffects>true</ReplaceEffects>
+  <Target_ItemID>8205040</Target_ItemID>
+  <New_ItemID>8400999</New_ItemID>
+  <Name>Coolness</Name>
+  <Description>Increases your maximum Health by 55.</Description>
+  <LegacyItemID>-1</LegacyItemID>
+  <IsPickable>false</IsPickable>
+  <IsUsable>false</IsUsable>
+  <QtyRemovedOnUse>1</QtyRemovedOnUse>
+  <GroupItemInDisplay>false</GroupItemInDisplay>
+  <HasPhysicsWhenWorld>false</HasPhysicsWhenWorld>
+  <RepairedInRest>true</RepairedInRest>
+  <BehaviorOnNoDurability>NotSet</BehaviorOnNoDurability>
+  <CastType>NONE</CastType>
+  <CastModifier>Immobilized</CastModifier>
+  <CastLocomotionEnabled>false</CastLocomotionEnabled>
+  <MobileCastMovementMult>-1</MobileCastMovementMult>
+  <CastSheatheRequired>1</CastSheatheRequired>
+  <Tags />
+  <EffectTransforms>
+    <SL_EffectTransform>
+      <TransformName>Passive</TransformName>
+      <Effects>
+        <SL_Effect xsi:type="SL_AffectStat">
+          <Stat_Tag>MaxHealth</Stat_Tag>
+          <Stat_ID>77</Stat_ID>
+          <AffectQuantity>55</AffectQuantity>
+          <IsModifier>false</IsModifier>
+        </SL_Effect>
+      </Effects>
+      <ChildEffects />
+    </SL_EffectTransform>
+  </EffectTransforms>
+  <Cooldown>0</Cooldown>
+  <StaminaCost>0</StaminaCost>
+  <ManaCost>0</ManaCost>
+  <DurabilityCost>0</DurabilityCost>
+  <DurabilityCostPercent>0</DurabilityCostPercent>
+  <RequiredItems />
+  <AmmunitionTypes />
+  <RequiredOffHandTypes />
+  <RequiredWeaponTypes />
+  <RequiredWeaponTags />
+  <RequireImbue>false</RequireImbue>
+</SL_Skill>
