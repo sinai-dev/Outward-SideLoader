@@ -16,7 +16,7 @@ Requires [Partiality](https://github.com/PartialityModding/PartialityLauncher/re
 
 There is full documentation for the SideLoader on the SL Wiki:
 
-### [SideLoader Wiki](https://github.com/sinaioutlander/SideLoader_2/wiki)
+### [SideLoader Wiki](https://github.com/sinaioutlander/Outward-SideLoader/wiki)
 
 ## Examples and Resources
 
