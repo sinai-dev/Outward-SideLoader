@@ -28,9 +28,6 @@ namespace SideLoader
         public static Dictionary<string, SLPack> Packs = new Dictionary<string, SLPack>();
         public static bool PacksLoaded { get; private set; } = false;
 
-        // Loaded AssetBundles
-        public static Dictionary<string, AssetBundle> CachedBundles = new Dictionary<string, AssetBundle>();
-
         // Events
         /// <summary>Only called once on startup. This will be after ResourcesPrefabManager is loaded, and all SLPacks are loaded and applied.</summary>
         public static event UnityAction OnPacksLoaded;
