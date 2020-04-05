@@ -8,18 +8,18 @@ namespace SideLoader
 {
     public class SL_AffectStat : SL_Effect
     {
-        public string Stat_Tag;
-        public string Stat_ID;
+        public string Stat_Tag = "";
+        //public string Stat_ID = "";
         public float AffectQuantity;
         public bool IsModifier;
 
         public new void ApplyToTransform(Transform t)
         {
-            var tag = TagSourceManager.Instance.GetTag(Stat_ID);
+            var tag = TagSourceManager.Instance.GetTag(Stat_Tag);
 
             if (tag == null || tag == Tag.None)
             {
-                SL.Log("AffectStat: could not find tag of ID " + (this.Stat_ID ?? ""), 0);
+                SL.Log("AffectStat: could not find tag of ID " + (this.Stat_Tag ?? ""), 0);
                 return;
             }
 
@@ -35,7 +35,7 @@ namespace SideLoader
             var affectStatHolder = new SL_AffectStat
             {
                 Stat_Tag = affectStat.AffectedStat.Tag.TagName,
-                Stat_ID = affectStat.AffectedStat.Tag.UID.ToString(),
+                //Stat_ID = affectStat.AffectedStat.Tag.UID.ToString(),
                 AffectQuantity = affectStat.Value,
                 IsModifier = affectStat.IsModifier
             };

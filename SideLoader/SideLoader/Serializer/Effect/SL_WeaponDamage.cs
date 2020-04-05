@@ -11,6 +11,8 @@ namespace SideLoader
         // todo
         public DamageType.Types OverrideType;
 
+        public bool ForceOnlyLeftHand;
+
         public float Damage_Multiplier;
         public float Damage_Multiplier_Kback;
         public float Damage_Multiplier_Kdown;
@@ -21,6 +23,7 @@ namespace SideLoader
 
         public void ApplyToComponent(WeaponDamage weaponDamage)
         {
+            weaponDamage.ForceOnlyLeftHand = this.ForceOnlyLeftHand;
             weaponDamage.OverrideDType = this.OverrideType;
             weaponDamage.WeaponDamageMult = this.Damage_Multiplier;
             weaponDamage.WeaponDamageMultKBack = this.Damage_Multiplier_Kback;
@@ -34,6 +37,7 @@ namespace SideLoader
         {
             var weaponDamageHolder = new SL_WeaponDamage
             {
+                ForceOnlyLeftHand = weaponDamage.ForceOnlyLeftHand,
                 OverrideType = weaponDamage.OverrideDType,
                 Damage_Multiplier = weaponDamage.WeaponDamageMult,
                 Damage_Multiplier_Kback = weaponDamage.WeaponDamageMultKBack,

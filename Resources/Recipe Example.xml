@@ -11,7 +11,7 @@
     </Ingredient>
     <Ingredient>
       <Type>AddGenericIngredient</Type>
-		<!-- Use "Ingredient_Tag" for AddGenericIngredient -->
+	<!-- Use "Ingredient_Tag" for AddGenericIngredient -->
       <Ingredient_Tag>Water</Ingredient_Tag>
     </Ingredient>
 	<!--
@@ -27,7 +27,7 @@
   </Ingredients>
   <Results>
     <ItemQty>
-		<!-- You can set any ID for the result item ID, including custom items. -->
+	<!-- You can set any ID for the result item ID, including custom items. -->
       <ItemID>2010072</ItemID> 
       <Quantity>1</Quantity>
     </ItemQty>
