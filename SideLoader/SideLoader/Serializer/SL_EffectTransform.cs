@@ -15,14 +15,8 @@ namespace SideLoader
 
         public List<SL_EffectTransform> ChildEffects = new List<SL_EffectTransform>();
 
-        public void ApplyToItem(Item item, bool destroyExisting)
+        public void ApplyToItem(Item item)
         {
-            if (destroyExisting)
-            {
-                SL.Log("Destroying existing effects for " + item.Name);
-                CustomItems.DestroyChildren(item.transform);
-            }
-
             // get transform of this.TransformName
             var transform = item.transform.Find(this.TransformName);
             if (!transform)

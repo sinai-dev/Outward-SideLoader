@@ -118,21 +118,27 @@ namespace SideLoader
                 item.CastModifier = this.CastModifier;
                 At.SetValue(this.CastType, typeof(Item), item, "m_activateEffectAnimType");
 
-                if (this.Tags != null)
-                {
-                    CustomItems.SetItemTags(item, this.Tags, true);
-                }
+                CustomItems.SetItemTags(item, this.Tags ?? new List<string>(), true);
 
                 if (this.StatsHolder != null)
                 {
                     StatsHolder.ApplyToItem(item.Stats ?? item.transform.GetOrAddComponent<ItemStats>());
+                }
+                else if (item.GetComponent<ItemStats>() is ItemStats stats)
+                {
+                    GameObject.Destroy(stats);
+                }
+
+                if (this.ReplaceEffects)
+                {
+                    CustomItems.DestroyChildren(item.transform);
                 }
 
                 if (this.EffectTransforms != null && this.EffectTransforms.Count > 0)
                 {
                     foreach (var transform in this.EffectTransforms)
                     {                        
-                        transform.ApplyToItem(item, true);
+                        transform.ApplyToItem(item);
                     }
                 }
 
