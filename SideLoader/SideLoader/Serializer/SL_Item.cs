@@ -290,9 +290,9 @@ namespace SideLoader
                 CastType                    = item.ActivateEffectAnimType                
             };
 
-            if (item.Stats != null)
+            if (item.GetComponent<ItemStats>() is ItemStats stats)
             {
-                itemHolder.StatsHolder = SL_ItemStats.ParseItemStats(item.Stats);
+                itemHolder.StatsHolder = SL_ItemStats.ParseItemStats(stats);
             }
 
             if (item.Tags != null)

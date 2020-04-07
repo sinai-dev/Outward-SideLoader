@@ -29,13 +29,13 @@ namespace SideLoader
 
         public static void ReplaceActiveTextures()
         {
-            float start = Time.realtimeSinceStartup;
-            SL.Log("Replacing active textures.");
-
             if (Textures.Count < 1)
             {
                 return;
             }
+
+            float start = Time.realtimeSinceStartup;
+            SL.Log("Replacing active textures.");
 
             // ============ Materials ============
 
