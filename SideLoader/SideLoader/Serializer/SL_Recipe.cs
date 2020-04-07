@@ -10,6 +10,7 @@ namespace SideLoader
 {
     public class SL_Recipe
     {
+        [XmlIgnore]
         private bool m_applied = false;
 
         // public string Name = "";
