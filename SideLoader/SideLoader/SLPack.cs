@@ -134,13 +134,13 @@ namespace SideLoader
             {
                 // ******** Build the list of template xml paths ******** //
 
-                // Key: SubFolder name (if any), Value: full Template filepath
+                // Key: full Template filepath, Value:SubFolder name (if any)
                 var templates = new Dictionary<string, string>(); 
 
                 // get basic xml templates in the Items folder
                 foreach (var file in Directory.GetFiles(itemsfolder, "*.xml"))
                 {
-                    templates.Add("", file);
+                    templates.Add(file, "");
                 }
 
                 // check for subfolders (items which are using custom texture pngs)
@@ -150,7 +150,7 @@ namespace SideLoader
 
                     foreach (string path in Directory.GetFiles(folder))
                     {
-                        templates.Add(Path.GetFileName(folder), path);
+                        templates.Add(path, Path.GetFileName(folder));
                     }
                 }
 
@@ -161,8 +161,8 @@ namespace SideLoader
                     try
                     {
                         // load the ItemHolder template and set the pack/folder info
-                        var itemHolder = Serializer.LoadFromXml(entry.Value) as SL_Item;
-                        itemHolder.SubfolderName = entry.Key;
+                        var itemHolder = Serializer.LoadFromXml(entry.Key) as SL_Item;
+                        itemHolder.SubfolderName = entry.Value;
                         itemHolder.SLPackName = Name;
 
                         if (itemHolder.OnlyChangeVisuals)

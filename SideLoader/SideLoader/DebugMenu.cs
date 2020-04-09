@@ -94,9 +94,7 @@ namespace SideLoader
         {
             if (ResourcesPrefabManager.Instance.GetItemPrefab(SelectedID) is Item item)
             {
-                var item2 = ItemManager.Instance.GenerateItemNetwork(item.ItemID);
-
-                var template = SL_Item.ParseItemToTemplate(item2);
+                var template = SL_Item.ParseItemToTemplate(item);
 
                 template.OnlyChangeVisuals = m_texturesOnly;
                 template.ReplaceEffects = m_replaceEffects;
@@ -106,8 +104,6 @@ namespace SideLoader
                 Serializer.SaveToXml(itemfolder, item.Name, template);
 
                 CustomItemVisuals.SaveAllItemTextures(item, itemfolder + @"\Textures");
-
-                Destroy(item2.gameObject);
             }
             else
             {

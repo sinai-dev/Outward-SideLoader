@@ -146,9 +146,8 @@ namespace SideLoader
                 item = Instantiate(original.gameObject).GetComponent<Item>();
                 item.gameObject.SetActive(false);
                 DontDestroyOnLoad(item.gameObject);
+                item.gameObject.name = newID + "_" + name;
             }
-
-            item.gameObject.name = newID + "_" + name;
 
             item.ItemID = newID;
             SetItemID(newID, item);

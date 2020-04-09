@@ -286,9 +286,10 @@ namespace SideLoader
                 QtyRemovedOnUse             = item.QtyRemovedOnUse,
                 MobileCastMovementMult      = item.MobileCastMovementMult,
                 RepairedInRest              = item.RepairedInRest,
-                BehaviorOnNoDurability      = item.BehaviorOnNoDurability,
-                CastType                    = item.ActivateEffectAnimType                
+                BehaviorOnNoDurability      = item.BehaviorOnNoDurability                
             };
+
+            itemHolder.CastType = (Character.SpellCastType)At.GetValue(typeof(Item), item, "m_activateEffectAnimType");
 
             if (item.GetComponent<ItemStats>() is ItemStats stats)
             {
