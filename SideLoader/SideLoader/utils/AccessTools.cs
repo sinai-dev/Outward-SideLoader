@@ -3,7 +3,11 @@ using System.Reflection;
 
 namespace SideLoader
 {
-    public static class At // Access Tools
+    /// <summary>
+    /// AccessTools 
+    /// Some helpers for Reflection (GetValue, SetValue, Call, InheritBaseValues)
+    /// </summary>
+    public static class At
     {
         public static BindingFlags flags = BindingFlags.Public | BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Static;
 

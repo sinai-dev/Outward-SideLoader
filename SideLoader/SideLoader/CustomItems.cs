@@ -104,44 +104,59 @@ namespace SideLoader
         /// <returns>Your cloned Item prefab</returns>
         public static Item CreateCustomItem(int cloneTargetID, int newID, string name, SL_Item template = null)
         {
-            Item target;
+            Item original;
 
             // Check if another Custom Item has already modified our target. If so, get the cached original.
             if (OrigItemPrefabs.ContainsKey(cloneTargetID))
             {
-                //SL.Log("CustomItems::CreateCustomItem - The target Item has already been modified. Getting the original item.");
-                target = OrigItemPrefabs[cloneTargetID];
+                original = OrigItemPrefabs[cloneTargetID];
             }
             else
             {
-                target = ResourcesPrefabManager.Instance.GetItemPrefab(cloneTargetID);
+                original = ResourcesPrefabManager.Instance.GetItemPrefab(cloneTargetID);
 
-                if (!target)
+                if (!original)
                 {
                     SL.Log("CustomItems::CreateCustomItem - Error! Could not find the clone target Item ID: " + cloneTargetID, 1);
                     return null;
                 }
-            }            
-
-            if (newID == cloneTargetID && !OrigItemPrefabs.ContainsKey(newID))
-            {
-                //SL.Log("CustomItems::CreateCustomItem - Modifying an original item for the first time, caching it.");
-                OrigItemPrefabs.Add(target.ItemID, target);
             }
 
-            var clone = Instantiate(target.gameObject).GetComponent<Item>();
-            clone.gameObject.SetActive(false);
-            DontDestroyOnLoad(clone);
+            Item item; 
 
-            clone.gameObject.name = newID + "_" + name;
+            // modifying an existing item
+            if (newID == cloneTargetID)
+            {
+                // Modifying the original prefab for the first time. Cache it in case someone else wants the true original.
+                if (!OrigItemPrefabs.ContainsKey(newID))
+                {
+                    var cached = Instantiate(original.gameObject).GetComponent<Item>();
+                    cached.gameObject.SetActive(false);
+                    DontDestroyOnLoad(cached.gameObject);
+                    OrigItemPrefabs.Add(cached.ItemID, cached);
 
-            clone.ItemID = newID;
-            SetItemID(newID, clone);
+                    // todo maybe cache visuals too?
+                }
+
+                // apply to the original item prefab. this ensures direct prefab references to this item reflect your changes.
+                item = original;
+            }
+            else // new item
+            {
+                item = Instantiate(original.gameObject).GetComponent<Item>();
+                item.gameObject.SetActive(false);
+                DontDestroyOnLoad(item.gameObject);
+            }
+
+            item.gameObject.name = newID + "_" + name;
+
+            item.ItemID = newID;
+            SetItemID(newID, item);
 
             // fix for recipes (not sure if needed anymore?)
-            if (!clone.GetComponent<TagSource>())
+            if (!item.GetComponent<TagSource>())
             {
-                var tags = clone.gameObject.AddComponent<TagSource>();
+                var tags = item.gameObject.AddComponent<TagSource>();
                 tags.RefreshTags();
             }
 
@@ -150,7 +165,7 @@ namespace SideLoader
                 template.ApplyTemplateToItem();
             }
 
-            return clone;
+            return item;
         }
 
         /// <summary>

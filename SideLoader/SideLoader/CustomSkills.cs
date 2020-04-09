@@ -92,10 +92,9 @@ namespace SideLoader.CustomSkills
         public Vector2 RequiredSkillSlot = Vector2.zero;
 
         /// <summary>
-        /// 
+        /// Internal use for setting a required slot.
         /// </summary>
-        /// <param name="comp"></param>
-        /// <param name="RequiredSlot">X is the Row, Y is the Column</param>
+        /// <param name="comp">The component that this SkillSlot is referencing. Not the required slot you're setting.</param>
         public void SetRequiredSlot(BaseSkillSlot comp)
         {
             bool success = false;
@@ -133,7 +132,7 @@ namespace SideLoader.CustomSkills
             var comp = col.AddComponent<SkillSlotFork>();
             At.SetValue(this.ColumnIndex, typeof(BaseSkillSlot), comp as BaseSkillSlot, "m_columnIndex");
 
-            if (this.RequiredSkillSlot != Vector2.zero)
+            if (this.RequiredSkillSlot != null && this.RequiredSkillSlot != Vector2.zero)
             {
                 SetRequiredSlot(comp as BaseSkillSlot);
             }
@@ -154,22 +153,18 @@ namespace SideLoader.CustomSkills
             var col = new GameObject("Col" + this.ColumnIndex);
             col.transform.parent = row;
 
-            var slot = col.AddComponent<SkillSlot>();
-            At.SetValue(ResourcesPrefabManager.Instance.GetItemPrefab(SkillID) as Skill, typeof(SkillSlot), slot, "m_skill");
-            At.SetValue(SilverCost, typeof(SkillSlot), slot, "m_requiredMoney");
-            At.SetValue(ColumnIndex, typeof(BaseSkillSlot), slot as BaseSkillSlot, "m_columnIndex");
+            var comp = col.AddComponent<SkillSlot>();
+            comp.IsBreakthrough = Breakthrough;
+            At.SetValue(ResourcesPrefabManager.Instance.GetItemPrefab(SkillID) as Skill, typeof(SkillSlot), comp, "m_skill");
+            At.SetValue(SilverCost, typeof(SkillSlot), comp, "m_requiredMoney");
+            At.SetValue(ColumnIndex, typeof(BaseSkillSlot), comp as BaseSkillSlot, "m_columnIndex");
 
-            if (this.RequiredSkillSlot != Vector2.zero)
+            if (this.RequiredSkillSlot != null && this.RequiredSkillSlot != Vector2.zero)
             {
-                SetRequiredSlot(slot as BaseSkillSlot);
+                SetRequiredSlot(comp as BaseSkillSlot);
             }
 
-            if (Breakthrough)
-            {
-                slot.IsBreakthrough = true;
-            }
-
-            return slot;
+            return comp;
         }
     }
 }

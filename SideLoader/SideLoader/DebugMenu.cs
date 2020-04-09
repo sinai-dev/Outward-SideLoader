@@ -20,6 +20,9 @@ namespace SideLoader
         private bool m_texturesOnly = false;
         private bool m_replaceEffects = true;
 
+        // temp debug
+        private string m_enemyName = "";
+
         internal void Awake()
         {
             Instance = this;
@@ -71,26 +74,117 @@ namespace SideLoader
 
             if (GUILayout.Button("Generate template"))
             {
-                if (ResourcesPrefabManager.Instance.GetItemPrefab(SelectedID) is Item item)
-                {
-                    var template = SL_Item.ParseItemToTemplate(item);
-
-                    template.OnlyChangeVisuals = m_texturesOnly;
-                    template.ReplaceEffects = m_replaceEffects;
-                    template.New_ItemID = NewID;
-
-                    var itemfolder = SL.GENERATED_FOLDER + @"\Items\" + item.gameObject.name;
-                    Serializer.SaveToXml(itemfolder, item.Name, template);
-
-                    CustomItemVisuals.SaveAllItemTextures(item, itemfolder + @"\Textures");
-                }
-                else
-                {
-                    SL.Log("DEBUG MENU: ID " + SelectedID + " is invalid!");
-                }
+                GenerateTemplate();
             }
+
+            //GUILayout.BeginHorizontal();
+            //GUILayout.Label("Enemy name:");
+            //m_enemyName = GUILayout.TextField(m_enemyName, GUILayout.Width(150));
+            //GUILayout.EndHorizontal();
+
+            //if (GUILayout.Button("Clone enemy"))
+            //{
+            //    CloneEnemy();
+            //}
 
             GUILayout.EndArea();
         }
+
+        private void GenerateTemplate()
+        {
+            if (ResourcesPrefabManager.Instance.GetItemPrefab(SelectedID) is Item item)
+            {
+                var item2 = ItemManager.Instance.GenerateItemNetwork(item.ItemID);
+
+                var template = SL_Item.ParseItemToTemplate(item2);
+
+                template.OnlyChangeVisuals = m_texturesOnly;
+                template.ReplaceEffects = m_replaceEffects;
+                template.New_ItemID = NewID;
+
+                var itemfolder = SL.GENERATED_FOLDER + @"\Items\" + item.gameObject.name;
+                Serializer.SaveToXml(itemfolder, item.Name, template);
+
+                CustomItemVisuals.SaveAllItemTextures(item, itemfolder + @"\Textures");
+
+                Destroy(item2.gameObject);
+            }
+            else
+            {
+                SL.Log("DEBUG MENU: ID " + SelectedID + " is invalid!");
+            }
+        }
+
+        //private void CloneEnemy()
+        //{
+        //    try
+        //    {
+        //        if (GameObject.Find(m_enemyName) is GameObject target)
+        //        {
+        //            // base cloning
+        //            target.SetActive(false);
+
+        //            var origchar = target.GetComponent<Character>();
+        //            bool origsetting = origchar.DisableAfterInit;
+        //            origchar.DisableAfterInit = false;
+
+        //            var clone = Instantiate(target);
+        //            clone.SetActive(false);
+
+        //            origchar.DisableAfterInit = origsetting;
+
+        //            target.SetActive(true);
+
+        //            // fix clone UIDs, etc
+        //            clone.name = "[CLONE] " + target.name;
+        //            var character = clone.GetComponent<Character>();
+        //            At.SetValue(UID.Generate(), typeof(Character), character, "m_uid");
+
+        //            clone.GetPhotonView().viewID = PhotonNetwork.AllocateSceneViewID();
+
+        //            var oldObjects = new List<GameObject>();
+        //            foreach (var item in character.GetComponentsInChildren<Item>())
+        //            {
+        //                var new_item = ItemManager.Instance.GenerateItemNetwork(item.ItemID);
+        //                new_item.transform.parent = item.transform.parent;
+
+        //                oldObjects.Add(item.gameObject);
+        //            }
+        //            for (int i = 0; i < oldObjects.Count; i++)
+        //            {
+        //                int j = oldObjects.Count;
+        //                var obj = oldObjects[i];
+        //                DestroyImmediate(obj);
+        //            }
+
+        //            //// todo same for droptable components
+        //            //var lootable = clone.GetComponent<LootableOnDeath>();
+                    
+        //            //var oldTables = new List<GameObject>();
+                    
+
+        //            var charAI = clone.GetComponent<CharacterAI>();
+
+        //            var navmeshAgent = clone.GetComponent<UnityEngine.AI.NavMeshAgent>();
+        //            At.SetValue(navmeshAgent, typeof(CharacterAI), charAI, "m_navMeshAgent");
+
+        //            var airoot = clone.GetComponentInChildren<AIRoot>();
+        //            At.SetValue(charAI, typeof(AIRoot), airoot, "m_charAI");
+
+        //            clone.SetActive(true);
+        //            At.Call(character, "Awake", new object[0]);
+
+        //            clone.transform.position = CharacterManager.Instance.GetFirstLocalCharacter().transform.position;
+        //        }
+        //        else
+        //        {
+        //            throw new Exception("Enemy not found: " + m_enemyName);
+        //        }
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        SL.Log("Error cloning enemy: " + e.Message + "\r\nStack: " + e.StackTrace, 1);
+        //    }
+        //}
     }
 }
