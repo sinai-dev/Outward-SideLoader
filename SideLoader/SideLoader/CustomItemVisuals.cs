@@ -307,7 +307,7 @@ namespace SideLoader
             if (File.Exists(iconPath))
             {
                 var tex = CustomTextures.LoadTexture(iconPath);
-                var sprite = CustomTextures.CreateSprite(tex);
+                var sprite = CustomTextures.CreateSprite(tex, CustomTextures.SpriteBorderTypes.ItemIcon);
                 GameObject.DontDestroyOnLoad(sprite);
                 At.SetValue(sprite, typeof(Item), item, "m_itemIcon");
             }
@@ -317,9 +317,9 @@ namespace SideLoader
             if (item is Skill skill && File.Exists(skillPath))
             {
                 var tex = CustomTextures.LoadTexture(skillPath);
-                var sprite = CustomTextures.CreateSprite(tex);
+                var sprite = CustomTextures.CreateSprite(tex, CustomTextures.SpriteBorderTypes.SkillTreeIcon);
                 GameObject.DontDestroyOnLoad(sprite);
-                skill.SkillTreeIcon = CustomTextures.CreateSprite(tex);
+                skill.SkillTreeIcon = sprite;
             }
 
             // build dictionary of textures

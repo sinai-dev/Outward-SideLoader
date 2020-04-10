@@ -95,6 +95,16 @@ namespace SideLoader
         // ============================================================================================ //
 
         /// <summary>
+        /// If defining a custom item after SL.OnPacksLoaded, just provide the template, it will automatically be applied.
+        /// </summary>
+        /// <param name="template"></param>
+        /// <returns>Your new custom item (or the original item, if modifying an existing one)</returns>
+        public static Item CreateCustomItem(SL_Item template)
+        {
+            return CreateCustomItem(template.Target_ItemID, template.New_ItemID, template.Name, template);
+        }
+
+        /// <summary>
         /// Clones an item prefab and returns the clone to you. Caches the original prefab for other mods or other custom items to reference.
         /// </summary>
         /// <param name="cloneTargetID">The Item ID of the Item you want to clone from</param>
