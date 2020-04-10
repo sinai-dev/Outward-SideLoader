@@ -74,53 +74,9 @@ Inflicts Doomed on enemies.</Description>
       </SL_Damage>
     </BaseDamage>
     <Impact>50</Impact>
-    <Attacks>
-      <AttackData>
-        <StamCost>5.6</StamCost>
-        <Knockback>27</Knockback>
-        <AttackSpeed>1</AttackSpeed>
-        <Damage>
-          <float>18</float>
-          <float>18</float>
-        </Damage>
-      </AttackData>
-      <AttackData>
-        <StamCost>5.6</StamCost>
-        <Knockback>27</Knockback>
-        <AttackSpeed>1</AttackSpeed>
-        <Damage>
-          <float>18</float>
-          <float>18</float>
-        </Damage>
-      </AttackData>
-      <AttackData>
-        <StamCost>6.72</StamCost>
-        <Knockback>35.1</Knockback>
-        <AttackSpeed>1.1</AttackSpeed>
-        <Damage>
-          <float>23.4</float>
-          <float>23.4</float>
-        </Damage>
-      </AttackData>
-      <AttackData>
-        <StamCost>6.16</StamCost>
-        <Knockback>29.7</Knockback>
-        <AttackSpeed>1.1</AttackSpeed>
-        <Damage>
-          <float>19.8</float>
-          <float>19.8</float>
-        </Damage>
-      </AttackData>
-      <AttackData>
-        <StamCost>6.16</StamCost>
-        <Knockback>29.7</Knockback>
-        <AttackSpeed>1.1</AttackSpeed>
-        <Damage>
-          <float>19.8</float>
-          <float>19.8</float>
-        </Damage>
-      </AttackData>
-    </Attacks>
+	<StamCost>4.4</StamCost>
+	<AutoGenerateAttackData>true</AutoGenerateAttackData>
+    <Attacks />
   </StatsHolder>
   
   <EffectTransforms>
