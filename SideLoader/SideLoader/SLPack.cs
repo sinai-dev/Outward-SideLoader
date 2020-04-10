@@ -165,10 +165,10 @@ namespace SideLoader
                         itemHolder.SubfolderName = entry.Value;
                         itemHolder.SLPackName = Name;
 
-                        if (itemHolder.OnlyChangeVisuals)
-                        {
-                            itemHolder.New_ItemID = itemHolder.Target_ItemID;
-                        }
+                        //if (itemHolder.OnlyChangeVisuals)
+                        //{
+                        //    itemHolder.New_ItemID = itemHolder.Target_ItemID;
+                        //}
 
                         // Clone the target item (and set it to ResourcesPrefabManager dictionary)
                         var item = CustomItems.CreateCustomItem(itemHolder.Target_ItemID, itemHolder.New_ItemID, itemHolder.Name);
