@@ -20,8 +20,13 @@ namespace SideLoader
             var component = t.gameObject.AddComponent<RemoveStatusEffect>();
 
             component.CleanseType = this.CleanseType;
-
             component.StatusName = this.Status_Name;
+
+            if (this.CleanseType == RemoveStatusEffect.RemoveTypes.StatusSpecific)
+            {
+                var status = ResourcesPrefabManager.Instance.GetStatusEffectPrefab(this.Status_Name);
+                component.StatusEffect = status;
+            }
 
             if (this.Status_Tag != null)
             {
