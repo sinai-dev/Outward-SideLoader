@@ -62,6 +62,7 @@
     <Compile Include="Serializer\Item\ItemStats\SL_WeaponStats.cs" />
     <Compile Include="Serializer\Item\SL_Skill.cs" />
     <Compile Include="Serializer\Item\SL_Weapon.cs" />
+    <Compile Include="Serializer\SL_Material.cs" />
     <Compile Include="Serializer\SL_Recipe.cs" />
     <Compile Include="CustomCharacters.cs" />
     <Compile Include="CustomItems.cs" />

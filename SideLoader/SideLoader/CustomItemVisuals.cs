@@ -327,6 +327,8 @@ namespace SideLoader
 
             foreach (var subfolder in Directory.GetDirectories(dir))
             {
+
+
                 var matname = Path.GetFileName(subfolder);
 
                 SL.Log("reading folder " + matname);

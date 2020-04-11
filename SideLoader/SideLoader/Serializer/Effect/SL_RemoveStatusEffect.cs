@@ -20,7 +20,11 @@ namespace SideLoader
             var component = t.gameObject.AddComponent<RemoveStatusEffect>();
 
             component.CleanseType = this.CleanseType;
-            component.StatusName = this.Status_Name;
+            
+            if (this.CleanseType == RemoveStatusEffect.RemoveTypes.StatusNameContains)
+            {
+                component.StatusName = this.Status_Name;
+            }
 
             if (this.CleanseType == RemoveStatusEffect.RemoveTypes.StatusSpecific)
             {
@@ -28,9 +32,9 @@ namespace SideLoader
                 component.StatusEffect = status;
             }
 
-            if (this.Status_Tag != null)
+            if (!string.IsNullOrEmpty(this.Status_Tag))
             {
-                var tag = CustomItems.GetTag(this.Status_Name);
+                var tag = CustomItems.GetTag(this.Status_Tag);
                 if (tag != null && tag != Tag.None)
                 {
                     component.StatusType = new TagSourceSelector(tag);
