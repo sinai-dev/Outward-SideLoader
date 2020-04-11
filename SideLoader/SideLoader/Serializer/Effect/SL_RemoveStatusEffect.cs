@@ -19,6 +19,8 @@ namespace SideLoader
         {
             var component = t.gameObject.AddComponent<RemoveStatusEffect>();
 
+            component.CleanseType = this.CleanseType;
+
             component.StatusName = this.Status_Name;
 
             if (this.Status_Tag != null)
@@ -37,7 +39,8 @@ namespace SideLoader
             {
                //StatusEffect = removeStatusEffect.StatusEffect ? removeStatusEffect.StatusEffect.IdentifierName : null,
                Status_Tag = removeStatusEffect.StatusName,
-               Status_Name = removeStatusEffect.StatusType.Tag.TagName
+               Status_Name = removeStatusEffect.StatusType.Tag.TagName,
+               CleanseType = removeStatusEffect.CleanseType
             };
 
             At.InheritBaseValues(removeStatusEffectHolder, _effectHolder);
