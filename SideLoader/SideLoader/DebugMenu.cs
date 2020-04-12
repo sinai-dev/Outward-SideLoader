@@ -21,7 +21,7 @@ namespace SideLoader
         private bool m_replaceEffects = true;
 
         // temp debug
-        private string m_enemyName = "";
+        // private string m_enemyName = "";
 
         internal void Awake()
         {

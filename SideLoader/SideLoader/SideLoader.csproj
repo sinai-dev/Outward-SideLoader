@@ -33,6 +33,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="CustomItemVisuals.cs" />
+    <Compile Include="Serializer\Effect\SL_AddBoonEffect.cs" />
     <Compile Include="Serializer\SL_Damage.cs" />
     <Compile Include="Serializer\SL_EffectTransform.cs" />
     <Compile Include="Serializer\Effect\SL_AddStatusEffectBuildUp.cs" />
@@ -87,16 +88,14 @@
       <Private>False</Private>
     </Reference>
     <Reference Include="HOOKS-Assembly-CSharp">
-      <HintPath>..\..\..\..\..\Steam\steamapps\common\Outward\Outward_Data\Managed\HOOKS-Assembly-CSharp.dll</HintPath>
-      <Private>False</Private>
+      <HintPath>..\..\..\..\..\Steam\steamapps\common\Outward\BepInEx\plugins\PartialityWrapper\HOOKS-Assembly-CSharp.dll</HintPath>
     </Reference>
     <Reference Include="MonoMod.RuntimeDetour">
       <HintPath>..\..\..\..\..\Steam\steamapps\common\Outward\Outward_Data\Managed\MonoMod.RuntimeDetour.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="Partiality">
-      <HintPath>..\..\..\..\..\Steam\steamapps\common\Outward\Outward_Data\Managed\Partiality.dll</HintPath>
-      <Private>False</Private>
+      <HintPath>..\..\..\..\..\Steam\steamapps\common\Outward\BepInEx\plugins\PartialityWrapper\Partiality.dll</HintPath>
     </Reference>
     <Reference Include="Photon3Unity3D">
       <HintPath>..\..\..\..\..\Steam\steamapps\common\Outward\Outward_Data\Managed\Photon3Unity3D.dll</HintPath>
@@ -104,10 +103,6 @@
     </Reference>
     <Reference Include="Rewired_Core">
       <HintPath>..\..\..\..\..\Steam\steamapps\common\Outward\Outward_Data\Managed\Rewired_Core.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="SharedModConfig">
-      <HintPath>..\..\..\..\..\Steam\steamapps\common\Outward\Mods\SharedModConfig.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="System" />

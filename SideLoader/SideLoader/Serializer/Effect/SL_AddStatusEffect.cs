@@ -17,7 +17,7 @@ namespace SideLoader
 
             if (!status)
             {
-                SL.Log("Error getting status effect on AddStatusEffectBuildupHolder. Could not find " + this.StatusEffect);
+                SL.Log("Error getting status effect on AddStatusEffectHolder. Could not find " + this.StatusEffect);
                 return;
             }
 
@@ -25,6 +25,11 @@ namespace SideLoader
 
             component.BaseChancesToContract = this.ChanceToContract;
             component.Status = status;
+
+            if (this is SL_AddBoonEffect addBoonHolder)
+            {
+                addBoonHolder.ApplyToTransform(t);
+            }
         }
 
         public static SL_AddStatusEffect ParseAddStatusEffect(AddStatusEffect addStatusEffect, SL_Effect effectHolder)
@@ -37,6 +42,11 @@ namespace SideLoader
             {
                 addStatusEffectHolder.StatusEffect = addStatusEffect.Status.IdentifierName;
                 addStatusEffectHolder.ChanceToContract = addStatusEffect.BaseChancesToContract;
+            }
+
+            if (addStatusEffect is AddBoonEffect addBoon)
+            {
+                return SL_AddBoonEffect.ParseAddBoonEffect(addBoon, addStatusEffectHolder);
             }
 
             return addStatusEffectHolder;
