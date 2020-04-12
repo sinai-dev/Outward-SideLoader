@@ -77,15 +77,15 @@ namespace SideLoader
                 GenerateTemplate();
             }
 
-            GUILayout.BeginHorizontal();
-            GUILayout.Label("Enemy name:");
-            m_enemyName = GUILayout.TextField(m_enemyName, GUILayout.Width(150));
-            GUILayout.EndHorizontal();
+            //GUILayout.BeginHorizontal();
+            //GUILayout.Label("Enemy name:");
+            //m_enemyName = GUILayout.TextField(m_enemyName, GUILayout.Width(150));
+            //GUILayout.EndHorizontal();
 
-            if (GUILayout.Button("Clone enemy"))
-            {
-                CloneCharacter(m_enemyName);
-            }
+            //if (GUILayout.Button("Clone enemy"))
+            //{
+            //    CloneCharacter(m_enemyName);
+            //}
 
             GUILayout.EndArea();
         }
