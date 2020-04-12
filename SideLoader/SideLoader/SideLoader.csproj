@@ -89,6 +89,7 @@
     </Reference>
     <Reference Include="HOOKS-Assembly-CSharp">
       <HintPath>..\..\..\..\..\Steam\steamapps\common\Outward\BepInEx\plugins\PartialityWrapper\HOOKS-Assembly-CSharp.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="MonoMod.RuntimeDetour">
       <HintPath>..\..\..\..\..\Steam\steamapps\common\Outward\Outward_Data\Managed\MonoMod.RuntimeDetour.dll</HintPath>
@@ -96,6 +97,7 @@
     </Reference>
     <Reference Include="Partiality">
       <HintPath>..\..\..\..\..\Steam\steamapps\common\Outward\BepInEx\plugins\PartialityWrapper\Partiality.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="Photon3Unity3D">
       <HintPath>..\..\..\..\..\Steam\steamapps\common\Outward\Outward_Data\Managed\Photon3Unity3D.dll</HintPath>

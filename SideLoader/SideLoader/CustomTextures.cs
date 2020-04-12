@@ -68,8 +68,9 @@ namespace SideLoader
             if (File.Exists(filePath))
             {
                 fileData = File.ReadAllBytes(filePath);
-                tex = new Texture2D(1, 1);
+                tex = new Texture2D(2, 2, TextureFormat.RGBA32, false);
                 tex.LoadImage(fileData);
+                tex.filterMode = FilterMode.Point;
             }
             return tex;
         }
@@ -81,23 +82,28 @@ namespace SideLoader
         }
 
         /// <summary> Create a sprite with the appropriate border for the type. Use CustomTextures.LoadTexture() to load a tex from a filepath.</summary>
-        public static Sprite CreateSprite(Texture2D texture, SpriteBorderTypes borderType)
+        public static Sprite CreateSprite(Texture2D tex, SpriteBorderTypes borderType)
         {
-            texture.filterMode = FilterMode.Bilinear;
-            texture.wrapMode = TextureWrapMode.Repeat;
-            Vector4 border = Vector4.zero;
+            tex.filterMode = FilterMode.Bilinear;
+            tex.wrapMode = TextureWrapMode.Repeat;
+
+            Vector4 offset = Vector4.zero;
             switch (borderType)
             {
                 case SpriteBorderTypes.ItemIcon:
-                    border = new Vector4(1, 2, 2, 3);
-                    break;
+                    offset = new Vector4(1, 2, 2, 3); break;
                 case SpriteBorderTypes.SkillTreeIcon:
-                    border = new Vector4(1, 1, 1, 2);
-                    break;
-                default:
-                    break;
+                    offset = new Vector4(1, 1, 1, 2); break;
+                default: break;
             }
-            return Sprite.Create(texture, new Rect(border.x, border.z, texture.width - border.y, texture.height - border.w), Vector2.zero, 100f, 1, SpriteMeshType.Tight);
+
+            var rect = new Rect(
+                offset.x,
+                offset.z,
+                tex.width - offset.y,
+                tex.height - offset.w);
+
+            return Sprite.Create(tex, rect, Vector2.zero, 100f, 1, SpriteMeshType.Tight);
         }
 
         public static void SaveTextureAsPNG(Texture2D _tex, string dir, string name)
