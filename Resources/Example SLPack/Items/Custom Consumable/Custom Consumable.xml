@@ -45,6 +45,10 @@
           <StatusEffect>Attack Up</StatusEffect>
           <ChanceToContract>100</ChanceToContract>
         </SL_Effect>
+		<SL_Effect xsi:type="SL_RemoveStatusEffect">
+          <Status_Name>Bleeding</Status_Name>
+		  <CleanseType>StatusNameContains</CleanseType>
+        </SL_Effect>
       </Effects>
       <ChildEffects />
     </SL_EffectTransform>

@@ -29,7 +29,7 @@ namespace SideLoader
 
             if (this.Preserver_Amount > 0 || this.Nullify_Perish == true)
             {
-                var preserver = item.transform.GetOrAddComponent<Preserver>();
+                var preserver = container.transform.GetOrAddComponent<Preserver>();
 
                 if (!this.Nullify_Perish)
                 {
@@ -63,11 +63,6 @@ namespace SideLoader
             if (bag.GetComponentInChildren<Preserver>() is Preserver p
                 && At.GetValue(typeof(Preserver), p, "m_preservedElements") is List<Preserver.PreservedElement> list && list.Count > 0)
             {
-                foreach (var element in list)
-                {
-                    SL.Log("Preserver element: " + element.Tag.Tag.TagName + ", float: " + element.Preservation);
-                }
-
                 bagHolder.Preserver_Amount = list[0].Preservation;
                 bagHolder.Nullify_Perish = p.NullifyPerishing;
             }

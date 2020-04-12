@@ -21,7 +21,7 @@ namespace SideLoader
         private bool m_replaceEffects = true;
 
         // temp debug
-        // private string m_enemyName = "";
+        private string m_enemyName = "";
 
         internal void Awake()
         {
@@ -77,15 +77,15 @@ namespace SideLoader
                 GenerateTemplate();
             }
 
-            //GUILayout.BeginHorizontal();
-            //GUILayout.Label("Enemy name:");
-            //m_enemyName = GUILayout.TextField(m_enemyName, GUILayout.Width(150));
-            //GUILayout.EndHorizontal();
+            GUILayout.BeginHorizontal();
+            GUILayout.Label("Enemy name:");
+            m_enemyName = GUILayout.TextField(m_enemyName, GUILayout.Width(150));
+            GUILayout.EndHorizontal();
 
-            //if (GUILayout.Button("Clone enemy"))
-            //{
-            //    CloneEnemy();
-            //}
+            if (GUILayout.Button("Clone enemy"))
+            {
+                CloneCharacter(m_enemyName);
+            }
 
             GUILayout.EndArea();
         }
@@ -111,76 +111,90 @@ namespace SideLoader
             }
         }
 
-        //private void CloneEnemy()
-        //{
-        //    try
-        //    {
-        //        if (GameObject.Find(m_enemyName) is GameObject target)
-        //        {
-        //            // base cloning
-        //            target.SetActive(false);
+        /// <summary>
+        /// Finds a Character GameObject with _gameObjectName and clones it into a new Character
+        /// </summary>
+        /// <param name="_gameObjectName"></param>
+        public static void CloneCharacter(string _gameObjectName)
+        {
+            try
+            {
+                if (GameObject.Find(_gameObjectName) is GameObject target)
+                {
+                    if (!target.GetComponent<Character>())
+                    {
+                        SL.Log("This GameObject does not have a Character component!", 1);
+                        return;
+                    }
 
-        //            var origchar = target.GetComponent<Character>();
-        //            bool origsetting = origchar.DisableAfterInit;
-        //            origchar.DisableAfterInit = false;
+                    // prepare original for clone
+                    target.SetActive(false);
+                    var origchar = target.GetComponent<Character>();
+                    bool origsetting = origchar.DisableAfterInit;
+                    origchar.DisableAfterInit = false;
 
-        //            var clone = Instantiate(target);
-        //            clone.SetActive(false);
+                    // make clone
+                    var clone = Instantiate(target);
+                    clone.SetActive(false);
 
-        //            origchar.DisableAfterInit = origsetting;
+                    // fix original
+                    origchar.DisableAfterInit = origsetting;
+                    target.SetActive(true);
 
-        //            target.SetActive(true);
+                    // fix clone UIDs, etc
+                    var character = clone.GetComponent<Character>();
+                    At.SetValue(UID.Generate(), typeof(Character), character, "m_uid");
+                    clone.name = "[CLONE] " + character.Name + "_" + character.UID;
 
-        //            // fix clone UIDs, etc
-        //            clone.name = "[CLONE] " + target.name;
-        //            var character = clone.GetComponent<Character>();
-        //            At.SetValue(UID.Generate(), typeof(Character), character, "m_uid");
+                    // allocate a scene view ID (will need RPC if to work in multiplayer)
+                    clone.GetPhotonView().viewID = PhotonNetwork.AllocateSceneViewID();
 
-        //            clone.GetPhotonView().viewID = PhotonNetwork.AllocateSceneViewID();
+                    var items = character.GetComponentsInChildren<Item>();
+                    for (int i = 0; i < items.Length; i++)
+                    {
+                        var item = items[i];
 
-        //            var oldObjects = new List<GameObject>();
-        //            foreach (var item in character.GetComponentsInChildren<Item>())
-        //            {
-        //                var new_item = ItemManager.Instance.GenerateItemNetwork(item.ItemID);
-        //                new_item.transform.parent = item.transform.parent;
+                        var new_item = ItemManager.Instance.GenerateItemNetwork(item.ItemID);
+                        new_item.transform.parent = item.transform.parent;
 
-        //                oldObjects.Add(item.gameObject);
-        //            }
-        //            for (int i = 0; i < oldObjects.Count; i++)
-        //            {
-        //                int j = oldObjects.Count;
-        //                var obj = oldObjects[i];
-        //                DestroyImmediate(obj);
-        //            }
+                        DestroyImmediate(item);
+                    }
 
-        //            //// todo same for droptable components
-        //            //var lootable = clone.GetComponent<LootableOnDeath>();
-                    
-        //            //var oldTables = new List<GameObject>();
-                    
+                    //// todo same for droptable components
+                    //var lootable = clone.GetComponent<LootableOnDeath>();
 
-        //            var charAI = clone.GetComponent<CharacterAI>();
+                    //var oldTables = new List<GameObject>();
 
-        //            var navmeshAgent = clone.GetComponent<UnityEngine.AI.NavMeshAgent>();
-        //            At.SetValue(navmeshAgent, typeof(CharacterAI), charAI, "m_navMeshAgent");
+                    foreach (var component in clone.GetComponentsInChildren<MonoBehaviour>())
+                    {
+                        try
+                        {
+                            At.Call(component, "Awake", new object[0]);
+                        }
+                        catch { }
+                    }
 
-        //            var airoot = clone.GetComponentInChildren<AIRoot>();
-        //            At.SetValue(charAI, typeof(AIRoot), airoot, "m_charAI");
+                    //var charAI = clone.GetComponent<CharacterAI>();
 
-        //            clone.SetActive(true);
-        //            At.Call(character, "Awake", new object[0]);
+                    //var navmeshAgent = clone.GetComponent<UnityEngine.AI.NavMeshAgent>();
+                    //At.SetValue(navmeshAgent, typeof(CharacterAI), charAI, "m_navMeshAgent");
 
-        //            clone.transform.position = CharacterManager.Instance.GetFirstLocalCharacter().transform.position;
-        //        }
-        //        else
-        //        {
-        //            throw new Exception("Enemy not found: " + m_enemyName);
-        //        }
-        //    }
-        //    catch (Exception e)
-        //    {
-        //        SL.Log("Error cloning enemy: " + e.Message + "\r\nStack: " + e.StackTrace, 1);
-        //    }
-        //}
+                    //var airoot = clone.GetComponentInChildren<AIRoot>();
+                    //At.SetValue(charAI, typeof(AIRoot), airoot, "m_charAI");
+
+                    clone.SetActive(true);
+
+                    clone.transform.position = CharacterManager.Instance.GetFirstLocalCharacter().transform.position;
+                }
+                else
+                {
+                    throw new Exception("Enemy not found: " + _gameObjectName);
+                }
+            }
+            catch (Exception e)
+            {
+                SL.Log("Error cloning enemy: " + e.Message + "\r\nStack: " + e.StackTrace, 1);
+            }
+        }
     }
 }

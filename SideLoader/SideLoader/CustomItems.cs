@@ -252,11 +252,18 @@ namespace SideLoader
         }
 
         /// <summary> Small helper for destroying all children on a given Transform 't'. Uses DestroyImmediate(). </summary>
-        public static void DestroyChildren(Transform t)
+        /// <param name="destroyContent">If true, will destroy children called "Content" (used for Bags)</param>
+        public static void DestroyChildren(Transform t, bool destroyContent = false)
         {
-            while (t.childCount > 0)
+            for (int i = 0; i < t.childCount; i++)
             {
-                DestroyImmediate(t.GetChild(0).gameObject);
+                var child = t.GetChild(i);
+                if (child.name == "Content" && !destroyContent)
+                {
+                    continue;
+                }
+
+                Destroy(child.gameObject);
             }
         }
     }        
