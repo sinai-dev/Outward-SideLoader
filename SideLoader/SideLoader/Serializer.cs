@@ -84,6 +84,7 @@ namespace SideLoader
 
         public static Type[] Types { get; } = new Type[]
         {
+            typeof(SL_AddBoonEffect),
             typeof(SL_AddStatusEffectBuildUp),
             typeof(SL_AddStatusEffect),
             typeof(SL_AffectBurntHealth),
