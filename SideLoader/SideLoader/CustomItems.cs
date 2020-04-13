@@ -258,13 +258,11 @@ namespace SideLoader
             for (int i = 0; i < t.childCount; i++)
             {
                 var child = t.GetChild(i);
-                if (child.name == "Content" && !destroyContent)
+                if (child.name != "Content" || destroyContent)
                 {
-                    continue;
+                    DestroyImmediate(child.gameObject);
                 }
-
-                Destroy(child.gameObject);
             }
         }
-    }        
+    }
 }
