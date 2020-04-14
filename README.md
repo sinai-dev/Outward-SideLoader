@@ -10,8 +10,9 @@ Requires [Partiality](https://github.com/PartialityModding/PartialityLauncher/re
 
 ## How To Install ##
 * [Download the pre-release version here](https://github.com/sinaioutlander/Outward-SideLoader/releases)
-* Install a BepInEx Partiality Wrapper and BepInEx
-* Put SideLoader.dll in Outward\BepInEx\plugins\
+* Install BepInEx and a BepInEx Partiality Wrapper
+* Put `SideLoader.dll` in `Outward\BepInEx\plugins\`
+* Create a folder: `Outward\Mods\SideLoader\`, this is where SL Packs are placed.
 
 ## How To Make A SideLoader Mod ##
 
