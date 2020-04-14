@@ -9,7 +9,7 @@ The Outward SideLoader is a tool for loading and configuring custom assets for O
 Requires [Partiality](https://github.com/PartialityModding/PartialityLauncher/releases) (or a Partiality Mod Wrapper).
 
 ## How To Install ##
-* [See the NexusMods page](https://www.nexusmods.com/outward/mods/96) for the release and install instructions
+* [Download the pre-release version here](https://github.com/sinaioutlander/Outward-SideLoader/releases)
 * A release is also included if you download this repository.
 
 ## How To Make A SideLoader Mod ##
