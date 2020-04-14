@@ -7,6 +7,14 @@ namespace SideLoader
     {
         private static GameObject m_obj;
 
+        public SideLoaderModLoader()
+        {
+            this.ModID = SL.MODNAME;
+            this.Version = SL.VERSION;
+            this.author = "Sinai";
+            this.loadPriority = -999; // lower number = higher priority
+        }
+
         public override void OnLoad()
         {
             base.OnLoad();

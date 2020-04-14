@@ -17,11 +17,11 @@ namespace SideLoader
         public static SL Instance;
 
         // Mod Info
-        public static string MODNAME { get => "SideLoader"; }
-        public static string VERSION { get => "2.0.0"; }
+        public const string MODNAME = "SideLoader";
+        public const string VERSION = "2.0.0";
 
         // Folders
-        public static string SL_FOLDER { get => @"Mods\SideLoader"; }
+        public const string SL_FOLDER = @"Mods\SideLoader";
         public static string GENERATED_FOLDER { get => SL_FOLDER + @"\_GENERATED"; }
 
         // Loaded SLPacks
@@ -63,7 +63,7 @@ namespace SideLoader
             gameObject.AddComponent<CustomScenes>();
             gameObject.AddComponent<CustomTextures>();
 
-            // temp debug menu
+            // debug menu
             gameObject.AddComponent<DebugMenu>();
 
             StartCoroutine(StartupCoroutine());

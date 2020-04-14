@@ -10,6 +10,7 @@ namespace SideLoader.CustomSkills
     public class SL_SkillTree
     {
         public string Name;
+        public Sprite Sigil;
         public List<SL_SkillRow> SkillRows = new List<SL_SkillRow>();
 
         [XmlIgnore]
@@ -30,6 +31,15 @@ namespace SideLoader.CustomSkills
             At.SetValue("", typeof(SkillSchool), school, "m_nameLocKey");
             At.SetValue(new UID(this.Name), typeof(SkillSchool), school, "m_uid");
 
+            // fix the breakthrough int
+            At.SetValue(-1, typeof(SkillSchool), school, "m_breakthroughSkillIndex");
+
+            // set the sprite
+            if (this.Sigil != null)
+            {
+                school.SchoolSigil = this.Sigil;
+            }
+
             // add it to the game's skill tree holder.
             var list = (At.GetValue(typeof(SkillTreeHolder), SkillTreeHolder.Instance, "m_skillTrees") as SkillSchool[]).ToList();
             list.Add(school);
@@ -44,6 +54,20 @@ namespace SideLoader.CustomSkills
             if (this.m_object == null)
             {
                 SL.Log("Trying to apply SL_SkillSchool but it is not created yet! Call CreateBaseSchool first!", 1);
+                return;
+            }
+
+            var school = m_object.GetComponent<SkillSchool>();
+
+            At.SetValue(new List<SkillBranch>(), typeof(SkillSchool), school, "m_branches");
+            At.SetValue(new List<BaseSkillSlot>(), typeof(SkillSchool), school, "m_skillSlots");
+
+            for (int i = 0; i < 6; i++)
+            {
+                if (m_object.transform.Find("Row" + i) is Transform row)
+                {
+                    GameObject.DestroyImmediate(row.gameObject);
+                }
             }
 
             foreach (var row in this.SkillRows)
