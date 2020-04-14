@@ -10,7 +10,8 @@ Requires [Partiality](https://github.com/PartialityModding/PartialityLauncher/re
 
 ## How To Install ##
 * [Download the pre-release version here](https://github.com/sinaioutlander/Outward-SideLoader/releases)
-* A release is also included if you download this repository.
+* Install a BepInEx Partiality Wrapper and BepInEx
+* Put SideLoader.dll in Outward\BepInEx\plugins\
 
 ## How To Make A SideLoader Mod ##
 
