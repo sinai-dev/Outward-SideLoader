@@ -18,7 +18,7 @@ Recommended to use with [BepInEx-Partiality-Wrapper](https://github.com/sinaiout
 
 There is full documentation for the SideLoader on the SL Wiki:
 
-### [SideLoader Wiki](https://github.com/sinaioutlander/Outward-SideLoader/wiki)
+<big><b>[SideLoader Wiki](https://github.com/sinaioutlander/Outward-SideLoader/wiki)</b></big>
 
 ## Examples and Resources
 
