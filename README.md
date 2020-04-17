@@ -6,11 +6,11 @@
 
 The Outward SideLoader is a tool for loading and configuring custom assets for Outward. It is also capable of generating and/or replacing custom Items, Skills and Recipes, as well as replacing textures on materials.
 
-Requires [Partiality](https://github.com/PartialityModding/PartialityLauncher/releases) (or a Partiality Mod Wrapper).
+Recommended to use with [BepInEx-Partiality-Wrapper](https://github.com/sinaioutlander/BepInEx-Partiality-Wrapper).
 
 ## How To Install ##
 * [Download the pre-release version here](https://github.com/sinaioutlander/Outward-SideLoader/releases)
-* Install BepInEx and a BepInEx Partiality Wrapper
+* Install BepInEx and [BepInEx-Partiality-Wrapper](https://github.com/sinaioutlander/BepInEx-Partiality-Wrapper) (BepInEx link on this page)
 * Put `SideLoader.dll` in `Outward\BepInEx\plugins\`
 * Create a folder: `Outward\Mods\SideLoader\`, this is where SL Packs are placed.
 
@@ -18,7 +18,7 @@ Requires [Partiality](https://github.com/PartialityModding/PartialityLauncher/re
 
 There is full documentation for the SideLoader on the SL Wiki:
 
-### [SideLoader Wiki](https://github.com/sinaioutlander/Outward-SideLoader/wiki)
+<big><b>[SideLoader Wiki](https://github.com/sinaioutlander/Outward-SideLoader/wiki)</b></big>
 
 ## Examples and Resources
 
