@@ -9,10 +9,7 @@ The Outward SideLoader is a tool for loading and configuring custom assets for O
 Recommended to use with [BepInEx-Partiality-Wrapper](https://github.com/sinaioutlander/BepInEx-Partiality-Wrapper).
 
 ## How To Install ##
-* [Download the pre-release version here](https://github.com/sinaioutlander/Outward-SideLoader/releases)
-* Install BepInEx and [BepInEx-Partiality-Wrapper](https://github.com/sinaioutlander/BepInEx-Partiality-Wrapper) (BepInEx link on this page)
-* Put `SideLoader.dll` in `Outward\BepInEx\plugins\`
-* Create a folder: `Outward\Mods\SideLoader\`, this is where SL Packs are placed.
+* [Download and Instructions here](https://www.nexusmods.com/outward/mods/96)
 
 ## How To Make A SideLoader Mod ##
 
