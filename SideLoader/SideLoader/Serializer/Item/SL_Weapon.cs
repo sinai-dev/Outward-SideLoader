@@ -45,7 +45,7 @@ namespace SideLoader
 
             At.InheritBaseValues(weaponHolder, equipmentHolder);
 
-            weaponHolder.StatsHolder = SL_WeaponStats.ParseWeaponStats(weapon.Stats, equipmentHolder.StatsHolder as SL_EquipmentStats);
+            weaponHolder.StatsHolder = SL_WeaponStats.ParseWeaponStats(weapon.GetComponent<WeaponStats>(), equipmentHolder.StatsHolder as SL_EquipmentStats);
 
             return weaponHolder;
         }

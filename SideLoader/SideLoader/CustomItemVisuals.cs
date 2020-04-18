@@ -327,8 +327,6 @@ namespace SideLoader
 
             foreach (var subfolder in Directory.GetDirectories(dir))
             {
-
-
                 var matname = Path.GetFileName(subfolder);
 
                 SL.Log("reading folder " + matname);
@@ -362,6 +360,14 @@ namespace SideLoader
                 {
                     var matname = GetSafeMaterialName(mat.name);
 
+                    string matPath = dir + @"\" + matname + @"\properties.xml";
+                    if (File.Exists(matPath))
+                    {
+                        var matHolder = Serializer.LoadFromXml(matPath) as SL_Material;
+
+                        matHolder.ApplyToMaterial(mat);
+                    }
+
                     if (!textures.ContainsKey(matname))
                     {
                         if (mat.mainTexture != null)
@@ -373,10 +379,14 @@ namespace SideLoader
 
                     foreach (var tex in textures[matname])
                     {
-                        if (mat.GetTexture(tex.name) is Texture)
+                        try
                         {
-                            SL.Log("Set texture " + tex.name + " on " + matname);
                             mat.SetTexture(tex.name, tex);
+                            SL.Log("Set texture " + tex.name + " on " + matname);
+                        }
+                        catch 
+                        {
+                            SL.Log("Exception setting texture " + tex.name + " on material!");
                         }
                     }
                 }
@@ -410,9 +420,12 @@ namespace SideLoader
                 {
                     foreach (var mat in mats)
                     {
-                        string subdir = GetSafeMaterialName(mat.name);
+                        string subdir = dir + @"\" + GetSafeMaterialName(mat.name);
 
-                        SaveMaterialTextures(mat, dir + @"\" + subdir);
+                        var matHolder = SL_Material.ParseMaterial(mat);
+                        Serializer.SaveToXml(subdir, "properties", matHolder);
+
+                        SaveMaterialTextures(mat, subdir);
                     }
                 }
             }
@@ -436,15 +449,8 @@ namespace SideLoader
                 {
                     CustomTextures.SaveTextureAsPNG(tex as Texture2D, dir, layername);
 
-                    if (!any)
-                        any = true;
+                    if (!any) { any = true; }                        
                 }
-            }
-
-            if (!any) // this mat has no textures we can edit. just delete the folder.
-            {
-                SL.Log("Material " + mat.name + " has no textures. Deleting subfolder.");
-                Directory.Delete(dir);
             }
         }
 

@@ -105,6 +105,8 @@ namespace SideLoader
             typeof(SL_Item),
             typeof(SL_ItemStats),
             typeof(SL_Material),
+            typeof(SL_Material.FloatProp), // these 2 sub-classes do need to be explicitly defined here.
+            typeof(SL_Material.ColorProp), // ^
             typeof(SL_PunctualDamage),
             typeof(SL_Recipe),
             typeof(SL_RemoveStatusEffect),
