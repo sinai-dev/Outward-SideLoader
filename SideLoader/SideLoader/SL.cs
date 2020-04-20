@@ -3,8 +3,8 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using UnityEngine;
 using System.IO;
+using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.Events;
 using System.Reflection;
@@ -18,7 +18,7 @@ namespace SideLoader
 
         // Mod Info
         public const string MODNAME = "SideLoader";
-        public const string VERSION = "2.0.0";
+        public const string VERSION = "2.0.1";
 
         // Folders
         public const string SL_FOLDER = @"Mods\SideLoader";

@@ -48,7 +48,8 @@ namespace SideLoader
 			_char.gameObject.AddComponent<EditorCharacterAILoadAI>();
 
 			// add our basic AIStatesPrefab to a CharacterAI component. This is the prefab set up by SetupBasicAIPrefab(), below.
-			CharacterAI charAI = _char.gameObject.AddComponent(new CharacterAI { AIStatesPrefab = BasicAIPrefab.GetComponent<AIRoot>() });
+			CharacterAI charAI = _char.gameObject.AddComponent<CharacterAI>();
+			charAI.AIStatesPrefab = BasicAIPrefab.GetComponent<AIRoot>();
 
 			// remove unwanted components
 			if (_char.GetComponent<NavMeshObstacle>() is NavMeshObstacle navObstacle)
@@ -164,15 +165,19 @@ namespace SideLoader
 			wanderState.transform.parent = _AIStatesPrefab.transform;
 
 			// state 2: Suspicious
-			var susState = new GameObject("2_Suspicious").AddComponent(new AISSuspicious { SuspiciousDuration = 3f, Range = 10, WanderFar = true, TurnModif = 0.5f, });
+			var susState = new GameObject("2_Suspicious").AddComponent<AISSuspicious>();
+			susState.SuspiciousDuration = 3f;
+			susState.Range = 10;
+			susState.WanderFar = true;
+			susState.TurnModif = 0.5f;
 			susState.transform.parent = _AIStatesPrefab.transform;
 
 			//state 3: alert
-			var alertState = new GameObject("3_Alert").AddComponent(new AISSuspicious { });
+			var alertState = new GameObject("3_Alert").AddComponent<AISSuspicious>();
 			alertState.transform.parent = _AIStatesPrefab.transform;
 
 			//state 4: Combat
-			var combatState = new GameObject("4_Combat").AddComponent(new AISCombatMelee { });
+			var combatState = new GameObject("4_Combat").AddComponent<AISCombatMelee>();
 			combatState.transform.parent = _AIStatesPrefab.transform;
 
 			// ---- setup actual state parameters and links ----
@@ -185,7 +190,8 @@ namespace SideLoader
 
 			var wanderDetection = new GameObject("Detection").AddComponent<AICEnemyDetection>();
 			wanderDetection.transform.parent = wanderState.transform;
-			var wanderDetectEffects = new GameObject("DetectEffects").AddComponent(new AIESwitchState { ToState = susState });
+			var wanderDetectEffects = new GameObject("DetectEffects").AddComponent<AIESwitchState>();
+			wanderDetectEffects.ToState = susState;
 			wanderDetectEffects.transform.parent = wanderDetection.transform;
 			wanderDetection.DetectEffectsTrans = wanderDetectEffects.transform;
 
@@ -193,17 +199,21 @@ namespace SideLoader
 
 			susState.SpeedModif = 2f;
 
-			var susEnd = new GameObject("EndSuspiciousEffects").AddComponent(new AIESwitchState { ToState = wanderState });
-			susEnd.gameObject.AddComponent(new AIESheathe { Sheathed = true });
+			var susEnd = new GameObject("EndSuspiciousEffects").AddComponent<AIESwitchState>();
+			susEnd.ToState = wanderState;
+			var sheathe = susEnd.gameObject.AddComponent<AIESheathe>();
+			sheathe.Sheathed = true;
 			susEnd.transform.parent = susState.transform;
 			susState.EndSuspiciousEffectsTrans = susEnd.transform;
 
 			var susDetection = new GameObject("Detection").AddComponent<AICEnemyDetection>();
 			susDetection.transform.parent = susState.transform;
-			var susDetectEffects = new GameObject("DetectEffects").AddComponent(new AIESwitchState { ToState = combatState });
+			var susDetectEffects = new GameObject("DetectEffects").AddComponent<AIESwitchState>();
+			susDetectEffects.ToState = combatState;
 			susDetectEffects.transform.parent = susDetection.transform;
 			susDetection.DetectEffectsTrans = susDetectEffects.transform;
-			var susSuspiciousEffects = new GameObject("SuspiciousEffects").AddComponent(new AIESwitchState { ToState = alertState });
+			var susSuspiciousEffects = new GameObject("SuspiciousEffects").AddComponent<AIESwitchState>();
+			susSuspiciousEffects.ToState = alertState;
 			susSuspiciousEffects.transform.parent = susDetection.transform;
 			susDetection.SuspiciousEffectsTrans = susSuspiciousEffects.transform;
 
@@ -211,14 +221,17 @@ namespace SideLoader
 
 			alertState.SpeedModif = 2f;
 
-			var alertEnd = new GameObject("EndSuspiciousEffects").AddComponent(new AIESwitchState { ToState = susState });
-			alertEnd.gameObject.AddComponent(new AIESheathe { Sheathed = true });
+			var alertEnd = new GameObject("EndSuspiciousEffects").AddComponent<AIESwitchState>();
+			alertEnd.ToState = susState;
+			var alertsheathe = alertEnd.gameObject.AddComponent<AIESheathe>();
+			alertsheathe.Sheathed = true;
 			alertEnd.transform.parent = alertState.transform;
 			alertState.EndSuspiciousEffectsTrans = alertEnd.transform;
 
 			var alertDetection = new GameObject("Detection").AddComponent<AICEnemyDetection>();
 			alertDetection.transform.parent = alertState.transform;
-			var alertDetectEffects = new GameObject("DetectEffects").AddComponent(new AIESwitchState { ToState = combatState });
+			var alertDetectEffects = new GameObject("DetectEffects").AddComponent<AIESwitchState>();
+			alertDetectEffects.ToState = combatState;
 			alertDetectEffects.transform.parent = alertDetection.transform;
 			alertDetection.DetectEffectsTrans = alertDetectEffects.transform;
 
@@ -246,7 +259,8 @@ namespace SideLoader
 
 			var combatDetect = new GameObject("Detection").AddComponent<AICEnemyDetection>();
 			combatDetect.transform.parent = combatState.transform;
-			var combatEnd = new GameObject("EndCombatEffects").AddComponent(new AIESwitchState { ToState = wanderState });
+			var combatEnd = new GameObject("EndCombatEffects").AddComponent<AIESwitchState>();
+			combatEnd.ToState = wanderState;
 			combatEnd.transform.parent = combatState.transform;
 
 			BasicAIPrefab = _AIStatesPrefab.gameObject;

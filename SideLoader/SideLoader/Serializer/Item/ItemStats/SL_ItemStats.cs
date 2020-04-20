@@ -20,7 +20,7 @@ namespace SideLoader
             At.SetValue(this.RawWeight, typeof(ItemStats), stats, "m_rawWeight");
 
             //max durability
-            stats.MaxDurability = this.MaxDurability;
+            At.SetValue(this.MaxDurability, typeof(ItemStats), stats, "m_baseMaxDurability");
             stats.StartingDurability = this.MaxDurability;
 
             if (this is SL_EquipmentStats equipStatsHolder)

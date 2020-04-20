@@ -62,7 +62,7 @@ namespace SideLoader
                     equipmentStatsHolder.Pouch_Bonus = stats.PouchCapacityBonus;
                     equipmentStatsHolder.Heat_Protection = stats.HeatProtection;
                     equipmentStatsHolder.Cold_Protection = stats.ColdProtection;
-                    equipmentStatsHolder.Corruption_Protection = stats.CorruptionProtection;
+                    equipmentStatsHolder.Corruption_Protection = stats.CorruptionResistance;
 
                     equipmentStatsHolder.Damage_Bonus = At.GetValue(typeof(EquipmentStats), stats, "m_damageAttack") as float[];
                     equipmentStatsHolder.Damage_Resistance = At.GetValue(typeof(EquipmentStats), stats, "m_damageResistance") as float[];
