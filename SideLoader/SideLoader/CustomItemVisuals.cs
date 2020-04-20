@@ -69,7 +69,7 @@ namespace SideLoader
 
             if (origPrefab.GetComponentInChildren<SkinnedMeshRenderer>())
             {
-                if (item is ProjectileWeapon) // Bows
+                if (item is ProjectileWeapon p && p.Type == Weapon.WeaponType.Bow) // Bows
                 {
                     SL.Log("Custom Visual Prefabs for Bows are not yet supported, sorry!", 0);
                     return;
@@ -306,7 +306,7 @@ namespace SideLoader
             var iconPath = dir + @"\icon.png";
             if (File.Exists(iconPath))
             {
-                var tex = CustomTextures.LoadTexture(iconPath);
+                var tex = CustomTextures.LoadTexture(iconPath, false);
                 var sprite = CustomTextures.CreateSprite(tex, CustomTextures.SpriteBorderTypes.ItemIcon);
                 GameObject.DontDestroyOnLoad(sprite);
                 At.SetValue(sprite, typeof(Item), item, "m_itemIcon");
@@ -316,7 +316,7 @@ namespace SideLoader
             var skillPath = dir + @"\skillicon.png";
             if (item is Skill skill && File.Exists(skillPath))
             {
-                var tex = CustomTextures.LoadTexture(skillPath);
+                var tex = CustomTextures.LoadTexture(skillPath, false);
                 var sprite = CustomTextures.CreateSprite(tex, CustomTextures.SpriteBorderTypes.SkillTreeIcon);
                 GameObject.DontDestroyOnLoad(sprite);
                 skill.SkillTreeIcon = sprite;
@@ -329,18 +329,18 @@ namespace SideLoader
             {
                 var matname = Path.GetFileName(subfolder);
 
-                SL.Log("reading folder " + matname);
+                SL.Log("Reading folder " + matname);
 
                 textures.Add(matname, new List<Texture2D>());
 
                 foreach (var filepath in Directory.GetFiles(subfolder, "*.png"))
                 {
                     var name = Path.GetFileNameWithoutExtension(filepath);
-                    var tex = CustomTextures.LoadTexture(filepath);
+
+                    bool isNormal = name == "_BumpMap" || name == "_NormTex";
+                    var tex = CustomTextures.LoadTexture(filepath, isNormal);
+
                     tex.name = name;
-
-                    //SL.Log("stored texture " + tex.name);
-
                     textures[matname].Add(tex);
                 }
             }
@@ -370,10 +370,6 @@ namespace SideLoader
 
                     if (!textures.ContainsKey(matname))
                     {
-                        if (mat.mainTexture != null)
-                        {
-                            //SL.Log("CustomItem Textures folder does not have textures defined for " + matname);
-                        }
                         continue;
                     }
 
@@ -381,8 +377,16 @@ namespace SideLoader
                     {
                         try
                         {
-                            mat.SetTexture(tex.name, tex);
-                            SL.Log("Set texture " + tex.name + " on " + matname);
+                            if (mat.HasProperty(tex.name))
+                            {
+                                mat.SetTexture(tex.name, tex);
+                                mat.EnableKeyword(tex.name);
+                                SL.Log("Set texture " + tex.name + " on " + matname);
+                            }
+                            else
+                            {
+                                SL.Log("Couldn't find a shader property called " + tex.name + "!");
+                            }
                         }
                         catch 
                         {

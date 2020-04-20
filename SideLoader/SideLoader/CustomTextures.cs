@@ -59,20 +59,40 @@ namespace SideLoader
             SL.OnSceneLoaded += ReplaceActiveTextures;
         }
 
-        /// <summary> Simple helper for loading a Texture2D from a .png filepath </summary>
-        public static Texture2D LoadTexture(string filePath)
+        public static Texture2D LoadTexture(string filePath, bool isNormal = false)
         {
-            Texture2D tex = null;
-            byte[] fileData;
+            return LoadTextureInternal(filePath, isNormal);
+        }
+
+        /// <summary> Simple helper for loading a Texture2D from a .png filepath </summary>
+        private static Texture2D LoadTextureInternal(string filePath, bool isNormal)
+        {
+            var name = Path.GetFileNameWithoutExtension(filePath);
+            SL.Log("Loading texture map " + name + ", isnormal: " + isNormal);
 
             if (File.Exists(filePath))
             {
-                fileData = File.ReadAllBytes(filePath);
-                tex = new Texture2D(2, 2, TextureFormat.RGBA32, false);
+                Texture2D tex;
+                var fileData = File.ReadAllBytes(filePath);
+
+                if (isNormal)
+                {
+                    tex = new Texture2D(1, 1, TextureFormat.RGBA32, false, true);
+                }
+                else
+                {
+                    tex = new Texture2D(1, 1, TextureFormat.RGBA32, false);
+                }
+
                 tex.LoadImage(fileData);
                 tex.filterMode = FilterMode.Point;
+                return tex;
             }
-            return tex;
+            else
+            {
+                SL.Log("Could not find " + filePath, 1);
+                return null;
+            }
         }
 
         /// <summary> Helper for creating a generic sprite with no border, from a Texture2D. Use CustomTextures.LoadTexture() to load a tex from a filepath. </summary>
