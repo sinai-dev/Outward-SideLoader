@@ -271,13 +271,17 @@ namespace SideLoader
         /// <param name="destroyContent">If true, will destroy children called "Content" (used for Bags)</param>
         public static void DestroyChildren(Transform t, bool destroyContent = false)
         {
-            for (int i = 0; i < t.childCount; i++)
+            var list = new List<GameObject>();
+            foreach (Transform child in t)
             {
-                var child = t.GetChild(i);
                 if (destroyContent || child.name != "Content")
                 {
-                    DestroyImmediate(child.gameObject);
+                    list.Add(child.gameObject);
                 }
+            }
+            for (int i = 0; i < list.Count; i++)
+            {
+                DestroyImmediate(list[i]);
             }
         }
     }

@@ -20,13 +20,31 @@ namespace SideLoader
         [XmlIgnore]
         public string SubfolderName;
 
-        /// <summary> Default = false. 
-        /// If you only want to change the visuals (and not even change the item ID), you can use this so you dont have to set every other field. </summary>
-        public bool OnlyChangeVisuals = false;
+        /// <summary><list type="bullet">
+        /// <item>NONE: Default, all changes from template applied and your EffectTransforms are added onto the existing ones.</item>
+        /// <item>OnlyChangeVisuals: Will only apply your icons, Materials, Textures and AssetBundle changes.</item>
+        /// <item>DestroyEffects: Destroys all child GameObjects on your item, except for "Content" (used for Bags)</item>
+        /// <item>OverrideEffects: Only destroys child GameObjects if you have defined one of the same name.</item></list>
+        /// </summary>
+        public TemplateBehaviour Behaviour = TemplateBehaviour.NONE;
 
-        /// <summary>Default = true. 
-        /// Will destroy all child GameObjects on the Item prefab (ie, destroys all existing Effects)</summary>
-        public bool ReplaceEffects = true;
+        public enum TemplateBehaviour
+        {
+            NONE,
+            DestroyEffects,
+            OverrideEffects,
+            OnlyChangeVisuals,
+        }
+
+        [Obsolete("Use SL_Item.Behaviour instead.", false)]
+        public bool OnlyChangeVisuals = false;
+        [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
+        public bool ShouldSerializeOnlyChangeVisuals() { return false; }
+
+        [Obsolete("Use SL_Item.Behaviour instead.", false)]
+        public bool ReplaceEffects = false;
+        [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
+        public bool ShouldSerializeReplaceEffects() { return false; }
 
         /// <summary>The Item ID of the Item you are cloning FROM</summary>
         public int Target_ItemID = -1;
@@ -34,7 +52,6 @@ namespace SideLoader
         public int New_ItemID = -1;
 
         /*************                   Actual Item values                  *************/
-
         public string Name = "";
         public string Description = "";
 
@@ -98,8 +115,22 @@ namespace SideLoader
                 pack = SL.Packs[SLPackName];
             }
 
+            if (Behaviour == TemplateBehaviour.NONE)
+            {
+                if (OnlyChangeVisuals)
+                {
+                    SL.Log("SL_Item.OnlyChangeVisuals is deprecated - use SL_Item.Behaviour instead!");
+                    Behaviour = TemplateBehaviour.OnlyChangeVisuals;
+                }
+                else if (ReplaceEffects)
+                {
+                    SL.Log("SL_Item.ReplaceEffects is deprecated - use SL_Item.Behaviour instead!");
+                    Behaviour = TemplateBehaviour.DestroyEffects;
+                }
+            }
+
             // if "Only Change Visuals" is NOT true, then apply all other changes
-            if (!OnlyChangeVisuals)
+            if (Behaviour != TemplateBehaviour.OnlyChangeVisuals)
             {
                 CustomItems.SetNameAndDescription(item, Name, Description);
 
@@ -124,21 +155,28 @@ namespace SideLoader
                 {
                     StatsHolder.ApplyToItem(item.Stats ?? item.transform.GetOrAddComponent<ItemStats>());
                 }
-                else if (item.GetComponent<ItemStats>() is ItemStats stats)
-                {
-                    GameObject.Destroy(stats);
-                }
+                //else if (item.GetComponent<ItemStats>() is ItemStats stats)
+                //{
+                //    GameObject.Destroy(stats);
+                //}
 
-                if (this.ReplaceEffects)
+                if (Behaviour == TemplateBehaviour.DestroyEffects)
                 {
+                    Debug.Log("Replacing effects (destroying children)");
                     CustomItems.DestroyChildren(item.transform);
                 }
 
                 if (this.EffectTransforms != null && this.EffectTransforms.Count > 0)
                 {
-                    foreach (var transform in this.EffectTransforms)
-                    {                        
-                        transform.ApplyToItem(item);
+                    foreach (var effectsT in this.EffectTransforms)
+                    {
+                        if (Behaviour == TemplateBehaviour.OverrideEffects && item.transform.Find(effectsT.TransformName) is Transform existing)
+                        {
+                            Debug.Log("Overriding transform " + existing.name + " (destroying orig)");
+                            GameObject.DestroyImmediate(existing.gameObject);
+                        }
+
+                        effectsT.ApplyToItem(item);
                     }
                 }
 
