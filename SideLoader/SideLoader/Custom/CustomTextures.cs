@@ -77,11 +77,11 @@ namespace SideLoader
 
                 if (isNormal)
                 {
-                    tex = new Texture2D(1, 1, TextureFormat.RGBA32, false, true);
+                    tex = new Texture2D(1, 1, TextureFormat.DXT1, false, true);
                 }
                 else
                 {
-                    tex = new Texture2D(1, 1, TextureFormat.RGBA32, false);
+                    tex = new Texture2D(1, 1, TextureFormat.DXT1, false);
                 }
 
                 tex.LoadImage(fileData);
@@ -185,7 +185,7 @@ namespace SideLoader
 
             // ============ Materials ============
 
-            var list = Resources.FindObjectsOfTypeAll<Material>().Where(x => x.mainTexture != null);
+            var list = Resources.FindObjectsOfTypeAll<Material>();
 
             var layers = new string[]
             {
@@ -200,7 +200,7 @@ namespace SideLoader
             {
                 foreach (var layer in layers)
                 {
-                    if (m.GetTexture(layer) is Texture tex && Textures.ContainsKey(tex.name))
+                    if (m.HasProperty(layer) && m.GetTexture(layer) is Texture tex && Textures.ContainsKey(tex.name))
                     {
                         SL.Log("Replacing layer " + layer + " on material " + m.name);
                         m.SetTexture(layer, Textures[tex.name]);

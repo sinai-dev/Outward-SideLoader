@@ -33,7 +33,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="CustomItemVisuals.cs" />
+    <Compile Include="Custom\CustomItemVisuals.cs" />
     <Compile Include="Serializer\Effect\SL_AddBoonEffect.cs" />
     <Compile Include="Serializer\SL_Damage.cs" />
     <Compile Include="Serializer\SL_EffectTransform.cs" />
@@ -66,14 +66,14 @@
     <Compile Include="Serializer\Item\SL_Weapon.cs" />
     <Compile Include="Serializer\SL_Material.cs" />
     <Compile Include="Serializer\SL_Recipe.cs" />
-    <Compile Include="CustomCharacters.cs" />
-    <Compile Include="CustomItems.cs" />
-    <Compile Include="CustomSkills.cs" />
+    <Compile Include="Custom\CustomCharacters.cs" />
+    <Compile Include="Custom\CustomItems.cs" />
+    <Compile Include="Custom\CustomSkills.cs" />
     <Compile Include="ModLoader.cs" />
     <Compile Include="Serializer.cs" />
     <Compile Include="SLPack.cs" />
-    <Compile Include="CustomScenes.cs" />
-    <Compile Include="CustomTextures.cs" />
+    <Compile Include="Custom\CustomScenes.cs" />
+    <Compile Include="Custom\CustomTextures.cs" />
     <Compile Include="SL.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="DebugMenu.cs" />
@@ -92,12 +92,12 @@
       <HintPath>..\..\..\..\..\Steam\steamapps\common\Outward\Outward_Data\Managed\Assembly-CSharp-firstpass.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="GalaxyCSharp">
-      <HintPath>..\..\..\..\..\Steam\steamapps\common\Outward\Outward_Data\Managed\GalaxyCSharp.dll</HintPath>
+    <Reference Include="BepInEx">
+      <HintPath>..\..\..\..\..\Steam\steamapps\common\Outward\BepInEx\core\BepInEx.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="HOOKS-Assembly-CSharp">
-      <HintPath>..\..\..\..\..\Steam\steamapps\common\Outward\BepInEx\plugins\PartialityWrapper\HOOKS-Assembly-CSharp.dll</HintPath>
+    <Reference Include="GalaxyCSharp">
+      <HintPath>..\..\..\..\..\Steam\steamapps\common\Outward\Outward_Data\Managed\GalaxyCSharp.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="Ionic.Zip.Reduced">

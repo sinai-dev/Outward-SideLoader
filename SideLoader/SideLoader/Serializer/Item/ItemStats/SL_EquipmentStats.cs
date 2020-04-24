@@ -57,7 +57,7 @@ namespace SideLoader
                     equipmentStatsHolder.Impact_Resistance = stats.ImpactResistance;
                     equipmentStatsHolder.Damage_Protection = stats.GetDamageProtection(DamageType.Types.Physical);
                     equipmentStatsHolder.Stamina_Use_Penalty = stats.StaminaUsePenalty;
-                    equipmentStatsHolder.Mana_Use_Modifier = stats.ManaUseModifier;
+                    equipmentStatsHolder.Mana_Use_Modifier = (float)At.GetValue(typeof(EquipmentStats), stats, "m_manaUseModifier");
                     equipmentStatsHolder.Movement_Penalty = stats.MovementPenalty;
                     equipmentStatsHolder.Pouch_Bonus = stats.PouchCapacityBonus;
                     equipmentStatsHolder.Heat_Protection = stats.HeatProtection;

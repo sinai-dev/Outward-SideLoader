@@ -380,7 +380,7 @@ namespace SideLoader
                             if (mat.HasProperty(tex.name))
                             {
                                 mat.SetTexture(tex.name, tex);
-                                mat.EnableKeyword(tex.name);
+                                //mat.EnableKeyword(tex.name);
                                 SL.Log("Set texture " + tex.name + " on " + matname);
                             }
                             else
@@ -449,7 +449,7 @@ namespace SideLoader
             {
                 var layername = layer.ToString();
 
-                if (mat.GetTexture(layername) is Texture tex)
+                if (mat.HasProperty(layername) && mat.GetTexture(layername) is Texture tex)
                 {
                     CustomTextures.SaveTextureAsPNG(tex as Texture2D, dir, layername);
 

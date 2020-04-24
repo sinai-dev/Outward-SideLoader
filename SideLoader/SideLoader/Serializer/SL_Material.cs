@@ -22,6 +22,8 @@ namespace SideLoader
 
         public List<ShaderProperty> Properties = new List<ShaderProperty>();
 
+        public List<string> Keywords = new List<string>();
+
         public void ApplyToMaterial(Material mat)
         {
             SL.Log("SL_Material applying to " + mat.name);
@@ -30,6 +32,19 @@ namespace SideLoader
             {
                 SL.Log("Set material shader to " + shader.name);
                 mat.shader = shader;
+            }
+
+            if (Keywords != null && Keywords.Count > 0)
+            {
+                mat.shaderKeywords = new string[0];
+                foreach (var keyword in this.Keywords)
+                {
+                    try
+                    {
+                        mat.EnableKeyword(keyword);
+                    }
+                    catch { }
+                }
             }
 
             foreach (var prop in this.Properties)
@@ -74,6 +89,7 @@ namespace SideLoader
                 Name = mat.name,
                 ShaderName = mat.shader.name,
                 Properties = new List<ShaderProperty>(),
+                Keywords = mat.shaderKeywords.ToList(),
             };
 
             return holder;

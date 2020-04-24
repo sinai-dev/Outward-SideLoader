@@ -6,6 +6,7 @@ using UnityEngine;
 using System.IO;
 using Localizer;
 using System.Reflection;
+using HarmonyLib;
 
 namespace SideLoader
 {
@@ -39,19 +40,34 @@ namespace SideLoader
                 AllTags.Add(tag.TagName, tag);
             }
 
-            // Hooks for bug fixing
-            On.ItemListDisplay.SortBySupport += SortBySupportHook;
+            var harmony = new Harmony($"com.sinai.{SL.MODNAME}");
+            harmony.PatchAll();
         }
 
-        private int SortBySupportHook(On.ItemListDisplay.orig_SortBySupport orig, Item _item1, Item _item2)
+
+        // fix for the recipe menu, which can break from some custom items when they are an ingredient.
+        [HarmonyPatch(typeof(ItemListDisplay), "SortBySupport")]
+        public class ItemListDisplay_SortBySupport
         {
-            try
+            [HarmonyPrefix]
+            public static bool Prefix(ItemListDisplay __instance, Item _item1, Item _item2, ref int __result)
             {
-                return orig(_item1, _item2);
-            }
-            catch
-            {
-                return -1;
+                if (!_item1 || !_item2)
+                {
+                    __result = -1;
+                    return false;
+                }
+
+                if (_item1.Tags == null)
+                {
+                    At.SetValue(new TagSource(), typeof(Item), _item1, "m_tagSource");
+                }
+                if (_item2.Tags == null)
+                {
+                    At.SetValue(new TagSource(), typeof(Item), _item2, "m_tagSource");
+                }
+
+                return true;
             }
         }
 
