@@ -11,25 +11,16 @@ namespace SideLoader
         public float AffectQuantity;
         public bool IsModifier;
 
-        public new void ApplyToTransform(Transform t)
+        public override void ApplyToComponent<T>(T component)
         {
-            var component = t.gameObject.AddComponent<AffectMana>();
-
-            component.Value = this.AffectQuantity;
-            component.IsModifier = this.IsModifier;
+            (component as AffectMana).Value = this.AffectQuantity;
+            (component as AffectMana).IsModifier = this.IsModifier;
         }
 
-        public static SL_AffectMana ParseAffectMana(AffectMana affectMana, SL_Effect _effectHolder)
+        public override void SerializeEffect<T>(T effect, SL_Effect holder)
         {
-            var affectManaHolder = new SL_AffectMana
-            {
-                AffectQuantity = affectMana.Value,
-                IsModifier = affectMana.IsModifier
-            };
-
-            At.InheritBaseValues(affectManaHolder, _effectHolder);
-
-            return affectManaHolder;
+            (holder as SL_AffectMana).AffectQuantity = (effect as AffectMana).Value;
+            (holder as SL_AffectMana).IsModifier = (effect as AffectMana).IsModifier;
         }
     }
 }

@@ -9,9 +9,9 @@ namespace SideLoader
     public class SL_AddStatusEffect : SL_Effect
     {
         public string StatusEffect = "";
-        public int ChanceToContract;
+        public int ChanceToContract;        
 
-        public new void ApplyToTransform(Transform t)
+        public override void ApplyToComponent<T>(T component)
         {
             var status = ResourcesPrefabManager.Instance.GetStatusEffectPrefab(this.StatusEffect);
 
@@ -21,35 +21,17 @@ namespace SideLoader
                 return;
             }
 
-            var component = t.gameObject.AddComponent<AddStatusEffect>();
-
-            component.BaseChancesToContract = this.ChanceToContract;
-            component.Status = status;
-
-            if (this is SL_AddBoonEffect addBoonHolder)
-            {
-                addBoonHolder.ApplyToTransform(t);
-            }
+            (component as AddStatusEffect).BaseChancesToContract = this.ChanceToContract;
+            (component as AddStatusEffect).Status = status;
         }
 
-        public static SL_AddStatusEffect ParseAddStatusEffect(AddStatusEffect addStatusEffect, SL_Effect effectHolder)
+        public override void SerializeEffect<T>(T effect, SL_Effect holder)
         {
-            var addStatusEffectHolder = new SL_AddStatusEffect();
-
-            At.InheritBaseValues(addStatusEffectHolder, effectHolder);
-
-            if (addStatusEffect.Status != null)
+            if ((effect as AddStatusEffect).Status != null)
             {
-                addStatusEffectHolder.StatusEffect = addStatusEffect.Status.IdentifierName;
-                addStatusEffectHolder.ChanceToContract = addStatusEffect.BaseChancesToContract;
+                (holder as SL_AddStatusEffect).StatusEffect = (effect as AddStatusEffect).Status.IdentifierName;
+                (holder as SL_AddStatusEffect).ChanceToContract = (effect as AddStatusEffect).BaseChancesToContract;
             }
-
-            if (addStatusEffect is AddBoonEffect addBoon)
-            {
-                return SL_AddBoonEffect.ParseAddBoonEffect(addBoon, addStatusEffectHolder);
-            }
-
-            return addStatusEffectHolder;
         }
     }
 }

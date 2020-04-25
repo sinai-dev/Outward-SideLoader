@@ -10,8 +10,10 @@ namespace SideLoader
     {
         public string AmplifiedEffect = "";
 
-        public new void ApplyToTransform(Transform t)
+        public override void ApplyToComponent<T>(T component)
         {
+            base.ApplyToComponent(component);
+
             var status = ResourcesPrefabManager.Instance.GetStatusEffectPrefab(this.AmplifiedEffect);
 
             if (!status)
@@ -20,31 +22,14 @@ namespace SideLoader
                 return;
             }
 
-            var component = t.gameObject.AddComponent<AddBoonEffect>();
-
-            var old = t.gameObject.GetComponent<AddStatusEffect>();
-            var normalStatus = old.Status;
-            At.InheritBaseValues(component as AddStatusEffect, old);
-            GameObject.Destroy(old);
-
-            component.BaseChancesToContract = this.ChanceToContract;
-            component.Status = normalStatus;
-            component.BoonAmplification = status;
-
+            (component as AddBoonEffect).BoonAmplification = status;
         }
 
-        public static SL_AddBoonEffect ParseAddBoonEffect(AddBoonEffect addBoonEffect, SL_AddStatusEffect addStatusHolder)
+        public override void SerializeEffect<T>(T effect, SL_Effect holder)
         {
-            var addBoonHolder = new SL_AddBoonEffect();
+            base.SerializeEffect(effect, holder);
 
-            At.InheritBaseValues(addBoonHolder, addStatusHolder);
-
-            if (addBoonEffect.BoonAmplification != null)
-            {
-                addBoonHolder.AmplifiedEffect = addBoonEffect.BoonAmplification.IdentifierName;
-            }
-
-            return addBoonHolder;
+            (holder as SL_AddBoonEffect).AmplifiedEffect = (effect as AddBoonEffect).BoonAmplification.IdentifierName;
         }
     }
 }

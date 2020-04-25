@@ -8,28 +8,23 @@ namespace SideLoader
 {
     public class SL_RemoveStatusEffect : SL_Effect
     {
-        //public string StatusEffect;
         public string Status_Name = "";
-        //public string StatusEffect_Family;
         public string Status_Tag = "";
-
         public RemoveStatusEffect.RemoveTypes CleanseType;
 
-        public new void ApplyToTransform(Transform t)
+        public override void ApplyToComponent<T>(T component)
         {
-            var component = t.gameObject.AddComponent<RemoveStatusEffect>();
+            (component as RemoveStatusEffect).CleanseType = this.CleanseType;
 
-            component.CleanseType = this.CleanseType;
-            
             if (this.CleanseType == RemoveStatusEffect.RemoveTypes.StatusNameContains)
             {
-                component.StatusName = this.Status_Name;
+                (component as RemoveStatusEffect).StatusName = this.Status_Name;
             }
 
             if (this.CleanseType == RemoveStatusEffect.RemoveTypes.StatusSpecific)
             {
                 var status = ResourcesPrefabManager.Instance.GetStatusEffectPrefab(this.Status_Name);
-                component.StatusEffect = status;
+                (component as RemoveStatusEffect).StatusEffect = status;
             }
 
             if (!string.IsNullOrEmpty(this.Status_Tag))
@@ -37,30 +32,22 @@ namespace SideLoader
                 var tag = CustomItems.GetTag(this.Status_Tag);
                 if (tag != null && tag != Tag.None)
                 {
-                    component.StatusType = new TagSourceSelector(tag);
+                    (component as RemoveStatusEffect).StatusType = new TagSourceSelector(tag);
                 }
             }
         }
 
-        public static SL_RemoveStatusEffect ParseRemoveStatusEffect(RemoveStatusEffect removeStatusEffect, SL_Effect _effectHolder)
+        public override void SerializeEffect<T>(T effect, SL_Effect holder)
         {
-            var removeStatusEffectHolder = new SL_RemoveStatusEffect
-            {
-               //StatusEffect = removeStatusEffect.StatusEffect ? removeStatusEffect.StatusEffect.IdentifierName : null,
-               Status_Tag = removeStatusEffect.StatusName,
-               Status_Name = removeStatusEffect.StatusType.Tag.TagName,
-               CleanseType = removeStatusEffect.CleanseType
-            };
-
-            At.InheritBaseValues(removeStatusEffectHolder, _effectHolder);
+            (holder as SL_RemoveStatusEffect).Status_Name = (effect as RemoveStatusEffect).StatusName;
+            (holder as SL_RemoveStatusEffect).Status_Tag = (effect as RemoveStatusEffect).StatusType?.Tag.TagName;
+            (holder as SL_RemoveStatusEffect).CleanseType = (effect as RemoveStatusEffect).CleanseType;
 
             //if (removeStatusEffect.StatusFamily != null
             //    && StatusEffectFamilyLibrary.Instance.GetStatusEffect(removeStatusEffect.StatusFamily.SelectorValue) is StatusEffectFamily statusFamily)
             //{
             //    removeStatusEffectHolder.StatusEffect_Family = statusFamily.Name;
             //}
-
-            return removeStatusEffectHolder;
         }
     }
 }

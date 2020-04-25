@@ -41,9 +41,11 @@ namespace SideLoader
 
             foreach (Effect effect in transform.GetComponents<Effect>())
             {
-                var effectHolder = SL_Effect.ParseEffect(effect);
-                if (effectHolder != null)
-                    effectTransformHolder.Effects.Add(effectHolder);
+                var holder = SL_Effect.ParseEffect(effect);
+                if (holder != null)
+                {
+                    effectTransformHolder.Effects.Add(holder);
+                }
             }
 
             //foreach (EffectCondition condition in transform.GetComponents<EffectCondition>())

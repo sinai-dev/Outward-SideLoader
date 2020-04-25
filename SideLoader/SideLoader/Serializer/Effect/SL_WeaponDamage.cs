@@ -21,8 +21,12 @@ namespace SideLoader
         public float Impact_Multiplier_Kback;
         public float Impact_Multiplier_Kdown;
 
-        public void ApplyToComponent(WeaponDamage weaponDamage)
+        public override void ApplyToComponent<T>(T component)
         {
+            base.ApplyToComponent(component);
+
+            var weaponDamage = component as WeaponDamage;
+
             weaponDamage.ForceOnlyLeftHand = this.ForceOnlyLeftHand;
             weaponDamage.OverrideDType = this.OverrideType;
             weaponDamage.WeaponDamageMult = this.Damage_Multiplier;
@@ -33,23 +37,21 @@ namespace SideLoader
             weaponDamage.WeaponKnockbackMultKDown = this.Impact_Multiplier_Kdown;
         }
 
-        public static SL_WeaponDamage ParseWeaponDamage(WeaponDamage weaponDamage, SL_PunctualDamage punctualDamageHolder)
+        public override void SerializeEffect<T>(T effect, SL_Effect holder)
         {
-            var weaponDamageHolder = new SL_WeaponDamage
-            {
-                ForceOnlyLeftHand = weaponDamage.ForceOnlyLeftHand,
-                OverrideType = weaponDamage.OverrideDType,
-                Damage_Multiplier = weaponDamage.WeaponDamageMult,
-                Damage_Multiplier_Kback = weaponDamage.WeaponDamageMultKBack,
-                Damage_Multiplier_Kdown = weaponDamage.WeaponDamageMultKDown,
-                Impact_Multiplier = weaponDamage.WeaponKnockbackMult,
-                Impact_Multiplier_Kback = weaponDamage.WeaponKnockbackMultKBack,
-                Impact_Multiplier_Kdown = weaponDamage.WeaponKnockbackMultKDown
-            };
+            base.SerializeEffect(effect, holder);
 
-            At.InheritBaseValues(weaponDamageHolder, punctualDamageHolder);
+            var weaponDamage = effect as WeaponDamage;
+            var wdHolder = holder as SL_WeaponDamage;
 
-            return weaponDamageHolder;
+            wdHolder.ForceOnlyLeftHand = weaponDamage.ForceOnlyLeftHand;
+            wdHolder.OverrideType = weaponDamage.OverrideDType;
+            wdHolder.Damage_Multiplier = weaponDamage.WeaponDamageMult;
+            wdHolder.Damage_Multiplier_Kback = weaponDamage.WeaponDamageMultKBack;
+            wdHolder.Damage_Multiplier_Kdown = weaponDamage.WeaponDamageMultKDown;
+            wdHolder.Impact_Multiplier = weaponDamage.WeaponKnockbackMult;
+            wdHolder.Impact_Multiplier_Kback = weaponDamage.WeaponKnockbackMultKBack;
+            wdHolder.Impact_Multiplier_Kdown = weaponDamage.WeaponKnockbackMultKDown;
         }
     }
 }

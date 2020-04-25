@@ -12,7 +12,7 @@ namespace SideLoader
         public int ImbueEffect_Preset_ID;
         public Weapon.WeaponSlot Imbue_Slot;
 
-        public new void ApplyToTransform(Transform t)
+        public override void ApplyToComponent<T>(T component)
         {
             var preset = ResourcesPrefabManager.Instance.GetEffectPreset(this.ImbueEffect_Preset_ID);
 
@@ -22,24 +22,16 @@ namespace SideLoader
                 return;
             }
 
-            var component = t.gameObject.AddComponent<ImbueWeapon>();
-            component.SetLifespanImbue(this.Lifespan);
-            component.ImbuedEffect = preset as ImbueEffectPreset;
-            component.AffectSlot = this.Imbue_Slot;
+            (component as ImbueWeapon).SetLifespanImbue(this.Lifespan);
+            (component as ImbueWeapon).ImbuedEffect = preset as ImbueEffectPreset;
+            (component as ImbueWeapon).AffectSlot = this.Imbue_Slot;
         }
 
-        public static SL_ImbueWeapon ParseImbueWeapon(ImbueWeapon imbueWeapon, SL_Effect _effectHolder)
+        public override void SerializeEffect<T>(T effect, SL_Effect holder)
         {
-            var imbueWeaponHolder = new SL_ImbueWeapon
-            {
-                ImbueEffect_Preset_ID = imbueWeapon.ImbuedEffect.PresetID,
-                Imbue_Slot = imbueWeapon.AffectSlot,
-                Lifespan = imbueWeapon.LifespanImbue
-            };
-
-            At.InheritBaseValues(imbueWeaponHolder, _effectHolder);
-
-            return imbueWeaponHolder;
+            (holder as SL_ImbueWeapon).ImbueEffect_Preset_ID = (effect as ImbueWeapon).ImbuedEffect.PresetID;
+            (holder as SL_ImbueWeapon).Imbue_Slot = (effect as ImbueWeapon).AffectSlot;
+            (holder as SL_ImbueWeapon).Lifespan = (effect as ImbueWeapon).LifespanImbue;
         }
     }
 }

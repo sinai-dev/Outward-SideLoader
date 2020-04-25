@@ -11,25 +11,16 @@ namespace SideLoader
         public float AffectQuantity;
         public bool IsModifier;
 
-        public new void ApplyToTransform(Transform t)
+        public override void ApplyToComponent<T>(T component)
         {
-            var component = t.gameObject.AddComponent<AffectBurntHealth>();
-
-            component.AffectQuantity = this.AffectQuantity;
-            component.IsModifier = this.IsModifier;
+            (component as AffectStability).AffectQuantity = this.AffectQuantity;
+            (component as AffectStability).IsModifier = this.IsModifier;
         }
 
-        public static SL_AffectStability ParseAffectStability(AffectStability affectStability, SL_Effect _effectHolder)
+        public override void SerializeEffect<T>(T effect, SL_Effect holder)
         {
-            var affectStabilityHolder = new SL_AffectStability
-            {
-                AffectQuantity = affectStability.AffectQuantity,
-                IsModifier = affectStability.IsModifier
-            };
-
-            At.InheritBaseValues(affectStabilityHolder, _effectHolder);
-
-            return affectStabilityHolder;
+            (holder as SL_AffectStability).AffectQuantity = (effect as AffectStability).AffectQuantity;
+            (holder as SL_AffectStability).IsModifier = (effect as AffectStability).IsModifier;
         }
     }
 }

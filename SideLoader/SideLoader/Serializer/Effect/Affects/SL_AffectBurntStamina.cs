@@ -11,25 +11,16 @@ namespace SideLoader
         public float AffectQuantity;
         public bool IsModifier;
 
-        public new void ApplyToTransform(Transform t)
+        public override void ApplyToComponent<T>(T component)
         {
-            var component = t.gameObject.AddComponent<AffectBurntStamina>();
-
-            component.AffectQuantity = this.AffectQuantity;
-            component.IsModifier = this.IsModifier;
+            (component as AffectBurntStamina).AffectQuantity = this.AffectQuantity;
+            (component as AffectBurntStamina).IsModifier = this.IsModifier;
         }
 
-        public static SL_AffectBurntStamina ParseAffectBurntStamina(AffectBurntStamina affectBurntStamina, SL_Effect _effectHolder)
+        public override void SerializeEffect<T>(T effect, SL_Effect holder)
         {
-            var affectBurntStaminaHolder = new SL_AffectBurntStamina
-            {
-                AffectQuantity = affectBurntStamina.AffectQuantity,
-                IsModifier = affectBurntStamina.IsModifier
-            };
-
-            At.InheritBaseValues(affectBurntStaminaHolder, _effectHolder);
-
-            return affectBurntStaminaHolder;
+            (holder as SL_AffectBurntStamina).AffectQuantity = (effect as AffectBurntStamina).AffectQuantity;
+            (holder as SL_AffectBurntStamina).IsModifier = (effect as AffectBurntStamina).IsModifier;
         }
     }
 }

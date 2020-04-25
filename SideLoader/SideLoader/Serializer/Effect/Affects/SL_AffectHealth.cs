@@ -12,27 +12,18 @@ namespace SideLoader
         public bool IsModifier;
         public float AffectQuantityAI;
 
-        public new void ApplyToTransform(Transform t)
+        public override void ApplyToComponent<T>(T component)
         {
-            var component = t.gameObject.AddComponent<AffectHealth>();
-
-            component.AffectQuantity = this.AffectQuantity;
-            component.AffectQuantityOnAI = this.AffectQuantityAI;
-            component.IsModifier = this.IsModifier;
+            (component as AffectHealth).AffectQuantity = this.AffectQuantity;
+            (component as AffectHealth).AffectQuantityOnAI = this.AffectQuantityAI;
+            (component as AffectHealth).IsModifier = this.IsModifier;
         }
 
-        public static SL_AffectHealth ParseAffectHealth(AffectHealth affectHealth, SL_Effect _effectHolder)
+        public override void SerializeEffect<T>(T effect, SL_Effect holder)
         {
-            var affectHealthHolder = new SL_AffectHealth
-            {
-                AffectQuantity = affectHealth.AffectQuantity,
-                IsModifier = affectHealth.IsModifier,
-                AffectQuantityAI = affectHealth.AffectQuantityOnAI
-            };
-
-            At.InheritBaseValues(affectHealthHolder, _effectHolder);
-
-            return affectHealthHolder;
+            (holder as SL_AffectHealth).AffectQuantity = (effect as AffectHealth).AffectQuantity;
+            (holder as SL_AffectHealth).AffectQuantityAI = (effect as AffectHealth).AffectQuantityOnAI;
+            (holder as SL_AffectHealth).IsModifier = (effect as AffectHealth).IsModifier;
         }
     }
 }

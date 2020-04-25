@@ -9,11 +9,10 @@ namespace SideLoader
     public class SL_AffectStat : SL_Effect
     {
         public string Stat_Tag = "";
-        //public string Stat_ID = "";
         public float AffectQuantity;
         public bool IsModifier;
 
-        public new void ApplyToTransform(Transform t)
+        public override void ApplyToComponent<T>(T component)
         {
             var tag = CustomItems.GetTag(Stat_Tag);
 
@@ -23,27 +22,16 @@ namespace SideLoader
                 return;
             }
 
-            var component = t.gameObject.AddComponent<AffectStat>();
-
-            component.AffectedStat = new TagSourceSelector(tag);
-            component.Value = this.AffectQuantity;
-            component.IsModifier = this.IsModifier;
+            (component as AffectStat).AffectedStat = new TagSourceSelector(tag);
+            (component as AffectStat).Value = this.AffectQuantity;
+            (component as AffectStat).IsModifier = this.IsModifier;
         }
 
-        public static SL_AffectStat ParseAffectStat(AffectStat affectStat, SL_Effect _effectHolder)
+        public override void SerializeEffect<T>(T effect, SL_Effect holder)
         {
-            var affectStatHolder = new SL_AffectStat
-            {
-                Stat_Tag = affectStat.AffectedStat.Tag.TagName,
-                //Stat_ID = affectStat.AffectedStat.Tag.UID.ToString(),
-                AffectQuantity = affectStat.Value,
-                IsModifier = affectStat.IsModifier
-            };
-
-            At.InheritBaseValues(affectStatHolder, _effectHolder);
-
-            return affectStatHolder;
+            (holder as SL_AffectStat).Stat_Tag = (effect as AffectStat).AffectedStat.Tag.TagName;
+            (holder as SL_AffectStat).AffectQuantity = (effect as AffectStat).Value;
+            (holder as SL_AffectStat).IsModifier = (effect as AffectStat).IsModifier;
         }
-
     }
 }

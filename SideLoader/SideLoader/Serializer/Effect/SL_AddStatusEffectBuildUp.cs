@@ -11,7 +11,7 @@ namespace SideLoader
         public string StatusEffect = "";
         public float Buildup;
 
-        public new void ApplyToTransform(Transform t)
+        public override void ApplyToComponent<T>(T component)
         {
             var status = ResourcesPrefabManager.Instance.GetStatusEffectPrefab(this.StatusEffect);
 
@@ -21,25 +21,20 @@ namespace SideLoader
                 return;
             }
 
-            var component = t.gameObject.AddComponent<AddStatusEffectBuildUp>();
-
-            component.Status = status;
-            component.BuildUpValue = this.Buildup;
+            (component as AddStatusEffectBuildUp).Status = status;
+            (component as AddStatusEffectBuildUp).BuildUpValue = this.Buildup;
         }
 
-        public static SL_AddStatusEffectBuildUp ParseAddStatusEffectBuildup(AddStatusEffectBuildUp addStatusEffectBuildUp, SL_Effect effectHolder)
+        public override void SerializeEffect<T>(T effect, SL_Effect holder)
         {
-            var addStatusEffectBuildupHolder = new SL_AddStatusEffectBuildUp();
-
-            At.InheritBaseValues(addStatusEffectBuildupHolder, effectHolder);
+            var addStatusEffectBuildUp = effect as AddStatusEffectBuildUp;
+            var addStatusEffectBuildupHolder = holder as SL_AddStatusEffectBuildUp;
 
             if (addStatusEffectBuildUp.Status != null)
             {
                 addStatusEffectBuildupHolder.StatusEffect = addStatusEffectBuildUp.Status.IdentifierName;
                 addStatusEffectBuildupHolder.Buildup = addStatusEffectBuildUp.BuildUpValue;
             }
-
-            return addStatusEffectBuildupHolder;
         }
     }
 }

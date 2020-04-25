@@ -12,27 +12,18 @@ namespace SideLoader
         public bool Requires_AffectedChar;
         public bool IsModifier;
 
-        public new void ApplyToTransform(Transform t)
+        public override void ApplyToComponent<T>(T component)
         {
-            var component = t.gameObject.AddComponent<AffectHealthParentOwner>();
-
-            component.AffectQuantity = this.AffectQuantity;
-            component.OnlyIfHasAffectedChar = this.Requires_AffectedChar;
-            component.IsModifier = this.IsModifier;
+            (component as AffectHealthParentOwner).AffectQuantity = this.AffectQuantity;
+            (component as AffectHealthParentOwner).OnlyIfHasAffectedChar = this.Requires_AffectedChar;
+            (component as AffectHealthParentOwner).IsModifier = this.IsModifier;
         }
 
-        public static SL_AffectHealthParentOwner ParseAffectHealthParentOwner(AffectHealthParentOwner affectHealthParent, SL_Effect _effectHolder)
+        public override void SerializeEffect<T>(T effect, SL_Effect holder)
         {
-            var affectHealthHolder = new SL_AffectHealthParentOwner
-            {
-                AffectQuantity = affectHealthParent.AffectQuantity,
-                Requires_AffectedChar = affectHealthParent.OnlyIfHasAffectedChar,
-                IsModifier = affectHealthParent.IsModifier
-            };
-
-            At.InheritBaseValues(affectHealthHolder, _effectHolder);
-
-            return affectHealthHolder;
+            (holder as SL_AffectHealthParentOwner).AffectQuantity = (effect as AffectHealthParentOwner).AffectQuantity;
+            (holder as SL_AffectHealthParentOwner).Requires_AffectedChar = (effect as AffectHealthParentOwner).OnlyIfHasAffectedChar;
+            (holder as SL_AffectHealthParentOwner).IsModifier = (effect as AffectHealthParentOwner).IsModifier;
         }
     }
 }

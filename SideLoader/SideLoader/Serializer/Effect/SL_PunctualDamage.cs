@@ -13,27 +13,19 @@ namespace SideLoader
         public float Knockback;
         public bool HitInventory;
 
-        public new void ApplyToTransform(Transform t)
+        public override void ApplyToComponent<T>(T component)
         {
-            PunctualDamage component;
-            if (this is SL_WeaponDamage)
-            {
-                component = t.gameObject.AddComponent<WeaponDamage>();
-            }
-            else
-            {
-                component = t.gameObject.AddComponent<PunctualDamage>();
-            }
+            var comp = component as PunctualDamage;
 
-            component.Knockback = this.Knockback;
-            component.HitInventory = this.HitInventory;
+            comp.Knockback = this.Knockback;
+            comp.HitInventory = this.HitInventory;
 
             var damages = new List<DamageType>();
             foreach (var damage in this.Damage)
             {
                 damages.Add(damage.GetDamageType());
             }
-            component.Damages = damages.ToArray();
+            comp.Damages = damages.ToArray();
 
             if (this.Damages_AI != null)
             {
@@ -42,34 +34,19 @@ namespace SideLoader
                 {
                     damagesAI.Add(damage.GetDamageType());
                 }
-                component.DamagesAI = damagesAI.ToArray();            
-            }
-
-            if (this is SL_WeaponDamage weaponDamageHolder)
-            {
-                weaponDamageHolder.ApplyToComponent(component as WeaponDamage);
+                comp.DamagesAI = damagesAI.ToArray();
             }
         }
 
-        public static SL_PunctualDamage ParsePunctualDamage(PunctualDamage damage, SL_Effect effectHolder)
+        public override void SerializeEffect<T>(T effect, SL_Effect holder)
         {
-            var punctualDamageHolder = new SL_PunctualDamage
-            {
-                Knockback = damage.Knockback,
-                HitInventory = damage.HitInventory
-            };
+            var puncDamage = effect as PunctualDamage;
+            var puncHolder = holder as SL_PunctualDamage;
 
-            At.InheritBaseValues(punctualDamageHolder, effectHolder);
-
-            punctualDamageHolder.Damage = SL_Damage.ParseDamageArray(damage.Damages);
-            punctualDamageHolder.Damages_AI = SL_Damage.ParseDamageArray(damage.DamagesAI);
-
-            if (damage is WeaponDamage)
-            {
-                return SL_WeaponDamage.ParseWeaponDamage(damage as WeaponDamage, punctualDamageHolder);
-            }
-
-            return punctualDamageHolder;
+            puncHolder.Knockback = puncDamage.Knockback;
+            puncHolder.HitInventory = puncDamage.HitInventory;
+            puncHolder.Damage = SL_Damage.ParseDamageArray(puncDamage.Damages);
+            puncHolder.Damages_AI = SL_Damage.ParseDamageArray(puncDamage.DamagesAI);
         }
     }
 }

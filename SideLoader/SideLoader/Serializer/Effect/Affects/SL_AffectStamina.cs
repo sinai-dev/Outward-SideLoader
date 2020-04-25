@@ -10,24 +10,14 @@ namespace SideLoader
     {
         public float AffectQuantity;
 
-        public new void ApplyToTransform(Transform t)
+        public override void ApplyToComponent<T>(T component)
         {
-            var component = t.gameObject.AddComponent<AffectStamina>();
-
-            component.AffectQuantity = this.AffectQuantity;
+            (component as AffectStamina).AffectQuantity = this.AffectQuantity;
         }
 
-
-        public static SL_AffectStamina ParseAffectStamina(AffectStamina affectStamina, SL_Effect _effectHolder)
+        public override void SerializeEffect<T>(T effect, SL_Effect holder)
         {
-            var affectStaminaHolder = new SL_AffectStamina
-            {
-                AffectQuantity = affectStamina.AffectQuantity
-            };
-
-            At.InheritBaseValues(affectStaminaHolder, _effectHolder);
-
-            return affectStaminaHolder;
+            (holder as SL_AffectStamina).AffectQuantity = (effect as AffectStamina).AffectQuantity;
         }
     }
 }
