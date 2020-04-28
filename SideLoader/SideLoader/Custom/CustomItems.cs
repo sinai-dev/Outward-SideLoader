@@ -44,7 +44,6 @@ namespace SideLoader
             harmony.PatchAll();
         }
 
-
         // fix for the recipe menu, which can break from some custom items when they are an ingredient.
         [HarmonyPatch(typeof(ItemListDisplay), "SortBySupport")]
         public class ItemListDisplay_SortBySupport

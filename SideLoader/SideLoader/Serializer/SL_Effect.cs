@@ -13,15 +13,11 @@ namespace SideLoader
         public Effect.SyncTypes SyncType = Effect.SyncTypes.Everyone;
         public EffectSynchronizer.EffectCategories OverrideCategory = EffectSynchronizer.EffectCategories.None;
 
+        public abstract void ApplyToComponent<T>(T component) where T : Effect;
+
         public Effect ApplyToTransform(Transform t)
         {
             var type = this.GetType();
-
-            if (type == typeof(SL_Effect))
-            {
-                SL.Log("You cannot use the SL_Effect class directly! Use a subclass of it.", 1);
-                return null;
-            }
 
             if (GetGameEffect(type) is Type game_type)
             {
@@ -41,7 +37,7 @@ namespace SideLoader
             }
         }
 
-        public abstract void ApplyToComponent<T>(T component) where T: Effect;
+        public abstract void SerializeEffect<T>(T effect, SL_Effect holder) where T : Effect;
 
         public static SL_Effect ParseEffect(Effect effect)
         {
@@ -59,12 +55,10 @@ namespace SideLoader
             }
             else
             {
-                SL.Log("Could not find SL holder type for game type: " + type + ", it is probably not supported yet, sorry!", 1);
+                SL.Log(type + " is not supported yet, sorry!");
                 return null;
             }
         }
-
-        public abstract void SerializeEffect<T>(T effect, SL_Effect holder) where T : Effect;
 
         // ================ Type match dictionary ================
 

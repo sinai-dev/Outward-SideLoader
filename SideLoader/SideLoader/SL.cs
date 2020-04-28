@@ -18,7 +18,7 @@ namespace SideLoader
 
         // Mod Info
         public const string MODNAME = "SideLoader";
-        public const string VERSION = "2.0.1";
+        public const string VERSION = "2.0.3";
 
         // Folders
         public const string SL_FOLDER = @"Mods\SideLoader";

@@ -8,6 +8,7 @@ using System.IO;
 using UnityEngine.UI;
 using System.Threading;
 using UnityEditor;
+using UnityEngine.Experimental.Rendering;
 
 namespace SideLoader
 {
@@ -59,12 +60,17 @@ namespace SideLoader
             SL.OnSceneLoaded += ReplaceActiveTextures;
         }
 
+        /// <summary>
+        /// Simple helper for loading a Texture2D from a .png filepath
+        /// </summary>
+        /// <param name="filePath">The full or relative filepath</param>
+        /// <param name="isNormal">Is it a normal map? (_NormTex or _BumpMap)</param>
+        /// <returns></returns>
         public static Texture2D LoadTexture(string filePath, bool isNormal = false)
         {
             return LoadTextureInternal(filePath, isNormal);
         }
 
-        /// <summary> Simple helper for loading a Texture2D from a .png filepath </summary>
         private static Texture2D LoadTextureInternal(string filePath, bool isNormal)
         {
             var name = Path.GetFileNameWithoutExtension(filePath);
@@ -77,15 +83,18 @@ namespace SideLoader
 
                 if (isNormal)
                 {
-                    tex = new Texture2D(1, 1, TextureFormat.DXT1, false, true);
+                    tex = new Texture2D(1, 1, GraphicsFormat.RGBA_DXT1_UNorm, TextureCreationFlags.None);
+                    //tex = new Texture2D(1, 1, TextureFormat.DXT1, false, true);
                 }
                 else
                 {
-                    tex = new Texture2D(1, 1, TextureFormat.DXT1, false);
+                    tex = new Texture2D(1, 1, GraphicsFormat.RGBA_DXT1_SRGB, TextureCreationFlags.None);
+                    //tex = new Texture2D(1, 1, TextureFormat.DXT1, false);
                 }
 
                 tex.LoadImage(fileData);
                 tex.filterMode = FilterMode.Point;
+
                 return tex;
             }
             else
@@ -143,7 +152,7 @@ namespace SideLoader
                 rt.filterMode = FilterMode.Point;
                 RenderTexture.active = rt;
                 Graphics.Blit(_tex, rt);
-                Texture2D _newTex = new Texture2D(_tex.width, _tex.height);
+                Texture2D _newTex = new Texture2D(_tex.width, _tex.height, GraphicsFormat.RGBA_DXT1_SRGB, TextureCreationFlags.None);
                 _newTex.ReadPixels(new Rect(0, 0, _tex.width, _tex.height), 0, 0);
                 _newTex.Apply();
                 RenderTexture.active = null;

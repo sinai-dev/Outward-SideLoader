@@ -16,7 +16,7 @@ namespace SideLoader
 
         /* 
          * This will need fixing after DLC (Item.ItemVisual not a direct link, only string reference to Resources path)
-         * Will probably have to hook something like ResourcesPrefabManager.GetItemVisual(int id) / GetSpecialVisual / GetSpecialFemaleVisual
+         * Will probably have to hook something like ResourcesPrefabManager.GetItemVisual(int id) 
         */
 
         /// <summary> Custom Item Visual prefabs (including retexture-only) </summary>
@@ -47,9 +47,8 @@ namespace SideLoader
                     return ItemVisuals[item.ItemID].ItemSpecialVisuals;  // ?? ResourcesPrefabManager.Instance.GetItemVisuals(id, type);
                 case VisualPrefabType.SpecialVisualPrefabFemale:
                     return ItemVisuals[item.ItemID].ItemSpecialFemaleVisuals;  // ?? ResourcesPrefabManager.Instance.GetItemVisuals(id, type);
-                default:
-                    SL.Log("CustomItemVisuals dictionary contains this item ID, but the visuals are null! ID: " + item.ItemID + ", type: " + type, 1);
-                    return null;
+                // impossible outcome, but needs to be here for compiler warning
+                default: return null; 
             }
         }
 
@@ -67,9 +66,10 @@ namespace SideLoader
             var newModel = GameObject.Instantiate(newPrefab.gameObject);
             GameObject.DontDestroyOnLoad(newModel.gameObject);
 
+            // skinned mesh used for bows and armor
             if (origPrefab.GetComponentInChildren<SkinnedMeshRenderer>())
             {
-                if (item is ProjectileWeapon p && p.Type == Weapon.WeaponType.Bow) // Bows
+                if (item is ProjectileWeapon) // Bows
                 {
                     SL.Log("Custom Visual Prefabs for Bows are not yet supported, sorry!", 0);
                     return;
@@ -443,22 +443,18 @@ namespace SideLoader
                 Directory.CreateDirectory(dir);
             }
 
-            bool any = false;
-
             foreach (var layer in CustomTextures.SuffixToShaderLayer.Values)
             {
                 var layername = layer.ToString();
 
                 if (mat.HasProperty(layername) && mat.GetTexture(layername) is Texture tex)
                 {
-                    CustomTextures.SaveTextureAsPNG(tex as Texture2D, dir, layername);
-
-                    if (!any) { any = true; }                        
+                    CustomTextures.SaveTextureAsPNG(tex as Texture2D, dir, layername);                    
                 }
             }
         }
 
-        // used internall for managing custom item visuals with the resources prefab manager.
+        // used internally for managing custom item visuals with the resources prefab manager.
         public class ItemVisualsLink
         {
             public Item LinkedItem;

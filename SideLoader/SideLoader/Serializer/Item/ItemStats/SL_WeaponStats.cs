@@ -25,6 +25,10 @@ namespace SideLoader
             stats.BaseDamage = SL_Damage.GetDamageList(this.BaseDamage);
             stats.StamCost = this.StamCost;
 
+            // fix for m_activeBaseDamage
+            var weapon = stats.GetComponent<Weapon>();
+            At.SetValue(stats.BaseDamage, typeof(Weapon), weapon, "m_activeBaseDamage");
+
             if (AutoGenerateAttackData)
             {
                 SL.Log("Generating attackdata manually");
@@ -44,7 +48,7 @@ namespace SideLoader
                     newAttacks.Add(data);
                 }
                 stats.Attacks = newAttacks.ToArray();
-            }            
+            }          
         }
 
         public static SL_WeaponStats ParseWeaponStats(WeaponStats stats, SL_EquipmentStats equipmentStatsHolder)

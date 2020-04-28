@@ -28,24 +28,6 @@ namespace SideLoader
         /// </summary>
         public TemplateBehaviour Behaviour = TemplateBehaviour.NONE;
 
-        public enum TemplateBehaviour
-        {
-            NONE,
-            DestroyEffects,
-            OverrideEffects,
-            OnlyChangeVisuals,
-        }
-
-        [Obsolete("Use SL_Item.Behaviour instead.", false)]
-        public bool OnlyChangeVisuals = false;
-        [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
-        public bool ShouldSerializeOnlyChangeVisuals() { return false; }
-
-        [Obsolete("Use SL_Item.Behaviour instead.", false)]
-        public bool ReplaceEffects = false;
-        [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
-        public bool ShouldSerializeReplaceEffects() { return false; }
-
         /// <summary>The Item ID of the Item you are cloning FROM</summary>
         public int Target_ItemID = -1;
         /// <summary>The NEW Item ID for your custom Item (can be the same as target, will overwrite)</summary>
@@ -366,5 +348,25 @@ namespace SideLoader
                 return itemHolder;
             }
         }
+
+        public enum TemplateBehaviour
+        {
+            NONE,
+            DestroyEffects,
+            OverrideEffects,
+            OnlyChangeVisuals,
+        }
+
+        // ******************* Legacy support *******************
+
+        [Obsolete("Use SL_Item.Behaviour instead.", false)]
+        public bool OnlyChangeVisuals = false;
+        [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
+        public bool ShouldSerializeOnlyChangeVisuals() { return false; }
+
+        [Obsolete("Use SL_Item.Behaviour instead.", false)]
+        public bool ReplaceEffects = false;
+        [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
+        public bool ShouldSerializeReplaceEffects() { return false; }
     }
 }
