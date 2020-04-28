@@ -152,7 +152,7 @@ namespace SideLoader
                 rt.filterMode = FilterMode.Point;
                 RenderTexture.active = rt;
                 Graphics.Blit(_tex, rt);
-                Texture2D _newTex = new Texture2D(_tex.width, _tex.height, GraphicsFormat.RGBA_DXT1_SRGB, TextureCreationFlags.None);
+                Texture2D _newTex = new Texture2D(_tex.width, _tex.height);
                 _newTex.ReadPixels(new Rect(0, 0, _tex.width, _tex.height), 0, 0);
                 _newTex.Apply();
                 RenderTexture.active = null;

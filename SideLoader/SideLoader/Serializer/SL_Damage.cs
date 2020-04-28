@@ -15,9 +15,7 @@ namespace SideLoader
             var newlist = new DamageList();
             foreach (var entry in list)
             {
-                var type = entry.Type;
-
-                newlist.Add(new DamageType(type, entry.Damage));
+                newlist.Add(entry.GetDamageType());
             }
 
             return newlist;

@@ -14,8 +14,6 @@ namespace SideLoader
         public float StamCost;
 
         public bool AutoGenerateAttackData;
-
-        //public int AttackCount;
         public WeaponStats.AttackData[] Attacks;
 
         public void ApplyToItem(WeaponStats stats)
@@ -125,7 +123,7 @@ namespace SideLoader
             {
                 Weapon.WeaponType.Sword_1H,
                 new WeaponStatData()
-                {
+                {   //                         1     2     3     4     5
                     DamageMult = new float[] { 1.0f, 1.0f, 1.3f, 1.1f, 1.1f },
                     ImpactMult = new float[] { 1.0f, 1.0f, 1.3f, 1.1f, 1.1f },
                     StamMult   = new float[] { 1.0f, 1.0f, 1.2f, 1.1f, 1.1f }
@@ -194,6 +192,15 @@ namespace SideLoader
                     StamMult   = new float[] { 1.0f, 1.0f, 1.25f, 1.25f, 1.25f }
                 }
             },
+            {
+                Weapon.WeaponType.FistW_2H,
+                new WeaponStatData()
+                {   //                         1     2     3     4     5
+                    DamageMult = new float[] { 1.0f, 1.0f, 1.0f, 1.0f, 1.0f },
+                    ImpactMult = new float[] { 1.0f, 1.0f, 1.0f, 1.0f, 1.0f },
+                    StamMult   = new float[] { 1.0f, 1.0f, 1.0f, 1.0f, 1.0f }
+                }
+            }
         };
 
         public class WeaponStatData
