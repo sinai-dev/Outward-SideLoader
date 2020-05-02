@@ -45,25 +45,11 @@ namespace SideLoader
         [HarmonyPatch(typeof(ItemListDisplay), "SortBySupport")]
         public class ItemListDisplay_SortBySupport
         {
-            [HarmonyPrefix]
-            public static bool Prefix(ItemListDisplay __instance, Item _item1, Item _item2, ref int __result)
+            [HarmonyFinalizer]
+            public static Exception Finalizer(ref int __result)
             {
-                if (!_item1 || !_item2)
-                {
-                    __result = -1;
-                    return false;
-                }
-
-                if (_item1.Tags == null)
-                {
-                    At.SetValue(new TagSource(), typeof(Item), _item1, "m_tagSource");
-                }
-                if (_item2.Tags == null)
-                {
-                    At.SetValue(new TagSource(), typeof(Item), _item2, "m_tagSource");
-                }
-
-                return true;
+                __result = -1;
+                return null;
             }
         }
 
