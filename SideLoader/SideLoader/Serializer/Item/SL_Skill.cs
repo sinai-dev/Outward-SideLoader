@@ -7,11 +7,11 @@ namespace SideLoader
 {
     public class SL_Skill : SL_Item
     {
-        public float Cooldown;
-        public float StaminaCost;
-        public float ManaCost;
-        public float DurabilityCost;
-        public float DurabilityCostPercent;
+        public float? Cooldown;
+        public float? StaminaCost;
+        public float? ManaCost;
+        public float? DurabilityCost;
+        public float? DurabilityCostPercent;
 
         public List<SkillItemReq> RequiredItems = new List<SkillItemReq>();
 
@@ -20,23 +20,34 @@ namespace SideLoader
         public List<Weapon.WeaponType> RequiredOffHandTypes = new List<Weapon.WeaponType>();
         public List<Weapon.WeaponType> RequiredWeaponTypes = new List<Weapon.WeaponType>();
         public List<string> RequiredWeaponTags = new List<string>();
-        public bool RequireImbue;
+        public bool? RequireImbue;
 
         // public List<SkillItemReq> RequiredItems = new List<SkillItemReq>();
 
         public void ApplyToItem(Skill item)
         {
-            item.Cooldown = this.Cooldown;
-            item.ManaCost = this.ManaCost;
-            item.StaminaCost = this.StaminaCost;
-            item.DurabilityCost = this.DurabilityCost;
-            item.DurabilityCostPercent = this.DurabilityCostPercent;
-
-            if (this.RequiredItems == null)
+            if (this.Cooldown != null)
             {
-                item.RequiredItems = new Skill.ItemRequired[0];
+                item.Cooldown = (float)this.Cooldown;
             }
-            else
+            if (this.ManaCost != null)
+            {
+                item.ManaCost = (float)this.ManaCost;
+            }
+            if (this.StaminaCost != null)
+            {
+                item.StaminaCost = (float)this.StaminaCost;
+            }
+            if (this.DurabilityCost != null)
+            {
+                item.DurabilityCost = (float)this.DurabilityCost;
+            }
+            if (this.DurabilityCostPercent != null)
+            {
+                item.DurabilityCostPercent = (float)this.DurabilityCostPercent;
+            }
+
+            if (this.RequiredItems != null)
             {
                 var list = new List<Skill.ItemRequired>();
                 foreach (var req in this.RequiredItems)
@@ -53,12 +64,25 @@ namespace SideLoader
                 }
                 item.RequiredItems = list.ToArray();
             }
+
             if (item is AttackSkill attackSkill)
             {
-                attackSkill.AmmunitionTypes = this.AmmunitionTypes;
-                attackSkill.RequiredOffHandTypes = this.RequiredOffHandTypes;
-                attackSkill.RequiredWeaponTypes = this.RequiredWeaponTypes;
-                attackSkill.RequireImbue = this.RequireImbue;
+                if (this.AmmunitionTypes != null)
+                {
+                    attackSkill.AmmunitionTypes = this.AmmunitionTypes;
+                }
+                if (this.RequiredOffHandTypes != null)
+                {
+                    attackSkill.RequiredOffHandTypes = this.RequiredOffHandTypes;
+                }
+                if (this.RequiredWeaponTypes != null)
+                {
+                    attackSkill.RequiredWeaponTypes = this.RequiredWeaponTypes;
+                }
+                if (this.RequireImbue != null)
+                {
+                    attackSkill.RequireImbue = (bool)this.RequireImbue;
+                }
 
                 if (this.RequiredWeaponTags != null)
                 {
@@ -71,10 +95,6 @@ namespace SideLoader
                         }
                     }
                     attackSkill.RequiredTags = list.ToArray();
-                }
-                else
-                {
-                    attackSkill.RequiredTags = new TagSourceSelector[0];
                 }
             }
         }

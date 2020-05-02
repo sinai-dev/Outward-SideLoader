@@ -69,7 +69,6 @@
     <Compile Include="Custom\CustomCharacters.cs" />
     <Compile Include="Custom\CustomItems.cs" />
     <Compile Include="Custom\CustomSkills.cs" />
-    <Compile Include="ModLoader.cs" />
     <Compile Include="Serializer.cs" />
     <Compile Include="SLPack.cs" />
     <Compile Include="Custom\CustomScenes.cs" />
@@ -110,10 +109,6 @@
     </Reference>
     <Reference Include="netstandard">
       <HintPath>..\..\..\..\..\Steam\steamapps\common\Outward\Outward_Data\Managed\netstandard.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="Partiality">
-      <HintPath>..\..\..\..\..\Steam\steamapps\common\Outward\BepInEx\plugins\PartialityWrapper\Partiality.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="Photon3Unity3D">

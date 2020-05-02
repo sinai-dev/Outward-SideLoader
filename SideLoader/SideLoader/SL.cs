@@ -9,21 +9,24 @@ using UnityEngine.SceneManagement;
 using UnityEngine.Events;
 using System.Reflection;
 using HarmonyLib;
+using BepInEx;
 
 namespace SideLoader
 {
     /// <summary> The main SideLoader class. </summary>
-    public class SL : MonoBehaviour
+    [BepInPlugin(GUID, MODNAME, VERSION)]
+    public class SL : BaseUnityPlugin
     {
         public static SL Instance;
 
         // Mod Info
+        public const string GUID = "com.sinai." + MODNAME;
         public const string MODNAME = "SideLoader";
         public const string VERSION = "2.0.5";
 
         // Folders
-        public const string MODS_FOLDER = @"Mods";
-        public const string SL_FOLDER = MODS_FOLDER + @"\SideLoader";
+        public static string PLUGINS_FOLDER => Paths.PluginPath;
+        public const string SL_FOLDER = @"Mods\SideLoader";
         public static string GENERATED_FOLDER { get => SL_FOLDER + @"\_GENERATED"; }
 
         // Loaded SLPacks
@@ -51,8 +54,28 @@ namespace SideLoader
                 Directory.CreateDirectory(SL_FOLDER);
             }
 
-            var harmony = new Harmony($"com.sinai.{SL.MODNAME}");
+            var harmony = new Harmony($"com.sinai.{MODNAME}");
             harmony.PatchAll();
+        }
+
+        [HarmonyPatch(typeof(ItemDetailsDisplay), "RefreshDetail")]
+        public class ItemDetailsDisplay_RefreshDetail
+        {
+            //[HarmonyPrefix]
+            //public static void Prefix(int _rowIndex, ItemDetailsDisplay.DisplayedInfos _infoType)
+            //{
+            //    Debug.Log($"_rowIndex: {_rowIndex}, _infoType: {_infoType}");
+            //}
+
+            [HarmonyFinalizer]
+            public static Exception Finalizer(Exception __exception)
+            {
+                //if (__exception != null)
+                //{
+                //    Debug.Log($"Exception!\r\nMessage: {__exception.Message}\r\nStack: {__exception.StackTrace}");
+                //}
+                return null;
+            }
         }
 
         // ================ Main Setup ====================
@@ -86,8 +109,8 @@ namespace SideLoader
 
             // Read SL Packs
 
-            // new structure: Mods\ModName\SideLoader\
-            foreach (string modFolder in Directory.GetDirectories(MODS_FOLDER))
+            // new structure: BepInEx\plugins\ModName\SideLoader\
+            foreach (string modFolder in Directory.GetDirectories(PLUGINS_FOLDER))
             {
                 string name = Path.GetFileName(modFolder);
 

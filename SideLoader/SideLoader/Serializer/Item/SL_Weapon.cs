@@ -8,22 +8,35 @@ namespace SideLoader
 {
     public class SL_Weapon : SL_Equipment
     {
-        public Weapon.WeaponType WeaponType;
-        public bool Unblockable = false;
-        public SwingSoundWeapon SwingSound = SwingSoundWeapon.Default;
-        public bool SpecialIsZoom = false;
-        public int MaxProjectileShots = 1;
+        public Weapon.WeaponType? WeaponType;
+        public bool? Unblockable;
+        public SwingSoundWeapon? SwingSound = SwingSoundWeapon.Default;
+        public bool? SpecialIsZoom;
+        public int? MaxProjectileShots;
 
         public void ApplyToItem(Weapon item)
         {
-            item.Type = this.WeaponType;
-            item.Unblockable = this.Unblockable;
-            item.SwingSoundType = this.SwingSound;
-            item.SpecialIsZoom = this.SpecialIsZoom;
-            if (item is ProjectileWeapon projectile && projectile.GetComponent<WeaponLoadout>() is WeaponLoadout loadout)
+            if (this.WeaponType != null)
             {
+                item.Type = (Weapon.WeaponType)this.WeaponType;
+            }
+            if (this.Unblockable != null)
+            {
+                item.Unblockable = (bool)this.Unblockable;
+            }
+            if (this.SwingSound != null)
+            {
+                item.SwingSoundType = (SwingSoundWeapon)this.SwingSound;
+            }
+            if (this.SpecialIsZoom != null)
+            {
+                item.SpecialIsZoom = (bool)this.SpecialIsZoom;
+            }
+            if (this.MaxProjectileShots != null && item is ProjectileWeapon projectile && projectile.GetComponent<WeaponLoadout>() is WeaponLoadout loadout)
+            {
+                int maxshots = (int)this.MaxProjectileShots;
                 // must be >= 1
-                loadout.MaxProjectileLoaded = (MaxProjectileShots <= 0) ? 1 : MaxProjectileShots;
+                loadout.MaxProjectileLoaded = (maxshots <= 0) ? 1 : maxshots;
             }
         }
 

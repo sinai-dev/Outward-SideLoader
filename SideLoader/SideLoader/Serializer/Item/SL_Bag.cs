@@ -8,36 +8,44 @@ namespace SideLoader
 {
     public class SL_Bag : SL_Equipment
     {
-        public float Capacity;
-        public bool Restrict_Dodge;
-        public float InventoryProtection;
+        public float? Capacity;
+        public bool? Restrict_Dodge;
+        public float? InventoryProtection;
 
-        public float Preserver_Amount = -1;
-        public bool Nullify_Perish = false;
+        public float? Preserver_Amount = -1;
+        public bool? Nullify_Perish = false;
 
         public void ApplyToItem(Bag item)
         {
             // set container capacity
             var container = item.transform.Find("Content").GetComponent<ItemContainerStatic>();
-            At.SetValue(this.Capacity, typeof(ItemContainer), container as ItemContainer, "m_baseContainerCapacity");
+            if (this.Capacity != null)
+            {
+                At.SetValue((float)this.Capacity, typeof(ItemContainer), container as ItemContainer, "m_baseContainerCapacity");
+            }
 
             // set restrict dodge 
-            At.SetValue(this.Restrict_Dodge, typeof(Bag), item, "m_restrictDodge");
+            if (this.Restrict_Dodge != null)
+            {
+                At.SetValue((bool)this.Restrict_Dodge, typeof(Bag), item, "m_restrictDodge");
+            }
 
             // set invent prot
             At.SetValue(this.InventoryProtection, typeof(Bag), item, "m_inventoryProtection");
 
-            if (this.Preserver_Amount > 0 || this.Nullify_Perish == true)
+            if (this.Preserver_Amount != null || this.Nullify_Perish == true)
             {
                 var preserver = container.transform.GetOrAddComponent<Preserver>();
 
-                if (!this.Nullify_Perish)
+                var nullperish = this.Nullify_Perish == null || this.Nullify_Perish == false;
+
+                if (!nullperish)
                 {
                     var elements = new List<Preserver.PreservedElement>()
                     {
                         new Preserver.PreservedElement()
                         {
-                            Preservation = this.Preserver_Amount,
+                            Preservation = (float)this.Preserver_Amount,
                             Tag = new TagSourceSelector(CustomItems.GetTag("Food"))
                         }
                     };
@@ -46,7 +54,7 @@ namespace SideLoader
                 }
                 else
                 {
-                    preserver.NullifyPerishing = this.Nullify_Perish;
+                    preserver.NullifyPerishing = true;
                 }
             }
         }

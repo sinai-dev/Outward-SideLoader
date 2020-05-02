@@ -18,7 +18,7 @@ namespace SideLoader
                 if (InMainSLFolder)
                     return SL.SL_FOLDER + @"\" + Name;
                 else
-                    return SL.MODS_FOLDER + @"\" + Name + @"\SideLoader";
+                    return SL.PLUGINS_FOLDER + @"\" + Name + @"\SideLoader";
             } 
         }
 

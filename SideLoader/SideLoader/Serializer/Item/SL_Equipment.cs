@@ -8,17 +8,27 @@ namespace SideLoader
 {
     public class SL_Equipment : SL_Item
     {
-        public EquipmentSlot.EquipmentSlotIDs EquipSlot;
-        public Equipment.TwoHandedType TwoHandType;
-        public Equipment.IKMode IKType;
+        public EquipmentSlot.EquipmentSlotIDs? EquipSlot;
+        public Equipment.TwoHandedType? TwoHandType;
+        public Equipment.IKMode? IKType;
 
-        public float VisualDetectabilityAdd;
+        public float? VisualDetectabilityAdd;
 
         public void ApplyToItem(Equipment item)
         {
-            item.EquipSlot = this.EquipSlot;
-            item.TwoHand = this.TwoHandType;
-            item.IKType = this.IKType;
+            if (this.EquipSlot != null)
+                item.EquipSlot = (EquipmentSlot.EquipmentSlotIDs)this.EquipSlot;
+
+            if (this.TwoHandType != null)
+                item.TwoHand = (Equipment.TwoHandedType)this.TwoHandType;
+
+            if (this.IKType != null)
+                item.IKType = (Equipment.IKMode)this.IKType;
+
+            if (this.VisualDetectabilityAdd != null)
+            {
+                item.VisualDetectabilityAdd = (float)this.VisualDetectabilityAdd;
+            }
 
             if (this is SL_Weapon weaponHolder)
             {

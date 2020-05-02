@@ -142,8 +142,6 @@ namespace SideLoader
                     cached.gameObject.SetActive(false);
                     DontDestroyOnLoad(cached.gameObject);
                     OrigItemPrefabs.Add(cached.ItemID, cached);
-
-                    // todo maybe cache visuals too?
                 }
 
                 // apply to the original item prefab. this ensures direct prefab references to this item reflect your changes.
@@ -155,6 +153,9 @@ namespace SideLoader
                 item.gameObject.SetActive(false);
                 DontDestroyOnLoad(item.gameObject);
                 item.gameObject.name = newID + "_" + name;
+
+                // fix for name and description localization
+                SetNameAndDescription(item, original.Name, original.Description);
             }
 
             item.ItemID = newID;

@@ -21,12 +21,11 @@ namespace SideLoader
         public string SubfolderName;
 
         /// <summary><list type="bullet">
-        /// <item>NONE: Default, all changes from template applied and your EffectTransforms are added onto the existing ones.</item>
-        /// <item>OnlyChangeVisuals: Will only apply your icons, Materials, Textures and AssetBundle changes.</item>
+        /// <item>NONE (default): Your effects are added on top of the existing ones.</item>
         /// <item>DestroyEffects: Destroys all child GameObjects on your item, except for "Content" (used for Bags)</item>
         /// <item>OverrideEffects: Only destroys child GameObjects if you have defined one of the same name.</item></list>
         /// </summary>
-        public TemplateBehaviour Behaviour = TemplateBehaviour.NONE;
+        public TemplateBehaviour EffectBehaviour = TemplateBehaviour.NONE;
 
         /// <summary>The Item ID of the Item you are cloning FROM</summary>
         public int Target_ItemID = -1;
@@ -34,27 +33,27 @@ namespace SideLoader
         public int New_ItemID = -1;
 
         /*************                   Actual Item values                  *************/
-        public string Name = "";
-        public string Description = "";
+        public string Name = null;
+        public string Description = null;
 
         /// <summary>The Item ID of the Legacy Item (the upgrade of this item when placed in a Legacy Chest)</summary>
-        public int LegacyItemID = -1;
+        public int? LegacyItemID;
 
         /// <summary>Can the item be picked up?</summary>
-        public bool IsPickable = true;
+        public bool? IsPickable;
         /// <summary>Can you "Use" the item? ("Use" option from menu)</summary>
-        public bool IsUsable = false;
-        public int QtyRemovedOnUse = 1;
-        public bool GroupItemInDisplay = false;
-        public bool HasPhysicsWhenWorld = false;
-        public bool RepairedInRest = true;
-        public Item.BehaviorOnNoDurabilityType BehaviorOnNoDurability = Item.BehaviorOnNoDurabilityType.NotSet;
+        public bool? IsUsable;
+        public int? QtyRemovedOnUse;
+        public bool? GroupItemInDisplay;
+        public bool? HasPhysicsWhenWorld;
+        public bool? RepairedInRest;
+        public Item.BehaviorOnNoDurabilityType? BehaviorOnNoDurability;
 
-        public Character.SpellCastType CastType;
-        public Character.SpellCastModifier CastModifier;
-        public bool CastLocomotionEnabled = false;
-        public float MobileCastMovementMult = -1f;
-        public int CastSheatheRequired = 0;
+        public Character.SpellCastType? CastType;
+        public Character.SpellCastModifier? CastModifier;
+        public bool? CastLocomotionEnabled;
+        public float? MobileCastMovementMult;
+        public int? CastSheatheRequired;
 
         public List<string> Tags = new List<string>();
 
@@ -97,82 +96,115 @@ namespace SideLoader
                 pack = SL.Packs[SLPackName];
             }
 
-            if (Behaviour == TemplateBehaviour.NONE)
+            // obsolete checks
+            #region Obsolete Checks
+            if (this.Behaviour != TemplateBehaviour.NONE)
+            {
+                SL.Log("SL_Item.Behaviour is obsolete, use SL_Item.EffectBehaviour instead!");
+                this.EffectBehaviour = this.Behaviour;
+            }
+            if (EffectBehaviour == TemplateBehaviour.OnlyChangeVisuals)
+            {
+                EffectBehaviour = TemplateBehaviour.NONE;
+                SL.Log("TemplateBehaviour.OnlyChangeVisuals is deprecated, use \"NONE\" instead, and remove other fields from your template.");
+            }
+            if (EffectBehaviour == TemplateBehaviour.NONE)
             {
                 if (OnlyChangeVisuals)
                 {
-                    SL.Log("SL_Item.OnlyChangeVisuals is deprecated - use SL_Item.Behaviour instead!");
-                    Behaviour = TemplateBehaviour.OnlyChangeVisuals;
+                    SL.Log("SL_Item.OnlyChangeVisuals is deprecated - just exclude fields from the template if you don't want to change them.");
+                    EffectBehaviour = TemplateBehaviour.NONE;
                 }
                 else if (ReplaceEffects)
                 {
                     SL.Log("SL_Item.ReplaceEffects is deprecated - use SL_Item.Behaviour instead!");
-                    Behaviour = TemplateBehaviour.DestroyEffects;
+                    EffectBehaviour = TemplateBehaviour.DestroyEffects;
+                }
+            }
+            #endregion
+
+            CustomItems.SetNameAndDescription(item, this.Name ?? item.Name, this.Description ?? item.Description);
+
+            if (this.LegacyItemID != null)
+                item.LegacyItemID = (int)this.LegacyItemID;
+
+            if (this.CastLocomotionEnabled != null)
+                item.CastLocomotionEnabled = (bool)this.CastLocomotionEnabled;
+
+            if (this.CastModifier != null)
+                item.CastModifier = (Character.SpellCastModifier)this.CastModifier;
+
+            if (this.CastSheatheRequired != null)
+                item.CastSheathRequired = (int)this.CastSheatheRequired;
+
+            if (this.GroupItemInDisplay != null)
+                item.GroupItemInDisplay = (bool)this.GroupItemInDisplay;
+
+            if (this.HasPhysicsWhenWorld != null)
+                item.HasPhysicsWhenWorld = (bool)this.HasPhysicsWhenWorld;
+
+            if (this.IsPickable != null)
+                item.IsPickable = (bool)this.IsPickable;
+
+            if (this.IsUsable != null)
+                item.IsUsable = (bool)this.IsUsable;
+
+            if (this.QtyRemovedOnUse != null)
+                item.QtyRemovedOnUse = (int)this.QtyRemovedOnUse;
+
+            if (this.MobileCastMovementMult != null)
+                item.MobileCastMovementMult = (float)this.MobileCastMovementMult;
+
+            if (this.RepairedInRest != null)
+                item.RepairedInRest = (bool)this.RepairedInRest;
+
+            if (this.BehaviorOnNoDurability != null)
+                item.BehaviorOnNoDurability = (Item.BehaviorOnNoDurabilityType)this.BehaviorOnNoDurability;
+
+            if (this.CastModifier != null)
+                item.CastModifier = (Character.SpellCastModifier)this.CastModifier;
+
+            if (this.CastType != null)
+                At.SetValue((Character.SpellCastType)this.CastType, typeof(Item), item, "m_activateEffectAnimType");
+
+            if (this.Tags != null)
+            {
+                CustomItems.SetItemTags(item, this.Tags, true);
+            }
+
+            if (this.StatsHolder != null)
+            {
+                StatsHolder.ApplyToItem(item.Stats ?? item.transform.GetOrAddComponent<ItemStats>());
+            }
+
+            if (EffectBehaviour == TemplateBehaviour.DestroyEffects)
+            {
+                Debug.Log("Replacing effects (destroying children)");
+                CustomItems.DestroyChildren(item.transform);
+            }
+
+            if (this.EffectTransforms != null && this.EffectTransforms.Count > 0)
+            {
+                foreach (var effectsT in this.EffectTransforms)
+                {
+                    if (EffectBehaviour == TemplateBehaviour.OverrideEffects && item.transform.Find(effectsT.TransformName) is Transform existing)
+                    {
+                        Debug.Log("Overriding transform " + existing.name + " (destroying orig)");
+                        UnityEngine.Object.DestroyImmediate(existing.gameObject);
+                    }
+
+                    effectsT.ApplyToItem(item);
                 }
             }
 
-            // if "Only Change Visuals" is NOT true, then apply all other changes
-            if (Behaviour != TemplateBehaviour.OnlyChangeVisuals)
+            if (this is SL_Equipment equipmentHolder)
             {
-                CustomItems.SetNameAndDescription(item, Name, Description);
-
-                item.LegacyItemID = this.LegacyItemID;
-                item.CastLocomotionEnabled = this.CastLocomotionEnabled;
-                item.CastModifier = this.CastModifier;
-                item.CastSheathRequired = this.CastSheatheRequired;
-                item.GroupItemInDisplay = this.GroupItemInDisplay;
-                item.HasPhysicsWhenWorld = this.HasPhysicsWhenWorld;
-                item.IsPickable = this.IsPickable;
-                item.IsUsable = this.IsUsable;
-                item.QtyRemovedOnUse = this.QtyRemovedOnUse;
-                item.MobileCastMovementMult = this.MobileCastMovementMult;
-                item.RepairedInRest = this.RepairedInRest;
-                item.BehaviorOnNoDurability = this.BehaviorOnNoDurability;
-                item.CastModifier = this.CastModifier;
-                At.SetValue(this.CastType, typeof(Item), item, "m_activateEffectAnimType");
-
-                CustomItems.SetItemTags(item, this.Tags ?? new List<string>(), true);
-
-                if (this.StatsHolder != null)
-                {
-                    StatsHolder.ApplyToItem(item.Stats ?? item.transform.GetOrAddComponent<ItemStats>());
-                }
-                //else if (item.GetComponent<ItemStats>() is ItemStats stats)
-                //{
-                //    GameObject.Destroy(stats);
-                //}
-
-                if (Behaviour == TemplateBehaviour.DestroyEffects)
-                {
-                    Debug.Log("Replacing effects (destroying children)");
-                    CustomItems.DestroyChildren(item.transform);
-                }
-
-                if (this.EffectTransforms != null && this.EffectTransforms.Count > 0)
-                {
-                    foreach (var effectsT in this.EffectTransforms)
-                    {
-                        if (Behaviour == TemplateBehaviour.OverrideEffects && item.transform.Find(effectsT.TransformName) is Transform existing)
-                        {
-                            Debug.Log("Overriding transform " + existing.name + " (destroying orig)");
-                            UnityEngine.Object.DestroyImmediate(existing.gameObject);
-                        }
-
-                        effectsT.ApplyToItem(item);
-                    }
-                }
-
-                if (this is SL_Equipment equipmentHolder)
-                {
-                    equipmentHolder.ApplyToItem(item as Equipment);
-                }
-                else if (this is SL_Skill skillHolder)
-                {
-                    skillHolder.ApplyToItem(item as Skill);
-                }
-
-            } // End "OnlyChangeVisuals == false" section
-
+                equipmentHolder.ApplyToItem(item as Equipment);
+            }
+            else if (this is SL_Skill skillHolder)
+            {
+                skillHolder.ApplyToItem(item as Skill);
+            }
 
             //************************  This will need to change after DLC.  ************************//
 
@@ -180,6 +212,11 @@ namespace SideLoader
 
             // **************************************************************************************//
 
+            if (item is Weapon weapon && weapon.GetComponent<WeaponStats>() is WeaponStats stats)
+            {
+                At.SetValue(stats.BaseDamage.Clone(), typeof(Weapon), weapon, "m_baseDamage");
+                At.SetValue(stats.BaseDamage.Clone(), typeof(Weapon), weapon, "m_activeBaseDamage");
+            }
 
             SL.Log("Finished applying template");
         }
@@ -354,6 +391,7 @@ namespace SideLoader
             NONE,
             DestroyEffects,
             OverrideEffects,
+            [Obsolete("Just exclude all other fields from the template if you don't want to change them.")] 
             OnlyChangeVisuals,
         }
 
@@ -368,5 +406,10 @@ namespace SideLoader
         public bool ReplaceEffects = false;
         [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
         public bool ShouldSerializeReplaceEffects() { return false; }
+
+        [Obsolete("Use Template.EffectBehaviour instead.")]
+        public TemplateBehaviour Behaviour = TemplateBehaviour.NONE;
+        [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
+        public bool ShouldSerializeBehaviour() { return false; }
     }
 }

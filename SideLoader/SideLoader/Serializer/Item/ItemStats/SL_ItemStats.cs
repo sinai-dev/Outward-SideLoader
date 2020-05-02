@@ -7,21 +7,30 @@ namespace SideLoader
 {
     public class SL_ItemStats
     {
-        public int BaseValue;
-        public float RawWeight;
-        public int MaxDurability;
+        public int? BaseValue;
+        public float? RawWeight;
+        public int? MaxDurability;
 
         public void ApplyToItem(ItemStats stats)
         {
             //set base value
-            At.SetValue(this.BaseValue, typeof(ItemStats), stats, "m_baseValue");
+            if (this.BaseValue != null)
+            {
+                At.SetValue((int)this.BaseValue, typeof(ItemStats), stats, "m_baseValue");
+            }
 
             //set raw weight
-            At.SetValue(this.RawWeight, typeof(ItemStats), stats, "m_rawWeight");
+            if (this.RawWeight != null)
+            {
+                At.SetValue((float)this.RawWeight, typeof(ItemStats), stats, "m_rawWeight");
+            }
 
             //max durability
-            At.SetValue(this.MaxDurability, typeof(ItemStats), stats, "m_baseMaxDurability");
-            stats.StartingDurability = this.MaxDurability;
+            if (this.MaxDurability != null)
+            {
+                At.SetValue((int)this.MaxDurability, typeof(ItemStats), stats, "m_baseMaxDurability");
+                stats.StartingDurability = (int)this.MaxDurability;
+            }
 
             if (this is SL_EquipmentStats equipStatsHolder)
             {

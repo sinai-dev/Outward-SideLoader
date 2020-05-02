@@ -8,28 +8,40 @@ namespace SideLoader
 {
     public class SL_WeaponStats : SL_EquipmentStats
     {
-        public float AttackSpeed;
+        public float? AttackSpeed;
         public List<SL_Damage> BaseDamage = new List<SL_Damage>();
-        public float Impact;
-        public float StamCost;
+        public float? Impact;
+        public float? StamCost;
 
         public bool AutoGenerateAttackData;
         public WeaponStats.AttackData[] Attacks;
 
         public void ApplyToItem(WeaponStats stats)
         {
-            stats.AttackSpeed = this.AttackSpeed;
-            stats.Impact = this.Impact;
-            stats.BaseDamage = SL_Damage.GetDamageList(this.BaseDamage);
-            stats.StamCost = this.StamCost;
+            if (this.AttackSpeed != null)
+            {
+                stats.AttackSpeed = (float)this.AttackSpeed;
+            }
+            if (this.Impact != null)
+            {
+                stats.Impact = (float)this.Impact;
+            }
+            if (this.BaseDamage != null)
+            {
+                stats.BaseDamage = SL_Damage.GetDamageList(this.BaseDamage);
+            }
+            if (this.StamCost != null)
+            {
+                stats.StamCost = (float)this.StamCost;
+            }
 
             // fix for m_activeBaseDamage
             var weapon = stats.GetComponent<Weapon>();
             At.SetValue(stats.BaseDamage, typeof(Weapon), weapon, "m_activeBaseDamage");
 
-            if (AutoGenerateAttackData)
+            if (AutoGenerateAttackData || this.Attacks == null || this.Attacks.Length <= 0)
             {
-                SL.Log("Generating attackdata manually");
+                SL.Log("Generating AttackData automatically");
                 stats.Attacks = GetScaledAttackData(stats.GetComponent<Weapon>());
             }
             else

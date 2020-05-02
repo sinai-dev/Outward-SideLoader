@@ -227,6 +227,18 @@ namespace SideLoader
             }
         }
 
+        public static void TryApplyCustomTextures(string texturesFolder, Item item)
+        {
+            if (Directory.Exists(texturesFolder))
+            {
+                ApplyTexturesFromFolder(texturesFolder, item);
+            }
+            else
+            {
+                Debug.Log("Directory does not exist: " + texturesFolder);
+            }
+        }
+
         /// <summary>
         /// Will check for the "SLPackFolder/Items/SubfolderName/Textures" folder (if it exists), and if so load and apply these textures to your item.
         /// </summary>

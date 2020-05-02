@@ -84,11 +84,10 @@ namespace SideLoader
             }
             GUILayout.EndHorizontal();
 
-            GUILayout.Label("Template Behaviour:");
+            GUILayout.Label("Effects Behaviour:");
             BehaviourButton(SL_Item.TemplateBehaviour.DestroyEffects, "Replace All Effects");
-            BehaviourButton(SL_Item.TemplateBehaviour.OverrideEffects, "Only Replace Defined");
-            BehaviourButton(SL_Item.TemplateBehaviour.NONE, "Don't Replace (add on top)");
-            BehaviourButton(SL_Item.TemplateBehaviour.OnlyChangeVisuals, "Only Change Visuals");
+            BehaviourButton(SL_Item.TemplateBehaviour.OverrideEffects, "Override By Transform");
+            BehaviourButton(SL_Item.TemplateBehaviour.NONE, "Add effects on top");
 
             GUILayout.Space(15);
 
@@ -136,7 +135,7 @@ namespace SideLoader
                 var template = SL_Item.ParseItemToTemplate(item);
 
                 template.New_ItemID = NewID;
-                template.Behaviour = m_templateBehaviour;
+                template.EffectBehaviour = m_templateBehaviour;
 
                 var itemfolder = SL.GENERATED_FOLDER + @"\Items\" + item.gameObject.name;
                 Serializer.SaveToXml(itemfolder, item.Name, template);
