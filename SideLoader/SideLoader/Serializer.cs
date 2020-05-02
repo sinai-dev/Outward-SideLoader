@@ -27,7 +27,7 @@ namespace SideLoader
             string path = dir + saveName + ".xml";
             if (File.Exists(path))
             {
-                Debug.LogWarning("SaveToXml: A file already exists at " + path + "! Deleting...");
+                //Debug.LogWarning("SaveToXml: A file already exists at " + path + "! Deleting...");
                 File.Delete(path);
             }
 
@@ -105,8 +105,8 @@ namespace SideLoader
             typeof(SL_Item),
             typeof(SL_ItemStats),
             typeof(SL_Material),
-            typeof(SL_Material.FloatProp), // these 2 sub-classes do need to be explicitly defined here.
-            typeof(SL_Material.ColorProp), // ^
+            typeof(SL_Material.FloatProp), 
+            typeof(SL_Material.ColorProp),
             typeof(SL_PunctualDamage),
             typeof(SL_Recipe),
             typeof(SL_RemoveStatusEffect),

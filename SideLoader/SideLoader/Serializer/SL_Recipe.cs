@@ -13,6 +13,8 @@ namespace SideLoader
         [XmlIgnore]
         private bool m_applied = false;
 
+        public string UID = "";
+
         // public string Name = "";
         public Recipe.CraftingType StationType = Recipe.CraftingType.Survival;
 
@@ -23,7 +25,7 @@ namespace SideLoader
         {
             if (m_applied)
             {
-                SL.Log("Trying to apply a recipeholder that is already applied! This is not allowed.", 0);
+                SL.Log("Trying to apply an SL_Recipe that is already applied! This is not allowed.", 0);
                 return;
             }
 
@@ -57,13 +59,38 @@ namespace SideLoader
                 });
             }
 
-            var recipe = Recipe.CreateInstance("Recipe") as Recipe;
+            var recipe = ScriptableObject.CreateInstance("Recipe") as Recipe;
+
             recipe.SetCraftingType(this.StationType);
-            //recipe.SetRecipeName(string.IsNullOrEmpty(this.Name) ? results[0].Item.Name : this.Name);
+
             At.SetValue(results.ToArray(), typeof(Recipe), recipe, "m_results");
-            recipe.SetRecipeIngredients(ingredients.ToArray());
+            recipe.SetRecipeIngredients(ingredients.ToArray());            
+
+            // set or generate UID
+            if (string.IsNullOrEmpty(this.UID))
+            {
+                var uid = $"{recipe.Results[0].Item.ItemID}{recipe.Results[0].Quantity}";
+                foreach (var ing in recipe.Ingredients)
+                {
+                    if (ing.AddedIngredient != null)
+                    {
+                        uid += $"{ing.AddedIngredient.ItemID}";
+                    }
+                    else if (ing.AddedIngredientType != null)
+                    {
+                        uid += $"{ing.AddedIngredientType.Tag.TagName}";
+                    }
+                }
+                At.SetValue(new UID(uid), typeof(Recipe), recipe, "m_uid");
+            }
+            else
+            {
+                At.SetValue(new UID(this.UID), typeof(Recipe), recipe, "m_uid");
+            }
+
             recipe.Init();
 
+            // fix Recipe Manager dictionaries to contain our recipe
             var dict = At.GetValue(typeof(RecipeManager), RecipeManager.Instance, "m_recipes") as Dictionary<string, Recipe>;
             var dict2 = At.GetValue(typeof(RecipeManager), RecipeManager.Instance, "m_recipeUIDsPerUstensils") as Dictionary<Recipe.CraftingType, List<UID>>;
 

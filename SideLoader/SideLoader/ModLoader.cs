@@ -3,11 +3,11 @@ using UnityEngine;
 
 namespace SideLoader
 {
-    public class SideLoaderModLoader : PartialityMod
+    public class SideLoader : PartialityMod
     {
         private static GameObject m_obj;
 
-        public SideLoaderModLoader()
+        public SideLoader()
         {
             this.ModID = SL.MODNAME;
             this.Version = SL.VERSION;
@@ -19,8 +19,8 @@ namespace SideLoader
         {
             base.OnLoad();
 
-            m_obj = new GameObject(SL.MODNAME);            
-            GameObject.DontDestroyOnLoad(m_obj);
+            m_obj = new GameObject(SL.MODNAME);
+            Object.DontDestroyOnLoad(m_obj);
             m_obj.AddComponent<SL>();
         }
     }

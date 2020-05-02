@@ -59,12 +59,12 @@ namespace SideLoader
         /// <param name="newPrefab">Your new prefab Transform.</param>
         public static void SetVisualPrefab(Item item, Transform origPrefab, Transform newPrefab, VisualPrefabType type, Vector3 positionOffset, Vector3 rotationOffset, bool hideFace = false, bool hideHair = false)
         {
-            var clone = GameObject.Instantiate(origPrefab.gameObject);
-            GameObject.DontDestroyOnLoad(clone.gameObject);
+            var clone = UnityEngine.Object.Instantiate(origPrefab.gameObject);
+            UnityEngine.Object.DontDestroyOnLoad(clone.gameObject);
             clone.SetActive(false);
 
-            var newModel = GameObject.Instantiate(newPrefab.gameObject);
-            GameObject.DontDestroyOnLoad(newModel.gameObject);
+            var newModel = UnityEngine.Object.Instantiate(newPrefab.gameObject);
+            UnityEngine.Object.DontDestroyOnLoad(newModel.gameObject);
 
             // skinned mesh used for bows and armor
             if (origPrefab.GetComponentInChildren<SkinnedMeshRenderer>())
@@ -76,7 +76,7 @@ namespace SideLoader
                 }
                 else // Armor
                 {
-                    if (!newModel.GetComponent<ArmorVisuals>())
+                    if (clone.GetComponent<ArmorVisuals>() && !newModel.GetComponent<ArmorVisuals>())
                     {
                         var component = newModel.AddComponent<ArmorVisuals>();
                         SL.GetCopyOf<ArmorVisuals>(component, clone.GetComponent<ArmorVisuals>());
@@ -88,7 +88,7 @@ namespace SideLoader
                     newModel.gameObject.SetActive(false);
 
                     // we no longer need the clone for these visuals. we should clean it up.
-                    GameObject.Destroy(clone.gameObject);
+                    UnityEngine.Object.Destroy(clone.gameObject);
                 }
             }
             else // setting normal item visual prefab.
@@ -168,9 +168,9 @@ namespace SideLoader
             }
 
             // Clone the visual prefab 
-            var newVisuals = GameObject.Instantiate(prefab.gameObject);
+            var newVisuals = UnityEngine.Object.Instantiate(prefab.gameObject);
             newVisuals.SetActive(false);
-            GameObject.DontDestroyOnLoad(newVisuals);
+            UnityEngine.Object.DontDestroyOnLoad(newVisuals);
 
             // set the item's visuals to our new clone
             At.SetValue(newVisuals.transform, typeof(Item), item, type.ToString());
@@ -204,8 +204,8 @@ namespace SideLoader
 
                 for (int i = 0; i < mats.Length; i++)
                 {
-                    var newmat = GameObject.Instantiate(mats[i]);
-                    GameObject.DontDestroyOnLoad(newmat);
+                    var newmat = UnityEngine.Object.Instantiate(mats[i]);
+                    UnityEngine.Object.DontDestroyOnLoad(newmat);
                     mats[i] = newmat;
                 }
 
@@ -218,8 +218,8 @@ namespace SideLoader
 
                 for (int i = 0; i < mats.Length; i++)
                 {
-                    var newmat = GameObject.Instantiate(mats[i]);
-                    GameObject.DontDestroyOnLoad(newmat);
+                    var newmat = UnityEngine.Object.Instantiate(mats[i]);
+                    UnityEngine.Object.DontDestroyOnLoad(newmat);
                     mats[i] = newmat;
                 }
 
@@ -308,7 +308,7 @@ namespace SideLoader
             {
                 var tex = CustomTextures.LoadTexture(iconPath, false);
                 var sprite = CustomTextures.CreateSprite(tex, CustomTextures.SpriteBorderTypes.ItemIcon);
-                GameObject.DontDestroyOnLoad(sprite);
+                UnityEngine.Object.DontDestroyOnLoad(sprite);
                 At.SetValue(sprite, typeof(Item), item, "m_itemIcon");
             }
 
@@ -318,7 +318,7 @@ namespace SideLoader
             {
                 var tex = CustomTextures.LoadTexture(skillPath, false);
                 var sprite = CustomTextures.CreateSprite(tex, CustomTextures.SpriteBorderTypes.SkillTreeIcon);
-                GameObject.DontDestroyOnLoad(sprite);
+                UnityEngine.Object.DontDestroyOnLoad(sprite);
                 skill.SkillTreeIcon = sprite;
             }
 

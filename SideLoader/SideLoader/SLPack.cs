@@ -10,7 +10,22 @@ namespace SideLoader
     public class SLPack
     {
         public string Name { get; private set; }
-        public string FullDirectory { get => SL.SL_FOLDER + @"\" + Name; }
+
+        public string FolderPath 
+        { 
+            get 
+            {
+                if (InMainSLFolder)
+                    return SL.SL_FOLDER + @"\" + Name;
+                else
+                    return SL.MODS_FOLDER + @"\" + Name + @"\SideLoader";
+            } 
+        }
+
+        // legacy support
+        public string FullDirectory { get => FolderPath; }
+
+        public bool InMainSLFolder = false;
 
         public Dictionary<string, AssetBundle> AssetBundles = new Dictionary<string, AssetBundle>();
         public Dictionary<string, Texture2D> Texture2D = new Dictionary<string, Texture2D>();
@@ -31,18 +46,20 @@ namespace SideLoader
         /// <param name="subFolder">The SubFolder you want the path for</param>
         public string GetSubfolderPath(SubFolders subFolder)
         {
-            return this.FullDirectory + @"\" + subFolder;
+            return this.FolderPath + @"\" + subFolder;
         }
 
         /// <summary>
         /// Loads all the assets from the specified SLPack name. Not for calling directly, just place your pack in the SideLoader folder and use SL.Packs["Folder"]
         /// </summary>
         /// <param name="name">The name of the SideLoader pack (ie. the name of the folder inside Mods/SideLoader/)</param>
-        public static SLPack LoadFromFolder(string name)
+        /// <param name="inMainSLFolder">Is the SLPack in Mods\SideLoader? If not, it should be Mods\ModName\SideLoader\ structure.</param>
+        public static SLPack LoadFromFolder(string name, bool inMainSLFolder = true)
         {
             var pack = new SLPack()
             {
-                Name = name
+                Name = name,
+                InMainSLFolder = inMainSLFolder
             };
 
             SL.Log("Reading SLPack " + pack.Name);
@@ -64,7 +81,8 @@ namespace SideLoader
 
         private void LoadAssetBundles()
         {
-            if (!Directory.Exists(GetSubfolderPath(SubFolders.AssetBundles)))
+            var dir = GetSubfolderPath(SubFolders.AssetBundles);
+            if (!Directory.Exists(dir))
             {
                 return;
             }
@@ -192,9 +210,7 @@ namespace SideLoader
 
             foreach (var recipePath in Directory.GetFiles(GetSubfolderPath(SubFolders.Recipes)))
             {
-                var recipeHolder = Serializer.LoadFromXml(recipePath) as SL_Recipe;
-
-                if (recipeHolder != null)
+                if (Serializer.LoadFromXml(recipePath) is SL_Recipe recipeHolder)
                 {
                     SL.INTERNAL_ApplyRecipes += recipeHolder.ApplyRecipe;
                 }

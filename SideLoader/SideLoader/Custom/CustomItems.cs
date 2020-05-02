@@ -39,9 +39,6 @@ namespace SideLoader
             {
                 AllTags.Add(tag.TagName, tag);
             }
-
-            var harmony = new Harmony($"com.sinai.{SL.MODNAME}");
-            harmony.PatchAll();
         }
 
         // fix for the recipe menu, which can break from some custom items when they are an ingredient.
@@ -251,7 +248,7 @@ namespace SideLoader
         {
             if (destroyExisting && item.GetComponent<TagSource>() is TagSource origTags)
             {
-                GameObject.DestroyImmediate(origTags);
+                DestroyImmediate(origTags);
             }
 
             var tagsource = item.transform.GetOrAddComponent<TagSource>();

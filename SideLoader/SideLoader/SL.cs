@@ -8,6 +8,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.Events;
 using System.Reflection;
+using HarmonyLib;
 
 namespace SideLoader
 {
@@ -18,10 +19,11 @@ namespace SideLoader
 
         // Mod Info
         public const string MODNAME = "SideLoader";
-        public const string VERSION = "2.0.4";
+        public const string VERSION = "2.0.5";
 
         // Folders
-        public const string SL_FOLDER = @"Mods\SideLoader";
+        public const string MODS_FOLDER = @"Mods";
+        public const string SL_FOLDER = MODS_FOLDER + @"\SideLoader";
         public static string GENERATED_FOLDER { get => SL_FOLDER + @"\_GENERATED"; }
 
         // Loaded SLPacks
@@ -48,6 +50,9 @@ namespace SideLoader
             {
                 Directory.CreateDirectory(SL_FOLDER);
             }
+
+            var harmony = new Harmony($"com.sinai.{SL.MODNAME}");
+            harmony.PatchAll();
         }
 
         // ================ Main Setup ====================
@@ -57,7 +62,7 @@ namespace SideLoader
             /* subscribe to SceneLoaded event */
             SceneManager.sceneLoaded += SceneManager_sceneLoaded;
 
-            /* Add non-static Components */
+            /* Add Behaviour Components */
             gameObject.AddComponent<CustomCharacters>();
             gameObject.AddComponent<CustomItems>();
             gameObject.AddComponent<CustomScenes>();
@@ -79,7 +84,26 @@ namespace SideLoader
                 yield return null;
             }
 
-            // Preliminary SLPack load (load assets, dont apply items/recipes yet)
+            // Read SL Packs
+
+            // new structure: Mods\ModName\SideLoader\
+            foreach (string modFolder in Directory.GetDirectories(MODS_FOLDER))
+            {
+                string name = Path.GetFileName(modFolder);
+
+                if (name == "SideLoader" || name == "ModConfigs" || name == "PartialityWrapper")
+                {
+                    continue;
+                }
+
+                var slFolder = modFolder + @"\SideLoader";
+                if (Directory.Exists(slFolder))
+                {
+                    TryLoadPack(name, slFolder, false);
+                }
+            }
+
+            // Mods\SideLoader\ folder packs:
             foreach (string dir in Directory.GetDirectories(SL_FOLDER))
             {
                 if (dir == GENERATED_FOLDER)
@@ -88,16 +112,8 @@ namespace SideLoader
                     continue;
                 }
 
-                try
-                {
-                    var pack = SLPack.LoadFromFolder(Path.GetFileName(dir));
-                    Packs.Add(pack.Name, pack);
-
-                }
-                catch (Exception e)
-                {
-                    Log("Error loading SLPack from folder: " + dir + "\r\nMessage: " + e.Message + "\r\nStackTrace: " + e.StackTrace, 1);
-                }
+                var packname = Path.GetFileName(dir);
+                TryLoadPack(packname, dir, true);
             }
 
             Log("Applying custom Items", 0);
@@ -107,7 +123,7 @@ namespace SideLoader
             INTERNAL_ApplyRecipes?.Invoke();
 
             PacksLoaded = true;
-            SL.Log("------ SideLoader Setup Finished ------");
+            Log("------ SideLoader Setup Finished ------");
             OnPacksLoaded?.Invoke();
 
             //// *********************************** temp debug ***********************************
@@ -118,6 +134,19 @@ namespace SideLoader
             //}
 
             //// **********************************************************************************
+        }
+
+        private void TryLoadPack(string name, string path, bool inMainFolder)
+        {
+            try
+            {
+                var pack = SLPack.LoadFromFolder(name, inMainFolder);
+                Packs.Add(pack.Name, pack);
+            }
+            catch (Exception e)
+            {
+                Log("Error loading SLPack from folder: " + path + "\r\nMessage: " + e.Message + "\r\nStackTrace: " + e.StackTrace, 1);
+            }
         }
 
         // =============== Scene Changes Event ====================

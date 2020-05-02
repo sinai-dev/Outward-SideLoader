@@ -21,6 +21,16 @@ namespace SideLoader
             Instance = this;
         }
 
+        //internal void Update()
+        //{
+        //    if (Input.GetKeyDown(KeyCode.Pause))
+        //    {
+        //        var bundle = SL.Packs["scenetest"].AssetBundles["scenebundle"];
+
+        //        LoadSceneFromBundle(bundle, Vector3.zero, 0, 0);
+        //    }
+        //}
+
         public static void LoadSceneFromBundle(AssetBundle bundle, Vector3 spawnPoint, int bundleSceneIndex = 0, float timeOffset = 0f)
         {
             if (spawnPoint == null)

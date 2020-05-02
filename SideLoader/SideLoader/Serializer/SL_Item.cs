@@ -155,7 +155,7 @@ namespace SideLoader
                         if (Behaviour == TemplateBehaviour.OverrideEffects && item.transform.Find(effectsT.TransformName) is Transform existing)
                         {
                             Debug.Log("Overriding transform " + existing.name + " (destroying orig)");
-                            GameObject.DestroyImmediate(existing.gameObject);
+                            UnityEngine.Object.DestroyImmediate(existing.gameObject);
                         }
 
                         effectsT.ApplyToItem(item);

@@ -21,8 +21,8 @@ namespace SideLoader.CustomSkills
             var template = (Resources.Load("_characters/CharacterProgression") as GameObject).transform.Find("Test");
 
             // instantiate a copy of the dev template
-            var schoolObj = GameObject.Instantiate(template).gameObject;
-            GameObject.DontDestroyOnLoad(schoolObj);
+            var schoolObj = UnityEngine.Object.Instantiate(template).gameObject;
+            UnityEngine.Object.DontDestroyOnLoad(schoolObj);
             var school = schoolObj.GetComponent<SkillSchool>();
 
             // set the name to the gameobject and the skill tree name/uid
@@ -66,7 +66,7 @@ namespace SideLoader.CustomSkills
             {
                 if (m_object.transform.Find("Row" + i) is Transform row)
                 {
-                    GameObject.DestroyImmediate(row.gameObject);
+                    UnityEngine.Object.DestroyImmediate(row.gameObject);
                 }
             }
 
@@ -94,7 +94,6 @@ namespace SideLoader.CustomSkills
                 row.parent = schoolTransform;
                 row.gameObject.AddComponent<SkillBranch>();
             }
-            CustomItems.DestroyChildren(row);
 
             foreach (var slot in this.Slots)
             {
