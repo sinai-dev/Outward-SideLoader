@@ -4,16 +4,18 @@
 <img align="center" src="https://i.imgur.com/9rxjYNT.png">
 </p>
 
-The Outward SideLoader is a tool for loading and configuring custom assets for Outward. It is also capable of generating and/or replacing custom Items, Skills and Recipes, as well as replacing textures on materials.
+[![Version](https://img.shields.io/badge/BepInEx-5.0.1-green.svg)](https://github.com/BepInEx/BepInEx)
 
-Recommended to use with [BepInEx-Partiality-Wrapper](https://github.com/sinaioutlander/BepInEx-Partiality-Wrapper).
+Helps you get your assets into Outward. Can replace or create new textures, audio, items, recipes, etc...
 
-## How To Install ##
-* [Download and Instructions here](https://www.nexusmods.com/outward/mods/96)
+Requires [BepInEx](https://github.com/BepInEx/BepInEx).
 
-## How To Make A SideLoader Mod ##
+## Release
 
-There is full documentation for the SideLoader on the SL Wiki:
+* [NexusMods (Download and Instructions)](https://www.nexusmods.com/outward/mods/96)
+* [Patch Notes](https://github.com/sinaioutlander/Outward-SideLoader/releases)
+
+## SL Wiki
 
 <big><b>[SideLoader Wiki](https://github.com/sinaioutlander/Outward-SideLoader/wiki)</b></big>
 
@@ -22,7 +24,7 @@ There is full documentation for the SideLoader on the SL Wiki:
 The "Resources" folder of this repository contains many useful files. There are examples to learn from, some blank icon templates, the human model rig for Outward, and other stuff. 
 
 ## Credits
-* <b>ehaugw</b> for great suggestions, lots of help with testing, and developing the example Swords in the Resources folder
+* <b>ehaugw</b> for your suggestions and design discussions. Also provided some examples used in the Resources folder.
 
 ## Got questions? Want to contribute?
 
