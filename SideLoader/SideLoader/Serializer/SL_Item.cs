@@ -205,6 +205,10 @@ namespace SideLoader
             {
                 skillHolder.ApplyToItem(item as Skill);
             }
+            else if (this is SL_RecipeItem recipeItem)
+            {
+                recipeItem.ApplyToItem(item as RecipeItem);
+            }
 
             //************************  This will need to change after DLC.  ************************//
 
@@ -221,10 +225,7 @@ namespace SideLoader
 
         private void ApplyVisuals(SLPack pack, Item item)
         {
-            bool customVisualPrefab = false;
-            bool customSpecialPrefab = false;
-            bool customFemalePrefab = false;
-
+            AssetBundle bundle = null;
             if (pack != null && !string.IsNullOrEmpty(AssetBundleName))
             {
                 if (!pack.AssetBundles.ContainsKey(this.AssetBundleName))
@@ -233,82 +234,69 @@ namespace SideLoader
                 }
                 else
                 {
-                    var bundle = pack.AssetBundles[this.AssetBundleName];
+                    bundle = pack.AssetBundles[this.AssetBundleName];
+                }
+            }
 
-                    for (int i = 0; i < 3; i++)
+            for (int i = 0; i < 3; i++)
+            {
+                Transform orig = null;
+                string prefabName = "";
+                Vector3 pos = Vector3.zero;
+                Vector3 rot = Vector3.zero;
+
+                var type = (CustomItemVisuals.VisualPrefabType)i;
+                switch (type)
+                {
+                    case CustomItemVisuals.VisualPrefabType.VisualPrefab:
+                        prefabName = this.ItemVisuals_PrefabName;
+                        orig = item.VisualPrefab;
+                        pos = this.ItemVisuals_PositionOffset;
+                        rot = this.ItemVisuals_RotationOffset;
+                        break;
+                    case CustomItemVisuals.VisualPrefabType.SpecialVisualPrefabDefault:
+                        prefabName = this.SpecialVisuals_PrefabName;
+                        orig = item.SpecialVisualPrefabDefault;
+                        pos = this.SpecialVisuals_PositionOffset;
+                        rot = this.SpecialVisuals_RotationOffset;
+                        break;
+                    case CustomItemVisuals.VisualPrefabType.SpecialVisualPrefabFemale:
+                        prefabName = this.FemaleVisuals_PrefabName;
+                        orig = item.SpecialVisualPrefabFemale;
+                        pos = this.FemaleVisuals_PositionOffset;
+                        rot = this.FemaleVisuals_RotationOffset;
+                        break;
+                }
+
+                if (!orig)
+                {
+                    continue;
+                }
+
+                if (string.IsNullOrEmpty(prefabName))
+                {
+                    var newVisuals = CustomItemVisuals.CloneVisualPrefab(item, type);
+
+                    if (newVisuals.GetComponent<ArmorVisuals>() is ArmorVisuals armorVisuals)
                     {
-                        Transform orig = null;
-                        string prefabName = "";
-                        Vector3 pos = Vector3.zero;
-                        Vector3 rot = Vector3.zero;
-
-                        var type = (CustomItemVisuals.VisualPrefabType)i;
-                        switch (type)
-                        {
-                            case CustomItemVisuals.VisualPrefabType.VisualPrefab:
-                                prefabName = this.ItemVisuals_PrefabName;
-                                orig = item.VisualPrefab;
-                                pos = this.ItemVisuals_PositionOffset;
-                                rot = this.ItemVisuals_RotationOffset;
-                                break;
-                            case CustomItemVisuals.VisualPrefabType.SpecialVisualPrefabDefault:
-                                prefabName = this.SpecialVisuals_PrefabName;
-                                orig = item.SpecialVisualPrefabDefault;
-                                pos = this.SpecialVisuals_PositionOffset;
-                                rot = this.SpecialVisuals_RotationOffset;
-                                break;
-                            case CustomItemVisuals.VisualPrefabType.SpecialVisualPrefabFemale:
-                                prefabName = this.FemaleVisuals_PrefabName;
-                                orig = item.SpecialVisualPrefabFemale;
-                                pos = this.FemaleVisuals_PositionOffset;
-                                rot = this.FemaleVisuals_RotationOffset;
-                                break;
-                        }
-
-                        if (string.IsNullOrEmpty(prefabName))
-                        {
-                            continue;
-                        }
-
-                        var prefab = bundle.LoadAsset<GameObject>(prefabName);
-
-                        if (!prefab || !orig)
-                        {
-                            SL.Log("Error: Either we could not find a custom prefab by that name, or the original item does not use visuals for the given type", 1);
-                            return;
-                        }
-
-                        CustomItemVisuals.SetVisualPrefab(item, orig, prefab.transform, type, pos, rot, this.VisualsHideFace, this.VisualsHideHair);
+                        armorVisuals.HideFace = this.VisualsHideFace;
+                        armorVisuals.HideHair = this.VisualsHideHair;
                     }
+
+                    continue;
                 }
-            }
 
-            if (item.VisualPrefab != null && !customVisualPrefab)
-            {
-                CustomItemVisuals.CloneVisualPrefab(item, CustomItemVisuals.VisualPrefabType.VisualPrefab);
-            }
-
-            if (item.SpecialVisualPrefabDefault != null)
-            {
-                if (!customSpecialPrefab)
-                    CustomItemVisuals.CloneVisualPrefab(item, CustomItemVisuals.VisualPrefabType.SpecialVisualPrefabDefault);
-
-                if (item.SpecialVisualPrefabDefault.GetComponent<ArmorVisuals>() is ArmorVisuals armorVisuals)
+                if (bundle != null)
                 {
-                    armorVisuals.HideFace = this.VisualsHideFace;
-                    armorVisuals.HideHair = this.VisualsHideHair;
-                }
-            }
+                    var prefab = bundle.LoadAsset<GameObject>(prefabName);
 
-            if (item.SpecialVisualPrefabFemale != null)
-            {
-                if (!customFemalePrefab)
-                    CustomItemVisuals.CloneVisualPrefab(item, CustomItemVisuals.VisualPrefabType.SpecialVisualPrefabFemale);
+                    if (!prefab)
+                    {
+                        SL.Log("Error: Either we could not find a custom prefab by that name, or the original item does not use visuals for the given type", 1);
+                        continue;
+                    }
 
-                if (item.SpecialVisualPrefabFemale.GetComponent<ArmorVisuals>() is ArmorVisuals armorVisuals)
-                {
-                    armorVisuals.HideFace = this.VisualsHideFace;
-                    armorVisuals.HideHair = this.VisualsHideHair;
+                    CustomItemVisuals.SetVisualPrefab(item, prefab.transform, type, pos, rot, this.VisualsHideFace, this.VisualsHideHair);
                 }
             }
 
@@ -367,7 +355,7 @@ namespace SideLoader
                 {
                     itemHolder.EffectTransforms.Add(effectsChild);
                 }
-            }            
+            }
 
             // Sub-Templates //
             if (item is Equipment)
@@ -377,6 +365,10 @@ namespace SideLoader
             else if (item is Skill)
             {
                 return SL_Skill.ParseSkill(item as Skill, itemHolder);
+            }
+            else if (item is RecipeItem)
+            {
+                return SL_RecipeItem.ParseRecipeItem(item as RecipeItem, itemHolder);
             }
             else
             {

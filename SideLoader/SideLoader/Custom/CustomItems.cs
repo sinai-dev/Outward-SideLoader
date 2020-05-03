@@ -21,10 +21,14 @@ namespace SideLoader
         private static readonly Dictionary<string, Tag> AllTags = new Dictionary<string, Tag>();
 
         /// <summary> cached ResourcesPrefabManager.ITEM_PREFABS Dictionary (reference to actual object) </summary>
-        private static Dictionary<string, Item> RPM_ITEM_PREFABS;
+        public static Dictionary<string, Item> RPM_ITEM_PREFABS;
 
         /// <summary> cached LocalizationManager.Instance.ItemLocalization </summary>
-        private static Dictionary<int, ItemLocalization> ITEM_LOCALIZATION;
+        public static Dictionary<int, ItemLocalization> ITEM_LOCALIZATION;
+
+        // Recipe Dicts
+        public static Dictionary<string, Recipe> ALL_RECIPES;
+        public static Dictionary<Recipe.CraftingType, List<UID>> RECIPES_PER_UTENSIL;
 
         internal void Awake()
         {
@@ -33,6 +37,9 @@ namespace SideLoader
             // Cache useful dictionaries used by the game
             RPM_ITEM_PREFABS = At.GetValue(typeof(ResourcesPrefabManager), null, "ITEM_PREFABS") as Dictionary<string, Item>;
             ITEM_LOCALIZATION = At.GetValue(typeof(LocalizationManager), LocalizationManager.Instance, "m_itemLocalization") as Dictionary<int, ItemLocalization>;
+
+            ALL_RECIPES = At.GetValue(typeof(RecipeManager), RecipeManager.Instance, "m_recipes") as Dictionary<string, Recipe>;
+            RECIPES_PER_UTENSIL = At.GetValue(typeof(RecipeManager), RecipeManager.Instance, "m_recipeUIDsPerUstensils") as Dictionary<Recipe.CraftingType, List<UID>>;
 
             var tags = At.GetValue(typeof(TagSourceManager), TagSourceManager.Instance, "m_tags") as Tag[];
             foreach (var tag in tags)

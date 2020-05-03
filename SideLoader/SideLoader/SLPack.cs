@@ -202,8 +202,16 @@ namespace SideLoader
                         
                         if (!SL.PacksLoaded)
                         {
-                            // Add the callback for when Items are ready to be applied
-                            SL.INTERNAL_ApplyItems += itemHolder.ApplyTemplateToItem;
+                            if (item is RecipeItem)
+                            {
+                                // Add the callback for when RecipeItems are ready to be applied (after recipes)
+                                SL.INTERNAL_ApplyRecipeItems += itemHolder.ApplyTemplateToItem;
+                            }
+                            else
+                            {
+                                // Add the callback for when Items are ready to be applied
+                                SL.INTERNAL_ApplyItems += itemHolder.ApplyTemplateToItem;
+                            }
                         }
                         else
                         {

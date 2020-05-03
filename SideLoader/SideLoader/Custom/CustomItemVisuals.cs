@@ -30,120 +30,8 @@ namespace SideLoader
             SpecialVisualPrefabFemale
         }
 
-        /// <summary>Use this to get the current ItemVisuals prefab an item is using (custom or original)</summary>
+
         public static Transform GetItemVisuals(Item item, VisualPrefabType type)
-        {
-            if (!ItemVisuals.ContainsKey(item.ItemID))
-            {
-                // return ResourcesPrefabManager.Instance.GetItemVisuals ??
-                return null;
-            }
-
-            switch (type)
-            {
-                case VisualPrefabType.VisualPrefab:
-                    return ItemVisuals[item.ItemID].ItemVisuals; // ?? ResourcesPrefabManager.Instance.GetItemVisuals(id, type);
-                case VisualPrefabType.SpecialVisualPrefabDefault:
-                    return ItemVisuals[item.ItemID].ItemSpecialVisuals;  // ?? ResourcesPrefabManager.Instance.GetItemVisuals(id, type);
-                case VisualPrefabType.SpecialVisualPrefabFemale:
-                    return ItemVisuals[item.ItemID].ItemSpecialFemaleVisuals;  // ?? ResourcesPrefabManager.Instance.GetItemVisuals(id, type);
-                // impossible outcome, but needs to be here for compiler warning
-                default: return null; 
-            }
-        }
-
-        /// <summary>
-        /// For replacing an item's visual prefab with your own prefab. For standard ItemVisuals, this only replaces the 3D model and leaves the rest.
-        /// </summary>
-        /// <param name="origPrefab">The original Transform you are replacing (eg Item.VisualPrefab, Item.SpecialVisualPrefabDefault, etc)</param>
-        /// <param name="newPrefab">Your new prefab Transform.</param>
-        public static void SetVisualPrefab(Item item, Transform origPrefab, Transform newPrefab, VisualPrefabType type, Vector3 positionOffset, Vector3 rotationOffset, bool hideFace = false, bool hideHair = false)
-        {
-            var clone = UnityEngine.Object.Instantiate(origPrefab.gameObject);
-            UnityEngine.Object.DontDestroyOnLoad(clone.gameObject);
-            clone.SetActive(false);
-
-            var newModel = UnityEngine.Object.Instantiate(newPrefab.gameObject);
-            UnityEngine.Object.DontDestroyOnLoad(newModel.gameObject);
-
-            // skinned mesh used for bows and armor
-            if (origPrefab.GetComponentInChildren<SkinnedMeshRenderer>())
-            {
-                if (item is ProjectileWeapon) // Bows
-                {
-                    SL.Log("Custom Visual Prefabs for Bows are not yet supported, sorry!", 0);
-                    return;
-                }
-                else // Armor
-                {
-                    if (clone.GetComponent<ArmorVisuals>() && !newModel.GetComponent<ArmorVisuals>())
-                    {
-                        var component = newModel.AddComponent<ArmorVisuals>();
-                        SL.GetCopyOf<ArmorVisuals>(component, clone.GetComponent<ArmorVisuals>());
-                    }
-
-                    newModel.transform.position = clone.transform.position;
-                    newModel.transform.rotation = clone.transform.rotation;
-
-                    newModel.gameObject.SetActive(false);
-
-                    // we no longer need the clone for these visuals. we should clean it up.
-                    UnityEngine.Object.Destroy(clone.gameObject);
-                }
-            }
-            else // setting normal item visual prefab.
-            {
-                // At the moment, the only thing we replace on ItemVisuals is the 3d model, everything else is a clone.
-                foreach (Transform child in clone.transform)
-                {
-                    // the real 3d model will always have boxcollider and meshrenderer. this is the object we want to replace.
-                    if (child.GetComponent<BoxCollider>() && child.GetComponent<MeshRenderer>())
-                    {
-                        child.gameObject.SetActive(false);
-
-                        newModel.transform.position = child.position;
-                        newModel.transform.rotation = child.rotation;
-                        newModel.transform.parent = child.parent;
-
-                        break;
-                    }
-                }
-            }
-
-            // add manual offsets
-            newModel.transform.position += positionOffset;
-            newModel.transform.eulerAngles += rotationOffset;
-
-            // set ItemVisualsLink
-            ItemVisualsLink link;
-            if (!ItemVisuals.ContainsKey(item.ItemID))
-            {
-                ItemVisuals.Add(item.ItemID, new ItemVisualsLink()
-                {
-                    LinkedItem = item,
-                });
-            }
-            link = ItemVisuals[item.ItemID];
-
-            switch (type) // set to CLONE for ItemVisuals, and the ACTUAL MODEL for Special Visuals
-            {
-                case VisualPrefabType.VisualPrefab:
-                    item.VisualPrefab = clone.transform;
-                    link.ItemVisuals = clone.transform;
-                    break;
-                case VisualPrefabType.SpecialVisualPrefabDefault:
-                    item.SpecialVisualPrefabDefault = newModel.transform;
-                    link.ItemSpecialVisuals = newModel.transform;
-                    break;
-                case VisualPrefabType.SpecialVisualPrefabFemale:
-                    item.SpecialVisualPrefabFemale = newModel.transform;
-                    link.ItemSpecialFemaleVisuals = newModel.transform;
-                    break;
-            }
-        }
-
-        /// <summary> Clone's an items current visual prefab (and materials), then sets this item's visuals to the new cloned prefab. </summary>
-        public static void CloneVisualPrefab(Item item, VisualPrefabType type)
         {
             Transform prefab = null;
             switch (type)
@@ -160,11 +48,134 @@ namespace SideLoader
                 default:
                     break;
             }
+            return prefab;
+        }
+
+        ///// <summary>Use this to get the current ItemVisuals prefab an item is using (custom or original)</summary>
+        //public static Transform GetCustomItemVisuals(Item item, VisualPrefabType type)
+        //{
+        //    if (!ItemVisuals.ContainsKey(item.ItemID))
+        //    {
+        //        // return ResourcesPrefabManager.Instance.GetItemVisuals ??
+        //        return null;
+        //    }
+
+        //    switch (type)
+        //    {
+        //        case VisualPrefabType.VisualPrefab:
+        //            return ItemVisuals[item.ItemID].ItemVisuals; // ?? ResourcesPrefabManager.Instance.GetItemVisuals(id, type);
+        //        case VisualPrefabType.SpecialVisualPrefabDefault:
+        //            return ItemVisuals[item.ItemID].ItemSpecialVisuals;  // ?? ResourcesPrefabManager.Instance.GetItemVisuals(id, type);
+        //        case VisualPrefabType.SpecialVisualPrefabFemale:
+        //            return ItemVisuals[item.ItemID].ItemSpecialFemaleVisuals;  // ?? ResourcesPrefabManager.Instance.GetItemVisuals(id, type);
+        //        // impossible outcome, but needs to be here for compiler warning
+        //        default: return null; 
+        //    }
+        //}
+
+        /// <summary>
+        /// For replacing an item's visual prefab with your own prefab. For standard ItemVisuals, this only replaces the 3D model and leaves the rest.
+        /// </summary>
+        /// <param name="origPrefab">The original Transform you are replacing (eg Item.VisualPrefab, Item.SpecialVisualPrefabDefault, etc)</param>
+        /// <param name="newVisuals">Your new prefab Transform.</param>
+        public static void SetVisualPrefab(Item item, Transform newVisuals, VisualPrefabType type, Vector3 positionOffset, Vector3 rotationOffset, bool hideFace = false, bool hideHair = false)
+        {
+            var basePrefab = GameObject.Instantiate(GetItemVisuals(item, type).gameObject);
+            GameObject.DontDestroyOnLoad(basePrefab);
+            basePrefab.SetActive(false);
+
+            Debug.Log("Setting the " + type + " of " + item.Name + ", origprefab: " + basePrefab.name + ", newPrefab: " + newVisuals.name);            
+
+            var visualModel = UnityEngine.Object.Instantiate(newVisuals.gameObject);
+            UnityEngine.Object.DontDestroyOnLoad(visualModel.gameObject);
+
+            if (type == VisualPrefabType.VisualPrefab)
+            {
+                // At the moment, the only thing we replace on ItemVisuals is the 3d model, everything else is a clone.
+                foreach (Transform child in basePrefab.transform)
+                {
+                    // the real 3d model will always have boxcollider and meshrenderer. this is the object we want to replace.
+                    if (child.GetComponent<BoxCollider>() && child.GetComponent<MeshRenderer>())
+                    {
+                        child.gameObject.SetActive(false);
+
+                        visualModel.transform.position = child.position;
+                        visualModel.transform.rotation = child.rotation;
+                        visualModel.transform.parent = child.parent;
+
+                        break;
+                    }
+                }
+            }
+            else
+            {
+                if (!visualModel.GetComponent<ItemVisual>())
+                {
+                    if (basePrefab.GetComponent<ItemVisual>() is ItemVisual itemVisual)
+                    {
+                        if (itemVisual is ArmorVisuals armorVisuals)
+                        {
+                            var newcomp = visualModel.AddComponent<ArmorVisuals>();
+                            SL.GetCopyOf(newcomp, armorVisuals);
+                        }
+                        else
+                        {
+                            var newcomp = visualModel.AddComponent<ItemVisual>();
+                            SL.GetCopyOf(newcomp, itemVisual);
+                        }
+                    }
+                }
+
+                visualModel.transform.position = basePrefab.transform.position;
+                visualModel.transform.rotation = basePrefab.transform.rotation;
+                visualModel.gameObject.SetActive(false);
+
+                // we no longer need the clone for these visuals. we should clean it up.
+                UnityEngine.Object.DestroyImmediate(basePrefab.gameObject);
+            }
+
+            // add manual offsets
+            visualModel.transform.position += positionOffset;
+            visualModel.transform.eulerAngles += rotationOffset;
+
+            // set ItemVisualsLink
+            ItemVisualsLink link;
+            if (!ItemVisuals.ContainsKey(item.ItemID))
+            {
+                ItemVisuals.Add(item.ItemID, new ItemVisualsLink()
+                {
+                    LinkedItem = item,
+                });
+            }
+            link = ItemVisuals[item.ItemID];
+
+            switch (type) // set to CLONE for ItemVisuals, and the ACTUAL MODEL for Special Visuals
+            {
+                case VisualPrefabType.VisualPrefab:
+                    item.VisualPrefab = basePrefab.transform;
+                    link.ItemVisuals = basePrefab.transform;
+                    break;
+                case VisualPrefabType.SpecialVisualPrefabDefault:
+                    item.SpecialVisualPrefabDefault = visualModel.transform;
+                    link.ItemSpecialVisuals = visualModel.transform;
+                    break;
+                case VisualPrefabType.SpecialVisualPrefabFemale:
+                    item.SpecialVisualPrefabFemale = visualModel.transform;
+                    link.ItemSpecialFemaleVisuals = visualModel.transform;
+                    break;
+            }
+        }
+
+
+        /// <summary> Clone's an items current visual prefab (and materials), then sets this item's visuals to the new cloned prefab. </summary>
+        public static GameObject CloneVisualPrefab(Item item, VisualPrefabType type)
+        {
+            var prefab = GetItemVisuals(item, type);
 
             if (!prefab)
             {
                 SL.Log("Error, no VisualPrefabType defined or could not find visual prefab of that type!");
-                return;
+                return null;
             }
 
             // Clone the visual prefab 
@@ -225,6 +236,8 @@ namespace SideLoader
 
                 mesh.materials = mats;
             }
+
+            return newVisuals;
         }
 
         public static void TryApplyCustomTextures(string texturesFolder, Item item)

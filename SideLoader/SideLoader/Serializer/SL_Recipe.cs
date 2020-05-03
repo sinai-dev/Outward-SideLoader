@@ -91,15 +91,27 @@ namespace SideLoader
             recipe.Init();
 
             // fix Recipe Manager dictionaries to contain our recipe
-            var dict = At.GetValue(typeof(RecipeManager), RecipeManager.Instance, "m_recipes") as Dictionary<string, Recipe>;
-            var dict2 = At.GetValue(typeof(RecipeManager), RecipeManager.Instance, "m_recipeUIDsPerUstensils") as Dictionary<Recipe.CraftingType, List<UID>>;
+            var dict = CustomItems.ALL_RECIPES;
+            var dict2 = CustomItems.RECIPES_PER_UTENSIL;
 
-            dict.Add(recipe.UID, recipe);
+            if (dict.ContainsKey(recipe.UID))
+            {
+                dict[recipe.UID] = recipe;
+            }
+            else
+            {
+                dict.Add(recipe.UID, recipe);
+            }
+
             if (!dict2.ContainsKey(recipe.CraftingStationType))
             {
                 dict2.Add(recipe.CraftingStationType, new List<UID>());
             }
-            dict2[recipe.CraftingStationType].Add(recipe.UID);
+            
+            if (!dict2[recipe.CraftingStationType].Contains(recipe.UID))
+            {
+                dict2[recipe.CraftingStationType].Add(recipe.UID);
+            }
 
             SL.Log("Defined recipe " + recipe.Name + "_" + recipe.UID);
             m_applied = true;

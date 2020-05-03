@@ -22,7 +22,7 @@ namespace SideLoader
         // Mod Info
         public const string GUID = "com.sinai." + MODNAME;
         public const string MODNAME = "SideLoader";
-        public const string VERSION = "2.1.1";
+        public const string VERSION = "2.1.2";
 
         // Folders
         public static string PLUGINS_FOLDER => Paths.PluginPath;
@@ -44,6 +44,8 @@ namespace SideLoader
         public static event UnityAction INTERNAL_ApplyItems;
         /// <summary>Only called once on startup. This is mainly for internal use, it is a callback used by RecipeHolders to apply after all CustomItems are loaded.</summary>
         public static event UnityAction INTERNAL_ApplyRecipes;
+        /// <summary>Needs to be after Recipes are defined.</summary>
+        public static event Action INTERNAL_ApplyRecipeItems;
 
         internal void Awake()
         {
@@ -135,6 +137,9 @@ namespace SideLoader
 
             Log("------- Applying custom Recipes -------", 0);
             INTERNAL_ApplyRecipes?.Invoke();
+
+            Log("------- Applying Recipe Items -------", 0);
+            INTERNAL_ApplyRecipeItems?.Invoke();
 
             PacksLoaded = true;
             Log("------- SideLoader Setup Finished -------");
