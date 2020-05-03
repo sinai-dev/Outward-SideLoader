@@ -24,7 +24,7 @@ Requires [BepInEx](https://github.com/BepInEx/BepInEx).
 The "Resources" folder of this repository contains many useful files. There are examples to learn from, some blank icon templates, the human model rig for Outward, and other stuff. 
 
 ## Credits
-* <b>ehaugw</b> for great suggestions, lots of help with testing, and developing the example Swords in the Resources folder
+* <b>ehaugw</b> for your suggestions and design discussions. Also provided some examples used in the Resources folder.
 
 ## Got questions? Want to contribute?
 
