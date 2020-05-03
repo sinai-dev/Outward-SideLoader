@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <SL_Skill xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-  <OnlyChangeVisuals>false</OnlyChangeVisuals>
-  <ReplaceEffects>true</ReplaceEffects>
+  <EffectBehaviour>DestroyEffects</EffectBehaviour>
   <Target_ItemID>8205040</Target_ItemID>
   <New_ItemID>8400999</New_ItemID>
   <Name>Coolness</Name>

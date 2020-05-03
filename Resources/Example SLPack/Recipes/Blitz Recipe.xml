@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <SL_Recipe xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
   <!-- One of: "Survival", "Alchemy", "Cooking", "Forge" (unused) -->
+  <UID>recipe.author.myrecipename</UID>
   <StationType>Survival</StationType> 
   <Ingredients>
     <Ingredient>

@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <SL_Item xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-  <OnlyChangeVisuals>false</OnlyChangeVisuals>
-  <ReplaceEffects>true</ReplaceEffects>
+  <EffectBehaviour>DestroyEffects</EffectBehaviour>
   <Target_ItemID>4300210</Target_ItemID>
   <New_ItemID>4399999</New_ItemID>
   <Name>Cool Elixir</Name>
@@ -53,5 +52,5 @@
       <ChildEffects />
     </SL_EffectTransform>
   </EffectTransforms>
-  
+
 </SL_Item>

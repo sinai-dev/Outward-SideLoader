@@ -1,4 +1,4 @@
-This example folder shows how to use each feature of SideLoader.
+This example folder shows how to use some features of SideLoader.
 
 - There is an AssetBundle, which is used by the "Blitz" custom item.
 
