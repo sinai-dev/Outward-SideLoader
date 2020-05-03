@@ -10,13 +10,12 @@ The Outward SideLoader is a tool for loading and configuring custom assets for O
 
 Requires [BepInEx](https://github.com/BepInEx/BepInEx).
 
-## How To Install ##
-* [Download from NexusMods](https://www.nexusmods.com/outward/mods/96)
+## Release
+
+* [NexusMods (Download and Instructions)](https://www.nexusmods.com/outward/mods/96)
 * [Patch Notes (Releases)](https://github.com/sinaioutlander/Outward-SideLoader/releases)
 
-## How To Make A SideLoader Mod ##
-
-There is full documentation for the SideLoader on the SL Wiki:
+## SL Wiki
 
 <big><b>[SideLoader Wiki](https://github.com/sinaioutlander/Outward-SideLoader/wiki)</b></big>
 
