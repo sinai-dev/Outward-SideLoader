@@ -6,7 +6,7 @@
 
 [![Version](https://img.shields.io/badge/BepInEx-5.0.1-green.svg)](https://github.com/BepInEx/BepInEx)
 
-The Outward SideLoader is a tool for loading and configuring custom assets for Outward. It is also capable of generating and/or replacing custom Items, Skills and Recipes, as well as replacing textures on materials.
+Helps you get your assets into Outward. Can replace or create new textures, audio, items, recipes, etc...
 
 Requires [BepInEx](https://github.com/BepInEx/BepInEx).
 
