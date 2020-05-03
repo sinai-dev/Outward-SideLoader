@@ -117,7 +117,7 @@ namespace SideLoader
                 }
                 else if (ReplaceEffects)
                 {
-                    SL.Log("SL_Item.ReplaceEffects is deprecated - use SL_Item.Behaviour instead!");
+                    SL.Log("SL_Item.ReplaceEffects is deprecated - use SL_Item.EffectBehaviour instead!");
                     EffectBehaviour = TemplateBehaviour.DestroyEffects;
                 }
             }
@@ -217,8 +217,6 @@ namespace SideLoader
                 At.SetValue(stats.BaseDamage.Clone(), typeof(Weapon), weapon, "m_baseDamage");
                 At.SetValue(stats.BaseDamage.Clone(), typeof(Weapon), weapon, "m_activeBaseDamage");
             }
-
-            SL.Log("Finished applying template");
         }
 
         private void ApplyVisuals(SLPack pack, Item item)

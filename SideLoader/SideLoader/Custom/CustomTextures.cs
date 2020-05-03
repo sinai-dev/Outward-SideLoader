@@ -74,7 +74,7 @@ namespace SideLoader
         private static Texture2D LoadTextureInternal(string filePath, bool isNormal)
         {
             var name = Path.GetFileNameWithoutExtension(filePath);
-            SL.Log("Loading texture map " + name + ", isnormal: " + isNormal);
+            SL.Log("Loading texture file: " + name);
 
             if (File.Exists(filePath))
             {

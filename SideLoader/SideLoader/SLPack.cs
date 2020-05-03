@@ -29,11 +29,11 @@ namespace SideLoader
 
         public Dictionary<string, AssetBundle> AssetBundles = new Dictionary<string, AssetBundle>();
         public Dictionary<string, Texture2D> Texture2D = new Dictionary<string, Texture2D>();
-        //public Dictionary<string, AudioClip> AudioClips = new Dictionary<string, AudioClip>();
+        public Dictionary<string, AudioClip> AudioClips = new Dictionary<string, AudioClip>();
 
         public enum SubFolders
         {
-            //AudioClip,
+            AudioClip,
             AssetBundles,
             Items,
             Recipes,
@@ -66,6 +66,9 @@ namespace SideLoader
 
             // AssetBundles
             pack.LoadAssetBundles();
+
+            // Audio Clips
+            pack.LoadAudioClips();
 
             // Texture2D (Just for replacements)
             pack.LoadTexture2D();
@@ -108,6 +111,20 @@ namespace SideLoader
                 {
                     SL.Log("Error loading asset bundle! Message: " + e.Message + "\r\nStack: " + e.StackTrace, 1);
                 }
+            }
+        }
+
+        private void LoadAudioClips()
+        {
+            var dir = GetSubfolderPath(SubFolders.AudioClip);
+            if (!Directory.Exists(dir))
+            {
+                return;
+            }
+
+            foreach (var clipPath in Directory.GetFiles(dir, "*.wav"))
+            {
+                SL.Instance.StartCoroutine(CustomAudio.LoadClip(clipPath, this));
             }
         }
 

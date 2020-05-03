@@ -22,7 +22,7 @@ namespace SideLoader
         // Mod Info
         public const string GUID = "com.sinai." + MODNAME;
         public const string MODNAME = "SideLoader";
-        public const string VERSION = "2.1.0";
+        public const string VERSION = "2.1.1";
 
         // Folders
         public static string PLUGINS_FOLDER => Paths.PluginPath;
@@ -58,22 +58,13 @@ namespace SideLoader
             harmony.PatchAll();
         }
 
+        // fix for ItemDetailsDisplay. Shouldn't really be needed anymore, but leaving it for now.
         [HarmonyPatch(typeof(ItemDetailsDisplay), "RefreshDetail")]
         public class ItemDetailsDisplay_RefreshDetail
         {
-            //[HarmonyPrefix]
-            //public static void Prefix(int _rowIndex, ItemDetailsDisplay.DisplayedInfos _infoType)
-            //{
-            //    Debug.Log($"_rowIndex: {_rowIndex}, _infoType: {_infoType}");
-            //}
-
             [HarmonyFinalizer]
-            public static Exception Finalizer(Exception __exception)
+            public static Exception Finalizer()
             {
-                //if (__exception != null)
-                //{
-                //    Debug.Log($"Exception!\r\nMessage: {__exception.Message}\r\nStack: {__exception.StackTrace}");
-                //}
                 return null;
             }
         }
@@ -139,14 +130,14 @@ namespace SideLoader
                 TryLoadPack(packname, dir, true);
             }
 
-            Log("Applying custom Items", 0);
+            Log("------- Applying custom Items -------", 0);
             INTERNAL_ApplyItems?.Invoke();
 
-            Log("Applying custom Recipes", 0);
+            Log("------- Applying custom Recipes -------", 0);
             INTERNAL_ApplyRecipes?.Invoke();
 
             PacksLoaded = true;
-            Log("------ SideLoader Setup Finished ------");
+            Log("------- SideLoader Setup Finished -------");
             OnPacksLoaded?.Invoke();
 
             //// *********************************** temp debug ***********************************
