@@ -10,10 +10,6 @@ namespace SideLoader
 {
     public class CustomItemVisuals
     {
-        // ============================================================================================ //
-        /*                                    CUSTOM ITEM VISUALS                                       */
-        // ============================================================================================ //
-
         /* 
          * This will need fixing after DLC (Item.ItemVisual not a direct link, only string reference to Resources path)
          * Will probably have to hook something like ResourcesPrefabManager.GetItemVisual(int id) 
@@ -78,7 +74,7 @@ namespace SideLoader
         /// </summary>
         /// <param name="origPrefab">The original Transform you are replacing (eg Item.VisualPrefab, Item.SpecialVisualPrefabDefault, etc)</param>
         /// <param name="newVisuals">Your new prefab Transform.</param>
-        public static void SetVisualPrefab(Item item, Transform newVisuals, VisualPrefabType type, Vector3 positionOffset, Vector3 rotationOffset, bool hideFace = false, bool hideHair = false)
+        public static void SetVisualPrefab(Item item, Transform newVisuals, VisualPrefabType type, Vector3 positionOffset, Vector3 rotationOffset, bool? hideFace = null, bool? hideHair = null)
         {
             var basePrefab = GameObject.Instantiate(GetItemVisuals(item, type).gameObject);
             GameObject.DontDestroyOnLoad(basePrefab);
@@ -117,6 +113,14 @@ namespace SideLoader
                         {
                             var newcomp = visualModel.AddComponent<ArmorVisuals>();
                             SL.GetCopyOf(newcomp, armorVisuals);
+                            if (hideHair != null)
+                            {
+                                newcomp.HideHair = (bool)hideHair;
+                            }
+                            if (hideFace != null)
+                            {
+                                newcomp.HideFace = (bool)hideFace;
+                            }
                         }
                         else
                         {
@@ -168,7 +172,7 @@ namespace SideLoader
 
 
         /// <summary> Clone's an items current visual prefab (and materials), then sets this item's visuals to the new cloned prefab. </summary>
-        public static GameObject CloneVisualPrefab(Item item, VisualPrefabType type)
+        public static GameObject CloneVisualPrefab(Item item, VisualPrefabType type, Vector3 positionOffset, Vector3 rotationOffset)
         {
             var prefab = GetItemVisuals(item, type);
 
@@ -182,6 +186,24 @@ namespace SideLoader
             var newVisuals = UnityEngine.Object.Instantiate(prefab.gameObject);
             newVisuals.SetActive(false);
             UnityEngine.Object.DontDestroyOnLoad(newVisuals);
+
+            // add the position and rotation offsets
+            if (newVisuals.GetComponent<SkinnedMeshRenderer>())
+            {
+                newVisuals.transform.position += positionOffset;
+                newVisuals.transform.eulerAngles += rotationOffset;
+            }
+            else
+            {
+                foreach (Transform child in newVisuals.transform)
+                {
+                    if (child.GetComponent<BoxCollider>() && child.GetComponent<MeshRenderer>())
+                    {
+                        child.transform.position += positionOffset;
+                        child.transform.eulerAngles += rotationOffset;
+                    }
+                }
+            }
 
             // set the item's visuals to our new clone
             At.SetValue(newVisuals.transform, typeof(Item), item, type.ToString());

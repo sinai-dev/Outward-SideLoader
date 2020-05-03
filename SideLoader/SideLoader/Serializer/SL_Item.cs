@@ -61,23 +61,25 @@ namespace SideLoader
 
         public List<SL_EffectTransform> EffectTransforms = new List<SL_EffectTransform>();
 
-        /// <summary>[Optional] The name of the AssetBundle where your custom ItemVisuals are loaded from</summary>
+        /*       Visual Prefab stuff       */
+
+        /// <summary>The name of the AssetBundle where your custom ItemVisuals are loaded from</summary>
         public string AssetBundleName = "";
-        /// <summary>[Optional] The name of the GameObject for your standard Item Visuals, in the AssetBundle defined as VisualsBundleName</summary>
+        /// <summary>The name of the GameObject for your standard Item Visuals, in the AssetBundle defined as AssetBundleName</summary>
         public string ItemVisuals_PrefabName = "";
         public Vector3 ItemVisuals_PositionOffset = Vector3.zero;
         public Vector3 ItemVisuals_RotationOffset = Vector3.zero;
-        /// <summary>[Optional] The name of the GameObject for your SPECIAL Visuals (commonly for Armor visuals), in the AssetBundle defined as VisualsBundleName</summary>
+        /// <summary>The name of the GameObject for your SPECIAL Visuals (commonly for Armor visuals), in the AssetBundle defined as AssetBundleName</summary>
         public string SpecialVisuals_PrefabName = "";
         public Vector3 SpecialVisuals_PositionOffset = Vector3.zero;
         public Vector3 SpecialVisuals_RotationOffset = Vector3.zero;
-        /// <summary>[Optional] The name of the GameObject for your SPECIAL FEMALE Visuals (commonly for Armor visuals), in the AssetBundle defined as VisualsBundleName</summary>
+        /// <summary>The name of the GameObject for your SPECIAL FEMALE Visuals (commonly for Armor visuals), in the AssetBundle defined as AssetBundleName</summary>
         public string FemaleVisuals_PrefabName = "";
         public Vector3 FemaleVisuals_PositionOffset = Vector3.zero;
         public Vector3 FemaleVisuals_RotationOffset = Vector3.zero;
 
-        public bool VisualsHideFace = false;
-        public bool VisualsHideHair = false;
+        public bool? VisualsHideFace;
+        public bool? VisualsHideHair;
 
         public void ApplyTemplateToItem()
         {
@@ -275,12 +277,18 @@ namespace SideLoader
 
                 if (string.IsNullOrEmpty(prefabName))
                 {
-                    var newVisuals = CustomItemVisuals.CloneVisualPrefab(item, type);
+                    var newVisuals = CustomItemVisuals.CloneVisualPrefab(item, type, pos, rot);
 
                     if (newVisuals.GetComponent<ArmorVisuals>() is ArmorVisuals armorVisuals)
                     {
-                        armorVisuals.HideFace = this.VisualsHideFace;
-                        armorVisuals.HideHair = this.VisualsHideHair;
+                        if (this.VisualsHideFace != null)
+                        {
+                            armorVisuals.HideFace = (bool)this.VisualsHideFace;
+                        }
+                        if (this.VisualsHideHair != null)
+                        {
+                            armorVisuals.HideHair = (bool)this.VisualsHideHair;
+                        }
                     }
 
                     continue;
