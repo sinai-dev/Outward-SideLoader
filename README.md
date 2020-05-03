@@ -13,7 +13,7 @@ Requires [BepInEx](https://github.com/BepInEx/BepInEx).
 ## Release
 
 * [NexusMods (Download and Instructions)](https://www.nexusmods.com/outward/mods/96)
-* [Patch Notes (Releases)](https://github.com/sinaioutlander/Outward-SideLoader/releases)
+* [Patch Notes](https://github.com/sinaioutlander/Outward-SideLoader/releases)
 
 ## SL Wiki
 
