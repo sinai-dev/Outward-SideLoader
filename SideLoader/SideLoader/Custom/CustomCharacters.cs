@@ -24,7 +24,7 @@ namespace SideLoader
 			SetupBasicAIPrefab();
 		}
 
-		public static GameObject InstantiatePlayerPrefab(Vector3 _position, string _UID)
+		public static GameObject CreateCharacter(Vector3 _position, string _UID)
 		{
 			// setup Player Prefab
 			var playerPrefab = PhotonNetwork.InstantiateSceneObject("_characters/NewPlayerPrefab", _position, Quaternion.identity, 0, new object[]
@@ -34,6 +34,8 @@ namespace SideLoader
 				_UID,
 				string.Empty // dont send a creator UID, otherwise it links the current summon (used by Conjure Ghost)
 			});
+
+			RPCManager.Instance.photonView.RPC("SetCharacterViewID", PhotonTargets.All, _UID, PhotonNetwork.AllocateSceneViewID());
 
 			playerPrefab.SetActive(false);
 
@@ -266,6 +268,14 @@ namespace SideLoader
 			BasicAIPrefab = _AIStatesPrefab.gameObject;
 			DontDestroyOnLoad(BasicAIPrefab);
 			BasicAIPrefab.SetActive(false);
+		}
+
+		// legacy support
+
+		[Obsolete("Use CustomCharacters.CreateCharacter instead (naming change)")]
+		public static GameObject InstantiatePlayerPrefab(Vector3 _position, string _UID)
+		{
+			return CreateCharacter(_position, _UID);
 		}
 	}
 }
