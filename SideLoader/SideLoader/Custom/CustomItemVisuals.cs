@@ -199,8 +199,15 @@ namespace SideLoader
                 {
                     if (child.GetComponent<BoxCollider>() && child.GetComponent<MeshRenderer>())
                     {
-                        child.transform.position += positionOffset;
-                        child.transform.eulerAngles += rotationOffset;
+                        if (positionOffset != Vector3.zero)
+                        {
+                            child.transform.position += positionOffset;
+                        }
+                        if (rotationOffset != Vector3.zero)
+                        {
+                            child.transform.eulerAngles += rotationOffset;
+                        }
+                        break;
                     }
                 }
             }
