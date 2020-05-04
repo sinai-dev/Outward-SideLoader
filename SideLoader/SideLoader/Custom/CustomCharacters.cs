@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using UnityEngine;
 using UnityEngine.AI;
+using HarmonyLib;
 
 namespace SideLoader
 {
@@ -24,6 +25,17 @@ namespace SideLoader
 			SetupBasicAIPrefab();
 		}
 
+		// Fix for PlayerCharacterStats having an exception on first update, idk why yet.
+		[HarmonyPatch(typeof(PlayerCharacterStats), "OnUpdateStats")]
+		public class PlayerCharacterStats_OnUpdateStats
+		{
+			[HarmonyFinalizer]
+			public static Exception Finalizer()
+			{
+				return null;
+			}
+		}
+
 		public static GameObject CreateCharacter(Vector3 _position, string _UID)
 		{
 			// setup Player Prefab
@@ -35,9 +47,9 @@ namespace SideLoader
 				string.Empty // dont send a creator UID, otherwise it links the current summon (used by Conjure Ghost)
 			});
 
-			RPCManager.Instance.photonView.RPC("SetCharacterViewID", PhotonTargets.All, _UID, PhotonNetwork.AllocateSceneViewID());
-
 			playerPrefab.SetActive(false);
+
+			RPCManager.Instance.photonView.RPC("SetCharacterViewID", PhotonTargets.All, _UID, PhotonNetwork.AllocateSceneViewID());
 
 			return playerPrefab;
 		}
@@ -51,6 +63,7 @@ namespace SideLoader
 
 			// add our basic AIStatesPrefab to a CharacterAI component. This is the prefab set up by SetupBasicAIPrefab(), below.
 			CharacterAI charAI = _char.gameObject.AddComponent<CharacterAI>();
+			At.SetValue(_char, typeof(CharacterAI), charAI, "m_character");
 			charAI.AIStatesPrefab = BasicAIPrefab.GetComponent<AIRoot>();
 
 			// remove unwanted components

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using UnityEngine;
+using HarmonyLib;
 
 namespace SideLoader
 {
@@ -37,6 +38,7 @@ namespace SideLoader
                 yield return null;
             }
 
+            // fix Photon View component
             if (character.gameObject.GetPhotonView() is PhotonView view)
             {
                 DestroyImmediate(view);
@@ -47,6 +49,8 @@ namespace SideLoader
             pView.onSerializeTransformOption = OnSerializeTransform.PositionAndRotation;
             pView.onSerializeRigidBodyOption = OnSerializeRigidBody.All;
             pView.synchronization = ViewSynchronization.Unreliable;
+
+            character.gameObject.SetActive(true);
         }
     }
 }
