@@ -128,7 +128,8 @@ namespace SideLoader
 			At.SetValue("", typeof(Character), character, "m_nameLocKey");
 			At.SetValue(name, typeof(Character), character, "m_name");
 
-			if (character.gameObject.GetComponent<PlayerCharacterStats>())
+			// fix stats for non-hosts
+			if (PhotonNetwork.isNonMasterClientInRoom && character.gameObject.GetComponent<PlayerCharacterStats>())
 			{
 				FixStats(character);
 			}
