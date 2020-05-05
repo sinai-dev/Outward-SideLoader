@@ -24,12 +24,12 @@ namespace SideLoader
         }
 
         [PunRPC]
-        public void SetCharacterViewID(string charUID, int viewID)
+        public void RPCSpawnCharacter(string charUID, int viewID, string name)
         {
-            StartCoroutine(SetCharViewIDCoroutine(charUID, viewID));
+            StartCoroutine(SpawnCharacterCoroutine(charUID, viewID, name));
         }
 
-        private static IEnumerator SetCharViewIDCoroutine(string charUID, int viewID)
+        private static IEnumerator SpawnCharacterCoroutine(string charUID, int viewID, string name)
         {
             Character character = null;
             while (character == null)
@@ -37,6 +37,16 @@ namespace SideLoader
                 character = CharacterManager.Instance.GetCharacter(charUID);
                 yield return null;
             }
+
+            // add to cache list
+            CustomCharacters.AddActiveCharacter(character.gameObject);
+
+            character.name = $"{name}_{charUID}";
+            At.SetValue("", typeof(Character), character, "m_nameLocKey");
+            At.SetValue(name, typeof(Character), character, "m_name");
+
+            // fix UI bar offset
+            character.UIBarOffSet += Vector3.up * 0.1f;
 
             // fix Photon View component
             if (character.gameObject.GetPhotonView() is PhotonView view)
@@ -50,7 +60,7 @@ namespace SideLoader
             pView.onSerializeRigidBodyOption = OnSerializeRigidBody.All;
             pView.synchronization = ViewSynchronization.Unreliable;
 
-            character.gameObject.SetActive(true);
+            //character.gameObject.SetActive(true);
         }
     }
 }

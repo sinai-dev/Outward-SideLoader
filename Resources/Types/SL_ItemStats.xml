@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<SL_ItemStats xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-  <BaseValue>0</BaseValue>
-  <RawWeight>0</RawWeight>
-  <MaxDurability>0</MaxDurability>
+<SL_ItemStats xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <BaseValue xsi:nil="true" />
+  <RawWeight xsi:nil="true" />
+  <MaxDurability xsi:nil="true" />
 </SL_ItemStats>

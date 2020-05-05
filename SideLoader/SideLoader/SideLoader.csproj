@@ -50,7 +50,6 @@
     <Compile Include="Serializer\Effect\Affects\SL_AffectStability.cs" />
     <Compile Include="Serializer\Effect\Affects\SL_AffectStamina.cs" />
     <Compile Include="Serializer\Effect\Affects\SL_AffectStat.cs" />
-    <Compile Include="Serializer\SL_EffectCondition.cs" />
     <Compile Include="Serializer\SL_Effect.cs" />
     <Compile Include="Serializer\Effect\SL_ImbueWeapon.cs" />
     <Compile Include="Serializer\Effect\SL_PunctualDamage.cs" />
@@ -67,12 +66,13 @@
     <Compile Include="Serializer\Item\SL_Skill.cs" />
     <Compile Include="Serializer\Item\SL_Weapon.cs" />
     <Compile Include="Serializer\SL_Material.cs" />
+    <Compile Include="Serializer\Item\SL_MultiItem.cs" />
     <Compile Include="Serializer\SL_Recipe.cs" />
     <Compile Include="Custom\CustomCharacters.cs" />
     <Compile Include="Custom\CustomItems.cs" />
     <Compile Include="Custom\CustomSkills.cs" />
     <Compile Include="Serializer.cs" />
-    <Compile Include="Serializer\SL_RecipeItem.cs" />
+    <Compile Include="Serializer\Item\SL_RecipeItem.cs" />
     <Compile Include="SLPack.cs" />
     <Compile Include="Custom\CustomScenes.cs" />
     <Compile Include="Custom\CustomTextures.cs" />

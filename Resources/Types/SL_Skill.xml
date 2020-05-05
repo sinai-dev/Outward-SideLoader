@@ -1,24 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
-<SL_Skill xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-  <OnlyChangeVisuals>false</OnlyChangeVisuals>
-  <ReplaceEffects>true</ReplaceEffects>
+<SL_Skill xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <EffectBehaviour>NONE</EffectBehaviour>
   <Target_ItemID>-1</Target_ItemID>
   <New_ItemID>-1</New_ItemID>
-  <Name />
-  <Description />
-  <LegacyItemID>-1</LegacyItemID>
-  <IsPickable>true</IsPickable>
-  <IsUsable>false</IsUsable>
-  <QtyRemovedOnUse>1</QtyRemovedOnUse>
-  <GroupItemInDisplay>false</GroupItemInDisplay>
-  <HasPhysicsWhenWorld>false</HasPhysicsWhenWorld>
-  <RepairedInRest>true</RepairedInRest>
-  <BehaviorOnNoDurability>NotSet</BehaviorOnNoDurability>
-  <CastType>Normal</CastType>
-  <CastModifier>Immobilized</CastModifier>
-  <CastLocomotionEnabled>false</CastLocomotionEnabled>
-  <MobileCastMovementMult>-1</MobileCastMovementMult>
-  <CastSheatheRequired>0</CastSheatheRequired>
+  <LegacyItemID xsi:nil="true" />
+  <IsPickable xsi:nil="true" />
+  <IsUsable xsi:nil="true" />
+  <QtyRemovedOnUse xsi:nil="true" />
+  <GroupItemInDisplay xsi:nil="true" />
+  <HasPhysicsWhenWorld xsi:nil="true" />
+  <RepairedInRest xsi:nil="true" />
+  <BehaviorOnNoDurability xsi:nil="true" />
+  <CastType xsi:nil="true" />
+  <CastModifier xsi:nil="true" />
+  <CastLocomotionEnabled xsi:nil="true" />
+  <MobileCastMovementMult xsi:nil="true" />
+  <CastSheatheRequired xsi:nil="true" />
   <Tags />
   <EffectTransforms />
   <AssetBundleName />
@@ -55,17 +52,17 @@
     <y>0</y>
     <z>0</z>
   </FemaleVisuals_RotationOffset>
-  <VisualsHideFace>false</VisualsHideFace>
-  <VisualsHideHair>false</VisualsHideHair>
-  <Cooldown>0</Cooldown>
-  <StaminaCost>0</StaminaCost>
-  <ManaCost>0</ManaCost>
-  <DurabilityCost>0</DurabilityCost>
-  <DurabilityCostPercent>0</DurabilityCostPercent>
+  <VisualsHideFace xsi:nil="true" />
+  <VisualsHideHair xsi:nil="true" />
+  <Cooldown xsi:nil="true" />
+  <StaminaCost xsi:nil="true" />
+  <ManaCost xsi:nil="true" />
+  <DurabilityCost xsi:nil="true" />
+  <DurabilityCostPercent xsi:nil="true" />
   <RequiredItems />
   <AmmunitionTypes />
   <RequiredOffHandTypes />
   <RequiredWeaponTypes />
   <RequiredWeaponTags />
-  <RequireImbue>false</RequireImbue>
+  <RequireImbue xsi:nil="true" />
 </SL_Skill>

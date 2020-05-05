@@ -1,24 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
-<SL_Bag xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-  <OnlyChangeVisuals>false</OnlyChangeVisuals>
-  <ReplaceEffects>true</ReplaceEffects>
+<SL_Bag xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <EffectBehaviour>NONE</EffectBehaviour>
   <Target_ItemID>-1</Target_ItemID>
   <New_ItemID>-1</New_ItemID>
-  <Name />
-  <Description />
-  <LegacyItemID>-1</LegacyItemID>
-  <IsPickable>true</IsPickable>
-  <IsUsable>false</IsUsable>
-  <QtyRemovedOnUse>1</QtyRemovedOnUse>
-  <GroupItemInDisplay>false</GroupItemInDisplay>
-  <HasPhysicsWhenWorld>false</HasPhysicsWhenWorld>
-  <RepairedInRest>true</RepairedInRest>
-  <BehaviorOnNoDurability>NotSet</BehaviorOnNoDurability>
-  <CastType>Normal</CastType>
-  <CastModifier>Immobilized</CastModifier>
-  <CastLocomotionEnabled>false</CastLocomotionEnabled>
-  <MobileCastMovementMult>-1</MobileCastMovementMult>
-  <CastSheatheRequired>0</CastSheatheRequired>
+  <LegacyItemID xsi:nil="true" />
+  <IsPickable xsi:nil="true" />
+  <IsUsable xsi:nil="true" />
+  <QtyRemovedOnUse xsi:nil="true" />
+  <GroupItemInDisplay xsi:nil="true" />
+  <HasPhysicsWhenWorld xsi:nil="true" />
+  <RepairedInRest xsi:nil="true" />
+  <BehaviorOnNoDurability xsi:nil="true" />
+  <CastType xsi:nil="true" />
+  <CastModifier xsi:nil="true" />
+  <CastLocomotionEnabled xsi:nil="true" />
+  <MobileCastMovementMult xsi:nil="true" />
+  <CastSheatheRequired xsi:nil="true" />
   <Tags />
   <EffectTransforms />
   <AssetBundleName />
@@ -55,15 +52,15 @@
     <y>0</y>
     <z>0</z>
   </FemaleVisuals_RotationOffset>
-  <VisualsHideFace>false</VisualsHideFace>
-  <VisualsHideHair>false</VisualsHideHair>
-  <EquipSlot>Helmet</EquipSlot>
-  <TwoHandType>None</TwoHandType>
-  <IKType>None</IKType>
-  <VisualDetectabilityAdd>0</VisualDetectabilityAdd>
-  <Capacity>0</Capacity>
-  <Restrict_Dodge>false</Restrict_Dodge>
-  <InventoryProtection>0</InventoryProtection>
+  <VisualsHideFace xsi:nil="true" />
+  <VisualsHideHair xsi:nil="true" />
+  <EquipSlot xsi:nil="true" />
+  <TwoHandType xsi:nil="true" />
+  <IKType xsi:nil="true" />
+  <VisualDetectabilityAdd xsi:nil="true" />
+  <Capacity xsi:nil="true" />
+  <Restrict_Dodge xsi:nil="true" />
+  <InventoryProtection xsi:nil="true" />
   <Preserver_Amount>-1</Preserver_Amount>
   <Nullify_Perish>false</Nullify_Perish>
 </SL_Bag>

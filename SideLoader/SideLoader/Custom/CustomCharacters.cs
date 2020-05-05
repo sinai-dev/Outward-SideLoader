@@ -6,6 +6,7 @@ using System.Text;
 using UnityEngine;
 using UnityEngine.AI;
 using HarmonyLib;
+using UnityEngine.SceneManagement;
 
 namespace SideLoader
 {
@@ -13,16 +14,43 @@ namespace SideLoader
 	/// This class just contains some useful helper functions for setting up custom NPCs or AI Characters
 	/// </summary>
 	public class CustomCharacters : MonoBehaviour
-    {
-        public static CustomCharacters Instance;
+	{
+		public static CustomCharacters Instance;
 
-        public static GameObject BasicAIPrefab = null;
+		public static GameObject BasicAIPrefab { get; private set; }
 
-        internal void Awake()
+		private static readonly List<GameObject> ActiveCharacters = new List<GameObject>();
+
+		public static void AddActiveCharacter(GameObject character)
+		{
+			if (!ActiveCharacters.Contains(character))
+			{
+				ActiveCharacters.Add(character);
+			}
+		}
+
+		internal void Awake()
         {
             Instance = this;
 
 			SetupBasicAIPrefab();
+
+			SceneManager.sceneUnloaded += SceneManager_sceneUnloaded;
+		}
+
+		private void SceneManager_sceneUnloaded(Scene arg0)
+		{
+			foreach (var character in ActiveCharacters)
+			{
+				try
+				{
+					var pv = character.GetPhotonView();
+					int view = pv.viewID;
+					GameObject.DestroyImmediate(character);
+					PhotonNetwork.UnAllocateViewID(view);
+				}
+				catch { }
+			}
 		}
 
 		// Fix for PlayerCharacterStats having an exception on first update, idk why yet.
@@ -38,6 +66,11 @@ namespace SideLoader
 
 		public static GameObject CreateCharacter(Vector3 _position, string _UID)
 		{
+			return CreateCharacter(_position, _UID, "SL_Character");
+		}
+
+		public static GameObject CreateCharacter(Vector3 _position, string _UID, string _name)
+		{
 			// setup Player Prefab
 			var playerPrefab = PhotonNetwork.InstantiateSceneObject("_characters/NewPlayerPrefab", _position, Quaternion.identity, 0, new object[]
 			{
@@ -49,7 +82,7 @@ namespace SideLoader
 
 			playerPrefab.SetActive(false);
 
-			RPCManager.Instance.photonView.RPC("SetCharacterViewID", PhotonTargets.All, _UID, PhotonNetwork.AllocateSceneViewID());
+			RPCManager.Instance.photonView.RPC("RPCSpawnCharacter", PhotonTargets.All, _UID, PhotonNetwork.AllocateSceneViewID(), _name);
 
 			return playerPrefab;
 		}

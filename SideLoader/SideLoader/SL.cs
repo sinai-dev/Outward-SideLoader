@@ -22,7 +22,7 @@ namespace SideLoader
         // Mod Info
         public const string GUID = "com.sinai." + MODNAME;
         public const string MODNAME = "SideLoader";
-        public const string VERSION = "2.1.3";
+        public const string VERSION = "2.1.4";
 
         // Folders
         public static string PLUGINS_FOLDER => Paths.PluginPath;
@@ -151,7 +151,7 @@ namespace SideLoader
 
             //// *********************************** temp debug ***********************************
 
-            //foreach (var type in Serializer.Types)
+            //foreach (var type in Serializer.Types.Where(x => !x.IsAbstract))
             //{
             //    Serializer.SaveToXml(GENERATED_FOLDER + @"\Types", type.Name, Activator.CreateInstance(type));
             //}

@@ -22,9 +22,6 @@ namespace SideLoader
             } 
         }
 
-        // legacy support
-        public string FullDirectory { get => FolderPath; }
-
         public bool InMainSLFolder = false;
 
         public Dictionary<string, AssetBundle> AssetBundles = new Dictionary<string, AssetBundle>();
@@ -193,29 +190,44 @@ namespace SideLoader
                     try
                     {
                         // load the ItemHolder template and set the pack/folder info
-                        var itemHolder = Serializer.LoadFromXml(entry.Key) as SL_Item;
-                        itemHolder.SubfolderName = entry.Value;
-                        itemHolder.SLPackName = Name;
+                        var holder = Serializer.LoadFromXml(entry.Key);
 
-                        // Clone the target item (and set it to ResourcesPrefabManager dictionary)
-                        var item = CustomItems.CreateCustomItem(itemHolder.Target_ItemID, itemHolder.New_ItemID, itemHolder.Name);
-                        
-                        if (!SL.PacksLoaded)
+                        var list = new List<SL_Item>();
+
+                        if (holder is SL_Item)
                         {
-                            if (item is RecipeItem)
-                            {
-                                // Add the callback for when RecipeItems are ready to be applied (after recipes)
-                                SL.INTERNAL_ApplyRecipeItems += itemHolder.ApplyTemplateToItem;
-                            }
-                            else
-                            {
-                                // Add the callback for when Items are ready to be applied
-                                SL.INTERNAL_ApplyItems += itemHolder.ApplyTemplateToItem;
-                            }
+                            list.Add(holder as SL_Item);
                         }
                         else
                         {
-                            itemHolder.ApplyTemplateToItem();
+                            list.AddRange((holder as SL_MultiItem).Items);
+                        }
+
+                        foreach (var itemHolder in list)
+                        {
+                            itemHolder.SubfolderName = entry.Value;
+                            itemHolder.SLPackName = Name;
+
+                            // Clone the target item (and set it to ResourcesPrefabManager dictionary)
+                            var item = CustomItems.CreateCustomItem(itemHolder.Target_ItemID, itemHolder.New_ItemID, itemHolder.Name);
+
+                            if (!SL.PacksLoaded)
+                            {
+                                if (item is RecipeItem)
+                                {
+                                    // Add the callback for when RecipeItems are ready to be applied (after recipes)
+                                    SL.INTERNAL_ApplyRecipeItems += itemHolder.ApplyTemplateToItem;
+                                }
+                                else
+                                {
+                                    // Add the callback for when Items are ready to be applied
+                                    SL.INTERNAL_ApplyItems += itemHolder.ApplyTemplateToItem;
+                                }
+                            }
+                            else
+                            {
+                                itemHolder.ApplyTemplateToItem();
+                            }
                         }
                     }
                     catch (Exception e)
@@ -241,5 +253,10 @@ namespace SideLoader
                 }
             }
         }
+
+        // legacy support
+
+        [Obsolete("Use SLPack.FolderPath instead.")]
+        public string FullDirectory { get => FolderPath; }
     }
 }

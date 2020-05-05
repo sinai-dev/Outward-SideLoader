@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<SL_Recipe xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+<SL_Recipe xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <UID />
   <StationType>Survival</StationType>
   <Ingredients />
   <Results />

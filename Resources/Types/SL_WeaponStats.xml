@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<SL_WeaponStats xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-  <BaseValue>0</BaseValue>
-  <RawWeight>0</RawWeight>
-  <MaxDurability>0</MaxDurability>
+<SL_WeaponStats xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <BaseValue xsi:nil="true" />
+  <RawWeight xsi:nil="true" />
+  <MaxDurability xsi:nil="true" />
   <Damage_Resistance>
     <float>0</float>
     <float>0</float>
@@ -14,8 +14,8 @@
     <float>0</float>
     <float>0</float>
   </Damage_Resistance>
-  <Impact_Resistance>0</Impact_Resistance>
-  <Damage_Protection>0</Damage_Protection>
+  <Impact_Resistance xsi:nil="true" />
+  <Damage_Protection xsi:nil="true" />
   <Damage_Bonus>
     <float>0</float>
     <float>0</float>
@@ -27,14 +27,16 @@
     <float>0</float>
     <float>0</float>
   </Damage_Bonus>
-  <Stamina_Use_Penalty>0</Stamina_Use_Penalty>
-  <Mana_Use_Modifier>0</Mana_Use_Modifier>
-  <Movement_Penalty>0</Movement_Penalty>
-  <Pouch_Bonus>0</Pouch_Bonus>
-  <Heat_Protection>0</Heat_Protection>
-  <Cold_Protection>0</Cold_Protection>
-  <Corruption_Protection>0</Corruption_Protection>
-  <AttackSpeed>0</AttackSpeed>
+  <Stamina_Use_Penalty xsi:nil="true" />
+  <Mana_Use_Modifier xsi:nil="true" />
+  <Movement_Penalty xsi:nil="true" />
+  <Pouch_Bonus xsi:nil="true" />
+  <Heat_Protection xsi:nil="true" />
+  <Cold_Protection xsi:nil="true" />
+  <Corruption_Protection xsi:nil="true" />
+  <AttackSpeed xsi:nil="true" />
   <BaseDamage />
-  <Impact>0</Impact>
+  <Impact xsi:nil="true" />
+  <StamCost xsi:nil="true" />
+  <AutoGenerateAttackData>false</AutoGenerateAttackData>
 </SL_WeaponStats>

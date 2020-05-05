@@ -107,6 +107,7 @@ namespace SideLoader
             typeof(SL_Material),
             typeof(SL_Material.FloatProp), 
             typeof(SL_Material.ColorProp),
+            typeof(SL_MultiItem),
             typeof(SL_PunctualDamage),
             typeof(SL_Recipe),
             typeof(SL_RemoveStatusEffect),

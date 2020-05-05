@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<SL_AddStatusEffectBuildUp xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+<SL_AddStatusEffectBuildUp xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <Delay>0</Delay>
+  <SyncType>Everyone</SyncType>
+  <OverrideCategory>None</OverrideCategory>
   <StatusEffect />
   <Buildup>0</Buildup>
 </SL_AddStatusEffectBuildUp>
