@@ -53,17 +53,6 @@ namespace SideLoader
 			}
 		}
 
-		// Fix for PlayerCharacterStats having an exception on first update, idk why yet.
-		[HarmonyPatch(typeof(PlayerCharacterStats), "OnUpdateStats")]
-		public class PlayerCharacterStats_OnUpdateStats
-		{
-			[HarmonyFinalizer]
-			public static Exception Finalizer()
-			{
-				return null;
-			}
-		}
-
 		public static GameObject CreateCharacter(Vector3 _position, string _UID)
 		{
 			return CreateCharacter(_position, _UID, "SL_Character");
@@ -87,6 +76,52 @@ namespace SideLoader
 			return playerPrefab;
 		}
 
+		/// <summary>
+		/// INTERNAL. Coroutine that executes locally for all clients.
+		/// </summary>
+		public static IEnumerator SpawnCharacterCoroutine(string charUID, int viewID, string name)
+		{
+			// get character from manager
+			Character character = null;
+			while (character == null)
+			{
+				character = CharacterManager.Instance.GetCharacter(charUID);
+				yield return null;
+			}
+
+			// add to cache list
+			AddActiveCharacter(character.gameObject);
+
+			// set name
+			character.name = $"{name}_{charUID}";
+			At.SetValue("", typeof(Character), character, "m_nameLocKey");
+			At.SetValue(name, typeof(Character), character, "m_name");
+
+			// remove PlayerCharacterStats and replace with CharacterStats
+			GameObject.DestroyImmediate(character.GetComponent<PlayerCharacterStats>());
+			var newStats = character.gameObject.AddComponent<CharacterStats>();
+			At.SetValue(newStats, typeof(Character), character, "m_characterStats");
+
+			//// fix UI bar offset
+			//character.UIBarOffSet += Vector3.up * 0.1f;
+
+			// fix Photon View component
+			if (character.gameObject.GetPhotonView() is PhotonView view)
+			{
+				DestroyImmediate(view);
+			}
+			var pView = character.gameObject.AddComponent<PhotonView>();
+			pView.viewID = viewID;
+			pView.onSerializeTransformOption = OnSerializeTransform.PositionAndRotation;
+			pView.onSerializeRigidBodyOption = OnSerializeRigidBody.All;
+			pView.synchronization = ViewSynchronization.Unreliable;
+
+			//character.gameObject.SetActive(true);
+		}
+
+		/// <summary>
+		/// Add basic combat AI to a Character.
+		/// </summary>
 		public static CharacterAI SetupBasicAI(Character _char)
 		{
 			// add required components for AIs (no setup required)
@@ -110,7 +145,6 @@ namespace SideLoader
 
 			return charAI;
 		}
-
 
 		/// <summary>
 		/// Finds a GameObject with _gameObjectName and clones it into a new Character (if it contains a Character component)
@@ -193,6 +227,77 @@ namespace SideLoader
 			catch (Exception e)
 			{
 				SL.Log("Error cloning enemy: " + e.Message + "\r\nStack: " + e.StackTrace, 1);
+			}
+		}
+
+		// ============================= HOOKS ============================= //
+		
+		// fix for AddComponent<CharacterStats>();
+		[HarmonyPatch(typeof(CharacterStats), "OnUpdateStats")]
+		public class CharacterStats_OnUpdateStats
+		{
+			[HarmonyFinalizer]
+			public static Exception Finalizer(Exception __exception,
+				ref Stat[] ___m_damageTypesModifier,
+				ref Stat[] ___m_damageProtection,
+				ref Stat[] ___m_damageResistance,
+				ref Stat ___m_heatRegenRate,
+				ref Stat ___m_coldRegenRate,
+				ref Stat ___m_heatProtection,
+				ref Stat ___m_coldProtection,
+				ref Stat ___m_corruptionResistance,
+				ref Stat ___m_waterproof,
+				ref Stat ___m_healthRegen,
+				ref Stat ___m_manaRegen,
+				ref TagSourceSelector[] ___m_statusEffectsNaturalImmunity)
+			{
+				if (__exception != null)
+				{
+					for (int i = 0; i < 9; i++)
+					{
+						___m_damageProtection[i] = new Stat(0f);
+						___m_damageResistance[i] = new Stat(0f);
+						___m_damageTypesModifier[i] = new Stat(0f);
+					}
+					if (___m_heatRegenRate == null)
+					{
+						___m_heatRegenRate = new Stat(0f);
+					}
+					if (___m_coldRegenRate == null)
+					{
+						___m_coldRegenRate = new Stat(0f);
+					}
+					if (___m_heatProtection == null)
+					{
+						___m_heatProtection = new Stat(0f);
+					}
+					if (___m_coldProtection == null)
+					{
+						___m_coldProtection = new Stat(0f);
+					}
+					if (___m_corruptionResistance == null)
+					{
+						___m_corruptionResistance = new Stat(0f);
+					}
+					if (___m_waterproof == null)
+					{
+						___m_waterproof = new Stat(0f);
+					}
+					if (___m_healthRegen == null)
+					{
+						___m_healthRegen = new Stat(0f);
+					}
+					if (___m_manaRegen == null)
+					{
+						___m_manaRegen = new Stat(0f);
+					}
+					if (___m_statusEffectsNaturalImmunity == null)
+					{
+						___m_statusEffectsNaturalImmunity = new TagSourceSelector[0];
+					}
+				}
+
+				return null;
 			}
 		}
 

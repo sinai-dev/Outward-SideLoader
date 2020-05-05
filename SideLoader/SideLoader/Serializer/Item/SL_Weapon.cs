@@ -10,7 +10,7 @@ namespace SideLoader
     {
         public Weapon.WeaponType? WeaponType;
         public bool? Unblockable;
-        public SwingSoundWeapon? SwingSound = SwingSoundWeapon.Default;
+        public SwingSoundWeapon? SwingSound;
         public bool? SpecialIsZoom;
         public int? MaxProjectileShots;
 
