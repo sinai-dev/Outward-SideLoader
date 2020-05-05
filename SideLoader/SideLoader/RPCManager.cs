@@ -23,10 +23,29 @@ namespace SideLoader
             Debug.Log("Registered SideLoader RPCManager with view ID " + view.viewID);
         }
 
+        public void SpawnCharacter(string charUID, int viewID, string name)
+        {
+            photonView.RPC("RPCSpawnCharacter", PhotonTargets.All, new object[] { charUID, viewID, name });
+        }
+
         [PunRPC]
         public void RPCSpawnCharacter(string charUID, int viewID, string name)
         {
             StartCoroutine(CustomCharacters.SpawnCharacterCoroutine(charUID, viewID, name));
+        }
+
+        public void DestroyCharacter(string charUID)
+        {
+            photonView.RPC("RPCDestroyCharacter", PhotonTargets.All, new object[] { charUID });
+        }
+
+        [PunRPC]
+        private void RPCDestroyCharacter(string charUID)
+        {
+            if (CharacterManager.Instance.GetCharacter(charUID) is Character character)
+            {
+                CustomCharacters.DestroyCharacter(character);
+            }
         }
     }
 }

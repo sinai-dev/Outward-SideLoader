@@ -11,7 +11,7 @@ using UnityEngine.SceneManagement;
 namespace SideLoader
 {
 	/// <summary>
-	/// This class just contains some useful helper functions for setting up custom NPCs or AI Characters
+	/// This class contains helpers for creating custom Characters, and will manage their PhotonView IDs and clean them up on scene changes.
 	/// </summary>
 	public class CustomCharacters : MonoBehaviour
 	{
@@ -19,9 +19,9 @@ namespace SideLoader
 
 		public static GameObject BasicAIPrefab { get; private set; }
 
-		private static readonly List<GameObject> ActiveCharacters = new List<GameObject>();
+		private static readonly List<Character> ActiveCharacters = new List<Character>();
 
-		public static void AddActiveCharacter(GameObject character)
+		public static void AddActiveCharacter(Character character)
 		{
 			if (!ActiveCharacters.Contains(character))
 			{
@@ -29,27 +29,21 @@ namespace SideLoader
 			}
 		}
 
-		internal void Awake()
-        {
-            Instance = this;
-
-			SetupBasicAIPrefab();
-
-			SceneManager.sceneUnloaded += SceneManager_sceneUnloaded;
+		public static void DestroyCharacterRPC(Character character)
+		{
+			RPCManager.Instance.DestroyCharacter(character.UID);
 		}
 
-		private void SceneManager_sceneUnloaded(Scene arg0)
+		public static void DestroyCharacter(Character character)
 		{
-			foreach (var character in ActiveCharacters)
+			if (ActiveCharacters.Contains(character))
 			{
-				try
-				{
-					var pv = character.GetPhotonView();
-					int view = pv.viewID;
-					GameObject.DestroyImmediate(character);
-					PhotonNetwork.UnAllocateViewID(view);
-				}
-				catch { }
+				ActiveCharacters.Remove(character);
+
+				var pv = character.photonView;
+				int view = pv.viewID;
+				GameObject.DestroyImmediate(character.gameObject);
+				PhotonNetwork.UnAllocateViewID(view);
 			}
 		}
 
@@ -71,9 +65,46 @@ namespace SideLoader
 
 			playerPrefab.SetActive(false);
 
+			FixStats(playerPrefab.GetComponent<Character>());
+
 			RPCManager.Instance.photonView.RPC("RPCSpawnCharacter", PhotonTargets.All, _UID, PhotonNetwork.AllocateSceneViewID(), _name);
 
 			return playerPrefab;
+		}
+
+		// ============= main internal ==============
+
+		internal void Awake()
+        {
+            Instance = this;
+
+			SetupBasicAIPrefab();
+
+			SceneManager.sceneUnloaded += SceneManager_sceneUnloaded;
+		}
+
+		private void SceneManager_sceneUnloaded(Scene arg0)
+		{
+			foreach (var character in ActiveCharacters)
+			{
+				DestroyCharacterRPC(character);
+			}
+		}
+
+		/// <summary>
+		/// Removes PlayerCharacterStats and replaces with CharacterStats
+		/// </summary>
+		private static void FixStats(Character character)
+		{
+			// remove PlayerCharacterStats
+			var pStats = character.GetComponent<PlayerCharacterStats>();
+			pStats.enabled = false;
+			GameObject.DestroyImmediate(pStats);
+
+			// add new CharacterStats
+			var newStats = character.gameObject.AddComponent<CharacterStats>();
+			At.SetValue(newStats, typeof(Character), character, "m_characterStats");
+			SetupBlankCharacterStats(newStats);
 		}
 
 		/// <summary>
@@ -82,7 +113,7 @@ namespace SideLoader
 		public static IEnumerator SpawnCharacterCoroutine(string charUID, int viewID, string name)
 		{
 			// get character from manager
-			Character character = null;
+			Character character = CharacterManager.Instance.GetCharacter(charUID);
 			while (character == null)
 			{
 				character = CharacterManager.Instance.GetCharacter(charUID);
@@ -90,20 +121,17 @@ namespace SideLoader
 			}
 
 			// add to cache list
-			AddActiveCharacter(character.gameObject);
+			AddActiveCharacter(character);
 
 			// set name
 			character.name = $"{name}_{charUID}";
 			At.SetValue("", typeof(Character), character, "m_nameLocKey");
 			At.SetValue(name, typeof(Character), character, "m_name");
 
-			// remove PlayerCharacterStats and replace with CharacterStats
-			GameObject.DestroyImmediate(character.GetComponent<PlayerCharacterStats>());
-			var newStats = character.gameObject.AddComponent<CharacterStats>();
-			At.SetValue(newStats, typeof(Character), character, "m_characterStats");
-
-			//// fix UI bar offset
-			//character.UIBarOffSet += Vector3.up * 0.1f;
+			if (character.gameObject.GetComponent<PlayerCharacterStats>())
+			{
+				FixStats(character);
+			}
 
 			// fix Photon View component
 			if (character.gameObject.GetPhotonView() is PhotonView view)
@@ -118,6 +146,8 @@ namespace SideLoader
 
 			//character.gameObject.SetActive(true);
 		}
+
+		// ========= misc helpers ==========
 
 		/// <summary>
 		/// Add basic combat AI to a Character.
@@ -230,77 +260,25 @@ namespace SideLoader
 			}
 		}
 
-		// ============================= HOOKS ============================= //
-		
-		// fix for AddComponent<CharacterStats>();
-		[HarmonyPatch(typeof(CharacterStats), "OnUpdateStats")]
-		public class CharacterStats_OnUpdateStats
+		private static void SetupBlankCharacterStats(CharacterStats stats)
 		{
-			[HarmonyFinalizer]
-			public static Exception Finalizer(Exception __exception,
-				ref Stat[] ___m_damageTypesModifier,
-				ref Stat[] ___m_damageProtection,
-				ref Stat[] ___m_damageResistance,
-				ref Stat ___m_heatRegenRate,
-				ref Stat ___m_coldRegenRate,
-				ref Stat ___m_heatProtection,
-				ref Stat ___m_coldProtection,
-				ref Stat ___m_corruptionResistance,
-				ref Stat ___m_waterproof,
-				ref Stat ___m_healthRegen,
-				ref Stat ___m_manaRegen,
-				ref TagSourceSelector[] ___m_statusEffectsNaturalImmunity)
-			{
-				if (__exception != null)
-				{
-					for (int i = 0; i < 9; i++)
-					{
-						___m_damageProtection[i] = new Stat(0f);
-						___m_damageResistance[i] = new Stat(0f);
-						___m_damageTypesModifier[i] = new Stat(0f);
-					}
-					if (___m_heatRegenRate == null)
-					{
-						___m_heatRegenRate = new Stat(0f);
-					}
-					if (___m_coldRegenRate == null)
-					{
-						___m_coldRegenRate = new Stat(0f);
-					}
-					if (___m_heatProtection == null)
-					{
-						___m_heatProtection = new Stat(0f);
-					}
-					if (___m_coldProtection == null)
-					{
-						___m_coldProtection = new Stat(0f);
-					}
-					if (___m_corruptionResistance == null)
-					{
-						___m_corruptionResistance = new Stat(0f);
-					}
-					if (___m_waterproof == null)
-					{
-						___m_waterproof = new Stat(0f);
-					}
-					if (___m_healthRegen == null)
-					{
-						___m_healthRegen = new Stat(0f);
-					}
-					if (___m_manaRegen == null)
-					{
-						___m_manaRegen = new Stat(0f);
-					}
-					if (___m_statusEffectsNaturalImmunity == null)
-					{
-						___m_statusEffectsNaturalImmunity = new TagSourceSelector[0];
-					}
-				}
+			At.SetValue(new Stat[] { new Stat(0f), new Stat(0f), new Stat(0f), new Stat(0f), new Stat(0f), new Stat(0f), new Stat(0f), new Stat(0f), new Stat(0f) },
+				typeof(CharacterStats), stats, "m_damageResistance");
+			At.SetValue(new Stat[] { new Stat(0f), new Stat(0f), new Stat(0f), new Stat(0f), new Stat(0f), new Stat(0f), new Stat(0f), new Stat(0f), new Stat(0f) },
+				typeof(CharacterStats), stats, "m_damageProtection");
+			At.SetValue(new Stat[] { new Stat(1f), new Stat(1f), new Stat(1f), new Stat(1f), new Stat(1f), new Stat(1f), new Stat(1f), new Stat(1f), new Stat(1f) },
+				typeof(CharacterStats), stats, "m_damageTypesModifier");
 
-				return null;
-			}
+			At.SetValue(new Stat(0f), typeof(CharacterStats), stats, "m_heatRegenRate");
+			At.SetValue(new Stat(0f), typeof(CharacterStats), stats, "m_coldRegenRate");
+			At.SetValue(new Stat(0f), typeof(CharacterStats), stats, "m_heatProtection");
+			At.SetValue(new Stat(0f), typeof(CharacterStats), stats, "m_coldProtection");
+			At.SetValue(new Stat(0f), typeof(CharacterStats), stats, "m_corruptionResistance");
+			At.SetValue(new Stat(0f), typeof(CharacterStats), stats, "m_waterproof");
+			At.SetValue(new Stat(0f), typeof(CharacterStats), stats, "m_healthRegen");
+			At.SetValue(new Stat(0f), typeof(CharacterStats), stats, "m_manaRegen");
+			At.SetValue(new TagSourceSelector[0], typeof(CharacterStats), stats, "m_statusEffectsNaturalImmunity");
 		}
-
 
 		// ================= INTERNAL ================== //
 

@@ -161,12 +161,12 @@ namespace SideLoader
                 DontDestroyOnLoad(item.gameObject);
                 item.gameObject.name = newID + "_" + name;
 
+                item.ItemID = newID;
+                SetItemID(newID, item);
+
                 // fix for name and description localization
                 SetNameAndDescription(item, original.Name, original.Description);
             }
-
-            item.ItemID = newID;
-            SetItemID(newID, item);
 
             // fix for recipes (not sure if needed anymore?)
             if (!item.GetComponent<TagSource>())

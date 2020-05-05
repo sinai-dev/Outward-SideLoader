@@ -21,7 +21,7 @@ namespace SideLoader
         private int SelectedID = 0;
         private int NewID = 0;
 
-        private SL_Item.TemplateBehaviour m_templateBehaviour = SL_Item.TemplateBehaviour.DestroyEffects;
+        private SL_Item.TemplateBehaviour m_templateBehaviour = SL_Item.TemplateBehaviour.OverrideEffects;
 
         //// temp debug
         //private string m_enemyName = "";
@@ -85,9 +85,9 @@ namespace SideLoader
             GUILayout.EndHorizontal();
 
             GUILayout.Label("Effects Behaviour:");
-            BehaviourButton(SL_Item.TemplateBehaviour.DestroyEffects, "Replace All Effects");
-            BehaviourButton(SL_Item.TemplateBehaviour.OverrideEffects, "Override By Transform");
-            BehaviourButton(SL_Item.TemplateBehaviour.NONE, "Add effects on top");
+            BehaviourButton(SL_Item.TemplateBehaviour.DestroyEffects, "Destroy Effects");
+            BehaviourButton(SL_Item.TemplateBehaviour.OverrideEffects, "Override Effects");
+            BehaviourButton(SL_Item.TemplateBehaviour.NONE, "None (leave all)");
 
             GUILayout.Space(15);
 
