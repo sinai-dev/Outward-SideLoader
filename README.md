@@ -28,4 +28,4 @@ The "Resources" folder of this repository contains many useful files. There are 
 
 ## Got questions? Want to contribute?
 
-Feel free to contact me in the [Outward Discord](discord.gg/outward), I'm Sinai#4637.
+Feel free to contact me in the [Outward Discord](discord.gg/outward), I'm Sinai#4637. My DMs are open so just shoot me a message or @ me in the modding channel.
