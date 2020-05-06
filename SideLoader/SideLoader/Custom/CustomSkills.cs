@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -18,15 +19,22 @@ namespace SideLoader.CustomSkills
 
         public SkillSchool CreateBaseSchool()
         {
+            UnityEngine.SceneManagement.SceneManager.sceneLoaded += FixOnMainMenu;
+
+            return CreateSchool();
+        }
+
+        private SkillSchool CreateSchool()
+        {
             var template = (Resources.Load("_characters/CharacterProgression") as GameObject).transform.Find("Test");
 
             // instantiate a copy of the dev template
-            var schoolObj = UnityEngine.Object.Instantiate(template).gameObject;
-            UnityEngine.Object.DontDestroyOnLoad(schoolObj);
-            var school = schoolObj.GetComponent<SkillSchool>();
+            m_object = UnityEngine.Object.Instantiate(template).gameObject;
+
+            var school = m_object.GetComponent<SkillSchool>();
 
             // set the name to the gameobject and the skill tree name/uid
-            schoolObj.name = this.Name;
+            m_object.name = this.Name;
             At.SetValue(this.Name, typeof(SkillSchool), school, "m_defaultName");
             At.SetValue("", typeof(SkillSchool), school, "m_nameLocKey");
             At.SetValue(new UID(this.Name), typeof(SkillSchool), school, "m_uid");
@@ -45,7 +53,6 @@ namespace SideLoader.CustomSkills
             list.Add(school);
             At.SetValue(list.ToArray(), typeof(SkillTreeHolder), SkillTreeHolder.Instance, "m_skillTrees");
 
-            this.m_object = school.gameObject;
             return school;
         }
 
@@ -75,7 +82,29 @@ namespace SideLoader.CustomSkills
                 row.ApplyToSchoolTransform(m_object.transform);
             }
 
-            this.m_object.SetActive(true);
+            m_object.transform.parent = SkillTreeHolder.Instance.transform;
+            m_object.SetActive(true);
+        }
+
+        private void FixOnMainMenu(UnityEngine.SceneManagement.Scene scene, UnityEngine.SceneManagement.LoadSceneMode mode)
+        {
+            if (scene.name.ToLower().Contains("mainmenu"))
+            {
+                SL.Instance.StartCoroutine(FixOnMenuCoroutine());
+            }
+        }
+
+        private IEnumerator FixOnMenuCoroutine()
+        {
+            yield return new WaitForSeconds(1f);
+
+            while (SkillTreeHolder.Instance == null)
+            {
+                yield return null;
+            }
+
+            CreateSchool();
+            ApplyRows();
         }
     }
 
@@ -117,7 +146,7 @@ namespace SideLoader.CustomSkills
         /// <summary>
         /// Internal use for setting a required slot.
         /// </summary>
-        /// <param name="comp">The component that this SkillSlot is referencing. Not the required slot you're setting.</param>
+        /// <param name="comp">The component that this SkillSlot is setting. Not the required slot.</param>
         public void SetRequiredSlot(BaseSkillSlot comp)
         {
             bool success = false;

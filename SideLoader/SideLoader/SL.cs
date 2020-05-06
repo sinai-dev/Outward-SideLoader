@@ -149,6 +149,11 @@ namespace SideLoader
             Log("------- SideLoader Setup Finished -------");
             OnPacksLoaded?.Invoke();
 
+            var item = new SL_Item()
+            {
+                CastType = Character.SpellCastType.Sit
+            };
+
             //// *********************************** temp debug ***********************************
 
             //foreach (var type in Serializer.Types.Where(x => !x.IsAbstract))
