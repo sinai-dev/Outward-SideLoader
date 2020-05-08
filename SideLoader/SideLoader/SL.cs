@@ -34,6 +34,8 @@ namespace SideLoader
         public static bool PacksLoaded { get; private set; } = false;
 
         // Events
+        /// <summary>Invoked before packs are loaded and applied, and after ResouresPrefabManager is loaded.</summary>
+        public static Action BeforePacksLoaded;
         /// <summary>Only called once on startup. This will be after ResourcesPrefabManager is loaded, and all SLPacks are loaded and applied.</summary>
         public static event UnityAction OnPacksLoaded;
         /// <summary>Use this to safely make changes to a scene when it is truly loaded. (All players loaded, gameplay may not yet be resumed).</summary>
@@ -104,6 +106,9 @@ namespace SideLoader
                 yield return null;
             }
 
+            // BeforePacksLoaded callback
+            TryInvoke(BeforePacksLoaded);
+
             // Read SL Packs
 
             // new structure: BepInEx\plugins\ModName\SideLoader\
@@ -137,22 +142,17 @@ namespace SideLoader
             }
 
             Log("------- Applying custom Items -------", 0);
-            INTERNAL_ApplyItems?.Invoke();
+            TryInvoke(null, INTERNAL_ApplyItems);
 
             Log("------- Applying custom Recipes -------", 0);
-            INTERNAL_ApplyRecipes?.Invoke();
+            TryInvoke(null, INTERNAL_ApplyRecipes);
 
             Log("------- Applying Recipe Items -------", 0);
-            INTERNAL_ApplyRecipeItems?.Invoke();
+            TryInvoke(INTERNAL_ApplyRecipeItems);
 
             PacksLoaded = true;
             Log("------- SideLoader Setup Finished -------");
-            OnPacksLoaded?.Invoke();
-
-            var item = new SL_Item()
-            {
-                CastType = Character.SpellCastType.Sit
-            };
+            TryInvoke(null, OnPacksLoaded);
 
             //// *********************************** temp debug ***********************************
 
@@ -162,6 +162,21 @@ namespace SideLoader
             //}
 
             //// **********************************************************************************
+        }
+
+        private void TryInvoke(Action action = null, UnityAction uAction = null)
+        {
+            try
+            {
+                action?.Invoke();
+                uAction?.Invoke();
+            }
+            catch (Exception e)
+            {
+                Log("Exception invoking BeforePacksLoaded Callback.");
+                Log("Message: " + e.Message);
+                Log("Stack: " + e.StackTrace);
+            }
         }
 
         private void TryLoadPack(string name, string path, bool inMainFolder)

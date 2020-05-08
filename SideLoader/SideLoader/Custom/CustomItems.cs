@@ -96,20 +96,23 @@ namespace SideLoader
         /// Helper for adding a tag to the TagSourceManager
         /// </summary>
         /// <param name="TagName">The new tag name</param>
-        public static void AddTag(string TagName)
+        public static Tag CreateTag(string TagName)
         {
             var list = TAGS.ToList();
             if (list.FirstOrDefault(x => x.TagName == TagName) is Tag tag && tag.TagName == TagName)
             {
                 SL.Log("Error - tag already exists called " + TagName);
+                return tag;
             }
             else
             {
-                list.Add(tag);
+                var newTag = new Tag(new UID(TagName), TagName);
+                list.Add(newTag);
                 var array = list.ToArray();
                 At.SetValue(array, typeof(TagSourceManager), TagSourceManager.Instance, "m_tags");
                 TAGS = array;
                 SL.Log("Added tag " + TagName);
+                return newTag;
             }
         }
 
@@ -258,21 +261,31 @@ namespace SideLoader
         /// <summary> Adds the range of tags to the Items' TagSource, and optionally destroys the existing tags.</summary>
         public static void SetItemTags(Item item, List<string> tags, bool destroyExisting)
         {
+            TagSource tagsource;
             if (destroyExisting && item.GetComponent<TagSource>() is TagSource origTags)
             {
                 DestroyImmediate(origTags);
+                tagsource = item.gameObject.AddComponent<TagSource>();
+            }
+            else
+            {
+                tagsource = item.gameObject.GetComponent<TagSource>();
             }
 
-            var tagsource = item.transform.GetOrAddComponent<TagSource>();
-            tagsource.RefreshTags();
-
-            var taglist = new List<TagSourceSelector>();
+            var list = new List<TagSourceSelector>();
             foreach (var tag in tags)
             {
-                taglist.Add(new TagSourceSelector(GetTag(tag)));
+                if (GetTag(tag) is Tag _tag && _tag != Tag.None)
+                {
+                    list.Add(new TagSourceSelector(_tag));
+                }
             }
 
-            At.SetValue(taglist, typeof(TagListSelectorComponent), tagsource as TagListSelectorComponent, "m_tagSelectors");
+            At.SetValue(list, typeof(TagListSelectorComponent), tagsource as TagListSelectorComponent, "m_tagSelectors");
+
+            tagsource.RefreshTags();
+
+            At.SetValue(tagsource, typeof(Item), item, "m_tagSource");
         }
 
         /// <summary> Small helper for destroying all children on a given Transform 't'. Uses DestroyImmediate(). </summary>
