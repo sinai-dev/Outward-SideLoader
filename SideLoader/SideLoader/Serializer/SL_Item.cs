@@ -293,8 +293,7 @@ namespace SideLoader
 
                     continue;
                 }
-
-                if (bundle != null)
+                else if (bundle != null)
                 {
                     var prefab = bundle.LoadAsset<GameObject>(prefabName);
 

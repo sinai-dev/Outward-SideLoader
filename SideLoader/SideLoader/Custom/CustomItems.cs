@@ -17,14 +17,14 @@ namespace SideLoader
         /// <summary> Cached ORIGINAL Item Prefabs (not modified) </summary>
         private static readonly Dictionary<int, Item> OrigItemPrefabs = new Dictionary<int, Item>();
 
-        // Used to get tags more easily (by string instead of UID)
-        private static readonly Dictionary<string, Tag> AllTags = new Dictionary<string, Tag>();
-
-        /// <summary> cached ResourcesPrefabManager.ITEM_PREFABS Dictionary (reference to actual object) </summary>
+        /// <summary> cached ResourcesPrefabManager.ITEM_PREFABS Dictionary </summary>
         public static Dictionary<string, Item> RPM_ITEM_PREFABS;
 
-        /// <summary> cached LocalizationManager.Instance.ItemLocalization </summary>
+        /// <summary> cached LocalizationManager.ItemLocalization </summary>
         public static Dictionary<int, ItemLocalization> ITEM_LOCALIZATION;
+
+        // cached TagSourceManager.m_tags
+        private static Tag[] TAGS;
 
         // Recipe Dicts
         public static Dictionary<string, Recipe> ALL_RECIPES;
@@ -41,11 +41,7 @@ namespace SideLoader
             ALL_RECIPES = At.GetValue(typeof(RecipeManager), RecipeManager.Instance, "m_recipes") as Dictionary<string, Recipe>;
             RECIPES_PER_UTENSIL = At.GetValue(typeof(RecipeManager), RecipeManager.Instance, "m_recipeUIDsPerUstensils") as Dictionary<Recipe.CraftingType, List<UID>>;
 
-            var tags = At.GetValue(typeof(TagSourceManager), TagSourceManager.Instance, "m_tags") as Tag[];
-            foreach (var tag in tags)
-            {
-                AllTags.Add(tag.TagName, tag);
-            }
+            TAGS = (Tag[])At.GetValue(typeof(TagSourceManager), TagSourceManager.Instance, "m_tags");
         }
 
         // fix for the recipe menu, which can break from some custom items when they are an ingredient.
@@ -53,9 +49,12 @@ namespace SideLoader
         public class ItemListDisplay_SortBySupport
         {
             [HarmonyFinalizer]
-            public static Exception Finalizer(ref int __result)
+            public static Exception Finalizer(ref int __result, Exception __exception)
             {
-                __result = -1;
+                if (__exception != null)
+                {
+                    __result = -1;
+                }
                 return null;
             }
         }
@@ -84,14 +83,33 @@ namespace SideLoader
         /// <returns></returns>
         public static Tag GetTag(string TagName)
         {
-            if (AllTags.ContainsKey(TagName))
+            TAGS = (Tag[])At.GetValue(typeof(TagSourceManager), TagSourceManager.Instance, "m_tags");
+            var tag = TAGS.FirstOrDefault(x => x.TagName == TagName);
+            if (tag == Tag.None)
             {
-                return AllTags[TagName];
+                SL.Log("GetTag :: Could not find a tag by the name: " + TagName);
+            }
+            return tag;
+        }
+
+        /// <summary>
+        /// Helper for adding a tag to the TagSourceManager
+        /// </summary>
+        /// <param name="TagName">The new tag name</param>
+        public static void AddTag(string TagName)
+        {
+            var list = TAGS.ToList();
+            if (list.FirstOrDefault(x => x.TagName == TagName) is Tag tag && tag.TagName == TagName)
+            {
+                SL.Log("Error - tag already exists called " + TagName);
             }
             else
             {
-                SL.Log("GetTag :: Could not find a tag by the name: " + TagName);
-                return Tag.None;
+                list.Add(tag);
+                var array = list.ToArray();
+                At.SetValue(array, typeof(TagSourceManager), TagSourceManager.Instance, "m_tags");
+                TAGS = array;
+                SL.Log("Added tag " + TagName);
             }
         }
 
@@ -151,10 +169,10 @@ namespace SideLoader
                     OrigItemPrefabs.Add(cached.ItemID, cached);
                 }
 
-                // apply to the original item prefab. this ensures direct prefab references to this item reflect your changes.
+                // apply to the original item prefab. this ensures direct prefab references to this item reflect the changes.
                 item = original;
             }
-            else // new item
+            else // making a new item
             {
                 item = Instantiate(original.gameObject).GetComponent<Item>();
                 item.gameObject.SetActive(false);
@@ -187,20 +205,20 @@ namespace SideLoader
         /// Fixes the ResourcesPrefabManager.ITEM_PREFABS dictionary for a custom Item ID. Will overwrite if the ID exists.
         /// This is called by CustomItems.CreateCustomItem
         /// </summary>
-        /// <param name="ID">The Item ID you want to set</param>
+        /// <param name="_ID">The Item ID you want to set</param>
         /// <param name="item">The Item prefab</param>
-        public static void SetItemID(int ID, Item item)
+        public static void SetItemID(int _ID, Item item)
         {
             //SL.Log("Setting a custom Item ID to the ResourcesPrefabManager dictionary. ID: " + ID + ", item name: " + item.Name);
 
-            var idstring = ID.ToString();
-            if (RPM_ITEM_PREFABS.ContainsKey(idstring))
+            var id = _ID.ToString();
+            if (RPM_ITEM_PREFABS.ContainsKey(id))
             {
-                RPM_ITEM_PREFABS[idstring] = item;
+                RPM_ITEM_PREFABS[id] = item;
             }
             else
             {
-                RPM_ITEM_PREFABS.Add(idstring, item);
+                RPM_ITEM_PREFABS.Add(id, item);
             }
         }
 
