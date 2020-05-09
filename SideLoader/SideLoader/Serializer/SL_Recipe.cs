@@ -113,7 +113,7 @@ namespace SideLoader
                 dict2[recipe.CraftingStationType].Add(recipe.UID);
             }
 
-            SL.Log("Defined recipe " + recipe.Name + "_" + recipe.UID);
+            SL.Log("Defined recipe '" + recipe.Name + "', UID: " + recipe.UID);
             m_applied = true;
         }
 

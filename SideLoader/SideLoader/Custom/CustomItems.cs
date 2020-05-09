@@ -23,9 +23,6 @@ namespace SideLoader
         /// <summary> cached LocalizationManager.ItemLocalization </summary>
         public static Dictionary<int, ItemLocalization> ITEM_LOCALIZATION;
 
-        // cached TagSourceManager.m_tags
-        private static Tag[] TAGS;
-
         // Recipe Dicts
         public static Dictionary<string, Recipe> ALL_RECIPES;
         public static Dictionary<Recipe.CraftingType, List<UID>> RECIPES_PER_UTENSIL;
@@ -40,8 +37,6 @@ namespace SideLoader
 
             ALL_RECIPES = At.GetValue(typeof(RecipeManager), RecipeManager.Instance, "m_recipes") as Dictionary<string, Recipe>;
             RECIPES_PER_UTENSIL = At.GetValue(typeof(RecipeManager), RecipeManager.Instance, "m_recipeUIDsPerUstensils") as Dictionary<Recipe.CraftingType, List<UID>>;
-
-            TAGS = (Tag[])At.GetValue(typeof(TagSourceManager), TagSourceManager.Instance, "m_tags");
         }
 
         // fix for the recipe menu, which can break from some custom items when they are an ingredient.
@@ -81,39 +76,46 @@ namespace SideLoader
         /// </summary>
         /// <param name="TagName">Eg "Food", "Blade", etc...</param>
         /// <returns></returns>
-        public static Tag GetTag(string TagName)
+        public static Tag GetTag(string TagName, bool logging = true)
         {
-            TAGS = (Tag[])At.GetValue(typeof(TagSourceManager), TagSourceManager.Instance, "m_tags");
-            var tag = TAGS.FirstOrDefault(x => x.TagName == TagName);
-            if (tag == Tag.None)
+            var tags = (Tag[])At.GetValue(typeof(TagSourceManager), TagSourceManager.Instance, "m_tags");
+            var tag = tags.FirstOrDefault(x => x.TagName == TagName);
+            if (tag.TagName == TagName)
             {
-                SL.Log("GetTag :: Could not find a tag by the name: " + TagName);
-            }
-            return tag;
-        }
-
-        /// <summary>
-        /// Helper for adding a tag to the TagSourceManager
-        /// </summary>
-        /// <param name="TagName">The new tag name</param>
-        public static Tag CreateTag(string TagName)
-        {
-            var list = TAGS.ToList();
-            if (list.FirstOrDefault(x => x.TagName == TagName) is Tag tag && tag.TagName == TagName)
-            {
-                SL.Log("Error - tag already exists called " + TagName);
                 return tag;
             }
             else
             {
-                var newTag = new Tag(new UID(TagName), TagName);
-                list.Add(newTag);
-                var array = list.ToArray();
-                At.SetValue(array, typeof(TagSourceManager), TagSourceManager.Instance, "m_tags");
-                TAGS = array;
-                SL.Log("Added tag " + TagName);
-                return newTag;
+                if (logging)
+                {
+                    SL.Log("GetTag :: Could not find a tag by the name: " + TagName);
+                }
+                return Tag.None;
             }
+        }
+
+        /// <summary>
+        /// Helper for creating a new Tag
+        /// </summary>
+        /// <param name="name">The new tag name</param>
+        public static Tag CreateTag(string name)
+        {
+            if (GetTag(name, false) is Tag tag && tag.TagName == name)
+            {
+                SL.Log($"Error: A tag already exists called '{name}'");
+            }
+            else
+            {
+                tag = new Tag(TagSourceManager.TagRoot, name);
+                tag.SetTagType(Tag.TagTypes.Custom);
+
+                TagSourceManager.Instance.DbTags.Add(tag);
+                TagSourceManager.Instance.RefreshTags(true);
+
+                Debug.Log($"Created a tag, name: {tag.TagName}");
+            }
+
+            return tag;
         }
 
         // ============================================================================================ //
