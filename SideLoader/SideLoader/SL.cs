@@ -62,17 +62,6 @@ namespace SideLoader
             harmony.PatchAll();
         }
 
-        // fix for ItemDetailsDisplay. Shouldn't really be needed anymore, but leaving it for now.
-        [HarmonyPatch(typeof(ItemDetailsDisplay), "RefreshDetail")]
-        public class ItemDetailsDisplay_RefreshDetail
-        {
-            [HarmonyFinalizer]
-            public static Exception Finalizer()
-            {
-                return null;
-            }
-        }
-
         // ================ Main Setup ====================
 
         internal void Start()
