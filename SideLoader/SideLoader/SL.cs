@@ -22,7 +22,7 @@ namespace SideLoader
         // Mod Info
         public const string GUID = "com.sinai." + MODNAME;
         public const string MODNAME = "SideLoader";
-        public const string VERSION = "2.1.5";
+        public const string VERSION = "2.1.6";
 
         // Folders
         public static string PLUGINS_FOLDER => Paths.PluginPath;
@@ -34,8 +34,8 @@ namespace SideLoader
         public static bool PacksLoaded { get; private set; } = false;
 
         // Events
-        /// <summary>Invoked before packs are loaded and applied, and after ResouresPrefabManager is loaded.</summary>
-        public static Action BeforePacksLoaded;
+        /// <summary>Invoked before packs are loaded and applied, but after ResouresPrefabManager is loaded.</summary>
+        public static event Action BeforePacksLoaded;
         /// <summary>Only called once on startup. This will be after ResourcesPrefabManager is loaded, and all SLPacks are loaded and applied.</summary>
         public static event UnityAction OnPacksLoaded;
         /// <summary>Use this to safely make changes to a scene when it is truly loaded. (All players loaded, gameplay may not yet be resumed).</summary>
@@ -173,7 +173,7 @@ namespace SideLoader
             }
             catch (Exception e)
             {
-                Log("Exception invoking BeforePacksLoaded Callback.");
+                Log("Exception invoking a Callback.");
                 Log("Message: " + e.Message);
                 Log("Stack: " + e.StackTrace);
             }

@@ -112,7 +112,7 @@ namespace SideLoader
                 TagSourceManager.Instance.DbTags.Add(tag);
                 TagSourceManager.Instance.RefreshTags(true);
 
-                Debug.Log($"Created a tag, name: {tag.TagName}");
+                SL.Log($"Created a tag, name: {tag.TagName}");
             }
 
             return tag;
