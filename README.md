@@ -6,7 +6,7 @@
 
 [![Version](https://img.shields.io/badge/BepInEx-5.0.1-green.svg)](https://github.com/BepInEx/BepInEx)
 
-Helps you get your assets into Outward. Can replace or create new textures, audio, items, recipes, etc...
+Helps you get your assets into Outward. Can edit existing or create new textures, audio, items, recipes, etc...
 
 Requires [BepInEx](https://github.com/BepInEx/BepInEx).
 
