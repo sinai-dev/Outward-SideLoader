@@ -49,6 +49,10 @@ namespace SideLoader
             {
                 At.SetValue((float)this.Mana_Use_Modifier, typeof(EquipmentStats), stats, "m_manaUseModifier");
             }
+            if (this.Movement_Penalty != null)
+            {
+                At.SetValue((float)this.Movement_Penalty, typeof(EquipmentStats), stats, "m_movementPenalty");
+            }
             if (this.Pouch_Bonus != null)
             {
                 At.SetValue((float)this.Pouch_Bonus, typeof(EquipmentStats), stats, "m_pouchCapacityBonus");

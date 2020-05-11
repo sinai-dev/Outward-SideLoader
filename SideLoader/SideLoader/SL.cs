@@ -37,16 +37,17 @@ namespace SideLoader
         /// <summary>Invoked before packs are loaded and applied, but after ResouresPrefabManager is loaded.</summary>
         public static event Action BeforePacksLoaded;
         /// <summary>Only called once on startup. This will be after ResourcesPrefabManager is loaded, and all SLPacks are loaded and applied.</summary>
+        // note: the only reason these two are still a UnityAction is to not force a breaking change for no good reason. Might change to Action eventually.
         public static event UnityAction OnPacksLoaded;
         /// <summary>Use this to safely make changes to a scene when it is truly loaded. (All players loaded, gameplay may not yet be resumed).</summary>
         public static event UnityAction OnSceneLoaded;
 
         // Internal Events
-        /// <summary>Only called once on startup. This is mainly for internal use, it is a callback used by ItemHolders to apply after all assets are loaded.</summary>
-        public static event UnityAction INTERNAL_ApplyItems;
-        /// <summary>Only called once on startup. This is mainly for internal use, it is a callback used by RecipeHolders to apply after all CustomItems are loaded.</summary>
-        public static event UnityAction INTERNAL_ApplyRecipes;
-        /// <summary>Needs to be after Recipes are defined.</summary>
+        /// <summary>Only called once on startup. It is a callback used by SL_Items to apply after all assets are loaded.</summary>
+        public static event Action INTERNAL_ApplyItems;
+        /// <summary>Only called once on startup. It is a callback used by SL_Recipes to apply after all CustomItems are loaded.</summary>
+        public static event Action INTERNAL_ApplyRecipes;
+        /// <summary>Only called once on startup. It is a callback used by SL_RecipeItems to apply after all SL_Recipes are loaded.</summary>
         public static event Action INTERNAL_ApplyRecipeItems;
 
         internal void Awake()
@@ -131,10 +132,10 @@ namespace SideLoader
             }
 
             Log("------- Applying custom Items -------", 0);
-            TryInvoke(null, INTERNAL_ApplyItems);
+            TryInvoke(INTERNAL_ApplyItems);
 
             Log("------- Applying custom Recipes -------", 0);
-            TryInvoke(null, INTERNAL_ApplyRecipes);
+            TryInvoke(INTERNAL_ApplyRecipes);
 
             Log("------- Applying Recipe Items -------", 0);
             TryInvoke(INTERNAL_ApplyRecipeItems);
@@ -199,7 +200,7 @@ namespace SideLoader
                 yield return null;
             }
 
-            OnSceneLoaded?.Invoke();
+            TryInvoke(null, OnSceneLoaded);
         }
 
 
