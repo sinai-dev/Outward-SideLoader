@@ -72,6 +72,14 @@ namespace SideLoader
 
             if (this is SL_WeaponStats weaponStatsHolder)
             {
+                if (!(stats is WeaponStats))
+                {
+                    var newstats = stats.gameObject.AddComponent<WeaponStats>();
+                    At.InheritBaseValues(newstats as EquipmentStats, stats);
+                    GameObject.DestroyImmediate(stats);
+                    stats = newstats;
+                }
+
                 weaponStatsHolder.ApplyToItem(stats as WeaponStats);
             }
         }
@@ -82,31 +90,39 @@ namespace SideLoader
             
             if (stats == null || itemStatsHolder == null)
             {
-                Debug.LogWarning("Equipment trying to be parsed with no stats");
+                if (stats is ItemStats)
+                {
+                    var newstats = new EquipmentStats();
+                    At.InheritBaseValues(newstats as ItemStats, stats);
+                    stats = newstats;
+                }
+                else
+                {
+                    Debug.LogWarning("Equipment trying to be parsed with no stats");
+                    return itemStatsHolder as SL_EquipmentStats;
+                }
             }
-            else
+
+            try
             {
-                try
-                {
-                    equipmentStatsHolder.Impact_Resistance = stats.ImpactResistance;
-                    equipmentStatsHolder.Damage_Protection = stats.GetDamageProtection(DamageType.Types.Physical);
-                    equipmentStatsHolder.Stamina_Use_Penalty = stats.StaminaUsePenalty;
-                    equipmentStatsHolder.Mana_Use_Modifier = (float)At.GetValue(typeof(EquipmentStats), stats, "m_manaUseModifier");
-                    equipmentStatsHolder.Movement_Penalty = stats.MovementPenalty;
-                    equipmentStatsHolder.Pouch_Bonus = stats.PouchCapacityBonus;
-                    equipmentStatsHolder.Heat_Protection = stats.HeatProtection;
-                    equipmentStatsHolder.Cold_Protection = stats.ColdProtection;
-                    equipmentStatsHolder.Corruption_Protection = stats.CorruptionResistance;
+                equipmentStatsHolder.Impact_Resistance = stats.ImpactResistance;
+                equipmentStatsHolder.Damage_Protection = stats.GetDamageProtection(DamageType.Types.Physical);
+                equipmentStatsHolder.Stamina_Use_Penalty = stats.StaminaUsePenalty;
+                equipmentStatsHolder.Mana_Use_Modifier = (float)At.GetValue(typeof(EquipmentStats), stats, "m_manaUseModifier");
+                equipmentStatsHolder.Movement_Penalty = stats.MovementPenalty;
+                equipmentStatsHolder.Pouch_Bonus = stats.PouchCapacityBonus;
+                equipmentStatsHolder.Heat_Protection = stats.HeatProtection;
+                equipmentStatsHolder.Cold_Protection = stats.ColdProtection;
+                equipmentStatsHolder.Corruption_Protection = stats.CorruptionResistance;
 
-                    equipmentStatsHolder.Damage_Bonus = At.GetValue(typeof(EquipmentStats), stats, "m_damageAttack") as float[];
-                    equipmentStatsHolder.Damage_Resistance = At.GetValue(typeof(EquipmentStats), stats, "m_damageResistance") as float[];
+                equipmentStatsHolder.Damage_Bonus = At.GetValue(typeof(EquipmentStats), stats, "m_damageAttack") as float[];
+                equipmentStatsHolder.Damage_Resistance = At.GetValue(typeof(EquipmentStats), stats, "m_damageResistance") as float[];
 
-                    At.InheritBaseValues(equipmentStatsHolder, itemStatsHolder);
-                }
-                catch (Exception e)
-                {
-                    Debug.Log("Exception getting stats of " + stats.name + "\r\n" + e.Message + "\r\n" + e.StackTrace);
-                }
+                At.InheritBaseValues(equipmentStatsHolder, itemStatsHolder);
+            }
+            catch (Exception e)
+            {
+                Debug.Log("Exception getting stats of " + stats.name + "\r\n" + e.Message + "\r\n" + e.StackTrace);
             }
 
             return equipmentStatsHolder;

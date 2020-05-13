@@ -52,7 +52,18 @@ namespace SideLoader
 
             At.InheritBaseValues(equipmentHolder, itemHolder);
 
-            equipmentHolder.StatsHolder = SL_EquipmentStats.ParseEquipmentStats(equipment.GetComponent<EquipmentStats>(), itemHolder.StatsHolder);
+            if (equipment.GetComponent<ItemStats>() is ItemStats stats)
+            {
+                if (!(stats is EquipmentStats))
+                {
+                    var newstats = equipment.gameObject.AddComponent<EquipmentStats>();
+                    At.InheritBaseValues(newstats as ItemStats, stats);
+                    GameObject.DestroyImmediate(stats);
+                    stats = newstats;
+                }
+
+                equipmentHolder.StatsHolder = SL_EquipmentStats.ParseEquipmentStats(stats as EquipmentStats, itemHolder.StatsHolder);
+            }
 
             if (equipment is Bag)
             {

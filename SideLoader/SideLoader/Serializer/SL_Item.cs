@@ -176,7 +176,17 @@ namespace SideLoader
 
             if (this.StatsHolder != null)
             {
-                StatsHolder.ApplyToItem(item.Stats ?? item.transform.GetOrAddComponent<ItemStats>());
+                ItemStats stats;
+                if (!item.GetComponent<ItemStats>())
+                {
+                    stats = item.gameObject.AddComponent<ItemStats>();
+                }
+                else
+                {
+                    stats = item.GetComponent<ItemStats>();
+                }
+
+                StatsHolder.ApplyToItem(stats);
             }
 
             if (EffectBehaviour == TemplateBehaviour.DestroyEffects)
@@ -218,10 +228,10 @@ namespace SideLoader
 
             // **************************************************************************************//
 
-            if (item is Weapon weapon && weapon.GetComponent<WeaponStats>() is WeaponStats stats)
+            if (item is Weapon weapon && weapon.GetComponent<WeaponStats>() is WeaponStats wStats)
             {
-                At.SetValue(stats.BaseDamage.Clone(), typeof(Weapon), weapon, "m_baseDamage");
-                At.SetValue(stats.BaseDamage.Clone(), typeof(Weapon), weapon, "m_activeBaseDamage");
+                At.SetValue(wStats.BaseDamage.Clone(), typeof(Weapon), weapon, "m_baseDamage");
+                At.SetValue(wStats.BaseDamage.Clone(), typeof(Weapon), weapon, "m_activeBaseDamage");
             }
         }
 

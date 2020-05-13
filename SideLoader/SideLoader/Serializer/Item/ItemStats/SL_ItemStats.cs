@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using UnityEngine;
 
 namespace SideLoader
 {
@@ -34,6 +35,14 @@ namespace SideLoader
 
             if (this is SL_EquipmentStats equipStatsHolder)
             {
+                if (!(stats is EquipmentStats))
+                {
+                    var newstats = stats.gameObject.AddComponent<EquipmentStats>();
+                    At.InheritBaseValues(newstats as ItemStats, stats);
+                    GameObject.DestroyImmediate(stats);
+                    stats = newstats;
+                }
+
                 equipStatsHolder.ApplyToItem(stats as EquipmentStats);
             }
         }
@@ -46,8 +55,6 @@ namespace SideLoader
                 MaxDurability = stats.MaxDurability,
                 RawWeight = stats.RawWeight
             };
-
-            // todo equipmentstats, weaponstats
 
             return itemStatsHolder;
         }
