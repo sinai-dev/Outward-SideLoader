@@ -360,7 +360,7 @@ namespace SideLoader
             var iconPath = dir + @"\icon.png";
             if (File.Exists(iconPath))
             {
-                var tex = CustomTextures.LoadTexture(iconPath, false);
+                var tex = CustomTextures.LoadTexture(iconPath, CustomTextures.TextureType.Default);
                 var sprite = CustomTextures.CreateSprite(tex, CustomTextures.SpriteBorderTypes.ItemIcon);
                 UnityEngine.Object.DontDestroyOnLoad(sprite);
                 At.SetValue(sprite, typeof(Item), item, "m_itemIcon");
@@ -370,7 +370,7 @@ namespace SideLoader
             var skillPath = dir + @"\skillicon.png";
             if (item is Skill skill && File.Exists(skillPath))
             {
-                var tex = CustomTextures.LoadTexture(skillPath, false);
+                var tex = CustomTextures.LoadTexture(skillPath, CustomTextures.TextureType.Default);
                 var sprite = CustomTextures.CreateSprite(tex, CustomTextures.SpriteBorderTypes.SkillTreeIcon);
                 UnityEngine.Object.DontDestroyOnLoad(sprite);
                 skill.SkillTreeIcon = sprite;
@@ -391,8 +391,19 @@ namespace SideLoader
                 {
                     var name = Path.GetFileNameWithoutExtension(filepath);
 
-                    bool isNormal = name == "_BumpMap" || name == "_NormTex";
-                    var tex = CustomTextures.LoadTexture(filepath, isNormal);
+                    Texture2D tex;
+                    if (name == "_BumpMap" || name == "_NormTex")
+                    {
+                        tex = CustomTextures.LoadTexture(filepath, CustomTextures.TextureType.Normal);
+                    }
+                    else if (name == "_GenTex")
+                    {
+                        tex = CustomTextures.LoadTexture(filepath, CustomTextures.TextureType.GenTex);
+                    }
+                    else
+                    {
+                        tex = CustomTextures.LoadTexture(filepath, CustomTextures.TextureType.Default);
+                    }
 
                     tex.name = name;
                     textures[matname].Add(tex);

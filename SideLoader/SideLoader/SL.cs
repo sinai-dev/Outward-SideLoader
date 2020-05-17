@@ -22,7 +22,7 @@ namespace SideLoader
         // Mod Info
         public const string GUID = "com.sinai." + MODNAME;
         public const string MODNAME = "SideLoader";
-        public const string VERSION = "2.1.6";
+        public const string VERSION = "2.1.7";
 
         // Folders
         public static string PLUGINS_FOLDER => Paths.PluginPath;
@@ -142,7 +142,7 @@ namespace SideLoader
 
             PacksLoaded = true;
             Log("------- SideLoader Setup Finished -------");
-            TryInvoke(null, OnPacksLoaded);
+            TryInvoke(OnPacksLoaded);
 
             //// *********************************** temp debug ***********************************
 
@@ -154,18 +154,21 @@ namespace SideLoader
             //// **********************************************************************************
         }
 
-        private void TryInvoke(Action action = null, UnityAction uAction = null)
+        private void TryInvoke(MulticastDelegate _delegate)
         {
-            try
+            if (_delegate != null)
             {
-                action?.Invoke();
-                uAction?.Invoke();
-            }
-            catch (Exception e)
-            {
-                Log("Exception invoking a Callback.");
-                Log("Message: " + e.Message);
-                Log("Stack: " + e.StackTrace);
+                foreach (var action in _delegate.GetInvocationList())
+                {
+                    try
+                    {
+                        action.DynamicInvoke();
+                    }
+                    catch (Exception e)
+                    {
+                        SL.Log("Exception invoking callback!\r\nMessage: " + e.Message + "\r\nStack: " + e.StackTrace, 1);
+                    }
+                }
             }
         }
 
@@ -200,7 +203,7 @@ namespace SideLoader
                 yield return null;
             }
 
-            TryInvoke(null, OnSceneLoaded);
+            TryInvoke(OnSceneLoaded);
         }
 
 

@@ -50,6 +50,17 @@ namespace SideLoader
             _i    // _EmissionTex
         }
 
+        /// <summary>
+        /// Handles how different types of Textures are loaded with Texture2D.LoadImage.
+        /// If it's not a Normal or GenTex, just use Default.
+        /// </summary>
+        public enum TextureType
+        {
+            Default,
+            Normal,
+            GenTex
+        }
+
         internal void Awake()
         {
             Instance = this;
@@ -64,36 +75,46 @@ namespace SideLoader
         /// Simple helper for loading a Texture2D from a .png filepath
         /// </summary>
         /// <param name="filePath">The full or relative filepath</param>
-        /// <param name="isNormal">Is it a normal map? (_NormTex or _BumpMap)</param>
+        /// <param name="type">The type of texture. Defaults to "Default"</param>
         /// <returns></returns>
-        public static Texture2D LoadTexture(string filePath, bool isNormal = false)
+        public static Texture2D LoadTexture(string filePath, TextureType type = TextureType.Default)
         {
-            return LoadTextureInternal(filePath, isNormal);
+            return LoadTextureInternal(filePath, type);
         }
 
-        private static Texture2D LoadTextureInternal(string filePath, bool isNormal)
+        [Obsolete("Use CustomTextures.LoadTexture(string filePath, CustomTextures.TextureType type) instead.")]
+        public static Texture2D LoadTexture(string filePath, bool isNormal = false)
+        {
+            return LoadTexture(filePath, isNormal ? TextureType.Normal : TextureType.Default);
+        }
+
+        private static Texture2D LoadTextureInternal(string filePath, TextureType type)
         {
             var name = Path.GetFileNameWithoutExtension(filePath);
-            SL.Log("Loading texture file: " + name);
 
             if (File.Exists(filePath))
             {
                 Texture2D tex;
                 var fileData = File.ReadAllBytes(filePath);
 
-                if (isNormal)
+                switch (type)
                 {
-                    tex = new Texture2D(1, 1, GraphicsFormat.RGBA_DXT1_UNorm, TextureCreationFlags.None);
-                    //tex = new Texture2D(1, 1, TextureFormat.DXT1, false, true);
-                }
-                else
-                {
-                    tex = new Texture2D(1, 1, GraphicsFormat.RGBA_DXT1_SRGB, TextureCreationFlags.None);
-                    //tex = new Texture2D(1, 1, TextureFormat.DXT1, false);
+                    case TextureType.Normal:
+                        SL.Log("Loading NormalMap texture: " + name);
+                        tex = new Texture2D(1, 1, TextureFormat.DXT5, false, true);
+                        break;
+                    case TextureType.GenTex:
+                        SL.Log("Loading GenTex texture: " + name);
+                        tex = new Texture2D(1, 1, TextureFormat.DXT5, true, false);
+                        break;
+                    default:
+                        SL.Log("Loading standard texture: " + name);
+                        tex = new Texture2D(1, 1, TextureFormat.DXT5, false, false);
+                        break;
                 }
 
                 tex.LoadImage(fileData);
-                tex.filterMode = FilterMode.Point;
+                tex.filterMode = FilterMode.Bilinear;
 
                 return tex;
             }
