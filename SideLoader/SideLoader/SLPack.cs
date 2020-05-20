@@ -136,7 +136,7 @@ namespace SideLoader
 
             foreach (var texPath in Directory.GetFiles(GetSubfolderPath(SubFolders.Texture2D)))
             {
-                var texture = CustomTextures.LoadTexture(texPath, false);
+                var texture = CustomTextures.LoadTexture(texPath, false, false);
                 var name = Path.GetFileNameWithoutExtension(texPath);
 
                 // add to the Texture2D dict for this pack

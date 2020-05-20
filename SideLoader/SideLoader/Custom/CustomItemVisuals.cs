@@ -360,7 +360,7 @@ namespace SideLoader
             var iconPath = dir + @"\icon.png";
             if (File.Exists(iconPath))
             {
-                var tex = CustomTextures.LoadTexture(iconPath, CustomTextures.TextureType.Default);
+                var tex = CustomTextures.LoadTexture(iconPath, false, false);
                 var sprite = CustomTextures.CreateSprite(tex, CustomTextures.SpriteBorderTypes.ItemIcon);
                 UnityEngine.Object.DontDestroyOnLoad(sprite);
                 At.SetValue(sprite, typeof(Item), item, "m_itemIcon");
@@ -370,7 +370,7 @@ namespace SideLoader
             var skillPath = dir + @"\skillicon.png";
             if (item is Skill skill && File.Exists(skillPath))
             {
-                var tex = CustomTextures.LoadTexture(skillPath, CustomTextures.TextureType.Default);
+                var tex = CustomTextures.LoadTexture(skillPath, false, false);
                 var sprite = CustomTextures.CreateSprite(tex, CustomTextures.SpriteBorderTypes.SkillTreeIcon);
                 UnityEngine.Object.DontDestroyOnLoad(sprite);
                 skill.SkillTreeIcon = sprite;
@@ -394,15 +394,11 @@ namespace SideLoader
                     Texture2D tex;
                     if (name == "_BumpMap" || name == "_NormTex")
                     {
-                        tex = CustomTextures.LoadTexture(filepath, CustomTextures.TextureType.Normal);
-                    }
-                    else if (name == "_GenTex")
-                    {
-                        tex = CustomTextures.LoadTexture(filepath, CustomTextures.TextureType.GenTex);
+                        tex = CustomTextures.LoadTexture(filepath, true, true);
                     }
                     else
                     {
-                        tex = CustomTextures.LoadTexture(filepath, CustomTextures.TextureType.Default);
+                        tex = CustomTextures.LoadTexture(filepath, true, false);
                     }
 
                     tex.name = name;
@@ -474,12 +470,12 @@ namespace SideLoader
 
             if (item.ItemIcon != null)
             {
-                CustomTextures.SaveTextureAsPNG(item.ItemIcon.texture, dir, "icon");
+                CustomTextures.SaveTextureAsPNG(item.ItemIcon.texture, dir, "icon", false);
             }
 
             if (item is Skill skill && skill.SkillTreeIcon != null)
             {
-                CustomTextures.SaveTextureAsPNG(skill.SkillTreeIcon.texture, dir, "skillicon");
+                CustomTextures.SaveTextureAsPNG(skill.SkillTreeIcon.texture, dir, "skillicon", false);
             }
 
             for (int i = 0; i < 3; i++)
@@ -511,7 +507,9 @@ namespace SideLoader
             {
                 if (mat.GetTexture(texName) is Texture tex)
                 {
-                    CustomTextures.SaveTextureAsPNG(tex as Texture2D, dir, texName);
+                    bool normal = texName.Contains("NormTex") || texName.Contains("BumpMap");
+
+                    CustomTextures.SaveTextureAsPNG(tex as Texture2D, dir, texName, normal);
                 }
             }
         }

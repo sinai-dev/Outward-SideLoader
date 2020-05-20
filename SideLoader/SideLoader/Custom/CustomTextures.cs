@@ -51,43 +51,28 @@ namespace SideLoader
         /// Simple helper for loading a Texture2D from a .png filepath
         /// </summary>
         /// <param name="filePath">The full or relative filepath</param>
-        /// <param name="type">The type of texture. Defaults to "Default"</param>
+        /// <param name="mipmap">Do you want mipmaps for this texture?</param>
+        /// <param name="linear">Is this linear or sRGB? (Normal or non-normal)</param>
         /// <returns></returns>
-        public static Texture2D LoadTexture(string filePath, TextureType type = TextureType.Default)
+        public static Texture2D LoadTexture(string filePath, bool mipmap, bool linear)
         {
-            return LoadTextureInternal(filePath, type);
+            return LoadTextureInternal(filePath, mipmap, linear);
         }
 
         [Obsolete("Use CustomTextures.LoadTexture(string filePath, CustomTextures.TextureType type) instead.")]
         public static Texture2D LoadTexture(string filePath, bool isNormal = false)
         {
-            return LoadTexture(filePath, isNormal ? TextureType.Normal : TextureType.Default);
+            return LoadTexture(filePath, true, true);
         }
 
-        private static Texture2D LoadTextureInternal(string filePath, TextureType type)
+        private static Texture2D LoadTextureInternal(string filePath, bool mipmap, bool linear)
         {
-            var name = Path.GetFileNameWithoutExtension(filePath);
+            //var name = Path.GetFileNameWithoutExtension(filePath);
 
             if (File.Exists(filePath))
             {
-                Texture2D tex;
                 var fileData = File.ReadAllBytes(filePath);
-
-                switch (type)
-                {
-                    case TextureType.Normal:
-                        SL.Log("Loading NormalMap texture: " + name);
-                        tex = new Texture2D(4, 4, TextureFormat.DXT5, false, true);
-                        break;
-                    case TextureType.GenTex:
-                        SL.Log("Loading GenTex texture: " + name);
-                        tex = new Texture2D(4, 4, TextureFormat.DXT5, true, false);
-                        break;
-                    default:
-                        SL.Log("Loading standard texture: " + name);
-                        tex = new Texture2D(4, 4, TextureFormat.DXT5, false, false);
-                        break;
-                }
+                Texture2D tex = new Texture2D(4, 4, TextureFormat.DXT5, mipmap, linear);
 
                 try
                 {
@@ -140,34 +125,77 @@ namespace SideLoader
             return Sprite.Create(tex, rect, Vector2.zero, 100f, 1, SpriteMeshType.Tight);
         }
 
-        public static void SaveTextureAsPNG(Texture2D _tex, string dir, string name)
+        public static void SaveTextureAsPNG(Texture2D _tex, string dir, string name, bool normal)
         {
+            byte[] data;
             var savepath = dir + @"\" + name + ".png";
+
             try
             {
-                byte[] data = _tex.EncodeToPNG();
-                File.WriteAllBytes(savepath, data);
+                if (normal)
+                {
+                    _tex = DTXnmToRGBA(_tex);
+                }
+
+                data = _tex.EncodeToPNG();
             }
             catch
             {
                 var origFilter = _tex.filterMode;
-
                 _tex.filterMode = FilterMode.Point;
+
                 RenderTexture rt = RenderTexture.GetTemporary(_tex.width, _tex.height);
                 rt.filterMode = FilterMode.Point;
                 RenderTexture.active = rt;
                 Graphics.Blit(_tex, rt);
+
                 Texture2D _newTex = new Texture2D(_tex.width, _tex.height);
                 _newTex.ReadPixels(new Rect(0, 0, _tex.width, _tex.height), 0, 0);
-                _newTex.Apply();
-                RenderTexture.active = null;
 
+                if (normal)
+                {
+                    _newTex = DTXnmToRGBA(_newTex);
+                }
+
+                _newTex.Apply();
+
+                RenderTexture.active = null;
                 _tex.filterMode = origFilter;
 
-                byte[] data = _newTex.EncodeToPNG();
-                File.WriteAllBytes(savepath, data);
+                data = _newTex.EncodeToPNG();
             }
+
+            File.WriteAllBytes(savepath, data);
         }
+
+        private static Texture2D DTXnmToRGBA(Texture2D tex)
+        {
+            Color[] colors = tex.GetPixels();
+
+            for (int i = 0; i < colors.Length; i++)
+            { 
+                Color c = colors[i];
+
+                c.r = c.a * 2 - 1;  // red <- alpha (x <- w)
+                c.g = c.g * 2 - 1;  // green is always the same (y)
+
+                Vector2 xy = new Vector2(c.r, c.g); //this is the xy vector
+                c.b = Mathf.Sqrt(1 - Mathf.Clamp01(Vector2.Dot(xy, xy))); //recalculate the blue channel (z)
+
+                colors[i] = new Color(
+                    c.r * 0.5f + 0.5f,
+                    c.g * 0.5f + 0.25f, 
+                    c.b * 0.5f + 0.5f
+                );
+            }
+
+            var newtex = new Texture2D(tex.width, tex.height, TextureFormat.RGBA32, true);
+            newtex.SetPixels(colors); //apply pixels to the texture
+            newtex.Apply();
+
+            return newtex;
+        }
+
 
         // =========== Shader Properties Helpers ===========
 
