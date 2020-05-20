@@ -179,8 +179,8 @@ namespace SideLoader
                 c.r = c.a * 2 - 1;  // red <- alpha (x <- w)
                 c.g = c.g * 2 - 1;  // green is always the same (y)
 
-                Vector2 xy = new Vector2(c.r, c.g); //this is the xy vector
-                c.b = Mathf.Sqrt(1 - Mathf.Clamp01(Vector2.Dot(xy, xy))); //recalculate the blue channel (z)
+                Vector2 rg = new Vector2(c.r, c.g); //this is the xy vector
+                c.b = Mathf.Sqrt(1 - Mathf.Clamp01(Vector2.Dot(rg, rg))); //recalculate the blue channel (z)
 
                 colors[i] = new Color(
                     c.r * 0.5f + 0.5f,

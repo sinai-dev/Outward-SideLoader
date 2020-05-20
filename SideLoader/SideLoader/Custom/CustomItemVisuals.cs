@@ -392,7 +392,7 @@ namespace SideLoader
                     var name = Path.GetFileNameWithoutExtension(filepath);
 
                     Texture2D tex;
-                    if (name == "_BumpMap" || name == "_NormTex")
+                    if (name == "_BumpMap" || name == "_NormTex" || name == "_NormalMap")
                     {
                         tex = CustomTextures.LoadTexture(filepath, true, true);
                     }
@@ -507,7 +507,7 @@ namespace SideLoader
             {
                 if (mat.GetTexture(texName) is Texture tex)
                 {
-                    bool normal = texName.Contains("NormTex") || texName.Contains("BumpMap");
+                    bool normal = texName.Contains("NormTex") || texName.Contains("BumpMap") || texName == "_NormalMap";
 
                     CustomTextures.SaveTextureAsPNG(tex as Texture2D, dir, texName, normal);
                 }
