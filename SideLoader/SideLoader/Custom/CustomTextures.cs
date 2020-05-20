@@ -27,30 +27,6 @@ namespace SideLoader
         }
 
         /// <summary>
-        /// Nine Dots' Shader layer names.
-        /// </summary>
-        public enum Layer
-        {
-            _MainTex,
-            _NormTex,
-            _GenTex,
-            _SpecColorTex,
-            _EmissionTex
-        }
-
-        /// <summary>
-        /// Suffixes used on most filenames for textures that use Nine Dots Shader. Use CustomTextures.SuffixToShaderDict to get the shader layer name for the suffix.
-        /// </summary>
-        public enum Suffix
-        {
-            _d,   // _MainTex
-            _n,   // _NormTex
-            _g,   // _GenTex
-            _s,   // _SpecColorTex
-            _i    // _EmissionTex
-        }
-
-        /// <summary>
         /// Handles how different types of Textures are loaded with Texture2D.LoadImage.
         /// If it's not a Normal or GenTex, just use Default.
         /// </summary>
@@ -101,19 +77,27 @@ namespace SideLoader
                 {
                     case TextureType.Normal:
                         SL.Log("Loading NormalMap texture: " + name);
-                        tex = new Texture2D(1, 1, TextureFormat.DXT5, false, true);
+                        tex = new Texture2D(4, 4, TextureFormat.DXT5, false, true);
                         break;
                     case TextureType.GenTex:
                         SL.Log("Loading GenTex texture: " + name);
-                        tex = new Texture2D(1, 1, TextureFormat.DXT5, true, false);
+                        tex = new Texture2D(4, 4, TextureFormat.DXT5, true, false);
                         break;
                     default:
                         SL.Log("Loading standard texture: " + name);
-                        tex = new Texture2D(1, 1, TextureFormat.DXT5, false, false);
+                        tex = new Texture2D(4, 4, TextureFormat.DXT5, false, false);
                         break;
                 }
 
-                tex.LoadImage(fileData);
+                try
+                {
+                    tex.LoadImage(fileData);
+                }
+                catch (Exception e)
+                {
+                    SL.Log("Error loading texture! Message: " + e.Message + "\r\nStack: " + e.StackTrace);
+                }
+                
                 tex.filterMode = FilterMode.Bilinear;
 
                 return tex;
@@ -185,23 +169,115 @@ namespace SideLoader
             }
         }
 
-        public static string GetSuffix(Layer layer)
+        // =========== Shader Properties Helpers ===========
+
+        public enum ShaderPropType
         {
-            return ((Suffix)(int)layer).ToString();
+            Color,
+            Vector,
+            Float
         }
 
-        /// <summary> Helper for the Texture suffixes. Keys are the suffixes (eg. Suffixes._d), Values are the Layer name (eg. Layers._MainTex)
-        /// Eg. SuffixToShaderLayer[Suffixes._d] would return Layers._MainTex</summary>
-        public static readonly Dictionary<Suffix, Layer> SuffixToShaderLayer = new Dictionary<Suffix, Layer>()
+        public static List<SL_Material.ShaderProperty> GetProperties(Material m)
         {
-            { Suffix._d, Layer._MainTex },
-            { Suffix._n, Layer._NormTex },
-            { Suffix._g, Layer._GenTex },
-            { Suffix._s, Layer._SpecColorTex },
-            { Suffix._i, Layer._EmissionTex },
+            var list = new List<SL_Material.ShaderProperty>();
+
+            if (Instance.ShaderPropertyDicts.ContainsKey(m.shader.name))
+            {
+                var dict = Instance.ShaderPropertyDicts[m.shader.name];
+
+                foreach (var entry in dict)
+                {
+                    switch (entry.Value)
+                    {
+                        case ShaderPropType.Color:
+                            list.Add(new SL_Material.ColorProp()
+                            {
+                                Name = entry.Key,
+                                Value = m.GetColor(entry.Key)
+                            });
+                            break;
+                        case ShaderPropType.Float:
+                            list.Add(new SL_Material.FloatProp()
+                            {
+                                Name = entry.Key,
+                                Value = m.GetFloat(entry.Key)
+                            });
+                            break;
+                        case ShaderPropType.Vector:
+                            list.Add(new SL_Material.VectorProp()
+                            {
+                                Name = entry.Key,
+                                Value = m.GetVector(entry.Key)
+                            });
+                            break;
+                    }
+                }
+            }
+            else
+            {
+                SL.Log("Shader GetProperties not supported: " + m.shader.name, 0);
+            }
+
+            return list;
+        }
+
+        private readonly Dictionary<string, Dictionary<string, ShaderPropType>> ShaderPropertyDicts = new Dictionary<string, Dictionary<string, ShaderPropType>>()
+        {
+            { "Custom/Main Set/Main Standard",      CustomMainSetMainStandard },
+            { "Custom/Distort/DistortTextureSpec",  CustomDistortDistortTextureSpec }
         };
 
-        // ============= Internal Functions ===============
+        /// <summary>
+        /// Properties on Nine Dots' "Custom/Main Set/Main Standard" shader.
+        /// </summary>
+        public static Dictionary<string, ShaderPropType> CustomMainSetMainStandard = new Dictionary<string, ShaderPropType>
+        {
+            { "_Color",                 ShaderPropType.Color },
+            { "_Cutoff",                ShaderPropType.Float },
+            { "_Dither",                ShaderPropType.Float },
+            { "_DoubleFaced",           ShaderPropType.Float },
+            { "_NormStr",               ShaderPropType.Float },
+            { "_SpecColor",             ShaderPropType.Color },
+            { "_SmoothMin",             ShaderPropType.Float },
+            { "_SmoothMax",             ShaderPropType.Float },
+            { "_OccStr",                ShaderPropType.Float },
+            { "_EmissionColor",         ShaderPropType.Color },
+            { "_EmitAnimSettings",      ShaderPropType.Vector },
+            { "_EmitScroll",            ShaderPropType.Float },
+            { "_EmitPulse",             ShaderPropType.Float },
+            { "_DetColor",              ShaderPropType.Color },
+            { "_DetTiling",             ShaderPropType.Vector },
+            { "_DetNormStr",            ShaderPropType.Float },
+            { "_VPRTexColor",           ShaderPropType.Color },
+            { "_VPRTexSettings",        ShaderPropType.Vector },
+            { "_VPRSpecColor",          ShaderPropType.Color },
+            { "_VPRNormStr",            ShaderPropType.Float },
+            { "_VPRUnderAuto",          ShaderPropType.Float },
+            { "_VPRTiling",             ShaderPropType.Float },
+            { "_AutoTexColor",          ShaderPropType.Color },
+            { "_AutoTexSettings",       ShaderPropType.Vector },
+            { "_AutoTexHideEmission",   ShaderPropType.Float },
+            { "_AutoSpecColor",         ShaderPropType.Color },
+            { "_AutoNormStr",           ShaderPropType.Float },
+            { "_AutoTexTiling",         ShaderPropType.Float },
+            { "_SnowEnabled",           ShaderPropType.Float }
+        };
+
+        /// <summary>
+        /// Properties on Nine Dots' "Custom/Distort/DistortTextureSpec" shader.
+        /// </summary>
+        public static Dictionary<string, ShaderPropType> CustomDistortDistortTextureSpec = new Dictionary<string, ShaderPropType>
+        {
+            { "_Color",             ShaderPropType.Color },
+            { "_SpecColor",         ShaderPropType.Color },
+            { "_NormalStrength",    ShaderPropType.Float },
+            { "_Speed",             ShaderPropType.Float },
+            { "_Scale",             ShaderPropType.Float },
+            { "_MaskPow",           ShaderPropType.Float },
+        };
+
+        // ============= GLOBAL TEXTURE REPLACEMENT ===============
 
         public static void ReplaceActiveTextures()
         {
@@ -217,20 +293,13 @@ namespace SideLoader
 
             var list = Resources.FindObjectsOfTypeAll<Material>();
 
-            var layers = new string[]
-            {
-                Layer._MainTex.ToString(),
-                Layer._NormTex.ToString(),
-                Layer._GenTex.ToString(),
-                Layer._SpecColorTex.ToString(),
-                Layer._EmissionTex.ToString(),
-            };
-
             foreach (Material m in list)
             {
-                foreach (var layer in layers)
+                var texNames = m.GetTexturePropertyNames();
+
+                foreach (var layer in texNames)
                 {
-                    if (m.HasProperty(layer) && m.GetTexture(layer) is Texture tex && Textures.ContainsKey(tex.name))
+                    if (m.GetTexture(layer) is Texture tex && Textures.ContainsKey(tex.name))
                     {
                         SL.Log("Replacing layer " + layer + " on material " + m.name);
                         m.SetTexture(layer, Textures[tex.name]);

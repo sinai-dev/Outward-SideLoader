@@ -4,12 +4,6 @@ using System.Linq;
 using System.Text;
 using UnityEngine;
 using System.Xml.Serialization;
- 
-// ****************************************************************** //
-/*
- * This class is not yet finished or used.
-*/
-// ****************************************************************** //
 
 namespace SideLoader
 {
@@ -56,12 +50,14 @@ namespace SideLoader
                         if (prop is FloatProp fProp)
                         {
                             mat.SetFloat(prop.Name, fProp.Value);
-                            SL.Log("Set float property " + prop.Name);
                         }
                         else if (prop is ColorProp cProp)
                         {
                             mat.SetColor(prop.Name, cProp.Value);
-                            SL.Log("Set color property " + prop.Name);
+                        }
+                        else if (prop is VectorProp vProp)
+                        {
+                            mat.SetVector(prop.Name, vProp.Value);
                         }
                         else
                         {
@@ -88,9 +84,11 @@ namespace SideLoader
             {
                 Name = mat.name,
                 ShaderName = mat.shader.name,
-                Properties = new List<ShaderProperty>(),
+                Properties = CustomTextures.GetProperties(mat),
                 Keywords = mat.shaderKeywords.ToList(),
             };
+
+
 
             return holder;
         }
@@ -108,6 +106,11 @@ namespace SideLoader
         public class ColorProp : ShaderProperty
         {
             public Color Value;
+        }
+
+        public class VectorProp : ShaderProperty
+        {
+            public Vector4 Value;
         }
     }
 }

@@ -445,7 +445,6 @@ namespace SideLoader
                             if (mat.HasProperty(tex.name))
                             {
                                 mat.SetTexture(tex.name, tex);
-                                //mat.EnableKeyword(tex.name);
                                 SL.Log("Set texture " + tex.name + " on " + matname);
                             }
                             else
@@ -508,13 +507,11 @@ namespace SideLoader
                 Directory.CreateDirectory(dir);
             }
 
-            foreach (var layer in CustomTextures.SuffixToShaderLayer.Values)
+            foreach (var texName in mat.GetTexturePropertyNames())
             {
-                var layername = layer.ToString();
-
-                if (mat.HasProperty(layername) && mat.GetTexture(layername) is Texture tex)
+                if (mat.GetTexture(texName) is Texture tex)
                 {
-                    CustomTextures.SaveTextureAsPNG(tex as Texture2D, dir, layername);                    
+                    CustomTextures.SaveTextureAsPNG(tex as Texture2D, dir, texName);
                 }
             }
         }
