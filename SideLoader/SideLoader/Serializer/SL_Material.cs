@@ -14,9 +14,9 @@ namespace SideLoader
 
         public string ShaderName;
 
-        public List<ShaderProperty> Properties = new List<ShaderProperty>();
-
         public List<string> Keywords = new List<string>();
+        public List<ShaderProperty> Properties = new List<ShaderProperty>();
+        public List<TextureConfig> TextureConfigs = new List<TextureConfig>(); 
 
         public void ApplyToMaterial(Material mat)
         {
@@ -78,6 +78,34 @@ namespace SideLoader
             }
         }
 
+        public void ApplyTextureSettings(Material mat)
+        {
+            var dict = TextureConfigsToDict();
+
+            foreach (var texName in mat.GetTexturePropertyNames())
+            {
+                if (dict.ContainsKey(texName))
+                {
+                    var cfg = dict[texName];
+                    var tex = mat.GetTexture(texName);
+
+                    tex.mipMapBias = cfg.MipMapBias;
+                }
+            }
+        }
+
+        public Dictionary<string, TextureConfig> TextureConfigsToDict()
+        {
+            var dict = new Dictionary<string, TextureConfig>();
+
+            foreach (var cfg in this.TextureConfigs)
+            {
+                dict.Add(cfg.TextureName, cfg);
+            }
+
+            return dict;
+        }
+
         public static SL_Material ParseMaterial(Material mat)
         {
             var holder = new SL_Material()
@@ -88,9 +116,27 @@ namespace SideLoader
                 Keywords = mat.shaderKeywords.ToList(),
             };
 
-
+            foreach (var texName in mat.GetTexturePropertyNames())
+            {
+                if (mat.GetTexture(texName) is Texture2D tex)
+                {
+                    holder.TextureConfigs.Add(new TextureConfig()
+                    {
+                        TextureName = texName,
+                        MipMapBias = tex.mipMapBias,
+                        UseMipMap = (tex.mipmapCount > 0),
+                    });
+                }
+            }
 
             return holder;
+        }
+
+        public class TextureConfig
+        {
+            public string TextureName;
+            public bool UseMipMap = true;
+            public float MipMapBias = 0;
         }
 
         public abstract class ShaderProperty

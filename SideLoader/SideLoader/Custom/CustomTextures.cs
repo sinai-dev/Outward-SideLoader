@@ -82,7 +82,7 @@ namespace SideLoader
                 {
                     SL.Log("Error loading texture! Message: " + e.Message + "\r\nStack: " + e.StackTrace);
                 }
-                
+
                 tex.filterMode = FilterMode.Bilinear;
 
                 return tex;
@@ -135,6 +135,7 @@ namespace SideLoader
                 if (normal)
                 {
                     _tex = DTXnmToRGBA(_tex);
+                    _tex.Apply(false, false);
                 }
 
                 data = _tex.EncodeToPNG();
@@ -149,7 +150,7 @@ namespace SideLoader
                 RenderTexture.active = rt;
                 Graphics.Blit(_tex, rt);
 
-                Texture2D _newTex = new Texture2D(_tex.width, _tex.height);
+                Texture2D _newTex = new Texture2D(_tex.width, _tex.height, TextureFormat.RGBA32, false);
                 _newTex.ReadPixels(new Rect(0, 0, _tex.width, _tex.height), 0, 0);
 
                 if (normal)
@@ -157,7 +158,7 @@ namespace SideLoader
                     _newTex = DTXnmToRGBA(_newTex);
                 }
 
-                _newTex.Apply();
+                _newTex.Apply(false, false);
 
                 RenderTexture.active = null;
                 _tex.filterMode = origFilter;
@@ -189,7 +190,7 @@ namespace SideLoader
                 );
             }
 
-            var newtex = new Texture2D(tex.width, tex.height, TextureFormat.RGBA32, true);
+            var newtex = new Texture2D(tex.width, tex.height, TextureFormat.RGBA32, false);
             newtex.SetPixels(colors); //apply pixels to the texture
             newtex.Apply();
 

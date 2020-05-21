@@ -376,8 +376,12 @@ namespace SideLoader
                 skill.SkillTreeIcon = sprite;
             }
 
-            // build dictionary of textures
-            var textures = new Dictionary<string, List<Texture2D>>(); // Key: Material name (Safe), Value: Texture
+            // build dictionary of textures per material
+            // Key: Material name (Safe), Value: Texture
+            var textures = new Dictionary<string, List<Texture2D>>();
+
+            // also keep a dict of the SL_Material templates
+            var materialCfgs = new Dictionary<string, SL_Material>();
 
             foreach (var subfolder in Directory.GetDirectories(dir))
             {
@@ -385,24 +389,41 @@ namespace SideLoader
 
                 SL.Log("Reading folder " + matname);
 
-                textures.Add(matname, new List<Texture2D>());
-
-                foreach (var filepath in Directory.GetFiles(subfolder, "*.png"))
+                // check for the SL_Material xml
+                SL_Material matHolder = null;
+                string matPath = subfolder + @"\properties.xml";
+                if (File.Exists(matPath))
                 {
-                    var name = Path.GetFileNameWithoutExtension(filepath);
+                    matHolder = Serializer.LoadFromXml(matPath) as SL_Material;
+                    materialCfgs.Add(matname, matHolder);
+                }
 
-                    Texture2D tex;
-                    if (name == "_BumpMap" || name == "_NormTex" || name == "_NormalMap")
-                    {
-                        tex = CustomTextures.LoadTexture(filepath, true, true);
-                    }
-                    else
-                    {
-                        tex = CustomTextures.LoadTexture(filepath, true, false);
-                    }
+                // read the textures
+                var texFiles = Directory.GetFiles(subfolder, "*.png");
+                if (texFiles.Length > 0)
+                {
+                    textures.Add(matname, new List<Texture2D>());
 
-                    tex.name = name;
-                    textures[matname].Add(tex);
+                    foreach (var filepath in texFiles)
+                    {
+                        var name = Path.GetFileNameWithoutExtension(filepath);
+
+                        bool linear = name.Contains("NormTex") || name == "_BumpMap" || name == "_NormalMap";
+
+                        bool mipmap = true;
+                        if (matHolder != null)
+                        {
+                            var dict = matHolder.TextureConfigsToDict();
+                            if (dict.ContainsKey(name))
+                            {
+                                mipmap = dict[name].UseMipMap;
+                            }
+                        }
+
+                        var tex = CustomTextures.LoadTexture(filepath, mipmap, linear);
+                        tex.name = name;
+                        textures[matname].Add(tex);
+                    }
                 }
             }
 
@@ -421,19 +442,19 @@ namespace SideLoader
                 {
                     var matname = GetSafeMaterialName(mat.name);
 
-                    string matPath = dir + @"\" + matname + @"\properties.xml";
-                    if (File.Exists(matPath))
+                    // apply the SL_material template first (set shader, etc)
+                    SL_Material matHolder = null;
+                    if (materialCfgs.ContainsKey(matname))
                     {
-                        var matHolder = Serializer.LoadFromXml(matPath) as SL_Material;
-
+                        matHolder = materialCfgs[matname];
                         matHolder.ApplyToMaterial(mat);
                     }
-
-                    if (!textures.ContainsKey(matname))
+                    else if (!textures.ContainsKey(matname))
                     {
                         continue;
                     }
 
+                    // set actual textures
                     foreach (var tex in textures[matname])
                     {
                         try
@@ -452,6 +473,12 @@ namespace SideLoader
                         {
                             SL.Log("Exception setting texture " + tex.name + " on material!");
                         }
+                    }
+
+                    // finalize texture settings after they've been applied
+                    if (matHolder != null)
+                    {
+                        matHolder.ApplyTextureSettings(mat);
                     }
                 }
             }
