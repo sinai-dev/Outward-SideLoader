@@ -84,10 +84,9 @@ namespace SideLoader
 
             foreach (var texName in mat.GetTexturePropertyNames())
             {
-                if (dict.ContainsKey(texName))
+                if (dict.ContainsKey(texName) && mat.GetTexture(texName) is Texture2D tex)
                 {
                     var cfg = dict[texName];
-                    var tex = mat.GetTexture(texName);
 
                     tex.mipMapBias = cfg.MipMapBias;
                 }

@@ -381,7 +381,7 @@ namespace SideLoader
             var textures = new Dictionary<string, List<Texture2D>>();
 
             // also keep a dict of the SL_Material templates
-            var materialCfgs = new Dictionary<string, SL_Material>();
+            var matHolders = new Dictionary<string, SL_Material>();
 
             foreach (var subfolder in Directory.GetDirectories(dir))
             {
@@ -390,12 +390,13 @@ namespace SideLoader
                 SL.Log("Reading folder " + matname);
 
                 // check for the SL_Material xml
-                SL_Material matHolder = null;
+                Dictionary<string, SL_Material.TextureConfig> texCfgDict = null;
                 string matPath = subfolder + @"\properties.xml";
                 if (File.Exists(matPath))
                 {
-                    matHolder = Serializer.LoadFromXml(matPath) as SL_Material;
-                    materialCfgs.Add(matname, matHolder);
+                    var matHolder = Serializer.LoadFromXml(matPath) as SL_Material;
+                    texCfgDict = matHolder.TextureConfigsToDict();
+                    matHolders.Add(matname, matHolder);
                 }
 
                 // read the textures
@@ -411,13 +412,9 @@ namespace SideLoader
                         bool linear = name.Contains("NormTex") || name == "_BumpMap" || name == "_NormalMap";
 
                         bool mipmap = true;
-                        if (matHolder != null)
+                        if (texCfgDict != null && texCfgDict.ContainsKey(name))
                         {
-                            var dict = matHolder.TextureConfigsToDict();
-                            if (dict.ContainsKey(name))
-                            {
-                                mipmap = dict[name].UseMipMap;
-                            }
+                            mipmap = texCfgDict[name].UseMipMap;
                         }
 
                         var tex = CustomTextures.LoadTexture(filepath, mipmap, linear);
@@ -444,9 +441,9 @@ namespace SideLoader
 
                     // apply the SL_material template first (set shader, etc)
                     SL_Material matHolder = null;
-                    if (materialCfgs.ContainsKey(matname))
+                    if (matHolders.ContainsKey(matname))
                     {
-                        matHolder = materialCfgs[matname];
+                        matHolder = matHolders[matname];
                         matHolder.ApplyToMaterial(mat);
                     }
                     else if (!textures.ContainsKey(matname))
