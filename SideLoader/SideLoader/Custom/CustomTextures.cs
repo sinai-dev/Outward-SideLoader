@@ -59,7 +59,7 @@ namespace SideLoader
             return LoadTextureInternal(filePath, mipmap, linear);
         }
 
-        [Obsolete("Use CustomTextures.LoadTexture(string filePath, CustomTextures.TextureType type) instead.")]
+        [Obsolete("Use CustomTextures.LoadTexture(string filePath, bool mipmap, bool linear) instead.")]
         public static Texture2D LoadTexture(string filePath, bool isNormal = false)
         {
             return LoadTexture(filePath, true, true);
@@ -192,7 +192,7 @@ namespace SideLoader
 
             var newtex = new Texture2D(tex.width, tex.height, TextureFormat.RGBA32, false);
             newtex.SetPixels(colors); //apply pixels to the texture
-            newtex.Apply();
+            newtex.Apply(false, false);
 
             return newtex;
         }
