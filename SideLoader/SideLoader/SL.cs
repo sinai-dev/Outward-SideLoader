@@ -10,6 +10,7 @@ using UnityEngine.Events;
 using System.Reflection;
 using HarmonyLib;
 using BepInEx;
+using UnityEngine.UI;
 
 namespace SideLoader
 {
@@ -59,7 +60,7 @@ namespace SideLoader
                 Directory.CreateDirectory(SL_FOLDER);
             }
 
-            var harmony = new Harmony($"com.sinai.{MODNAME}");
+            var harmony = new Harmony(GUID);
             harmony.PatchAll();
         }
 
@@ -78,6 +79,7 @@ namespace SideLoader
             obj.AddComponent<CustomItems>();
             obj.AddComponent<CustomScenes>();
             obj.AddComponent<CustomTextures>();
+            //obj.AddComponent<CustomLighting>();
             obj.AddComponent<RPCManager>();
 
             // debug menu

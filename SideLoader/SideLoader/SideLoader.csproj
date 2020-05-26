@@ -35,6 +35,7 @@
   <ItemGroup>
     <Compile Include="Custom\CustomAudio.cs" />
     <Compile Include="Custom\CustomItemVisuals.cs" />
+    <Compile Include="Custom\CustomLighting.cs" />
     <Compile Include="RPCManager.cs" />
     <Compile Include="Serializer\Effect\SL_AddBoonEffect.cs" />
     <Compile Include="Serializer\SL_Damage.cs" />

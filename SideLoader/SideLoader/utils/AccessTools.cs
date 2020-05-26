@@ -22,6 +22,23 @@ namespace SideLoader
             return null;
         }
 
+        // set property
+        public static void SetProp(object value, Type type, object obj, string property)
+        {
+            PropertyInfo propInfo = type.GetProperty(property);
+            if (propInfo != null && propInfo.CanWrite)
+            {
+                try
+                {
+                    propInfo.SetValue(obj, value, flags, null, null, null);
+                }
+                catch (Exception e)
+                {
+                    UnityEngine.Debug.Log("Exception setting property " + property + ".\r\nMessage: " + e.Message + "\r\nStack: " + e.StackTrace);
+                }
+            }
+        }
+
         // set value
         public static void SetValue<T>(T value, Type type, object obj, string field)
         {

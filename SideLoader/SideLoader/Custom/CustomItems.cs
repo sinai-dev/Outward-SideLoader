@@ -192,7 +192,6 @@ namespace SideLoader
             {
                 item = Instantiate(original.gameObject).GetComponent<Item>();
                 item.gameObject.SetActive(false);
-                DontDestroyOnLoad(item.gameObject);
                 item.gameObject.name = newID + "_" + name;
 
                 item.ItemID = newID;
@@ -201,6 +200,10 @@ namespace SideLoader
                 // fix for name and description localization
                 SetNameAndDescription(item, original.Name, original.Description);
             }
+
+            // Do this so that any changes we make are not destroyed on scene changes.
+            // This is needed whether this is a clone or a new item.
+            DontDestroyOnLoad(item.gameObject);
 
             // fix for recipes (not sure if needed anymore?)
             if (!item.GetComponent<TagSource>())
