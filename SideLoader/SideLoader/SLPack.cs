@@ -208,26 +208,8 @@ namespace SideLoader
                             itemHolder.SubfolderName = entry.Value;
                             itemHolder.SLPackName = Name;
 
-                            // Clone the target item (and set it to ResourcesPrefabManager dictionary)
-                            var item = CustomItems.CreateCustomItem(itemHolder.Target_ItemID, itemHolder.New_ItemID, itemHolder.Name);
-
-                            if (!SL.PacksLoaded)
-                            {
-                                if (item is RecipeItem)
-                                {
-                                    // Add the callback for when RecipeItems are ready to be applied (after recipes)
-                                    SL.INTERNAL_ApplyRecipeItems += itemHolder.ApplyTemplateToItem;
-                                }
-                                else
-                                {
-                                    // Add the callback for when Items are ready to be applied
-                                    SL.INTERNAL_ApplyItems += itemHolder.ApplyTemplateToItem;
-                                }
-                            }
-                            else
-                            {
-                                itemHolder.ApplyTemplateToItem();
-                            }
+                            // Clone the target item. This also adds a callback for itemHolder.ApplyTemplateToItem
+                            var item = CustomItems.CreateCustomItem(itemHolder);
                         }
                     }
                     catch (Exception e)

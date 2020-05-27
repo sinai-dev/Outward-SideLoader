@@ -214,7 +214,21 @@ namespace SideLoader
 
             if (template != null)
             {
-                template.ApplyTemplateToItem();
+                if (SL.PacksLoaded)
+                {
+                    template.ApplyTemplateToItem();
+                }
+                else
+                {
+                    if (template is SL_RecipeItem)
+                    {
+                        SL.INTERNAL_ApplyRecipeItems += template.ApplyTemplateToItem;
+                    }
+                    else
+                    {
+                        SL.INTERNAL_ApplyItems += template.ApplyTemplateToItem;
+                    }
+                }
             }
 
             return item;

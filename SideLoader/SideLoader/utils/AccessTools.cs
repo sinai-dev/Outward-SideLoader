@@ -14,12 +14,18 @@ namespace SideLoader
         //reflection call
         public static object Call(object obj, string method, params object[] args)
         {
-            var methodInfo = obj.GetType().GetMethod(method, flags);
-            if (methodInfo != null)
+            object ret = null;
+            try
             {
-                return methodInfo.Invoke(obj, args);
+                var methodInfo = obj.GetType().GetMethod(method, flags);
+                ret = methodInfo.Invoke(obj, args);
             }
-            return null;
+            catch
+            {
+                UnityEngine.Debug.Log($"Exception getting method '{method}'!");
+            }
+
+            return ret;
         }
 
         // set property
