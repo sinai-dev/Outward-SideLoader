@@ -15,7 +15,9 @@ Requires [BepInEx](https://github.com/BepInEx/BepInEx).
 * [NexusMods (Download and Instructions)](https://www.nexusmods.com/outward/mods/96)
 * [Patch Notes](https://github.com/sinaioutlander/Outward-SideLoader/releases)
 
-## SL Wiki
+## How To Use SideLoader
+
+See the SideLoader Wiki for (mostly) complete documentation:
 
 <big><b>[SideLoader Wiki](https://github.com/sinaioutlander/Outward-SideLoader/wiki)</b></big>
 
