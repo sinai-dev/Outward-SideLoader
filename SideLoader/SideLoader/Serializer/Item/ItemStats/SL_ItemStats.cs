@@ -38,7 +38,7 @@ namespace SideLoader
                 if (!(stats is EquipmentStats))
                 {
                     var newstats = stats.gameObject.AddComponent<EquipmentStats>();
-                    At.InheritBaseValues(newstats as ItemStats, stats);
+                    At.CopyFieldValues(newstats as ItemStats, stats);
                     GameObject.DestroyImmediate(stats);
                     stats = newstats;
                 }

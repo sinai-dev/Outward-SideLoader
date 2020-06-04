@@ -494,12 +494,12 @@ namespace SideLoader
 
             if (item.ItemIcon != null)
             {
-                CustomTextures.SaveTextureAsPNG(item.ItemIcon.texture, dir, "icon", false);
+                CustomTextures.SaveIconAsPNG(item.ItemIcon, dir, "icon");
             }
 
             if (item is Skill skill && skill.SkillTreeIcon != null)
             {
-                CustomTextures.SaveTextureAsPNG(skill.SkillTreeIcon.texture, dir, "skillicon", false);
+                CustomTextures.SaveIconAsPNG(skill.SkillTreeIcon, dir, "skillicon");
             }
 
             for (int i = 0; i < 3; i++)

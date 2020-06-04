@@ -9,20 +9,23 @@ namespace SideLoader
 {
     public class SLPack
     {
+        /// <summary>The FolderName of this SLPack</summary>
         public string Name { get; private set; }
+
+        /// <summary>
+        /// True = folder is in <b>Outward\Mods\SideLoader\</b>. False = folder is in <b>Outward\BepInEx\plugins\MyPack\SideLoader\</b>.
+        /// </summary>
+        public bool InMainSLFolder = false;
 
         public string FolderPath 
         { 
             get 
             {
-                if (InMainSLFolder)
-                    return SL.SL_FOLDER + @"\" + Name;
-                else
-                    return SL.PLUGINS_FOLDER + @"\" + Name + @"\SideLoader";
+                return InMainSLFolder ?
+                    $@"{SL.SL_FOLDER}\{Name}" :
+                    $@"{SL.PLUGINS_FOLDER}\{Name}\SideLoader";
             } 
         }
-
-        public bool InMainSLFolder = false;
 
         public Dictionary<string, AssetBundle> AssetBundles = new Dictionary<string, AssetBundle>();
         public Dictionary<string, Texture2D> Texture2D = new Dictionary<string, Texture2D>();
@@ -32,8 +35,10 @@ namespace SideLoader
         {
             AudioClip,
             AssetBundles,
+            //Characters, // todo
             Items,
             Recipes,
+            StatusEffects,
             Texture2D,
         }
 
@@ -43,7 +48,7 @@ namespace SideLoader
         /// <param name="subFolder">The SubFolder you want the path for</param>
         public string GetSubfolderPath(SubFolders subFolder)
         {
-            return this.FolderPath + @"\" + subFolder;
+            return $@"{this.FolderPath}\{subFolder}";
         }
 
         /// <summary>
@@ -70,6 +75,9 @@ namespace SideLoader
             // Texture2D (Just for replacements)
             pack.LoadTexture2D();
 
+            // Status Effect and Imbue Presets
+            pack.LoadCustomStatuses();
+
             // Custom Items
             pack.LoadCustomItems();
 
@@ -88,7 +96,8 @@ namespace SideLoader
             }
 
             foreach (var bundlePath in Directory.GetFiles(GetSubfolderPath(SubFolders.AssetBundles))
-                .Where(x => !x.EndsWith(".meta") && !x.EndsWith(".manifest")))
+                .Where(x => !x.EndsWith(".meta") 
+                    && !x.EndsWith(".manifest")))
             {
                 try
                 {
@@ -155,6 +164,57 @@ namespace SideLoader
             }
         }
 
+        private void LoadCustomStatuses()
+        {
+            var dir = GetSubfolderPath(SubFolders.StatusEffects);
+            if (!Directory.Exists(dir))
+            {
+                return;
+            }
+
+            // Key: Filepath, Value: Subfolder name (if any)
+            var dict = new Dictionary<string, string>();
+
+            // get basic template xmls
+            foreach (var path in Directory.GetFiles(dir, "*.xml"))
+            {
+                dict.Add(path, "");
+            }
+
+            // get subfolder-per-status
+            foreach (var folder in Directory.GetDirectories(dir))
+            {
+                // get the xml inside this folder
+                foreach (string path in Directory.GetFiles(folder, "*.xml"))
+                {
+                    dict.Add(path, Path.GetFileName(folder));
+                }
+            }
+
+            // apply templates
+            foreach (var entry in dict)
+            {
+                var template = Serializer.LoadFromXml(entry.Key);
+
+                if (template is SL_StatusEffect statusTemplate)
+                {
+                    CustomStatusEffects.CreateCustomStatus(statusTemplate);
+                    statusTemplate.SLPackName = Name;
+                    statusTemplate.SubfolderName = entry.Value;
+                }
+                else if (template is SL_ImbueEffect imbueTemplate)
+                {
+                    CustomStatusEffects.CreateCustomImbue(imbueTemplate);
+                    imbueTemplate.SLPackName = Name;
+                    imbueTemplate.SubfolderName = entry.Value;
+                }
+                else
+                {
+                    SL.Log("Unrecognized status effect template: " + entry.Key, 1);
+                }
+            }
+        }
+
         private void LoadCustomItems()
         {
             var itemsfolder = GetSubfolderPath(SubFolders.Items);
@@ -167,9 +227,9 @@ namespace SideLoader
                 var templates = new Dictionary<string, string>(); 
 
                 // get basic xml templates in the Items folder
-                foreach (var file in Directory.GetFiles(itemsfolder, "*.xml"))
+                foreach (var path in Directory.GetFiles(itemsfolder, "*.xml"))
                 {
-                    templates.Add(file, "");
+                    templates.Add(path, "");
                 }
 
                 // check for subfolders (items which are using custom texture pngs)
@@ -177,7 +237,7 @@ namespace SideLoader
                 {
                     //SL.Log("Parsing CustomItem subfolder: " + Path.GetFileName(folder));
 
-                    foreach (string path in Directory.GetFiles(folder))
+                    foreach (string path in Directory.GetFiles(folder, "*.xml"))
                     {
                         templates.Add(path, Path.GetFileName(folder));
                     }

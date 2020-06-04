@@ -74,7 +74,7 @@ namespace SideLoader
 
             weaponStatsHolder.BaseDamage = SL_Damage.ParseDamageList(stats.BaseDamage);
 
-            At.InheritBaseValues(weaponStatsHolder, equipmentStatsHolder);
+            At.CopyFieldValues(weaponStatsHolder, equipmentStatsHolder);
 
             return weaponStatsHolder;
         }

@@ -56,7 +56,7 @@ namespace SideLoader
                 weaponHolder.MaxProjectileShots = loadout.MaxProjectileLoaded;
             }
 
-            At.InheritBaseValues(weaponHolder, equipmentHolder);
+            At.CopyFieldValues(weaponHolder, equipmentHolder);
 
             weaponHolder.StatsHolder = SL_WeaponStats.ParseWeaponStats(weapon.GetComponent<WeaponStats>(), equipmentHolder.StatsHolder as SL_EquipmentStats);
 

@@ -21,37 +21,36 @@ namespace SideLoader
 
 		private static readonly List<Character> ActiveCharacters = new List<Character>();
 
-		public static void AddActiveCharacter(Character character)
-		{
-			if (!ActiveCharacters.Contains(character))
-			{
-				ActiveCharacters.Add(character);
-			}
-		}
 
+		// ======================== PUBLIC HELPERS ======================== //
+
+		/// <summary>
+		/// Use this to cleanup a custom character. This will send out an RPC.
+		/// </summary>
+		/// <param name="character">The Character to destroy.</param>
 		public static void DestroyCharacterRPC(Character character)
 		{
 			RPCManager.Instance.DestroyCharacter(character.UID);
 		}
 
-		public static void DestroyCharacter(Character character)
-		{
-			if (ActiveCharacters.Contains(character))
-			{
-				ActiveCharacters.Remove(character);
-
-				var pv = character.photonView;
-				int view = pv.viewID;
-				GameObject.DestroyImmediate(character.gameObject);
-				PhotonNetwork.UnAllocateViewID(view);
-			}
-		}
-
+		/// <summary>
+		/// Helper to create a generic Character. Using this method will call the character "SL_Character".
+		/// </summary>
+		/// <param name="_position">The spawn position for the character.</param>
+		/// <param name="_UID">The UID for the character. Use UID.Generate() and keep track of the UID!</param>
+		/// <returns>Your custom character (instantly for Host)</returns>
 		public static GameObject CreateCharacter(Vector3 _position, string _UID)
 		{
 			return CreateCharacter(_position, _UID, "SL_Character");
 		}
 
+		/// <summary>
+		/// Helper to create a generic Character. This method allows you to name the character too.
+		/// </summary>
+		/// <param name="_position">The spawn position for the character.</param>
+		/// <param name="_UID">The UID for the character. Use UID.Generate() and keep track of the UID!</param>
+		/// <param name="_name">The Name of your custom character.</param>
+		/// <returns>Your custom character (instantly for Host)</returns>
 		public static GameObject CreateCharacter(Vector3 _position, string _UID, string _name)
 		{
 			// setup Player Prefab
@@ -72,7 +71,62 @@ namespace SideLoader
 			return playerPrefab;
 		}
 
-		// ============= main internal ==============
+		/// <summary>
+		/// Add basic combat AI to a Character.
+		/// </summary>
+		public static CharacterAI SetupBasicAI(Character _char)
+		{
+			// add required components for AIs (no setup required)
+			_char.gameObject.AddComponent<NavMeshAgent>();
+			_char.gameObject.AddComponent<AISquadMember>();
+			_char.gameObject.AddComponent<EditorCharacterAILoadAI>();
+
+			// add our basic AIStatesPrefab to a CharacterAI component. This is the prefab set up by SetupBasicAIPrefab(), below.
+			CharacterAI charAI = _char.gameObject.AddComponent<CharacterAI>();
+			At.SetValue(_char, typeof(CharacterAI), charAI, "m_character");
+			charAI.AIStatesPrefab = BasicAIPrefab.GetComponent<AIRoot>();
+
+			// remove unwanted components
+			if (_char.GetComponent<NavMeshObstacle>() is NavMeshObstacle navObstacle)
+			{
+				Destroy(navObstacle);
+			}
+
+			// initialize the AI States (not entirely necessary, but helpful if we want to do something with the AI immediately after)
+			At.Call(typeof(CharacterAI), charAI, "GetAIStates", null, new object[0]);
+
+			return charAI;
+		}
+
+
+		// ======================== INTERNAL ======================== //
+
+		/// <summary>
+		/// Used INTERNALLY to destroy a Character locally. Do not call this to destroy a character.
+		/// </summary>
+		public static void DestroyCharacter(Character character)
+		{
+			if (ActiveCharacters.Contains(character))
+			{
+				ActiveCharacters.Remove(character);
+
+				var pv = character.photonView;
+				int view = pv.viewID;
+				GameObject.DestroyImmediate(character.gameObject);
+				PhotonNetwork.UnAllocateViewID(view);
+			}
+		}
+
+		/// <summary>
+		/// Used INTERNALLY by this class. This is not how you create a new character.
+		/// </summary>
+		public static void AddActiveCharacter(Character character)
+		{
+			if (!ActiveCharacters.Contains(character))
+			{
+				ActiveCharacters.Add(character);
+			}
+		}
 
 		internal void Awake()
         {
@@ -108,7 +162,7 @@ namespace SideLoader
 		}
 
 		/// <summary>
-		/// INTERNAL. Coroutine that executes locally for all clients.
+		/// INTERNAL. Coroutine that executes locally for all clients to spawn a Character.
 		/// </summary>
 		public static IEnumerator SpawnCharacterCoroutine(string charUID, int viewID, string name)
 		{
@@ -147,119 +201,96 @@ namespace SideLoader
 
 			//character.gameObject.SetActive(true);
 		}
+		
 
-		// ========= misc helpers ==========
+		// ===================== A test I did with cloning enemies. It mostly works. =======================
 
-		/// <summary>
-		/// Add basic combat AI to a Character.
-		/// </summary>
-		public static CharacterAI SetupBasicAI(Character _char)
-		{
-			// add required components for AIs (no setup required)
-			_char.gameObject.AddComponent<NavMeshAgent>();
-			_char.gameObject.AddComponent<AISquadMember>();
-			_char.gameObject.AddComponent<EditorCharacterAILoadAI>();
+		///// <summary>
+		///// Finds a GameObject with _gameObjectName and clones it into a new Character (if it contains a Character component)
+		///// </summary>
+		//public static void CloneCharacter(string _gameObjectName)
+		//{
+		//	if (GameObject.Find(_gameObjectName) is GameObject obj && obj.GetComponent<Character>() is Character c)
+		//	{
+		//		CloneCharacter(c);
+		//	}
+		//}
 
-			// add our basic AIStatesPrefab to a CharacterAI component. This is the prefab set up by SetupBasicAIPrefab(), below.
-			CharacterAI charAI = _char.gameObject.AddComponent<CharacterAI>();
-			At.SetValue(_char, typeof(CharacterAI), charAI, "m_character");
-			charAI.AIStatesPrefab = BasicAIPrefab.GetComponent<AIRoot>();
+		///// <summary>
+		///// Clone a character by providing the component directly
+		///// </summary>
+		//public static void CloneCharacter(Character _targetCharacter)
+		//{
+		//	try
+		//	{
+		//		var targetObj = _targetCharacter.gameObject;
 
-			// remove unwanted components
-			if (_char.GetComponent<NavMeshObstacle>() is NavMeshObstacle navObstacle)
-			{
-				Destroy(navObstacle);
-			}
+		//		// prepare original for clone
+		//		targetObj.SetActive(false);
+		//		bool disable = _targetCharacter.DisableAfterInit;
+		//		_targetCharacter.DisableAfterInit = false;
 
-			// initialize the AI States (not entirely necessary, but helpful if we want to do something with the AI immediately after)
-			At.Call(charAI, "GetAIStates", new object[0]);
+		//		// make clone
+		//		var clone = Instantiate(targetObj);
+		//		clone.SetActive(false);
 
-			return charAI;
-		}
+		//		// fix original
+		//		_targetCharacter.DisableAfterInit = disable;
+		//		targetObj.SetActive(true);
 
-		/// <summary>
-		/// Finds a GameObject with _gameObjectName and clones it into a new Character (if it contains a Character component)
-		/// </summary>
-		public static void CloneCharacter(string _gameObjectName)
-		{
-			if (GameObject.Find(_gameObjectName) is GameObject obj && obj.GetComponent<Character>() is Character c)
-			{
-				CloneCharacter(c);
-			}
-		}
+		//		// fix clone UIDs, etc
+		//		var character = clone.GetComponent<Character>();
+		//		At.SetValue(UID.Generate(), typeof(Character), character, "m_uid");
+		//		clone.name = "[CLONE] " + character.Name + "_" + character.UID;
 
-		/// <summary>
-		/// Clone a character by providing the component directly
-		/// </summary>
-		public static void CloneCharacter(Character _targetCharacter)
-		{
-			try
-			{
-				var targetObj = _targetCharacter.gameObject;
+		//		// allocate a scene view ID (will need RPC if to work in multiplayer)
+		//		clone.GetPhotonView().viewID = PhotonNetwork.AllocateSceneViewID();
 
-				// prepare original for clone
-				targetObj.SetActive(false);
-				bool disable = _targetCharacter.DisableAfterInit;
-				_targetCharacter.DisableAfterInit = false;
+		//		var items = character.GetComponentsInChildren<Item>();
+		//		for (int i = 0; i < items.Length; i++)
+		//		{
+		//			var item = items[i];
 
-				// make clone
-				var clone = Instantiate(targetObj);
-				clone.SetActive(false);
+		//			var new_item = ItemManager.Instance.GenerateItemNetwork(item.ItemID);
+		//			new_item.transform.parent = item.transform.parent;
 
-				// fix original
-				_targetCharacter.DisableAfterInit = disable;
-				targetObj.SetActive(true);
+		//			DestroyImmediate(item);
+		//		}
 
-				// fix clone UIDs, etc
-				var character = clone.GetComponent<Character>();
-				At.SetValue(UID.Generate(), typeof(Character), character, "m_uid");
-				clone.name = "[CLONE] " + character.Name + "_" + character.UID;
+		//		//// todo same for droptable components
+		//		//var lootable = clone.GetComponent<LootableOnDeath>();
 
-				// allocate a scene view ID (will need RPC if to work in multiplayer)
-				clone.GetPhotonView().viewID = PhotonNetwork.AllocateSceneViewID();
+		//		//var oldTables = new List<GameObject>();
 
-				var items = character.GetComponentsInChildren<Item>();
-				for (int i = 0; i < items.Length; i++)
-				{
-					var item = items[i];
+		//		foreach (var component in clone.GetComponentsInChildren<MonoBehaviour>())
+		//		{
+		//			try
+		//			{
+		//				At.Call(typeof(MonoBehaviour), component, "Awake", null, new object[0]);
+		//			}
+		//			catch { }
+		//		}
 
-					var new_item = ItemManager.Instance.GenerateItemNetwork(item.ItemID);
-					new_item.transform.parent = item.transform.parent;
+		//		//var charAI = clone.GetComponent<CharacterAI>();
 
-					DestroyImmediate(item);
-				}
+		//		//var navmeshAgent = clone.GetComponent<UnityEngine.AI.NavMeshAgent>();
+		//		//At.SetValue(navmeshAgent, typeof(CharacterAI), charAI, "m_navMeshAgent");
 
-				//// todo same for droptable components
-				//var lootable = clone.GetComponent<LootableOnDeath>();
+		//		//var airoot = clone.GetComponentInChildren<AIRoot>();
+		//		//At.SetValue(charAI, typeof(AIRoot), airoot, "m_charAI");
 
-				//var oldTables = new List<GameObject>();
+		//		clone.SetActive(true);
 
-				foreach (var component in clone.GetComponentsInChildren<MonoBehaviour>())
-				{
-					try
-					{
-						At.Call(component, "Awake", new object[0]);
-					}
-					catch { }
-				}
+		//		clone.transform.position = CharacterManager.Instance.GetFirstLocalCharacter().transform.position;
+		//	}
+		//	catch (Exception e)
+		//	{
+		//		SL.Log("Error cloning enemy: " + e.Message + "\r\nStack: " + e.StackTrace, 1);
+		//	}
+		//}
 
-				//var charAI = clone.GetComponent<CharacterAI>();
 
-				//var navmeshAgent = clone.GetComponent<UnityEngine.AI.NavMeshAgent>();
-				//At.SetValue(navmeshAgent, typeof(CharacterAI), charAI, "m_navMeshAgent");
-
-				//var airoot = clone.GetComponentInChildren<AIRoot>();
-				//At.SetValue(charAI, typeof(AIRoot), airoot, "m_charAI");
-
-				clone.SetActive(true);
-
-				clone.transform.position = CharacterManager.Instance.GetFirstLocalCharacter().transform.position;
-			}
-			catch (Exception e)
-			{
-				SL.Log("Error cloning enemy: " + e.Message + "\r\nStack: " + e.StackTrace, 1);
-			}
-		}
+		// ================= OTHER INTERNAL ================== //
 
 		private static void SetupBlankCharacterStats(CharacterStats stats)
 		{
@@ -281,10 +312,12 @@ namespace SideLoader
 			At.SetValue(new TagSourceSelector[0], typeof(CharacterStats), stats, "m_statusEffectsNaturalImmunity");
 		}
 
-		// ================= INTERNAL ================== //
-
+		/// <summary>
+		/// This is a completely custom AI States setup from scratch. It copies the Summoned Ghost AI.
+		/// </summary>
 		private void SetupBasicAIPrefab()
 		{
+			// Check if we've already set up the Prefab...
 			if (BasicAIPrefab != null) { return; }
 
 			var _AIStatesPrefab = new GameObject("AIRoot").AddComponent<AIRoot>();
@@ -298,10 +331,6 @@ namespace SideLoader
 
 			// state 2: Suspicious
 			var susState = new GameObject("2_Suspicious").AddComponent<AISSuspicious>();
-			susState.SuspiciousDuration = 3f;
-			susState.Range = 10;
-			susState.WanderFar = true;
-			susState.TurnModif = 0.5f;
 			susState.transform.parent = _AIStatesPrefab.transform;
 
 			//state 3: alert
@@ -330,6 +359,10 @@ namespace SideLoader
 			//setup 2 - Suspicious
 
 			susState.SpeedModif = 2f;
+			susState.SuspiciousDuration = 3f;
+			susState.Range = 10;
+			susState.WanderFar = true;
+			susState.TurnModif = 0.5f;
 
 			var susEnd = new GameObject("EndSuspiciousEffects").AddComponent<AIESwitchState>();
 			susEnd.ToState = wanderState;

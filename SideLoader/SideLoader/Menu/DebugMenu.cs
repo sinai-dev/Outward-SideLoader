@@ -12,16 +12,20 @@ namespace SideLoader
     {
         public static DebugMenu Instance;
 
-        private static Rect m_rect = new Rect(5, 5, 250, 375);
+        private static Rect m_rect = new Rect(5, 5, 250, 410);
+
+        private int m_page = 0;
 
         public static bool ShowDebug = false;
 
         private static bool m_debugFileExists = false;
 
-        private int SelectedID = 0;
-        private int NewID = 0;
-
+        private int SelectedItemID = 0;
+        private int NewItemID = 0;
         private SL_Item.TemplateBehaviour m_templateBehaviour = SL_Item.TemplateBehaviour.OverrideEffects;
+
+        private int SelectedStatusID = 0;
+        private int NewStatusID = 0;
 
         //// temp debug
         //private string m_enemyName = "";
@@ -64,36 +68,18 @@ namespace SideLoader
 
             GUILayout.Space(20);
 
-            GUILayout.Label("Enter an Item ID to generate a template from. This will also save all material textures (if any).");
-            GUILayout.Label("Templates are generated to the folder Mods/SideLoader/_GENERATED.");
-            GUILayout.Space(5);
             GUILayout.BeginHorizontal();
-            GUILayout.Label("Item ID:");
-            string input = GUILayout.TextField(SelectedID.ToString(), GUILayout.Width(150));
-            if (int.TryParse(input, out int id))
-            {
-                SelectedID = id;
-            }
-            GUILayout.EndHorizontal();
-            GUILayout.BeginHorizontal();
-            GUILayout.Label("New ID:");
-            string input2 = GUILayout.TextField(NewID.ToString(), GUILayout.Width(150));
-            if (int.TryParse(input2, out int id2))
-            {
-                NewID = id2;
-            }
+            SetPageButton("Items", 0);
+            SetPageButton("StatusEffect", 1);
             GUILayout.EndHorizontal();
 
-            GUILayout.Label("Effects Behaviour:");
-            BehaviourButton(SL_Item.TemplateBehaviour.DestroyEffects, "Destroy Effects");
-            BehaviourButton(SL_Item.TemplateBehaviour.OverrideEffects, "Override Effects");
-            BehaviourButton(SL_Item.TemplateBehaviour.NONE, "None (leave all)");
-
-            GUILayout.Space(15);
-
-            if (GUILayout.Button("Generate template"))
+            if (m_page == 0)
             {
-                GenerateTemplate();
+                ItemPage();
+            }
+            else if (m_page == 1)
+            {
+                EffectsPage();
             }
 
             //GUILayout.BeginHorizontal();
@@ -107,6 +93,60 @@ namespace SideLoader
             //}
 
             GUILayout.EndArea();
+        }
+
+        private void SetPageButton(string label, int id)
+        {
+            if (m_page == id)
+            {
+                GUI.color = Color.green;
+            }
+            else
+            {
+                GUI.color = Color.red;
+            }
+
+            if (GUILayout.Button(label))
+            {
+                m_page = id;
+            }
+
+            GUI.color = Color.white;
+        }
+
+        private void ItemPage()
+        {
+            GUILayout.Label("Enter an Item ID to generate a template from. This will also save all material textures (if any).");
+            GUILayout.Label("Templates are generated to the folder Mods/SideLoader/_GENERATED/Items/.");
+            GUILayout.Space(5);
+            GUILayout.BeginHorizontal();
+            GUILayout.Label("Item ID:");
+            string input = GUILayout.TextField(SelectedItemID.ToString(), GUILayout.Width(150));
+            if (int.TryParse(input, out int id))
+            {
+                SelectedItemID = id;
+            }
+            GUILayout.EndHorizontal();
+            GUILayout.BeginHorizontal();
+            GUILayout.Label("New ID:");
+            string input2 = GUILayout.TextField(NewItemID.ToString(), GUILayout.Width(150));
+            if (int.TryParse(input2, out int id2))
+            {
+                NewItemID = id2;
+            }
+            GUILayout.EndHorizontal();
+
+            GUILayout.Label("Effects Behaviour:");
+            BehaviourButton(SL_Item.TemplateBehaviour.DestroyEffects, "Destroy Effects");
+            BehaviourButton(SL_Item.TemplateBehaviour.OverrideEffects, "Override Effects");
+            BehaviourButton(SL_Item.TemplateBehaviour.NONE, "None (leave all)");
+
+            GUILayout.Space(15);
+
+            if (GUILayout.Button("Generate template"))
+            {
+                GenerateItemTemplate();
+            }
         }
 
         private void BehaviourButton(SL_Item.TemplateBehaviour _behaviour, string _label)
@@ -128,13 +168,13 @@ namespace SideLoader
             }
         }
 
-        private void GenerateTemplate()
+        private void GenerateItemTemplate()
         {
-            if (ResourcesPrefabManager.Instance.GetItemPrefab(SelectedID) is Item item)
+            if (ResourcesPrefabManager.Instance.GetItemPrefab(SelectedItemID) is Item item)
             {
                 var template = SL_Item.ParseItemToTemplate(item);
 
-                template.New_ItemID = NewID;
+                template.New_ItemID = NewItemID;
                 template.EffectBehaviour = m_templateBehaviour;
 
                 var itemfolder = SL.GENERATED_FOLDER + @"\Items\" + item.gameObject.name;
@@ -144,7 +184,75 @@ namespace SideLoader
             }
             else
             {
-                SL.Log("DEBUG MENU: ID " + SelectedID + " is invalid!");
+                SL.Log("DEBUG MENU: ID " + SelectedItemID + " is invalid!");
+            }
+        }
+
+        private void EffectsPage()
+        {
+            GUILayout.Label("Enter a Status Effect Preset ID to generate a template from.");
+            GUILayout.Label("Templates are generated to the folder Mods/SideLoader/_GENERATED/StatusEffects/.");
+
+            GUILayout.BeginHorizontal();
+            GUILayout.Label("Target Status ID:");
+            var selectedID = GUILayout.TextField(SelectedStatusID.ToString(), GUILayout.Width(150));
+            if (int.TryParse(selectedID, out int id))
+            {
+                SelectedStatusID = id;
+            }
+            GUILayout.EndHorizontal();
+            GUILayout.BeginHorizontal();
+            GUILayout.Label("New Status ID:");
+            var newID = GUILayout.TextField(NewStatusID.ToString(), GUILayout.Width(150));
+            if (int.TryParse(newID, out int id2))
+            {
+                NewStatusID = id2;
+            }
+            GUILayout.EndHorizontal();
+            GUILayout.Space(15);
+            if (GUILayout.Button("Generate template"))
+            {
+                GenerateStatusTemplate();
+            }
+        }
+
+        private void GenerateStatusTemplate()
+        {
+            if (ResourcesPrefabManager.Instance.GetEffectPreset(SelectedStatusID) is EffectPreset preset)
+            {
+                SL.Log("Generating template for " + preset.gameObject.name + "...");
+
+                var folder = SL.GENERATED_FOLDER + @"\StatusEffects\" + preset.gameObject.name;
+
+                if (preset is ImbueEffectPreset)
+                {
+                    var comp = preset as ImbueEffectPreset;
+                    var template = SL_ImbueEffect.ParseImbueEffect(comp);
+                    template.NewStatusID = NewStatusID;
+                    Serializer.SaveToXml(folder, preset.gameObject.name, template);
+                    if (comp.ImbueStatusIcon != null)
+                    {
+                        CustomTextures.SaveIconAsPNG(comp.ImbueStatusIcon, folder);
+                    }
+                }
+                else
+                {
+                    var tempObj = Instantiate(preset.gameObject);
+
+                    var comp = tempObj.GetComponent<StatusEffect>();
+                    var template = SL_StatusEffect.ParseStatusEffect(comp);
+                    template.NewStatusID = NewStatusID;
+                    Serializer.SaveToXml(folder, preset.gameObject.name, template);
+                    if (comp.StatusIcon != null)
+                    {
+                        CustomTextures.SaveIconAsPNG(comp.StatusIcon, folder);
+                    }
+                    Destroy(tempObj);
+                }
+            }
+            else
+            {
+                SL.Log("DEBUG MENU: PresetID " + SelectedStatusID + " is invalid!");
             }
         }
     }

@@ -14,17 +14,18 @@ namespace SideLoader
     {
         public static CustomItems Instance;
 
-        /// <summary> Cached ORIGINAL Item Prefabs (not modified) </summary>
+        /// <summary>Cached ORIGINAL Item Prefabs (not modified)</summary>
         private static readonly Dictionary<int, Item> OrigItemPrefabs = new Dictionary<int, Item>();
 
-        /// <summary> cached ResourcesPrefabManager.ITEM_PREFABS Dictionary </summary>
+        /// <summary>Cached ResourcesPrefabManager.ITEM_PREFABS Dictionary</summary>
         public static Dictionary<string, Item> RPM_ITEM_PREFABS;
 
-        /// <summary> cached LocalizationManager.ItemLocalization </summary>
+        /// <summary>Cached LocalizationManager.ItemLocalization</summary>
         public static Dictionary<int, ItemLocalization> ITEM_LOCALIZATION;
 
-        // Recipe Dicts
+        /// <summary>Cached RecipeManager.m_recipes Dictionary</summary>
         public static Dictionary<string, Recipe> ALL_RECIPES;
+        /// <summary>Cached RecipeManager.m_recipeUIDsPerUstensils Dictionary</summary>
         public static Dictionary<Recipe.CraftingType, List<UID>> RECIPES_PER_UTENSIL;
 
         internal void Awake()
@@ -38,6 +39,8 @@ namespace SideLoader
             ALL_RECIPES = At.GetValue(typeof(RecipeManager), RecipeManager.Instance, "m_recipes") as Dictionary<string, Recipe>;
             RECIPES_PER_UTENSIL = At.GetValue(typeof(RecipeManager), RecipeManager.Instance, "m_recipeUIDsPerUstensils") as Dictionary<Recipe.CraftingType, List<UID>>;
         }
+
+        // ====================== Harmony Patches ====================== //
 
         // fix for the recipe menu, which can break from some custom items when they are an ingredient.
         [HarmonyPatch(typeof(ItemListDisplay), "SortBySupport")]
@@ -65,9 +68,9 @@ namespace SideLoader
             }
         }
 
-        // ============================================================================================ //
-        /*                                       Public Helpers                                         */
-        // ============================================================================================ //
+        // ================================================================================ //
+        /*                                  Public Helpers                                  */
+        // ================================================================================ //
 
         /// <summary> Will return the true original prefab for this Item ID. </summary>
         public static Item GetOriginalItemPrefab(int ItemID)
@@ -81,57 +84,6 @@ namespace SideLoader
                 return ResourcesPrefabManager.Instance.GetItemPrefab(ItemID);
             }
         }
-
-        /// <summary>
-        /// Returns the game's actual Tag for the string you provide, if it exists.
-        /// </summary>
-        /// <param name="TagName">Eg "Food", "Blade", etc...</param>
-        /// <returns></returns>
-        public static Tag GetTag(string TagName, bool logging = true)
-        {
-            var tags = (Tag[])At.GetValue(typeof(TagSourceManager), TagSourceManager.Instance, "m_tags");
-            var tag = tags.FirstOrDefault(x => x.TagName == TagName);
-            if (tag.TagName == TagName)
-            {
-                return tag;
-            }
-            else
-            {
-                if (logging)
-                {
-                    SL.Log("GetTag :: Could not find a tag by the name: " + TagName);
-                }
-                return Tag.None;
-            }
-        }
-
-        /// <summary>
-        /// Helper for creating a new Tag
-        /// </summary>
-        /// <param name="name">The new tag name</param>
-        public static Tag CreateTag(string name)
-        {
-            if (GetTag(name, false) is Tag tag && tag.TagName == name)
-            {
-                SL.Log($"Error: A tag already exists called '{name}'");
-            }
-            else
-            {
-                tag = new Tag(TagSourceManager.TagRoot, name);
-                tag.SetTagType(Tag.TagTypes.Custom);
-
-                TagSourceManager.Instance.DbTags.Add(tag);
-                TagSourceManager.Instance.RefreshTags(true);
-
-                SL.Log($"Created a tag, name: {tag.TagName}");
-            }
-
-            return tag;
-        }
-
-        // ============================================================================================ //
-        /*                                   Setting up a Custom Item                                   */
-        // ============================================================================================ //
 
         /// <summary>
         /// If defining a custom item after SL.OnPacksLoaded, just provide the template, it will automatically be applied.
@@ -276,16 +228,65 @@ namespace SideLoader
             At.SetValue(name, typeof(Item), _item, "m_name");
             At.SetValue(desc, typeof(Item), _item, "m_description");
 
-            ItemLocalization loc = new ItemLocalization(name, desc);
-
             if (ITEM_LOCALIZATION.ContainsKey(_item.ItemID))
             {
-                ITEM_LOCALIZATION[_item.ItemID] = loc;
+                ITEM_LOCALIZATION[_item.ItemID].Name = name;
+                ITEM_LOCALIZATION[_item.ItemID].Desc = desc;
             }
             else
             {
+                ItemLocalization loc = new ItemLocalization(name, desc);
                 ITEM_LOCALIZATION.Add(_item.ItemID, loc);
             }
+        }
+
+        // ================ TAGS ================ //
+
+        /// <summary>
+        /// Returns the game's actual Tag for the string you provide, if it exists.
+        /// </summary>
+        /// <param name="TagName">Eg "Food", "Blade", etc...</param>
+        /// <returns></returns>
+        public static Tag GetTag(string TagName, bool logging = true)
+        {
+            var tags = (Tag[])At.GetValue(typeof(TagSourceManager), TagSourceManager.Instance, "m_tags");
+            var tag = tags.FirstOrDefault(x => x.TagName == TagName);
+            if (tag.TagName == TagName)
+            {
+                return tag;
+            }
+            else
+            {
+                if (logging)
+                {
+                    SL.Log("GetTag :: Could not find a tag by the name: " + TagName);
+                }
+                return Tag.None;
+            }
+        }
+
+        /// <summary>
+        /// Helper for creating a new Tag
+        /// </summary>
+        /// <param name="name">The new tag name</param>
+        public static Tag CreateTag(string name)
+        {
+            if (GetTag(name, false) is Tag tag && tag.TagName == name)
+            {
+                SL.Log($"Error: A tag already exists called '{name}'");
+            }
+            else
+            {
+                tag = new Tag(TagSourceManager.TagRoot, name);
+                tag.SetTagType(Tag.TagTypes.Custom);
+
+                TagSourceManager.Instance.DbTags.Add(tag);
+                TagSourceManager.Instance.RefreshTags(true);
+
+                SL.Log($"Created a tag, name: {tag.TagName}");
+            }
+
+            return tag;
         }
 
         /// <summary> Adds the range of tags to the Items' TagSource, and optionally destroys the existing tags.</summary>
@@ -317,6 +318,8 @@ namespace SideLoader
 
             At.SetValue(tagsource, typeof(Item), item, "m_tagSource");
         }
+
+        // ================ OTHER ================ //
 
         /// <summary> Small helper for destroying all children on a given Transform 't'. Uses DestroyImmediate(). </summary>
         /// <param name="destroyContent">If true, will destroy children called "Content" (used for Bags)</param>

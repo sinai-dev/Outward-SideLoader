@@ -50,14 +50,14 @@ namespace SideLoader
                 IKType = equipment.IKType
             };
 
-            At.InheritBaseValues(equipmentHolder, itemHolder);
+            At.CopyFieldValues(equipmentHolder, itemHolder);
 
             if (equipment.GetComponent<ItemStats>() is ItemStats stats)
             {
                 if (!(stats is EquipmentStats))
                 {
                     var newstats = equipment.gameObject.AddComponent<EquipmentStats>();
-                    At.InheritBaseValues(newstats as ItemStats, stats);
+                    At.CopyFieldValues(newstats as ItemStats, stats);
                     GameObject.DestroyImmediate(stats);
                     stats = newstats;
                 }

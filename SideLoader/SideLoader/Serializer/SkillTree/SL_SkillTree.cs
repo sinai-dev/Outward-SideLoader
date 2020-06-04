@@ -5,8 +5,9 @@ using System.Linq;
 using System.Text;
 using UnityEngine;
 using System.Xml.Serialization;
+using UnityEngine.SceneManagement;
 
-namespace SideLoader.CustomSkills
+namespace SideLoader
 {
     public class SL_SkillTree
     {
@@ -19,12 +20,12 @@ namespace SideLoader.CustomSkills
 
         public SkillSchool CreateBaseSchool()
         {
-            UnityEngine.SceneManagement.SceneManager.sceneLoaded += FixOnMainMenu;
+            SceneManager.sceneLoaded += FixOnMainMenu;
 
             return CreateSchool();
         }
 
-        private SkillSchool CreateSchool()
+        private SkillSchool CreateSchool(bool applyRowsInstantly = false)
         {
             var template = (Resources.Load("_characters/CharacterProgression") as GameObject).transform.Find("Test");
 
@@ -52,6 +53,11 @@ namespace SideLoader.CustomSkills
             var list = (At.GetValue(typeof(SkillTreeHolder), SkillTreeHolder.Instance, "m_skillTrees") as SkillSchool[]).ToList();
             list.Add(school);
             At.SetValue(list.ToArray(), typeof(SkillTreeHolder), SkillTreeHolder.Instance, "m_skillTrees");
+
+            if (applyRowsInstantly)
+            {
+                ApplyRows();
+            }
 
             return school;
         }
@@ -86,7 +92,7 @@ namespace SideLoader.CustomSkills
             m_object.SetActive(true);
         }
 
-        private void FixOnMainMenu(UnityEngine.SceneManagement.Scene scene, UnityEngine.SceneManagement.LoadSceneMode mode)
+        private void FixOnMainMenu(Scene scene, LoadSceneMode mode)
         {
             if (scene.name.ToLower().Contains("mainmenu"))
             {

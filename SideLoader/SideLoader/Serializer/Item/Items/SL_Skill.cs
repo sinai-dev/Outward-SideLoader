@@ -134,7 +134,7 @@ namespace SideLoader
                 skillHolder.RequireImbue = attackSkill.RequireImbue;
             }
 
-            At.InheritBaseValues(skillHolder, itemHolder);
+            At.CopyFieldValues(skillHolder, itemHolder);
 
             return skillHolder;
         }

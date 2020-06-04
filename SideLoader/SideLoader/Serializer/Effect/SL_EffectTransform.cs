@@ -15,21 +15,30 @@ namespace SideLoader
 
         public List<SL_EffectTransform> ChildEffects = new List<SL_EffectTransform>();
 
-        public void ApplyToItem(Item item)
+        /// <summary>
+        /// Pass the desired parent Transform, this method will create or find the existing 'this.TransformName' on it.
+        /// </summary>
+        /// <param name="parent">The PARENT transform to apply to (the Item or StatusEffect)</param>
+        public void ApplyToTransform(Transform parent)
         {
-            // get transform of this.TransformName
-            var transform = item.transform.Find(this.TransformName);
-            if (!transform)
+            var child = parent.Find(this.TransformName);
+            if (!child)
             {
-                transform = new GameObject(this.TransformName).transform;
-                transform.parent = item.transform;
+                child = new GameObject(this.TransformName).transform;
+                child.parent = parent;
             }
 
             // apply effects
             foreach (var effect in this.Effects)
             {
-                effect.ApplyToTransform(transform);
+                effect.ApplyToTransform(child);
             }
+        }
+
+        [Obsolete("Use EffectTransform.ApplyToTransform instead.")]
+        public void ApplyToItem(Item item)
+        {
+            ApplyToTransform(item.transform);
         }
 
         public static SL_EffectTransform ParseTransform(Transform transform)

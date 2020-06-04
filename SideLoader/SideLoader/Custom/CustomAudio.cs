@@ -46,7 +46,7 @@ namespace SideLoader
                 Debug.LogWarning("The replacement clip for " + _sound.ToString() + " is null");
             }
 
-            var path = (string)At.Call(GAMInstance, "GetPrefabPath", new object[] { _sound });
+            var path = (string)At.Call(typeof(GlobalAudioManager), GAMInstance, "GetPrefabPath", null, new object[] { _sound });
             var resource = Resources.Load("_Sounds/" + path) as GameObject;
             var component = resource.GetComponent<AudioSource>();
             component.clip = _newClip;

@@ -86,7 +86,7 @@ namespace SideLoader
             var item = ResourcesPrefabManager.Instance.GetItemPrefab(New_ItemID);
             if (!item)
             {
-                SL.Log("Could not find an item with this New_ItemID! Maybe you are trying to apply before calling CustomItems.CreateCustomItem?", 1);
+                SL.Log($"Could not find an item with the ID {New_ItemID}! Maybe you are trying to apply before calling CustomItems.CreateCustomItem?", 1);
                 return;
             }
 
@@ -205,7 +205,7 @@ namespace SideLoader
                         UnityEngine.Object.DestroyImmediate(existing.gameObject);
                     }
 
-                    effectsT.ApplyToItem(item);
+                    effectsT.ApplyToTransform(item.transform);
                 }
             }
 

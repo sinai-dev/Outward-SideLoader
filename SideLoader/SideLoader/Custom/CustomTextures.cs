@@ -125,8 +125,23 @@ namespace SideLoader
             return Sprite.Create(tex, rect, Vector2.zero, 100f, 1, SpriteMeshType.Tight);
         }
 
+        public static void SaveIconAsPNG(Sprite icon, string dir, string name = "icon")
+        {
+            if (!Directory.Exists(dir))
+            {
+                Directory.CreateDirectory(dir);
+            }
+
+            SaveTextureAsPNG(icon.texture, dir, name, false);
+        }
+
         public static void SaveTextureAsPNG(Texture2D _tex, string dir, string name, bool normal)
         {
+            if (!Directory.Exists(dir))
+            {
+                Directory.CreateDirectory(dir);
+            }
+
             byte[] data;
             var savepath = dir + @"\" + name + ".png";
 
@@ -139,6 +154,11 @@ namespace SideLoader
                 }
 
                 data = _tex.EncodeToPNG();
+
+                if (data == null)
+                {
+                    throw new Exception();
+                }
             }
             catch
             {
@@ -169,6 +189,7 @@ namespace SideLoader
             File.WriteAllBytes(savepath, data);
         }
 
+        // Converts DTXnm-format Normal Map to RGBA-format Normal Map.
         private static Texture2D DTXnmToRGBA(Texture2D tex)
         {
             Color[] colors = tex.GetPixels();
@@ -192,7 +213,7 @@ namespace SideLoader
 
             var newtex = new Texture2D(tex.width, tex.height, TextureFormat.RGBA32, false);
             newtex.SetPixels(colors); //apply pixels to the texture
-            newtex.Apply(false, false);
+            //newtex.Apply(false, false);
 
             return newtex;
         }

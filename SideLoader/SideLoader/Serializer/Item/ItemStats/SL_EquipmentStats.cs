@@ -75,7 +75,7 @@ namespace SideLoader
                 if (!(stats is WeaponStats))
                 {
                     var newstats = stats.gameObject.AddComponent<WeaponStats>();
-                    At.InheritBaseValues(newstats as EquipmentStats, stats);
+                    At.CopyFieldValues(newstats as EquipmentStats, stats);
                     GameObject.DestroyImmediate(stats);
                     stats = newstats;
                 }
@@ -93,7 +93,7 @@ namespace SideLoader
                 if (stats is ItemStats)
                 {
                     var newstats = new EquipmentStats();
-                    At.InheritBaseValues(newstats as ItemStats, stats);
+                    At.CopyFieldValues(newstats as ItemStats, stats);
                     stats = newstats;
                 }
                 else
@@ -118,7 +118,7 @@ namespace SideLoader
                 equipmentStatsHolder.Damage_Bonus = At.GetValue(typeof(EquipmentStats), stats, "m_damageAttack") as float[];
                 equipmentStatsHolder.Damage_Resistance = At.GetValue(typeof(EquipmentStats), stats, "m_damageResistance") as float[];
 
-                At.InheritBaseValues(equipmentStatsHolder, itemStatsHolder);
+                At.CopyFieldValues(equipmentStatsHolder, itemStatsHolder);
             }
             catch (Exception e)
             {

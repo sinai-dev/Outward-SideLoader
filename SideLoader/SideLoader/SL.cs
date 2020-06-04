@@ -23,7 +23,7 @@ namespace SideLoader
         // Mod Info
         public const string GUID = "com.sinai." + MODNAME;
         public const string MODNAME = "SideLoader";
-        public const string VERSION = "2.1.9";
+        public const string VERSION = "2.2.0";
 
         // Folders
         public static string PLUGINS_FOLDER => Paths.PluginPath;
@@ -44,6 +44,8 @@ namespace SideLoader
         public static event UnityAction OnSceneLoaded;
 
         // Internal Events
+        /// <summary>Only called once on startup. It is a callback used by SL_StatusEffect and SL_ImbueEffect to apply after assets are loaded.</summary>
+        public static event Action INTERNAL_ApplyStatuses;
         /// <summary>Only called once on startup. It is a callback used by SL_Items to apply after all assets are loaded.</summary>
         public static event Action INTERNAL_ApplyItems;
         /// <summary>Only called once on startup. It is a callback used by SL_Recipes to apply after all CustomItems are loaded.</summary>
@@ -51,8 +53,12 @@ namespace SideLoader
         /// <summary>Only called once on startup. It is a callback used by SL_RecipeItems to apply after all SL_Recipes are loaded.</summary>
         public static event Action INTERNAL_ApplyRecipeItems;
 
+        // ================ Main Setup ====================
+
         internal void Awake()
         {
+            Log($"Version {VERSION} starting...", 0);
+
             Instance = this;
 
             if (!Directory.Exists(SL_FOLDER))
@@ -64,13 +70,12 @@ namespace SideLoader
             harmony.PatchAll();
         }
 
-        // ================ Main Setup ====================
-
         internal void Start()
         {
             /* subscribe to SceneLoaded event */
             SceneManager.sceneLoaded += SceneManager_sceneLoaded;
 
+            /* Setup Behaviour gameobject */
             var obj = new GameObject("SideLoader_Behaviour");
             DontDestroyOnLoad(obj);
 
@@ -78,11 +83,10 @@ namespace SideLoader
             obj.AddComponent<CustomCharacters>();
             obj.AddComponent<CustomItems>();
             obj.AddComponent<CustomScenes>();
+            obj.AddComponent<CustomStatusEffects>();
             obj.AddComponent<CustomTextures>();
-            //obj.AddComponent<CustomLighting>();
             obj.AddComponent<RPCManager>();
 
-            // debug menu
             obj.AddComponent<DebugMenu>();
 
             StartCoroutine(StartupCoroutine());
@@ -90,8 +94,6 @@ namespace SideLoader
 
         private IEnumerator StartupCoroutine()
         {
-            Log("Version " + VERSION + " starting...", 0);
-
             // wait for RPM to finish loading
             while (ResourcesPrefabManager.Instance == null || !ResourcesPrefabManager.Instance.Loaded) 
             {
@@ -101,7 +103,7 @@ namespace SideLoader
             // BeforePacksLoaded callback
             TryInvoke(BeforePacksLoaded);
 
-            // Read SL Packs
+            // ====== Read SL Packs ======
 
             // new structure: BepInEx\plugins\ModName\SideLoader\
             foreach (string modFolder in Directory.GetDirectories(PLUGINS_FOLDER))
@@ -133,13 +135,16 @@ namespace SideLoader
                 TryLoadPack(packname, dir, true);
             }
 
+            Log("------- Applying custom Statuses -------", 0);
+            TryInvoke(INTERNAL_ApplyStatuses);
+
             Log("------- Applying custom Items -------", 0);
             TryInvoke(INTERNAL_ApplyItems);
 
             Log("------- Applying custom Recipes -------", 0);
             TryInvoke(INTERNAL_ApplyRecipes);
 
-            Log("------- Applying Recipe Items -------", 0);
+            Log("------- Applying custom Recipe Items -------", 0);
             TryInvoke(INTERNAL_ApplyRecipeItems);
 
             PacksLoaded = true;
@@ -168,7 +173,7 @@ namespace SideLoader
                     }
                     catch (Exception e)
                     {
-                        SL.Log("Exception invoking callback!\r\nMessage: " + e.Message + "\r\nStack: " + e.StackTrace, 1);
+                        Log("Exception invoking callback!\r\nMessage: " + e.Message + "\r\nStack: " + e.StackTrace, 1);
                     }
                 }
             }
@@ -187,7 +192,7 @@ namespace SideLoader
             }
         }
 
-        // =============== Scene Changes Event ====================
+        // =============== Scene Change Events ====================
 
         // This is called when Unity says the scene is done loading, but we still want to wait for Outward to be done.
         private void SceneManager_sceneLoaded(Scene _scene, LoadSceneMode _loadSceneMode)
@@ -228,11 +233,14 @@ namespace SideLoader
         /// CREDIT: https://answers.unity.com/questions/530178/how-to-get-a-component-from-an-object-and-add-it-t.html
         public static T GetCopyOf<T>(Component comp, T other) where T : Component
         {
-            Type type = comp.GetType();
-            if (type != other.GetType()) return null;
-            BindingFlags flags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Default | BindingFlags.Static;
-            PropertyInfo[] pinfos = type.GetProperties(flags);
-            foreach (var pinfo in pinfos)
+            var type = comp.GetType();
+            if (!typeof(T).IsAssignableFrom(type))
+            {
+                SL.Log("Cannot assign " + typeof(T) + " from " + type);
+                return null;
+            }
+            
+            foreach (var pinfo in type.GetProperties(At.FLAGS))
             {
                 if (pinfo.CanWrite)
                 {
@@ -243,11 +251,15 @@ namespace SideLoader
                     catch { }
                 }
             }
-            FieldInfo[] finfos = type.GetFields(flags);
-            foreach (var finfo in finfos)
-            {
-                finfo.SetValue(comp, finfo.GetValue(other));
-            }
+
+            At.CopyFieldValues(comp, other);
+
+            //FieldInfo[] finfos = type.GetFields(flags);
+            //foreach (var finfo in finfos)
+            //{
+            //    finfo.SetValue(comp, finfo.GetValue(other));
+            //}
+
             return comp as T;
         }
 

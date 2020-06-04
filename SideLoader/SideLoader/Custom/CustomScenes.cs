@@ -33,11 +33,6 @@ namespace SideLoader
 
         public static void LoadSceneFromBundle(AssetBundle bundle, Vector3 spawnPoint, int bundleSceneIndex = 0, float timeOffset = 0f)
         {
-            if (spawnPoint == null)
-            {
-                spawnPoint = Vector3.zero;
-            }
-
             string scenePath = bundle.GetAllScenePaths()[bundleSceneIndex];
             NetworkLevelLoader.Instance.LoadLevel(timeOffset, scenePath, 0);
 

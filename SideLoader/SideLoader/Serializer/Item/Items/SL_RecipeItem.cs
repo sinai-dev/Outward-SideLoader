@@ -26,7 +26,7 @@ namespace SideLoader
                 RecipeUID = item.Recipe.UID,
             };
 
-            At.InheritBaseValues(recipeHolder as SL_Item, itemHolder);
+            At.CopyFieldValues(recipeHolder as SL_Item, itemHolder);
 
             return recipeHolder;
         }

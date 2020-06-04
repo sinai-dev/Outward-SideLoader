@@ -75,7 +75,7 @@ namespace SideLoader
                 bagHolder.Nullify_Perish = p.NullifyPerishing;
             }
 
-            At.InheritBaseValues(bagHolder, equipmentHolder);
+            At.CopyFieldValues(bagHolder, equipmentHolder);
 
             return bagHolder;
         }
