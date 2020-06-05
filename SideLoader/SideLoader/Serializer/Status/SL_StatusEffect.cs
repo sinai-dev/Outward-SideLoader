@@ -127,7 +127,7 @@ namespace SideLoader
                 var signature = status.transform.GetChild(0);
                 if (!signature)
                 {
-                    signature = new GameObject($"SIGNATURE_{Name}").transform;
+                    signature = new GameObject($"SIGNATURE_{status.IdentifierName}").transform;
                     signature.parent = status.transform;
                     var comp = signature.gameObject.AddComponent<EffectSignature>();
                     comp.SignatureUID = new UID($"{NewStatusID}_{status.IdentifierName}");
