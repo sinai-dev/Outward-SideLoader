@@ -9,7 +9,7 @@ namespace SideLoader
     public class SL_WeaponStats : SL_EquipmentStats
     {
         public float? AttackSpeed;
-        public List<SL_Damage> BaseDamage = new List<SL_Damage>();
+        public List<SL_Damage> BaseDamage;
         public float? Impact;
         public float? StamCost;
 
@@ -29,43 +29,31 @@ namespace SideLoader
             if (this.BaseDamage != null)
             {
                 stats.BaseDamage = SL_Damage.GetDamageList(this.BaseDamage);
+
+                // fix for m_activeBaseDamage
+                var weapon = stats.GetComponent<Weapon>();
+                At.SetValue(stats.BaseDamage, typeof(Weapon), weapon, "m_activeBaseDamage");
             }
             if (this.StamCost != null)
             {
                 stats.StamCost = (float)this.StamCost;
             }
 
-            // fix for m_activeBaseDamage
-            var weapon = stats.GetComponent<Weapon>();
-            At.SetValue(stats.BaseDamage, typeof(Weapon), weapon, "m_activeBaseDamage");
-
-            if (AutoGenerateAttackData || this.Attacks == null || this.Attacks.Length <= 0)
+            if (AutoGenerateAttackData || this.Attacks == null || this.Attacks.Length < 1)
             {
-                SL.Log("Generating AttackData automatically");
+                // SL.Log("Generating AttackData automatically");
                 stats.Attacks = GetScaledAttackData(stats.GetComponent<Weapon>());
             }
             else
             {
-                var newAttacks = new List<WeaponStats.AttackData>();
-                foreach (var attack in this.Attacks)
-                {
-                    var data = new WeaponStats.AttackData()
-                    {
-                        Knockback = attack.Knockback,
-                        StamCost = attack.StamCost,
-                        Damage = attack.Damage
-                    };
-                    newAttacks.Add(data);
-                }
-                stats.Attacks = newAttacks.ToArray();
-            }          
+                stats.Attacks = Attacks;
+            }
         }
 
         public static SL_WeaponStats ParseWeaponStats(WeaponStats stats, SL_EquipmentStats equipmentStatsHolder)
         {
             var weaponStatsHolder = new SL_WeaponStats
             {
-                //AttackCount = stats.AttackCount,
                 Attacks = stats.Attacks,
                 AttackSpeed = stats.AttackSpeed,
                 Impact = stats.Impact,
@@ -118,7 +106,7 @@ namespace SideLoader
             return list.ToArray();
         }
 
-        private static List<float> DamageListToFloatArray(DamageList list, float multiplier)
+        public static List<float> DamageListToFloatArray(DamageList list, float multiplier)
         {
             var floats = new List<float>();
 

@@ -98,6 +98,7 @@ namespace SideLoader
             if (Tags != null)
             {
                 var tagList = (List<Tag>)At.GetValue(typeof(StatusEffect), status, "m_tags");
+                tagList.Clear();
                 foreach (var tagName in Tags)
                 {
                     if (CustomItems.GetTag(tagName) is Tag tag && tag != Tag.None)
@@ -151,12 +152,10 @@ namespace SideLoader
                 // fix StatusData for the new effects
                 CompileEffectsToData(status);
             }
-
-            // ======== TODO SET SPRITE =========
         }
 
         // There is no opposite of Effect.SetValue (you'd think it would be Effect.CompileData, but no...), so we have to do this manually.
-        // This could miss a lot of cases, but I think all StatusEffects only use PunctualDamage or AffectX components at the moment.
+        // I think the StatusData is only needed for PunctualDamage and AffectX components as far as I can tell.
         private static void CompileEffectsToData(StatusEffect status)
         {
             // Get the EffectSignature component
@@ -175,21 +174,20 @@ namespace SideLoader
                 // Create a blank holder, in the case this effect isn't supported or doesn't serialize anything.
                 var data = new StatusData.EffectData()
                 {
-                    Data = new string[] { "" }
+                    Data = new string[0]
                 };
 
                 var type = effect.GetType();
+
                 if (typeof(PunctualDamage).IsAssignableFrom(type))
                 {
+                    var comp = effect as PunctualDamage;
+
                     // For PunctualDamage, Data[0] is the entire damage, and Data[1] is the impact.
-                    // Each damage is separated with a ';', and each damage goes 'Damage : Type'.
+
+                    // Each damage goes "Damage : Type", and separated by a ';' char.
                     // So we just iterate over the damage and serialize like that.
-                    var comp = (effect as PunctualDamage);
-                    // the return string[] (as a list)
-                    var dataList = new List<string>();
-                    // Data[0] as a string
                     var dmgString = "";
-                    // Iterate into dmgString
                     foreach (var dmg in comp.Damages)
                     {
                         if (dmgString != "")
@@ -197,24 +195,25 @@ namespace SideLoader
 
                         dmgString += dmg.ToString(":");
                     }
-                    // Add to list at position 0
-                    dataList.Add(dmgString);
-                    // add the knockback too
-                    dataList.Add(comp.Knockback.ToString());
-                    // finally, ToArray() the data list.
-                    data.Data = dataList.ToArray();
+
+                    // finally, set data
+                    data.Data = new string[]
+                    {
+                        dmgString,
+                        comp.Knockback.ToString()
+                    };
                 }
+                // For most AffectStat components, the only thing that is serialized is the AffectQuantity.
                 else if (type.GetField("AffectQuantity", At.FLAGS) is FieldInfo fi_AffectQuantity)
                 {
-                    // For most AffectStat components, the only thing that is serialized is the AffectQuantity.
                     data.Data = new string[]
                     {
                         fi_AffectQuantity.GetValue(effect)?.ToString()
                     };
                 }
-                else if (type.GetField("Value") is FieldInfo fi_Value)
+                // AffectMana uses "Value" instead of AffectQuantity for some reason...
+                else if (type.GetField("Value", At.FLAGS) is FieldInfo fi_Value)
                 {
-                    // AffectMana uses "Value" instead of AffectQuantity for some reason...
                     data.Data = new string[]
                     {
                         fi_Value.GetValue(effect)?.ToString()
