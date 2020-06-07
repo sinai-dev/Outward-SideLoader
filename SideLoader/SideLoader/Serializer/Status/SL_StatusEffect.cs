@@ -122,6 +122,11 @@ namespace SideLoader
                 }
             }
 
+            if (EffectsBehaviour == SL_Item.TemplateBehaviour.DestroyEffects)
+            {
+                CustomItems.DestroyChildren(status.transform);
+            }
+
             if (Effects != null)
             {
                 var signature = status.transform.GetChild(0);
@@ -131,10 +136,6 @@ namespace SideLoader
                     signature.parent = status.transform;
                     var comp = signature.gameObject.AddComponent<EffectSignature>();
                     comp.SignatureUID = new UID($"{NewStatusID}_{status.IdentifierName}");
-                }
-                else if (EffectsBehaviour == SL_Item.TemplateBehaviour.DestroyEffects)
-                {
-                    CustomItems.DestroyChildren(signature);
                 }
 
                 foreach (var effectTransform in Effects)
@@ -166,7 +167,7 @@ namespace SideLoader
 
             // Get and Set the Effects list
             var effects = signature.GetComponentsInChildren<Effect>();
-            signature.Effects = effects.ToList();
+            signature.Effects = effects?.ToList();
 
             // Iterate over the effects
             foreach (var effect in effects)

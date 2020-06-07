@@ -105,22 +105,12 @@ namespace SideLoader
         /// <returns>Your cloned Item prefab</returns>
         public static Item CreateCustomItem(int cloneTargetID, int newID, string name, SL_Item template = null)
         {
-            Item original;
+            Item original = GetOriginalItemPrefab(cloneTargetID);
 
-            // Check if another Custom Item has already modified our target. If so, get the cached original.
-            if (OrigItemPrefabs.ContainsKey(cloneTargetID))
+            if (!original)
             {
-                original = OrigItemPrefabs[cloneTargetID];
-            }
-            else
-            {
-                original = ResourcesPrefabManager.Instance.GetItemPrefab(cloneTargetID);
-
-                if (!original)
-                {
-                    SL.Log("CustomItems::CreateCustomItem - Error! Could not find the clone target Item ID: " + cloneTargetID, 1);
-                    return null;
-                }
+                SL.Log("CustomItems::CreateCustomItem - Error! Could not find the clone target Item ID: " + cloneTargetID, 1);
+                return null;
             }
 
             Item item; 
