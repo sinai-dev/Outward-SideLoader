@@ -8,6 +8,7 @@ using System.Text.RegularExpressions;
 
 namespace SideLoader
 {
+    /// <summary>Helper class used to manage custom Item Visuals.</summary>
     public class CustomItemVisuals
     {
         /* 
@@ -21,12 +22,15 @@ namespace SideLoader
         /// <summary>The three types of VisualPrefabs which custom items can use.</summary>
         public enum VisualPrefabType
         {
+            /// <summary>Standard item visuals</summary>
             VisualPrefab,
+            /// <summary>The Special visuals, usually for equipped Armor Visuals.</summary>
             SpecialVisualPrefabDefault,
+            /// <summary>Same as special visuals, but for the female alternative.</summary>
             SpecialVisualPrefabFemale
         }
 
-
+        /// <summary>Returns the Item Visuals for the given Item and VisualPrefabType</summary>
         public static Transform GetItemVisuals(Item item, VisualPrefabType type)
         {
             Transform prefab = null;
@@ -69,11 +73,23 @@ namespace SideLoader
         //    }
         //}
 
+        ///// <summary>
+        ///// For replacing an item's visual prefab with your own prefab. For standard ItemVisuals, this only replaces the 3D model and leaves the rest.
+        ///// </summary>
+        ///// <param name="origPrefab">The original Transform you are replacing (eg Item.VisualPrefab, Item.SpecialVisualPrefabDefault, etc)</param>
+        ///// <param name="newVisuals">Your new prefab Transform.</param>
+        ///// 
+
         /// <summary>
-        /// For replacing an item's visual prefab with your own prefab. For standard ItemVisuals, this only replaces the 3D model and leaves the rest.
+        /// Sets the provided visual prefab to the item.
         /// </summary>
-        /// <param name="origPrefab">The original Transform you are replacing (eg Item.VisualPrefab, Item.SpecialVisualPrefabDefault, etc)</param>
-        /// <param name="newVisuals">Your new prefab Transform.</param>
+        /// <param name="item">The item you want to set the visual prefab to.</param>
+        /// <param name="newVisuals">The new visual prefab transform</param>
+        /// <param name="type">The VisualPrefabType to set.</param>
+        /// <param name="positionOffset">Optional position offset</param>
+        /// <param name="rotationOffset">Optional rotation offset</param>
+        /// <param name="hideFace">Optionally hide the face (for helm/body)</param>
+        /// <param name="hideHair">Optionally hide the hair (for helm/body)</param>
         public static void SetVisualPrefab(Item item, Transform newVisuals, VisualPrefabType type, Vector3 positionOffset, Vector3 rotationOffset, bool? hideFace = null, bool? hideHair = null)
         {
             var basePrefab = GameObject.Instantiate(GetItemVisuals(item, type).gameObject);
@@ -269,6 +285,7 @@ namespace SideLoader
             return newVisuals;
         }
 
+        /// <summary>Try apply textures to an item from the specified directory 'texturesFolder'.</summary>
         public static void TryApplyCustomTextures(string texturesFolder, Item item)
         {
             if (Directory.Exists(texturesFolder))
@@ -339,7 +356,7 @@ namespace SideLoader
             return null;
         }
 
-        // In english: Match anything up to " (" 
+        // Match anything up to " (" 
         private static readonly Regex materialRegex = new Regex(@".+?(?= \()");
 
         /// <summary>
@@ -354,6 +371,7 @@ namespace SideLoader
         /// INTERNAL. For applying textures to an item from a given directory.
         /// </summary>
         /// <param name="dir">Full path relative to Outward folder.</param>
+        /// <param name="item">The item to apply to.</param>
         private static void ApplyTexturesFromFolder(string dir, Item item)
         {
             // Check for normal item icon
@@ -484,6 +502,7 @@ namespace SideLoader
         /// <summary>
         /// Saves textures from an Item to a directory.
         /// </summary>
+        /// <param name="item"></param>
         /// <param name="dir">Full path, relative to Outward folder</param>
         public static void SaveAllItemTextures(Item item, string dir)
         {

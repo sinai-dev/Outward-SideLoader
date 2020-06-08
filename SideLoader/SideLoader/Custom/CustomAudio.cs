@@ -9,10 +9,13 @@ using UnityEngine.Networking;
 
 namespace SideLoader
 {
+    /// <summary>Helper class used to manage custom Audio/Music, and replacements.</summary>
     public class CustomAudio
     {
+        /// <summary>The GlobalAudioManager Instance reference (since its not public)</summary>
         public static GlobalAudioManager GAMInstance;
 
+        /// <summary>Replace a global sound with the provided AudioClip.</summary>
         public static void ReplaceAudio(GlobalAudioManager.Sounds sound, AudioClip clip)
         {
             if (GAMInstance == null)
@@ -54,6 +57,7 @@ namespace SideLoader
             Debug.Log("Replaced " + _sound + " AudioSource with new clip!");
         }
 
+        /// <summary>Coroutine used to load an AudioClip.</summary>
         public static IEnumerator LoadClip(string path, SLPack pack = null)
         {
             var fullPath = @"file://" + Path.GetFullPath(path);

@@ -99,7 +99,7 @@ namespace SideLoader
 		/// <param name="_position">The spawn position for the character.</param>
 		/// <param name="_UID">The UID for the character.</param>
 		/// <param name="_name">The Name of your custom character.</param>
-		/// <param name="spawnCallbackUID">Optional </param>
+		/// <param name="spawnCallbackUID">Optional custom UID for the spawn callback (checks against registered SL_Character template UIDs)</param>
 		/// <param name="addCombatAI">Whether to add basic combat AI to the character</param>
 		/// <param name="visualData">Optional visual data (network data). Use SL_Character.VisualData.ToString().</param>
 		/// <param name="extraRpcData">Optional extra RPC data to send with the spawn</param>

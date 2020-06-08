@@ -38,7 +38,6 @@ namespace SideLoader
         /// <summary>Invoked before packs are loaded and applied, but after ResouresPrefabManager is loaded.</summary>
         public static event Action BeforePacksLoaded;
         /// <summary>Only called once on startup. This will be after ResourcesPrefabManager is loaded, and all SLPacks are loaded and applied.</summary>
-        // note: the only reason these two are still a UnityAction is to not force a breaking change for no good reason. Might change to Action eventually.
         public static event UnityAction OnPacksLoaded;
         /// <summary>Use this to safely make changes to a scene when it is truly loaded. (All players loaded, gameplay may not yet be resumed).</summary>
         public static event UnityAction OnSceneLoaded;
@@ -267,7 +266,8 @@ namespace SideLoader
 
         // ==================== Internal / Misc ======================== //
 
-        /// <summary>Debug.Log with [SideLoader] prefix.</summary> <param name="errorLevel">-1 = Debug.Log, 0 = Debug.LogWarning, 1 = Debug.LogError</param>
+        /// <summary>Debug.Log with [SideLoader] prefix.</summary>
+        /// <param name="log"></param> <param name="errorLevel">-1 = Debug.Log, 0 = Debug.LogWarning, 1 = Debug.LogError</param>
         public static void Log(string log, int errorLevel = -1)
         {
             log = "[SideLoader] " + log;

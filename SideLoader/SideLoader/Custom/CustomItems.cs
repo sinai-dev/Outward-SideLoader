@@ -236,6 +236,7 @@ namespace SideLoader
         /// Returns the game's actual Tag for the string you provide, if it exists.
         /// </summary>
         /// <param name="TagName">Eg "Food", "Blade", etc...</param>
+        /// <param name="logging"></param>
         /// <returns></returns>
         public static Tag GetTag(string TagName, bool logging = true)
         {
@@ -312,6 +313,7 @@ namespace SideLoader
         // ================ OTHER ================ //
 
         /// <summary> Small helper for destroying all children on a given Transform 't'. Uses DestroyImmediate(). </summary>
+        /// <param name="t"></param>
         /// <param name="destroyContent">If true, will destroy children called "Content" (used for Bags)</param>
         public static void DestroyChildren(Transform t, bool destroyContent = false)
         {
