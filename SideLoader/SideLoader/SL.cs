@@ -153,6 +153,8 @@ namespace SideLoader
 
             //// *********************************** temp debug ***********************************
 
+            //// I use this to generate the "Types" xml resources.
+
             //foreach (var type in Serializer.Types.Where(x => !x.IsAbstract))
             //{
             //    Serializer.SaveToXml(GENERATED_FOLDER + @"\Types", type.Name, Activator.CreateInstance(type));

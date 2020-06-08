@@ -260,23 +260,46 @@ namespace SideLoader
 
 			SetupBasicAIPrefab();
 
-			SL.OnSceneLoaded += SL_OnSceneLoaded;
-			SceneManager.sceneUnloaded += SceneManager_sceneUnloaded;
+			// I use this simple event for the cleanup, it's convenient for this.
+            SceneManager.sceneUnloaded += SceneManager_sceneUnloaded;
 		}
 
-		// Scene LOADED (apply spawns)
-		private void SL_OnSceneLoaded()
+        private void SceneManager_sceneUnloaded(Scene scene)
         {
-			SL.TryInvoke(INTERNAL_SpawnCharacters);
+			if (IsRealScene(scene))
+            {
+				//SL.Log("Scene unloading - removing instantiated characters!");
+
+				foreach (var character in ActiveCharacters)
+				{
+					DestroyCharacterRPC(character);
+				}
+			}
 		}
 
-		// Scene UNLOADED (Cleanup)
-		private void SceneManager_sceneUnloaded(Scene arg0)
-		{
-			foreach (var character in ActiveCharacters)
-			{
-				DestroyCharacterRPC(character);
+		// This harmony patch is to sneak into when the game applies characters.
+		// I figure it's best to do it at the same time.
+        [HarmonyPatch(typeof(NetworkLevelLoader), "MidLoadLevel")]
+		public class NetworkLevelLoader_MidLoadLevel
+        {
+			[HarmonyPostfix]
+			public static void Postfix()
+            {
+				var scene = SceneManager.GetActiveScene();
+				if (IsRealScene(scene))
+				{
+					SL.Log($"Spawning characters ({scene.name})");
+
+					SL.TryInvoke(INTERNAL_SpawnCharacters);
+				}
 			}
+        }
+
+		private static bool IsRealScene(Scene scene)
+        {
+			var name = scene.name.ToLower();
+
+			return !(name.Contains("lowmemory") || name.Contains("mainmenu"));
 		}
 
 		/// <summary>
