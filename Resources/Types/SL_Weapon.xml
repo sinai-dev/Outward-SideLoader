@@ -60,7 +60,7 @@
   <VisualDetectabilityAdd xsi:nil="true" />
   <WeaponType xsi:nil="true" />
   <Unblockable xsi:nil="true" />
-  <SwingSound>Default</SwingSound>
+  <SwingSound xsi:nil="true" />
   <SpecialIsZoom xsi:nil="true" />
   <MaxProjectileShots xsi:nil="true" />
 </SL_Weapon>

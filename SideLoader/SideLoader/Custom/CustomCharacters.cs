@@ -21,6 +21,25 @@ namespace SideLoader
 
 		private static readonly List<Character> ActiveCharacters = new List<Character>();
 
+		public static event Action INTERNAL_SpawnCharacters;
+
+		/// <summary>
+		/// Key: Spawn callback UID (generally template UID), Value: SL_Character with OnSpawn event to invoke
+		/// </summary>
+		public static Dictionary<string, SL_Character> OnSpawnCallbacks = new Dictionary<string, SL_Character>();
+
+		// ======== harmony patches =========
+
+		// Just catches a harmless null ref exception, hiding it until I figure out a cleaner fix
+		[HarmonyPatch(typeof(Character), "ProcessOnEnable")]
+		public class Character_ProcessOnEnable
+        {
+			[HarmonyFinalizer]
+			public static Exception Finalizer()
+            {
+				return null;
+            }
+        }
 
 		// ======================== PUBLIC HELPERS ======================== //
 
@@ -34,27 +53,63 @@ namespace SideLoader
 		}
 
 		/// <summary>
-		/// Helper to create a generic Character. Using this method will call the character "SL_Character".
+		/// Spawns a custom character and applies the template. Optionally provide a manual spawn position and Character UID.
+		/// The OnSpawn callback is based on the Template UID. You should have already called template.Prepare() before calling this.
 		/// </summary>
-		/// <param name="_position">The spawn position for the character.</param>
-		/// <param name="_UID">The UID for the character. Use UID.Generate() and keep track of the UID!</param>
-		/// <returns>Your custom character (instantly for Host)</returns>
-		public static GameObject CreateCharacter(Vector3 _position, string _UID)
-		{
-			return CreateCharacter(_position, _UID, "SL_Character");
+		/// <param name="template">The SL_Character template containing most of the main information</param>
+		/// <param name="position">Optional manual spawn position, otherwise just provide the template.SpawnPosition</param>
+		/// <param name="characterUID">Optional manual character UID, if dynamically spawning multiple from one template.</param>
+		/// <param name="extraRpcData">Optional extra RPC data to send with the spawn.</param>
+		/// <returns></returns>
+		public static Character CreateCharacter(SL_Character template, Vector3 position, string characterUID = null, string extraRpcData = null)
+        {
+			characterUID = characterUID ?? template.UID;
+
+			var character = CreateCharacter(
+				position, 
+				characterUID, 
+				template.Name, 
+				template.CharacterVisualsData?.ToString(), 
+				template.AddCombatAI, 
+				template.UID,
+				extraRpcData
+			).GetComponent<Character>();
+
+			return character;
 		}
 
 		/// <summary>
-		/// Helper to create a generic Character. This method allows you to name the character too.
+		/// Simple helper to create a generic character without any template.
+		/// </summary>
+		/// <param name="pos">The spawn position for the character.</param>
+		/// <param name="uid">The UID for the character.</param>
+		/// <param name="name">Name for the character.</param>
+		/// <param name="addCombatAI">Whether to add a generic combat AI to the character</param>
+		/// <param name="extraRpcData">Optional extra RPC data to send.</param>
+		/// <returns>Your custom character (instantly for Host)</returns>
+		public static GameObject CreateCharacter(Vector3 pos, string uid, string name = "SL_Character", bool addCombatAI = false, string extraRpcData = null)
+		{
+			return CreateCharacter(pos, uid, name, null, addCombatAI, uid, extraRpcData);
+		}
+
+		/// <summary>
+		/// Instantiates a new human character with the attributes provided. Only one client should call this.
+		/// This is the main CreateCharacter method, called by the other CreateCharacter methods.
 		/// </summary>
 		/// <param name="_position">The spawn position for the character.</param>
-		/// <param name="_UID">The UID for the character. Use UID.Generate() and keep track of the UID!</param>
+		/// <param name="_UID">The UID for the character.</param>
 		/// <param name="_name">The Name of your custom character.</param>
-		/// <returns>Your custom character (instantly for Host)</returns>
-		public static GameObject CreateCharacter(Vector3 _position, string _UID, string _name)
+		/// <param name="spawnCallbackUID">Optional </param>
+		/// <param name="addCombatAI">Whether to add basic combat AI to the character</param>
+		/// <param name="visualData">Optional visual data (network data). Use SL_Character.VisualData.ToString().</param>
+		/// <param name="extraRpcData">Optional extra RPC data to send with the spawn</param>
+		/// <returns>The custom character (instantly for executing client)</returns>
+		public static GameObject CreateCharacter(Vector3 _position, string _UID, string _name, string visualData = null, bool addCombatAI = false, string spawnCallbackUID = null, string extraRpcData = null)
 		{
+			SL.Log($"Spawning character '{_name}', _UID: {_UID}, spawnCallbackUID: {spawnCallbackUID}");
+
 			// setup Player Prefab
-			var playerPrefab = PhotonNetwork.InstantiateSceneObject("_characters/NewPlayerPrefab", _position, Quaternion.identity, 0, new object[]
+			var prefab = PhotonNetwork.InstantiateSceneObject("_characters/NewPlayerPrefab", _position, Quaternion.identity, 0, new object[]
 			{
 				(int)CharacterManager.CharacterInstantiationTypes.Temporary,
 				"NewPlayerPrefab",
@@ -62,13 +117,105 @@ namespace SideLoader
 				string.Empty // dont send a creator UID, otherwise it links the current summon (used by Conjure Ghost)
 			});
 
-			playerPrefab.SetActive(false);
+			prefab.SetActive(false);
 
-			FixStats(playerPrefab.GetComponent<Character>());
+			var character = prefab.GetComponent<Character>();
 
-			RPCManager.Instance.photonView.RPC("RPCSpawnCharacter", PhotonTargets.All, _UID, PhotonNetwork.AllocateSceneViewID(), _name);
+			//At.SetValue(new UID(_UID), typeof(Character), character, "m_uid");
+			character.SetUID(_UID);
 
-			return playerPrefab;
+			//FixStats(prefab.GetComponent<Character>());
+
+			var view = PhotonNetwork.AllocateSceneViewID();
+
+			if (string.IsNullOrEmpty(spawnCallbackUID))
+            {
+				spawnCallbackUID = _UID;
+            }
+
+			prefab.SetActive(true);
+
+			RPCManager.Instance.SpawnCharacter(_UID, view, _name, visualData, addCombatAI, spawnCallbackUID, extraRpcData);
+
+			return prefab;
+		}
+
+		/// <summary>
+		/// INTERNAL. Coroutine that executes locally for all clients to spawn a Character (continues directly from CreateCharacter)
+		/// </summary>
+		public static IEnumerator SpawnCharacterCoroutine(string charUID, int viewID, string name, string visualData, bool addCombatAI, string spawnCallbackUID, string extraRpcData)
+		{
+			// get character from manager
+			Character character = CharacterManager.Instance.GetCharacter(charUID);
+			while (!character)
+			{
+				yield return null;
+				character = CharacterManager.Instance.GetCharacter(charUID);
+			}
+
+			// add to cache list
+			AddActiveCharacter(character);
+
+			if (string.IsNullOrEmpty(name))
+			{
+				name = "SL_Character";
+			}
+
+			// set name
+			character.name = $"{name}_{charUID}";
+
+			if (!string.IsNullOrEmpty(visualData))
+			{
+				Instance.StartCoroutine(SL_Character.SetVisuals(character, visualData));
+			}
+
+			if (addCombatAI)
+			{
+				SetupBasicAI(character);
+			}
+
+			// invoke OnSpawn callback
+			if (OnSpawnCallbacks.ContainsKey(spawnCallbackUID))
+			{
+				var template = OnSpawnCallbacks[spawnCallbackUID];
+
+				template.INTERNAL_OnSpawn(character, extraRpcData);
+			}
+
+			character.gameObject.SetActive(true);
+
+			// fix Photon View component
+			if (character.gameObject.GetPhotonView() is PhotonView view)
+			{
+				int id = view.viewID;
+				DestroyImmediate(view);
+
+				if (id > 0)
+				{
+					PhotonNetwork.UnAllocateViewID(view.viewID);
+				}
+			}
+
+			// setup new view
+			var pView = character.gameObject.AddComponent<PhotonView>();
+			pView.viewID = viewID;
+			pView.onSerializeTransformOption = OnSerializeTransform.PositionAndRotation;
+			pView.onSerializeRigidBodyOption = OnSerializeRigidBody.All;
+			pView.synchronization = ViewSynchronization.Unreliable;
+
+			// fix photonview serialization components
+			if (pView.ObservedComponents == null || pView.ObservedComponents.Count < 1)
+			{
+				pView.ObservedComponents = new List<Component>()
+				{
+					character
+				};
+			}
+
+			yield return new WaitForSeconds(0.5f);
+
+			character.gameObject.SetActive(false);
+			character.gameObject.SetActive(true);
 		}
 
 		/// <summary>
@@ -76,6 +223,12 @@ namespace SideLoader
 		/// </summary>
 		public static CharacterAI SetupBasicAI(Character _char)
 		{
+			if (_char.GetComponent<CharacterAI>() is CharacterAI comp)
+            {
+				SL.Log($"This character '{_char.Name}' is already a CharacterAI!");
+				return comp;
+            }
+
 			// add required components for AIs (no setup required)
 			_char.gameObject.AddComponent<NavMeshAgent>();
 			_char.gameObject.AddComponent<AISquadMember>();
@@ -100,6 +253,31 @@ namespace SideLoader
 
 
 		// ======================== INTERNAL ======================== //
+
+		internal void Awake()
+        {
+            Instance = this;
+
+			SetupBasicAIPrefab();
+
+			SL.OnSceneLoaded += SL_OnSceneLoaded;
+			SceneManager.sceneUnloaded += SceneManager_sceneUnloaded;
+		}
+
+		// Scene LOADED (apply spawns)
+		private void SL_OnSceneLoaded()
+        {
+			SL.TryInvoke(INTERNAL_SpawnCharacters);
+		}
+
+		// Scene UNLOADED (Cleanup)
+		private void SceneManager_sceneUnloaded(Scene arg0)
+		{
+			foreach (var character in ActiveCharacters)
+			{
+				DestroyCharacterRPC(character);
+			}
+		}
 
 		/// <summary>
 		/// Used INTERNALLY to destroy a Character locally. Do not call this to destroy a character.
@@ -128,78 +306,25 @@ namespace SideLoader
 			}
 		}
 
-		internal void Awake()
-        {
-            Instance = this;
-
-			SetupBasicAIPrefab();
-
-			SceneManager.sceneUnloaded += SceneManager_sceneUnloaded;
-		}
-
-		private void SceneManager_sceneUnloaded(Scene arg0)
-		{
-			foreach (var character in ActiveCharacters)
-			{
-				DestroyCharacterRPC(character);
-			}
-		}
-
 		/// <summary>
 		/// Removes PlayerCharacterStats and replaces with CharacterStats
 		/// </summary>
-		private static void FixStats(Character character)
+		public static void FixStats(Character character)
 		{
 			// remove PlayerCharacterStats
-			var pStats = character.GetComponent<PlayerCharacterStats>();
-			pStats.enabled = false;
-			GameObject.DestroyImmediate(pStats);
-
+			if (character.GetComponent<PlayerCharacterStats>() is PlayerCharacterStats pStats)
+			{
+				pStats.enabled = false;
+				DestroyImmediate(pStats);
+				if (character.GetComponent<PlayerCharacterStats>())
+				{
+					Destroy(pStats);
+				}
+			}
 			// add new CharacterStats
 			var newStats = character.gameObject.AddComponent<CharacterStats>();
 			At.SetValue(newStats, typeof(Character), character, "m_characterStats");
 			SetupBlankCharacterStats(newStats);
-		}
-
-		/// <summary>
-		/// INTERNAL. Coroutine that executes locally for all clients to spawn a Character.
-		/// </summary>
-		public static IEnumerator SpawnCharacterCoroutine(string charUID, int viewID, string name)
-		{
-			// get character from manager
-			Character character = CharacterManager.Instance.GetCharacter(charUID);
-			while (character == null)
-			{
-				character = CharacterManager.Instance.GetCharacter(charUID);
-				yield return null;
-			}
-
-			// add to cache list
-			AddActiveCharacter(character);
-
-			// set name
-			character.name = $"{name}_{charUID}";
-			At.SetValue("", typeof(Character), character, "m_nameLocKey");
-			At.SetValue(name, typeof(Character), character, "m_name");
-
-			// fix stats for non-hosts
-			if (PhotonNetwork.isNonMasterClientInRoom && character.gameObject.GetComponent<PlayerCharacterStats>())
-			{
-				FixStats(character);
-			}
-
-			// fix Photon View component
-			if (character.gameObject.GetPhotonView() is PhotonView view)
-			{
-				DestroyImmediate(view);
-			}
-			var pView = character.gameObject.AddComponent<PhotonView>();
-			pView.viewID = viewID;
-			pView.onSerializeTransformOption = OnSerializeTransform.PositionAndRotation;
-			pView.onSerializeRigidBodyOption = OnSerializeRigidBody.All;
-			pView.synchronization = ViewSynchronization.Unreliable;
-
-			//character.gameObject.SetActive(true);
 		}
 		
 

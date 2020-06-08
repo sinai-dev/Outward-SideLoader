@@ -31,11 +31,13 @@ namespace SideLoader
         public Dictionary<string, Texture2D> Texture2D = new Dictionary<string, Texture2D>();
         public Dictionary<string, AudioClip> AudioClips = new Dictionary<string, AudioClip>();
 
+        public Dictionary<string, SL_Character> CharacterTemplates = new Dictionary<string, SL_Character>();
+
         public enum SubFolders
         {
             AudioClip,
             AssetBundles,
-            //Characters, // todo
+            Characters,
             Items,
             Recipes,
             StatusEffects,
@@ -83,6 +85,9 @@ namespace SideLoader
 
             // Custom Recipes
             pack.LoadRecipes();
+
+            // Character spawn callbacks
+            pack.LoadCharacters();
 
             return pack;
         }
@@ -282,12 +287,14 @@ namespace SideLoader
 
         private void LoadRecipes()
         {
-            if (!Directory.Exists(GetSubfolderPath(SubFolders.Recipes)))
+            var path = GetSubfolderPath(SubFolders.Recipes);
+
+            if (!Directory.Exists(path))
             {
                 return;
             }
 
-            foreach (var recipePath in Directory.GetFiles(GetSubfolderPath(SubFolders.Recipes)))
+            foreach (var recipePath in Directory.GetFiles(path))
             {
                 if (Serializer.LoadFromXml(recipePath) is SL_Recipe recipeHolder)
                 {
@@ -296,8 +303,27 @@ namespace SideLoader
             }
         }
 
-        // legacy support
+        private void LoadCharacters()
+        {
+            var path = GetSubfolderPath(SubFolders.Characters);
 
+            if (!Directory.Exists(path))
+            {
+                return;
+            }
+
+            foreach (var filePath in Directory.GetFiles(path))
+            {
+                if (Serializer.LoadFromXml(filePath) is SL_Character template)
+                {
+                    CharacterTemplates.Add(template.UID, template);
+
+                    template.Prepare();
+                }
+            }
+        }
+
+        // legacy support
         [Obsolete("Use SLPack.FolderPath instead.")]
         public string FullDirectory { get => FolderPath; }
     }

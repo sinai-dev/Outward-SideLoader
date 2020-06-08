@@ -23,7 +23,7 @@ namespace SideLoader
         // Mod Info
         public const string GUID = "com.sinai." + MODNAME;
         public const string MODNAME = "SideLoader";
-        public const string VERSION = "2.2.0";
+        public const string VERSION = "2.3.0";
 
         // Folders
         public static string PLUGINS_FOLDER => Paths.PluginPath;
@@ -161,7 +161,7 @@ namespace SideLoader
             //// **********************************************************************************
         }
 
-        private void TryInvoke(MulticastDelegate _delegate)
+        public static void TryInvoke(MulticastDelegate _delegate, params object[] args)
         {
             if (_delegate != null)
             {
@@ -169,7 +169,7 @@ namespace SideLoader
                 {
                     try
                     {
-                        action.DynamicInvoke();
+                        action.DynamicInvoke(args);
                     }
                     catch (Exception e)
                     {

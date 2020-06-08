@@ -166,8 +166,8 @@ namespace SideLoader
             var list = new List<StatusData.EffectData>();
 
             // Get and Set the Effects list
-            var effects = signature.GetComponentsInChildren<Effect>();
-            signature.Effects = effects?.ToList();
+            var effects = signature.GetComponentsInChildren<Effect>()?.ToList() ?? new List<Effect>();
+            signature.Effects = effects;
 
             // Iterate over the effects
             foreach (var effect in effects)

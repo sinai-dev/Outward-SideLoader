@@ -35,7 +35,6 @@
   <Cold_Protection xsi:nil="true" />
   <Corruption_Protection xsi:nil="true" />
   <AttackSpeed xsi:nil="true" />
-  <BaseDamage />
   <Impact xsi:nil="true" />
   <StamCost xsi:nil="true" />
   <AutoGenerateAttackData>false</AutoGenerateAttackData>
