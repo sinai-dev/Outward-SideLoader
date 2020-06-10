@@ -8,10 +8,9 @@ using System.Xml.Serialization;
 
 namespace SideLoader
 {
+    [SL_Serialized]
     public class SL_Item
     {
-        /*************           Settings (not true Item values)          *************/
-
         /// <summary> [NOT SERIALIZED] The name of the SLPack this custom item template comes from (or is using).
         /// If defining from C#, you can set this to the name of the pack you want to load assets from.</summary>
         [XmlIgnore]
@@ -20,19 +19,11 @@ namespace SideLoader
         [XmlIgnore]
         public string SubfolderName;
 
-        /// <summary><list type="bullet">
-        /// <item>NONE (default): Your effects are added on top of the existing ones.</item>
-        /// <item>DestroyEffects: Destroys all child GameObjects on your item, except for "Content" (used for Bags)</item>
-        /// <item>OverrideEffects: Only destroys child GameObjects if you have defined one of the same name.</item></list>
-        /// </summary>
-        public TemplateBehaviour EffectBehaviour = TemplateBehaviour.NONE;
-
         /// <summary>The Item ID of the Item you are cloning FROM</summary>
         public int Target_ItemID = -1;
         /// <summary>The NEW Item ID for your custom Item (can be the same as target, will overwrite)</summary>
         public int New_ItemID = -1;
 
-        /*************                   Actual Item values                  *************/
         public string Name = null;
         public string Description = null;
 
@@ -58,6 +49,13 @@ namespace SideLoader
         public List<string> Tags = new List<string>();
 
         public SL_ItemStats StatsHolder;
+
+        /// <summary><list type="bullet">
+        /// <item>NONE: Your effects are added on top of the existing ones.</item>
+        /// <item>DestroyEffects: Destroys all child GameObjects on your item, except for "Content" (used for Bags)</item>
+        /// <item>OverrideEffects (default): Only destroys child GameObjects if you have defined one of the same name.</item></list>
+        /// </summary>
+        public EffectBehaviours EffectBehaviour = EffectBehaviours.OverrideEffects;
 
         public List<SL_EffectTransform> EffectTransforms = new List<SL_EffectTransform>();
 
@@ -92,38 +90,16 @@ namespace SideLoader
 
             SL.Log("Applying Item Template. ID: " + New_ItemID + ", Name: " + (Name ?? item.Name));
 
+            ApplyToItem(item);
+        }
+
+        public virtual void ApplyToItem(Item item)
+        {
             SLPack pack = null;
             if (!string.IsNullOrEmpty(SLPackName) && SL.Packs.ContainsKey(SLPackName))
             {
                 pack = SL.Packs[SLPackName];
             }
-
-            // obsolete checks
-            #region Obsolete Checks
-            if (this.Behaviour != TemplateBehaviour.NONE)
-            {
-                SL.Log("SL_Item.Behaviour is obsolete, use SL_Item.EffectBehaviour instead!");
-                this.EffectBehaviour = this.Behaviour;
-            }
-            if (EffectBehaviour == TemplateBehaviour.OnlyChangeVisuals)
-            {
-                EffectBehaviour = TemplateBehaviour.NONE;
-                SL.Log("TemplateBehaviour.OnlyChangeVisuals is deprecated, use \"NONE\" instead, and remove other fields from your template.");
-            }
-            if (EffectBehaviour == TemplateBehaviour.NONE)
-            {
-                if (OnlyChangeVisuals)
-                {
-                    SL.Log("SL_Item.OnlyChangeVisuals is deprecated - just exclude fields from the template if you don't want to change them.");
-                    EffectBehaviour = TemplateBehaviour.NONE;
-                }
-                else if (ReplaceEffects)
-                {
-                    SL.Log("SL_Item.ReplaceEffects is deprecated - use SL_Item.EffectBehaviour instead!");
-                    EffectBehaviour = TemplateBehaviour.DestroyEffects;
-                }
-            }
-            #endregion
 
             CustomItems.SetNameAndDescription(item, this.Name ?? item.Name, this.Description ?? item.Description);
 
@@ -176,50 +152,19 @@ namespace SideLoader
 
             if (this.StatsHolder != null)
             {
-                ItemStats stats;
-                if (!item.GetComponent<ItemStats>())
+                var stats = item.GetComponent<ItemStats>();
+                if (!stats)
                 {
-                    stats = item.gameObject.AddComponent<ItemStats>();
-                }
-                else
-                {
-                    stats = item.GetComponent<ItemStats>();
+                    var gameType = Serializer.GetGameType(this.StatsHolder.GetType());
+                    stats = (ItemStats)item.gameObject.AddComponent(gameType);
                 }
 
                 StatsHolder.ApplyToItem(stats);
             }
 
-            if (EffectBehaviour == TemplateBehaviour.DestroyEffects)
-            {
-                Debug.Log("Replacing effects (destroying children)");
-                CustomItems.DestroyChildren(item.transform);
-            }
-
             if (this.EffectTransforms != null && this.EffectTransforms.Count > 0)
             {
-                foreach (var effectsT in this.EffectTransforms)
-                {
-                    if (EffectBehaviour == TemplateBehaviour.OverrideEffects && item.transform.Find(effectsT.TransformName) is Transform existing)
-                    {
-                        Debug.Log("Overriding transform " + existing.name + " (destroying orig)");
-                        UnityEngine.Object.DestroyImmediate(existing.gameObject);
-                    }
-
-                    effectsT.ApplyToTransform(item.transform);
-                }
-            }
-
-            if (this is SL_Equipment equipmentHolder)
-            {
-                equipmentHolder.ApplyToItem(item as Equipment);
-            }
-            else if (this is SL_Skill skillHolder)
-            {
-                skillHolder.ApplyToItem(item as Skill);
-            }
-            else if (this is SL_RecipeItem recipeItem)
-            {
-                recipeItem.ApplyToItem(item as RecipeItem);
+                SL_EffectTransform.ApplyTransformList(item.transform, this.EffectTransforms, this.EffectBehaviour);
             }
 
             //************************  This will need to change after DLC.  ************************//
@@ -227,12 +172,6 @@ namespace SideLoader
             ApplyVisuals(pack, item);
 
             // **************************************************************************************//
-
-            if (item is Weapon weapon && weapon.GetComponent<WeaponStats>() is WeaponStats wStats)
-            {
-                At.SetValue(wStats.BaseDamage.Clone(), typeof(Weapon), weapon, "m_baseDamage");
-                At.SetValue(wStats.BaseDamage.Clone(), typeof(Weapon), weapon, "m_activeBaseDamage");
-            }
         }
 
         private void ApplyVisuals(SLPack pack, Item item)
@@ -326,41 +265,61 @@ namespace SideLoader
 
         // ***********************  FOR SERIALIZING AN ITEM INTO A TEMPLATE  *********************** //
 
+        private static Type GetBestSLType(Type type)
+        {
+            if (Serializer.GetSLType(type, false) is Type slType)
+            {
+                return slType;
+            }
+            else
+            {
+                return GetBestSLType(type.BaseType);
+            }
+        }
+
         public static SL_Item ParseItemToTemplate(Item item)
         {
             SL.Log("Parsing item to template: " + item.Name);
 
-            var itemHolder = new SL_Item
-            {
-                Name                        = item.Name,
-                Description                 = item.Description,
-                Target_ItemID               = item.ItemID,
-                LegacyItemID                = item.LegacyItemID,
-                CastLocomotionEnabled       = item.CastLocomotionEnabled,
-                CastModifier                = item.CastModifier,
-                CastSheatheRequired         = item.CastSheathRequired,
-                GroupItemInDisplay          = item.GroupItemInDisplay,
-                HasPhysicsWhenWorld         = item.HasPhysicsWhenWorld,
-                IsPickable                  = item.IsPickable,
-                IsUsable                    = item.IsUsable,
-                QtyRemovedOnUse             = item.QtyRemovedOnUse,
-                MobileCastMovementMult      = item.MobileCastMovementMult,
-                RepairedInRest              = item.RepairedInRest,
-                BehaviorOnNoDurability      = item.BehaviorOnNoDurability                
-            };
+            var type = GetBestSLType(item.GetType());
 
-            itemHolder.CastType = (Character.SpellCastType)At.GetValue(typeof(Item), item, "m_activateEffectAnimType");
+            var holder = (SL_Item)Activator.CreateInstance(type);
+
+            holder.SerializeItem(item, holder);
+
+            return holder;
+        }
+
+        public virtual void SerializeItem(Item item, SL_Item holder)
+        {
+            holder.Name = item.Name;
+            holder.Description = item.Description;
+            holder.Target_ItemID = item.ItemID;
+            holder.LegacyItemID = item.LegacyItemID;
+            holder.CastLocomotionEnabled = item.CastLocomotionEnabled;
+            holder.CastModifier = item.CastModifier;
+            holder.CastSheatheRequired = item.CastSheathRequired;
+            holder.GroupItemInDisplay = item.GroupItemInDisplay;
+            holder.HasPhysicsWhenWorld = item.HasPhysicsWhenWorld;
+            holder.IsPickable = item.IsPickable;
+            holder.IsUsable = item.IsUsable;
+            holder.QtyRemovedOnUse = item.QtyRemovedOnUse;
+            holder.MobileCastMovementMult = item.MobileCastMovementMult;
+            holder.RepairedInRest = item.RepairedInRest;
+            holder.BehaviorOnNoDurability = item.BehaviorOnNoDurability;
+
+            holder.CastType = (Character.SpellCastType)At.GetValue(typeof(Item), item, "m_activateEffectAnimType");
 
             if (item.GetComponent<ItemStats>() is ItemStats stats)
             {
-                itemHolder.StatsHolder = SL_ItemStats.ParseItemStats(stats);
+                holder.StatsHolder = SL_ItemStats.ParseItemStats(stats);
             }
 
             if (item.Tags != null)
             {
                 foreach (Tag tag in item.Tags)
                 {
-                    itemHolder.Tags.Add(tag.TagName);
+                    holder.Tags.Add(tag.TagName);
                 }
             }
 
@@ -368,55 +327,11 @@ namespace SideLoader
             {
                 var effectsChild = SL_EffectTransform.ParseTransform(child);
 
-                if (effectsChild.ChildEffects.Count > 0 || effectsChild.Effects.Count > 0) // || effectsChild.EffectConditions.Count > 0)
+                if (effectsChild.ChildEffects.Count > 0 || effectsChild.Effects.Count > 0 || effectsChild.EffectConditions.Count > 0)
                 {
-                    itemHolder.EffectTransforms.Add(effectsChild);
+                    holder.EffectTransforms.Add(effectsChild);
                 }
             }
-
-            // Sub-Templates //
-            if (item is Equipment)
-            {
-                return SL_Equipment.ParseEquipment(item as Equipment, itemHolder);
-            }
-            else if (item is Skill)
-            {
-                return SL_Skill.ParseSkill(item as Skill, itemHolder);
-            }
-            else if (item is RecipeItem)
-            {
-                return SL_RecipeItem.ParseRecipeItem(item as RecipeItem, itemHolder);
-            }
-            else
-            {
-                return itemHolder;
-            }
         }
-
-        public enum TemplateBehaviour
-        {
-            NONE,
-            DestroyEffects,
-            OverrideEffects,
-            [Obsolete("Just exclude all other fields from the template if you don't want to change them.")] 
-            OnlyChangeVisuals,
-        }
-
-        // ******************* Legacy support *******************
-
-        [Obsolete("Use SL_Item.Behaviour instead.", false)]
-        public bool OnlyChangeVisuals = false;
-        [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
-        public bool ShouldSerializeOnlyChangeVisuals() { return false; }
-
-        [Obsolete("Use SL_Item.Behaviour instead.", false)]
-        public bool ReplaceEffects = false;
-        [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
-        public bool ShouldSerializeReplaceEffects() { return false; }
-
-        [Obsolete("Use Template.EffectBehaviour instead.")]
-        public TemplateBehaviour Behaviour = TemplateBehaviour.NONE;
-        [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
-        public bool ShouldSerializeBehaviour() { return false; }
     }
 }

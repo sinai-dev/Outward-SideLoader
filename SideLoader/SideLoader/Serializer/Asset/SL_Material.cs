@@ -7,6 +7,7 @@ using System.Xml.Serialization;
 
 namespace SideLoader
 {
+    [SL_Serialized]
     public class SL_Material
     {
         [XmlIgnore]
@@ -131,6 +132,7 @@ namespace SideLoader
             return holder;
         }
 
+        [SL_Serialized]
         public class TextureConfig
         {
             public string TextureName;
@@ -138,6 +140,7 @@ namespace SideLoader
             public float MipMapBias = 0;
         }
 
+        [SL_Serialized]
         public abstract class ShaderProperty
         {
             public string Name;

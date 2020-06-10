@@ -8,6 +8,7 @@ using System.IO;
 
 namespace SideLoader
 {
+    [SL_Serialized]
     public class SL_ImbueEffect
     {
         /// <summary> [NOT SERIALIZED] The name of the SLPack this custom item template comes from (or is using).
@@ -26,7 +27,7 @@ namespace SideLoader
         public string Name;
         public string Description;
 
-        public SL_Item.TemplateBehaviour EffectsBehaviour = SL_Item.TemplateBehaviour.OverrideEffects;
+        public EffectBehaviours EffectBehaviour = EffectBehaviours.OverrideEffects;
         public List<SL_EffectTransform> Effects;
 
         public void ApplyTemplate()
@@ -56,18 +57,7 @@ namespace SideLoader
 
             if (Effects != null)
             {
-                foreach (var effectTransform in Effects)
-                {
-                    if (EffectsBehaviour == SL_Item.TemplateBehaviour.OverrideEffects 
-                        && preset.transform.Find(effectTransform.TransformName) is Transform existing)
-                    {
-                        GameObject.DestroyImmediate(existing.gameObject);
-                        var newObj = new GameObject(effectTransform.TransformName);
-                        newObj.transform.parent = preset.transform;
-                    }
-
-                    effectTransform.ApplyToTransform(preset.transform);
-                }
+                SL_EffectTransform.ApplyTransformList(preset.transform, Effects, EffectBehaviour);
             }
         }
 

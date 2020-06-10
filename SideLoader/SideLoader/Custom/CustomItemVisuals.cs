@@ -335,7 +335,7 @@ namespace SideLoader
 
             var prefab = transforms[(int)type];
 
-            if (prefab != null)
+            if (prefab)
             {
                 var mats = new List<Material>();
 
@@ -448,7 +448,7 @@ namespace SideLoader
                 var prefabtype = (VisualPrefabType)i;
                 var mats = GetMaterials(item, prefabtype);
 
-                if (mats == null)
+                if (mats == null || mats.Length < 1)
                 {
                     continue;
                 }
@@ -511,12 +511,12 @@ namespace SideLoader
                 Directory.CreateDirectory(dir);
             }
 
-            if (item.ItemIcon != null)
+            if (item.ItemIcon)
             {
                 CustomTextures.SaveIconAsPNG(item.ItemIcon, dir, "icon");
             }
 
-            if (item is Skill skill && skill.SkillTreeIcon != null)
+            if (item is Skill skill && skill.SkillTreeIcon)
             {
                 CustomTextures.SaveIconAsPNG(skill.SkillTreeIcon, dir, "skillicon");
             }

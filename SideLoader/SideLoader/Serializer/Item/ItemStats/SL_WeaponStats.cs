@@ -16,55 +16,62 @@ namespace SideLoader
         public bool AutoGenerateAttackData;
         public WeaponStats.AttackData[] Attacks;
 
-        public void ApplyToItem(WeaponStats stats)
+        public override void ApplyToItem(ItemStats stats)
         {
+            base.ApplyToItem(stats);
+
+            var wStats = stats as WeaponStats;
+
             if (this.AttackSpeed != null)
             {
-                stats.AttackSpeed = (float)this.AttackSpeed;
+                wStats.AttackSpeed = (float)this.AttackSpeed;
             }
+
             if (this.Impact != null)
             {
-                stats.Impact = (float)this.Impact;
+                wStats.Impact = (float)this.Impact;
             }
+
             if (this.BaseDamage != null)
             {
-                stats.BaseDamage = SL_Damage.GetDamageList(this.BaseDamage);
+                wStats.BaseDamage = SL_Damage.GetDamageList(this.BaseDamage);
 
                 // fix for m_activeBaseDamage
-                var weapon = stats.GetComponent<Weapon>();
-                At.SetValue(stats.BaseDamage, typeof(Weapon), weapon, "m_activeBaseDamage");
+                var weapon = wStats.GetComponent<Weapon>();
+                At.SetValue(wStats.BaseDamage.Clone(), typeof(Weapon), weapon, "m_activeBaseDamage");
+                At.SetValue(wStats.BaseDamage.Clone(), typeof(Weapon), weapon, "m_baseDamage");
             }
+
             if (this.StamCost != null)
             {
-                stats.StamCost = (float)this.StamCost;
+                wStats.StamCost = (float)this.StamCost;
             }
 
             if (AutoGenerateAttackData || this.Attacks == null || this.Attacks.Length < 1)
             {
                 // SL.Log("Generating AttackData automatically");
-                stats.Attacks = GetScaledAttackData(stats.GetComponent<Weapon>());
+                wStats.Attacks = GetScaledAttackData(wStats.GetComponent<Weapon>());
             }
             else
             {
-                stats.Attacks = Attacks;
+                wStats.Attacks = Attacks;
             }
         }
 
-        public static SL_WeaponStats ParseWeaponStats(WeaponStats stats, SL_EquipmentStats equipmentStatsHolder)
+        public override void SerializeStats(ItemStats stats, SL_ItemStats holder)
         {
-            var weaponStatsHolder = new SL_WeaponStats
-            {
-                Attacks = stats.Attacks,
-                AttackSpeed = stats.AttackSpeed,
-                Impact = stats.Impact,
-                StamCost = stats.StamCost
-            };
+            base.SerializeStats(stats, holder);
 
-            weaponStatsHolder.BaseDamage = SL_Damage.ParseDamageList(stats.BaseDamage);
+            var template = holder as SL_WeaponStats;
 
-            At.CopyFieldValues(weaponStatsHolder, equipmentStatsHolder);
+            var wStats = stats as WeaponStats;
 
-            return weaponStatsHolder;
+            template.Attacks = wStats.Attacks;
+            template.AttackSpeed = wStats.AttackSpeed;
+            template.Impact = wStats.Impact;
+            template.StamCost = wStats.StamCost;
+
+            template.BaseDamage = SL_Damage.ParseDamageList(wStats.BaseDamage);
         }
 
         public static WeaponStats.AttackData[] GetScaledAttackData(Weapon weapon)

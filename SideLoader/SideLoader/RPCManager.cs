@@ -23,6 +23,9 @@ namespace SideLoader
             Debug.Log("Registered SideLoader RPCManager with view ID " + view.viewID);
         }
 
+        /// <summary>
+        /// Internal RPC call used by CustomCharacters.CreateCharacter. This is essentially a link to the CustomCharacters.SpawnCharacterCoroutine method.
+        /// </summary>
         public void SpawnCharacter(string charUID, int viewID, string name, string visualData, bool addCombatAI, string spawnCallbackUID, string extraRpcData)
         {
             //RPCSpawnCharacter(charUID, viewID, name, visualData, addCombatAI, spawnCallbackUID, extraRpcData);
@@ -35,6 +38,9 @@ namespace SideLoader
             StartCoroutine(CustomCharacters.SpawnCharacterCoroutine(charUID, viewID, name, visualData, addCombatAI, spawnCallbackUID, extraRpcData));
         }
 
+        /// <summary>
+        /// Internal RPC call used by CustomCharacters.DestroyCharacterRPC.
+        /// </summary>
         public void DestroyCharacter(string charUID)
         {
             photonView.RPC("RPCDestroyCharacter", PhotonTargets.All, new object[] { charUID });

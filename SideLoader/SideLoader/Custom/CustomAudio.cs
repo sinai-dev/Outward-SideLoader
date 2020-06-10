@@ -18,10 +18,10 @@ namespace SideLoader
         /// <summary>Replace a global sound with the provided AudioClip.</summary>
         public static void ReplaceAudio(GlobalAudioManager.Sounds sound, AudioClip clip)
         {
-            if (GAMInstance == null)
+            if (!GAMInstance)
             {
                 var list = Resources.FindObjectsOfTypeAll<GlobalAudioManager>();
-                if (list != null && list.Length > 0 && list[0] != null)
+                if (list != null && list.Length > 0 && list[0])
                 {
                     GAMInstance = list[0];                    
                 }
@@ -44,7 +44,7 @@ namespace SideLoader
 
         private static void GAM_ReplaceClip(GlobalAudioManager.Sounds _sound, AudioClip _newClip)
         {
-            if (_newClip == null)
+            if (!_newClip)
             {
                 Debug.LogWarning("The replacement clip for " + _sound.ToString() + " is null");
             }

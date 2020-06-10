@@ -30,7 +30,7 @@ namespace SideLoader
             var addStatusEffectBuildUp = effect as AddStatusEffectBuildUp;
             var addStatusEffectBuildupHolder = holder as SL_AddStatusEffectBuildUp;
 
-            if (addStatusEffectBuildUp.Status != null)
+            if (addStatusEffectBuildUp.Status)
             {
                 addStatusEffectBuildupHolder.StatusEffect = addStatusEffectBuildUp.Status.IdentifierName;
                 addStatusEffectBuildupHolder.Buildup = addStatusEffectBuildUp.BuildUpValue;

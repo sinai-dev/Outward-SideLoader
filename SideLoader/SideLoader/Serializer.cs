@@ -11,22 +11,156 @@ using System.Reflection;
 
 namespace SideLoader
 {
+    /// <summary>
+    /// Attribute used to mark a type that needs to be serialized by the Serializer.
+    /// Usage is to just put [SL_Serialized] on a base class. Derived classes will inherit it.
+    /// </summary>
+    [AttributeUsage(AttributeTargets.Class)]
+    public class SL_Serialized : Attribute { }
+
+    /// <summary>
+    /// Sideloader's serializer. Handles Xml serialization and deserialization for SideLoader's custom types.
+    /// </summary>
     public class Serializer
     {
-        private static Assembly SL_Assembly
+        /// <summary>
+        /// SideLoader.dll AppDomain reference.
+        /// </summary>
+        public static Assembly SL_Assembly
         {
             get
             {
-                if (m_assembly == null)
+                if (m_SLAssembly == null)
                 {
-                    m_assembly = Assembly.GetExecutingAssembly();
-                    // Debug.Log($"m_assembly: {m_assembly.FullName}");
+                    // We should be able to get it this way
+                    m_SLAssembly = Assembly.GetExecutingAssembly();
+
+                    // If for some reason it doesnt work (perhaps called by another mod from outside SideLoader.dll before SideLoader initializes?)
+                    if (!m_SLAssembly.FullName.Contains("SideLoader"))
+                    {
+                        m_SLAssembly = AppDomain.CurrentDomain.GetAssemblies().First(x => x.FullName.Contains("SideLoader"));
+                    }
                 }
-                return m_assembly;
+
+                return m_SLAssembly;
             }
         }
-        private static Assembly m_assembly;
 
+        private static Assembly m_SLAssembly; 
+        
+        /// <summary>
+        /// The Assembly-Csharp.dll AppDomain reference.
+        /// </summary>
+        public static Assembly Game_Assembly
+        {
+            get
+            {
+                if (m_gameAssembly == null)
+                {
+                    m_gameAssembly = AppDomain.CurrentDomain.GetAssemblies().First(x => x.FullName == m_gameAssemblyFullName);
+                }
+
+                return m_gameAssembly;
+            }
+        }
+
+        private const string m_gameAssemblyFullName = "Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null";
+        private static Assembly m_gameAssembly;
+
+        /// <summary>
+        /// List of SL_Type classes (types marked as SL_Serialized).
+        /// </summary>
+        public static Type[] SLTypes
+        {
+            get
+            {
+                if (m_slTypes == null || m_slTypes.Length < 1)
+                {
+                    var list = new List<Type>();
+                    foreach (var type in SL_Assembly.GetTypes())
+                    {
+                        // check if marked as SL_Serialized
+                        if (type.GetCustomAttributes(typeof(SL_Serialized), true).Length > 0)
+                        {
+                            list.Add(type);
+                        }
+                    }
+
+                    // add other types
+                    list.AddRange(new Type[]
+                    {
+                        typeof(WeaponStats.AttackData),
+                    });
+
+                    m_slTypes = list.ToArray();
+                }
+
+                return m_slTypes;
+            }
+        }
+
+        private static Type[] m_slTypes;
+
+
+        /// <summary>
+        /// Pass a Game Class type (eg, Item) and get the corresponding SideLoader class (eg, SL_Item).
+        /// </summary>
+        /// <param name="_gameType">Eg, typeof(Item)</param>
+        /// <param name="logging">If you want to log debug messages.</param>
+        public static Type GetSLType(Type _gameType, bool logging = true)
+        {
+            var name = $"SideLoader.SL_{_gameType.Name}";
+
+            Type t = null;
+            try
+            {
+                t = SL_Assembly.GetType(name);
+                if (t == null) throw new Exception("Null");
+            }
+            catch (Exception e)
+            {
+                if (logging)
+                {
+                    SL.Log($"Could not get SL_Assembly Type '{name}'", 0);
+                    SL.Log(e.Message, 0);
+                    SL.Log(e.StackTrace, 0);
+                }
+            }
+
+            return t;
+        }
+
+        /// <summary>
+        /// Pass a SideLoader Class type (eg, SL_Item) and get the corresponding Game class (eg, Item).
+        /// </summary>
+        /// <param name="_slType">Eg, typeof(SL_Item)</param>
+        /// <param name="logging">If you want to log debug messages.</param>
+        public static Type GetGameType(Type _slType, bool logging = true)
+        {
+            var name = _slType.Name.Substring(3, _slType.Name.Length - 3);
+
+            Type t = null;
+            try
+            {
+                t = Game_Assembly.GetType(name);
+                if (t == null) throw new Exception("Null");
+            }
+            catch (Exception e)
+            {
+                if (logging)
+                {
+                    SL.Log($"Could not get Game_Assembly Type '{name}'", 0);
+                    SL.Log(e.Message, 0);
+                    SL.Log(e.StackTrace, 0);
+                }
+            }
+
+            return t;
+        }
+
+        /// <summary>
+        /// Save an SL_Type object to xml.
+        /// </summary>
         public static void SaveToXml(string dir, string saveName, object obj)
         {
             if (!string.IsNullOrEmpty(dir))
@@ -37,7 +171,7 @@ namespace SideLoader
                 dir += "/";
             }
 
-            saveName = SL.ReplaceInvalidChars(saveName);
+            saveName = ReplaceInvalidChars(saveName);
 
             string path = dir + saveName + ".xml";
             if (File.Exists(path))
@@ -46,12 +180,15 @@ namespace SideLoader
                 File.Delete(path);
             }
 
-            XmlSerializer xml = new XmlSerializer(obj.GetType(), Types);
+            XmlSerializer xml = new XmlSerializer(obj.GetType(), SLTypes);
             FileStream file = File.Create(path);
             xml.Serialize(file, obj);
             file.Close();
         }
 
+        /// <summary>
+        /// Load an SL_Type object from XML.
+        /// </summary>
         public static object LoadFromXml(string path)
         {
             if (!File.Exists(path))
@@ -84,7 +221,7 @@ namespace SideLoader
 
             if (!string.IsNullOrEmpty(typeName) && SL_Assembly.GetType($"SideLoader.{typeName}") is Type type)
             {
-                XmlSerializer xml = new XmlSerializer(type, Types);
+                XmlSerializer xml = new XmlSerializer(type, SLTypes);
                 FileStream file = File.OpenRead(path);
                 var obj = xml.Deserialize(file);
                 file.Close();
@@ -97,45 +234,10 @@ namespace SideLoader
             }
         }
 
-        public static Type[] Types { get; } = new Type[]
+        /// <summary>Remove invalid filename characters from a string</summary>
+        public static string ReplaceInvalidChars(string s)
         {
-            typeof(SL_AddBoonEffect),
-            typeof(SL_AddStatusEffectBuildUp),
-            typeof(SL_AddStatusEffect),
-            typeof(SL_AffectBurntHealth),
-            typeof(SL_AffectBurntMana),
-            typeof(SL_AffectBurntStamina),
-            typeof(SL_AffectHealth),
-            typeof(SL_AffectHealthParentOwner),
-            typeof(SL_AffectMana),            
-            typeof(SL_AffectStability),
-            typeof(SL_AffectStamina),
-            typeof(SL_AffectStat),
-            typeof(SL_Bag),
-            typeof(SL_Character),
-            typeof(SL_Effect),
-            typeof(SL_EffectTransform),
-            typeof(SL_Equipment),
-            typeof(SL_EquipmentStats),
-            typeof(SL_ImbueWeapon),
-            typeof(SL_Item),
-            typeof(SL_ItemStats),
-            typeof(SL_Material),
-            typeof(SL_Material.FloatProp), 
-            typeof(SL_Material.ColorProp),
-            typeof(SL_Material.VectorProp),
-            typeof(SL_MultiItem),
-            typeof(SL_PunctualDamage),
-            typeof(SL_StatusEffect),
-            typeof(SL_ImbueEffect),
-            typeof(SL_Recipe),
-            typeof(SL_RemoveStatusEffect),
-            typeof(SL_Skill),            
-            typeof(Vector3),
-            typeof(SL_Weapon),
-            typeof(SL_WeaponStats),
-            typeof(WeaponStats.AttackData),
-            typeof(SL_WeaponDamage),
-        };
+            return string.Join("_", s.Split(Path.GetInvalidFileNameChars()));
+        }
     }
 }

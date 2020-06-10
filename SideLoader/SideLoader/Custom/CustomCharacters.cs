@@ -39,7 +39,25 @@ namespace SideLoader
             {
 				return null;
             }
-        }
+		}
+
+		// This harmony patch is to sneak into when the game applies characters.
+		// I figure it's best to do it at the same time.
+		[HarmonyPatch(typeof(NetworkLevelLoader), "MidLoadLevel")]
+		public class NetworkLevelLoader_MidLoadLevel
+		{
+			[HarmonyPostfix]
+			public static void Postfix()
+			{
+				var scene = SceneManager.GetActiveScene();
+				if (IsRealScene(scene))
+				{
+					SL.Log($"Spawning characters ({scene.name})");
+
+					SL.TryInvoke(INTERNAL_SpawnCharacters);
+				}
+			}
+		}
 
 		// ======================== PUBLIC HELPERS ======================== //
 
@@ -277,24 +295,6 @@ namespace SideLoader
 			}
 		}
 
-		// This harmony patch is to sneak into when the game applies characters.
-		// I figure it's best to do it at the same time.
-        [HarmonyPatch(typeof(NetworkLevelLoader), "MidLoadLevel")]
-		public class NetworkLevelLoader_MidLoadLevel
-        {
-			[HarmonyPostfix]
-			public static void Postfix()
-            {
-				var scene = SceneManager.GetActiveScene();
-				if (IsRealScene(scene))
-				{
-					SL.Log($"Spawning characters ({scene.name})");
-
-					SL.TryInvoke(INTERNAL_SpawnCharacters);
-				}
-			}
-        }
-
 		private static bool IsRealScene(Scene scene)
         {
 			var name = scene.name.ToLower();
@@ -303,7 +303,7 @@ namespace SideLoader
 		}
 
 		/// <summary>
-		/// Used INTERNALLY to destroy a Character locally. Do not call this to destroy a character.
+		/// Used internally to destroy a Character locally. Use DestroyCharacterRPC to cleanup a character.
 		/// </summary>
 		public static void DestroyCharacter(Character character)
 		{
@@ -319,7 +319,7 @@ namespace SideLoader
 		}
 
 		/// <summary>
-		/// Used INTERNALLY by this class. This is not how you create a new character.
+		/// Used internally by this class. Use CreateCharacter to create a new character.
 		/// </summary>
 		public static void AddActiveCharacter(Character character)
 		{

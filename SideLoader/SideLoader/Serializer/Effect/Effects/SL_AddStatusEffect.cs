@@ -27,7 +27,7 @@ namespace SideLoader
 
         public override void SerializeEffect<T>(T effect, SL_Effect holder)
         {
-            if ((effect as AddStatusEffect).Status != null)
+            if ((effect as AddStatusEffect).Status)
             {
                 (holder as SL_AddStatusEffect).StatusEffect = (effect as AddStatusEffect).Status.IdentifierName;
                 (holder as SL_AddStatusEffect).ChanceToContract = (effect as AddStatusEffect).BaseChancesToContract;

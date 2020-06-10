@@ -7,6 +7,7 @@ using System.Xml.Serialization;
 
 namespace SideLoader
 {
+    [SL_Serialized]
     public abstract class SL_Effect
     {
         public float Delay = 0f;
@@ -19,7 +20,7 @@ namespace SideLoader
         {
             var type = this.GetType();
 
-            if (GetGameEffect(type) is Type game_type)
+            if (Serializer.GetGameType(type) is Type game_type)
             {
                 var comp = t.gameObject.AddComponent(game_type) as Effect;
                 comp.Delay = this.Delay;
@@ -43,7 +44,7 @@ namespace SideLoader
         {
             var type = effect.GetType();
 
-            if (GetSLEffect(type) is Type sl_type)
+            if (Serializer.GetSLType(type) is Type sl_type)
             {
                 var holder = Activator.CreateInstance(sl_type) as SL_Effect;
                 holder.Delay = effect.Delay;
@@ -59,120 +60,5 @@ namespace SideLoader
                 return null;
             }
         }
-
-        // ================ Type match dictionary ================
-
-        /// <summary>
-        /// Pass a SL_Effect to get the associated game Effect class
-        /// </summary>
-        /// <param name="sl_type">The SL_Effect type</param>
-        /// <returns>The equivalent subclass of Effect</returns>
-        public static Type GetGameEffect(Type sl_type)
-        {
-            if (!sl_type.IsSubclassOf(typeof(SL_Effect)))
-            {
-                SL.Log("Error: This type does not inherit from SL_Effect! Invalid.", 1);
-                return null;
-            }
-
-            var entry = GameToSLEffect.First(x => x.Value == sl_type);
-            return entry.Key;
-        }
-
-        /// <summary>
-        /// Pass any "Effect" class to get the SL_Effect equivalent (if one exists)
-        /// </summary>
-        /// <param name="game_type">The Effect class to get the SL_Effect for</param>
-        /// <returns>The SL_Effect equivalent, or null if its not supported</returns>
-        public static Type GetSLEffect(Type game_type)
-        {
-            if (!game_type.IsSubclassOf(typeof(Effect)))
-            {
-                SL.Log("Error: This type does not inherit from Effect! Invalid.", 1);
-                return null;
-            }
-
-            try
-            {
-                return GameToSLEffect.First(x => x.Key == game_type).Value;
-            }
-            catch
-            {
-                //SL.Log("Error: this type is not yet serializable, sorry!", 1);
-                return null;
-            }
-        }
-
-        /// <summary>
-        /// Key: Game Effect (eg Effect)
-        /// Value: SL Effect (eg SL_Effect)
-        /// </summary>
-        public static Dictionary<Type, Type> GameToSLEffect = new Dictionary<Type, Type>()
-        {
-            {
-                typeof(PunctualDamage),
-                typeof(SL_PunctualDamage)
-            },
-            {
-                typeof(WeaponDamage),
-                typeof(SL_WeaponDamage)
-            },
-            {
-                typeof(AddStatusEffect),
-                typeof(SL_AddStatusEffect)
-            },
-            {
-                typeof(AddBoonEffect),
-                typeof(SL_AddBoonEffect)
-            },
-            {
-                typeof(AddStatusEffectBuildUp),
-                typeof(SL_AddStatusEffectBuildUp)
-            },
-            {
-                typeof(ImbueWeapon),
-                typeof(SL_ImbueWeapon)
-            },
-            {
-                typeof(RemoveStatusEffect),
-                typeof(SL_RemoveStatusEffect)
-            },
-            {
-                typeof(AffectStat),
-                typeof(SL_AffectStat)
-            },
-            {
-                typeof(AffectBurntHealth),
-                typeof(SL_AffectBurntHealth)
-            },
-            {
-                typeof(AffectBurntMana),
-                typeof(SL_AffectBurntMana)
-            },
-            {
-                typeof(AffectBurntStamina),
-                typeof(SL_AffectBurntStamina)
-            },
-            {
-                typeof(AffectHealth),
-                typeof(SL_AffectHealth)
-            },
-            {
-                typeof(AffectHealthParentOwner),
-                typeof(SL_AffectHealthParentOwner)
-            },
-            {
-                typeof(AffectMana),
-                typeof(SL_AffectMana)
-            },
-            {
-                typeof(AffectStability),
-                typeof(SL_AffectStability)
-            },
-            {
-                typeof(AffectStamina),
-                typeof(SL_AffectStamina)
-            }
-        };
     }
 }

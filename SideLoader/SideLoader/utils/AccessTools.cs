@@ -117,12 +117,12 @@ namespace SideLoader
             return ret;
         }
 
-        // Legacy At.Call support.
-        [Obsolete("Use the other At.Call instead (it has 5 arguments).")]
-        public static object Call(object obj, string method, params object[] args)
-        {
-            return Call(obj.GetType(), obj, method, null, args);
-        }
+        //// Legacy At.Call support.
+        //[Obsolete("Use the other At.Call instead (it has 5 arguments).")]
+        //public static object Call(object obj, string method, params object[] args)
+        //{
+        //    return Call(obj.GetType(), obj, method, null, args);
+        //}
 
         /// <summary>
         /// Helper to set a private property, if possible to set.

@@ -8,6 +8,7 @@ using System.Xml.Serialization;
 
 namespace SideLoader
 {
+    [SL_Serialized]
     public class SL_Character
     {
         /// <summary> This event will be executed locally by ALL clients via RPC. Use this for any custom local setup that you need.
@@ -98,7 +99,7 @@ namespace SideLoader
 
         /// <summary>
         /// Used internally for automatic spawner, use CreateCharacter to manually spawn. 
-        /// This will spawn only if host, and we are in the SceneToSpawn (or SceneToSpawn is null).
+        /// This will spawn only if host, and we are in the SceneToSpawn.
         /// This uses the default template.UID.
         /// </summary>
         public void SafeSpawn()
@@ -315,9 +316,9 @@ namespace SideLoader
             if (visuals)
             {
                 // disable default visuals
-                visuals.transform.Find("HeadWhiteMaleA")?.gameObject?.SetActive(false);
-                visuals.transform.Find("MBody0")?.gameObject?.SetActive(false);
-                visuals.transform.Find("MFeet0")?.gameObject?.SetActive(false);
+                visuals.transform.Find("HeadWhiteMaleA")?.gameObject.SetActive(false);
+                visuals.transform.Find("MBody0")?.gameObject.SetActive(false);
+                visuals.transform.Find("MFeet0")?.gameObject.SetActive(false);
 
                 // failsafe for head index based on skin and gender
                 ClampHeadVariation(ref newData.HeadVariationIndex, (int)newData.Gender, newData.SkinIndex);
@@ -342,20 +343,20 @@ namespace SideLoader
                 // apply the visuals
                 var equipped = (ArmorVisuals[])At.GetValue(typeof(CharacterVisuals), visuals, "m_editorEquippedVisuals");
 
-                if ((equipped[0] == null || !equipped[0].HideFace) && (equipped[1] == null || !equipped[1].HideFace))
+                if ((!equipped[0] || !equipped[0].HideFace) && (!equipped[1] || !equipped[1].HideFace))
                 {
                     visuals.LoadCharacterCreationHead(data.SkinIndex, (int)data.Gender, data.HeadVariationIndex);
                 }
-                if ((equipped[0] == null || !equipped[0].HideHair) && (equipped[1] == null || !equipped[1].HideHair))
+                if ((!equipped[0] || !equipped[0].HideHair) && (!equipped[1] || !equipped[1].HideHair))
                 {
                     // have to use a custom method to apply hair, original one fails for some reason
                     ApplyHairVisuals(visuals, data.HairStyleIndex, data.HairColorIndex);
                 }
-                if (equipped[1] == null)
+                if (!equipped[1])
                 {
                     visuals.LoadCharacterCreationBody((int)data.Gender, data.SkinIndex);
                 }
-                if (equipped[2] == null)
+                if (!equipped[2])
                 {
                     visuals.LoadCharacterCreationBoots((int)data.Gender, data.SkinIndex);
                 }
@@ -403,7 +404,7 @@ namespace SideLoader
 
             if (_hairStyleIndex != 0)
             {
-                if (hairVisuals.Renderer == null)
+                if (!hairVisuals.Renderer)
                 {
                     var renderer = hairVisuals.GetComponent<SkinnedMeshRenderer>();
                     At.SetValue(renderer, typeof(ArmorVisuals), hairVisuals, "m_skinnedMeshRenderer");
@@ -446,6 +447,7 @@ namespace SideLoader
             index = Mathf.Clamp(index, 0, limit);
         }
 
+        [SL_Serialized]
         public class VisualData
         {
             public Character.Gender Gender = Character.Gender.Male;
@@ -455,7 +457,7 @@ namespace SideLoader
             public int SkinIndex = 0;
 
             /// <summary>
-            /// Generates a CharacterVisualData.ToNetworkData() string for this VisualData
+            /// Generates a string for this VisualData with CharacterVisualData.ToNetworkData()
             /// </summary>
             public override string ToString()
             {

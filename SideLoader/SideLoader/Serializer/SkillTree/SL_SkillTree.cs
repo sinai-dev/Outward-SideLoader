@@ -9,6 +9,7 @@ using UnityEngine.SceneManagement;
 
 namespace SideLoader
 {
+    [SL_Serialized]
     public class SL_SkillTree
     {
         public string Name;
@@ -44,7 +45,7 @@ namespace SideLoader
             At.SetValue(-1, typeof(SkillSchool), school, "m_breakthroughSkillIndex");
 
             // set the sprite
-            if (this.Sigil != null)
+            if (this.Sigil)
             {
                 school.SchoolSigil = this.Sigil;
             }
@@ -64,7 +65,7 @@ namespace SideLoader
 
         public void ApplyRows()
         {
-            if (this.m_object == null)
+            if (!this.m_object)
             {
                 SL.Log("Trying to apply SL_SkillSchool but it is not created yet! Call CreateBaseSchool first!", 1);
                 return;
@@ -104,7 +105,7 @@ namespace SideLoader
         {
             yield return new WaitForSeconds(1f);
 
-            while (SkillTreeHolder.Instance == null)
+            while (!SkillTreeHolder.Instance)
             {
                 yield return null;
             }
@@ -114,6 +115,7 @@ namespace SideLoader
         }
     }
 
+    [SL_Serialized]
     public class SL_SkillRow
     {
         public int RowIndex;
@@ -144,6 +146,7 @@ namespace SideLoader
         }
     }
 
+    [SL_Serialized]
     public class SL_BaseSkillSlot
     {
         public int ColumnIndex;
@@ -190,7 +193,7 @@ namespace SideLoader
             var comp = col.AddComponent<SkillSlotFork>();
             At.SetValue(this.ColumnIndex, typeof(BaseSkillSlot), comp as BaseSkillSlot, "m_columnIndex");
 
-            if (this.RequiredSkillSlot != null && this.RequiredSkillSlot != Vector2.zero)
+            if (this.RequiredSkillSlot != Vector2.zero)
             {
                 SetRequiredSlot(comp as BaseSkillSlot);
             }
@@ -217,7 +220,7 @@ namespace SideLoader
             At.SetValue(SilverCost, typeof(SkillSlot), comp, "m_requiredMoney");
             At.SetValue(ColumnIndex, typeof(BaseSkillSlot), comp as BaseSkillSlot, "m_columnIndex");
 
-            if (this.RequiredSkillSlot != null && this.RequiredSkillSlot != Vector2.zero)
+            if (this.RequiredSkillSlot != Vector2.zero)
             {
                 SetRequiredSlot(comp as BaseSkillSlot);
             }

@@ -5,6 +5,7 @@ using System.Text;
 
 namespace SideLoader
 {
+    [SL_Serialized]
     public class SL_Damage
     {
         public float Damage = 0f;

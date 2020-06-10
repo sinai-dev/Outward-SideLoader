@@ -8,6 +8,7 @@ using System.Xml.Serialization;
 
 namespace SideLoader
 {
+    [SL_Serialized]
     public class SL_Recipe
     {
         [XmlIgnore]
@@ -158,6 +159,7 @@ namespace SideLoader
             return recipeHolder;
         }
 
+        [SL_Serialized]
         public class Ingredient
         {
             public RecipeIngredient.ActionTypes Type;
@@ -166,6 +168,7 @@ namespace SideLoader
             public string Ingredient_Tag;
         }
 
+        [SL_Serialized]
         public class ItemQty
         {
             public int ItemID;

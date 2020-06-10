@@ -233,51 +233,19 @@ namespace SideLoader
         // ================ TAGS ================ //
 
         /// <summary>
-        /// Returns the game's actual Tag for the string you provide, if it exists.
+        /// Gets a tag from a string tag name. Note: This just calls CustomTags.GetTag(tagName, logging).
         /// </summary>
-        /// <param name="TagName">Eg "Food", "Blade", etc...</param>
-        /// <param name="logging"></param>
-        /// <returns></returns>
-        public static Tag GetTag(string TagName, bool logging = true)
+        public static Tag GetTag(string tagName, bool logging = true)
         {
-            var tags = (Tag[])At.GetValue(typeof(TagSourceManager), TagSourceManager.Instance, "m_tags");
-            var tag = tags.FirstOrDefault(x => x.TagName == TagName);
-            if (tag.TagName == TagName)
-            {
-                return tag;
-            }
-            else
-            {
-                if (logging)
-                {
-                    SL.Log("GetTag :: Could not find a tag by the name: " + TagName);
-                }
-                return Tag.None;
-            }
+            return CustomTags.GetTag(tagName, logging);
         }
 
         /// <summary>
-        /// Helper for creating a new Tag
+        /// Creates a new custom tag. Note: This just calls CustomTags.CreateTag(tagName).
         /// </summary>
-        /// <param name="name">The new tag name</param>
-        public static Tag CreateTag(string name)
+        public static void CreateTag(string tagName)
         {
-            if (GetTag(name, false) is Tag tag && tag.TagName == name)
-            {
-                SL.Log($"Error: A tag already exists called '{name}'");
-            }
-            else
-            {
-                tag = new Tag(TagSourceManager.TagRoot, name);
-                tag.SetTagType(Tag.TagTypes.Custom);
-
-                TagSourceManager.Instance.DbTags.Add(tag);
-                TagSourceManager.Instance.RefreshTags(true);
-
-                SL.Log($"Created a tag, name: {tag.TagName}");
-            }
-
-            return tag;
+            CustomTags.CreateTag(tagName);
         }
 
         /// <summary> Adds the range of tags to the Items' TagSource, and optionally destroys the existing tags.</summary>
@@ -310,25 +278,10 @@ namespace SideLoader
             At.SetValue(tagsource, typeof(Item), item, "m_tagSource");
         }
 
-        // ================ OTHER ================ //
-
-        /// <summary> Small helper for destroying all children on a given Transform 't'. Uses DestroyImmediate(). </summary>
-        /// <param name="t"></param>
-        /// <param name="destroyContent">If true, will destroy children called "Content" (used for Bags)</param>
+        [Obsolete("Use SL.DestroyChildren instead! (Moved)")]
         public static void DestroyChildren(Transform t, bool destroyContent = false)
         {
-            var list = new List<GameObject>();
-            foreach (Transform child in t)
-            {
-                if (destroyContent || child.name != "Content")
-                {
-                    list.Add(child.gameObject);
-                }
-            }
-            for (int i = 0; i < list.Count; i++)
-            {
-                DestroyImmediate(list[i]);
-            }
+            SL.DestroyChildren(t, destroyContent);
         }
     }
 }

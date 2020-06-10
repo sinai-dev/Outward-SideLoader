@@ -59,11 +59,11 @@ namespace SideLoader
             return LoadTextureInternal(filePath, mipmap, linear);
         }
 
-        [Obsolete("Use CustomTextures.LoadTexture(string filePath, bool mipmap, bool linear) instead.")]
-        public static Texture2D LoadTexture(string filePath, bool isNormal = false)
-        {
-            return LoadTexture(filePath, true, true);
-        }
+        //[Obsolete("Use CustomTextures.LoadTexture(string filePath, bool mipmap, bool linear) instead.")]
+        //public static Texture2D LoadTexture(string filePath, bool isNormal = false)
+        //{
+        //    return LoadTexture(filePath, true, true);
+        //}
 
         private static Texture2D LoadTextureInternal(string filePath, bool mipmap, bool linear)
         {

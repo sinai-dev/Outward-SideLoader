@@ -5,6 +5,7 @@ using System.Text;
 
 namespace SideLoader
 {
+    [SL_Serialized]
     public class SL_MultiItem
     {
         public List<SL_Item> Items = new List<SL_Item>();

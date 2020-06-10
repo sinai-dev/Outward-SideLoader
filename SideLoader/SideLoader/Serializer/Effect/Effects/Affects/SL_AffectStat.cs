@@ -16,7 +16,7 @@ namespace SideLoader
         {
             var tag = CustomItems.GetTag(Stat_Tag);
 
-            if (tag == null || tag == Tag.None)
+            if (tag == Tag.None)
             {
                 SL.Log("AffectStat: could not find tag of ID " + (this.Stat_Tag ?? ""), 0);
                 return;

@@ -6,13 +6,14 @@ using UnityEngine;
 
 namespace SideLoader
 {
+    [SL_Serialized]
     public class SL_ItemStats
     {
         public int? BaseValue;
         public float? RawWeight;
         public int? MaxDurability;
 
-        public void ApplyToItem(ItemStats stats)
+        public virtual void ApplyToItem(ItemStats stats)
         {
             //set base value
             if (this.BaseValue != null)
@@ -32,31 +33,24 @@ namespace SideLoader
                 At.SetValue((int)this.MaxDurability, typeof(ItemStats), stats, "m_baseMaxDurability");
                 stats.StartingDurability = (int)this.MaxDurability;
             }
-
-            if (this is SL_EquipmentStats equipStatsHolder)
-            {
-                if (!(stats is EquipmentStats))
-                {
-                    var newstats = stats.gameObject.AddComponent<EquipmentStats>();
-                    At.CopyFieldValues(newstats as ItemStats, stats);
-                    GameObject.DestroyImmediate(stats);
-                    stats = newstats;
-                }
-
-                equipStatsHolder.ApplyToItem(stats as EquipmentStats);
-            }
         }
 
         public static SL_ItemStats ParseItemStats(ItemStats stats)
         {
-            var itemStatsHolder = new SL_ItemStats
-            {
-                BaseValue = stats.BaseValue,
-                MaxDurability = stats.MaxDurability,
-                RawWeight = stats.RawWeight
-            };
+            var type = Serializer.GetSLType(stats.GetType());
 
-            return itemStatsHolder;
+            var holder = (SL_ItemStats)Activator.CreateInstance(type);
+
+            holder.SerializeStats(stats, holder);
+
+            return holder;
+        }
+    
+        public virtual void SerializeStats(ItemStats stats, SL_ItemStats holder)
+        {
+            holder.BaseValue = stats.BaseValue;
+            holder.MaxDurability = stats.MaxDurability;
+            holder.RawWeight = stats.RawWeight;
         }
     }
 }

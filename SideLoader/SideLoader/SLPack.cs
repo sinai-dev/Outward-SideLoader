@@ -53,6 +53,28 @@ namespace SideLoader
             return $@"{this.FolderPath}\{subFolder}";
         }
 
+        public static void TryLoadPack(string name, string path, bool inMainFolder)
+        {
+            try
+            {
+                var pack = SLPack.LoadFromFolder(name, inMainFolder);
+                
+                if (SL.Packs.ContainsKey(name))
+                {
+                    SL.Log($"ERROR: An SLPack already exists with the name '{name}'! Please use a unique name.", 1);
+                    return;
+                }
+                else
+                {
+                    SL.Packs.Add(pack.Name, pack);
+                }
+            }
+            catch (Exception e)
+            {
+                SL.Log("Error loading SLPack from folder: " + path + "\r\nMessage: " + e.Message + "\r\nStackTrace: " + e.StackTrace, 1);
+            }
+        }
+
         /// <summary>
         /// Loads all the assets from the specified SLPack name. Not for calling directly, just place your pack in the SideLoader folder and use SL.Packs["Folder"]
         /// </summary>

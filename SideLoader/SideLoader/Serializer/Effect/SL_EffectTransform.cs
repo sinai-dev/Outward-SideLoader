@@ -6,39 +6,93 @@ using UnityEngine;
 
 namespace SideLoader
 {
+    [SL_Serialized]
     public class SL_EffectTransform
     {
         public string TransformName = "";
         public List<SL_Effect> Effects = new List<SL_Effect>();
 
-        //public List<EffectConditionHolder> EffectConditions = new List<EffectConditionHolder>();
+        public List<SL_EffectCondition> EffectConditions = new List<SL_EffectCondition>();
 
         public List<SL_EffectTransform> ChildEffects = new List<SL_EffectTransform>();
 
         /// <summary>
-        /// Pass the desired parent Transform, this method will create or find the existing 'this.TransformName' on it.
+        /// Applies a list of SL_EffectTransforms to a transform parent, with the provided EffectBehaviour.
         /// </summary>
-        /// <param name="parent">The PARENT transform to apply to (the Item or StatusEffect)</param>
-        public void ApplyToTransform(Transform parent)
+        /// <param name="parent">The parent to apply to, ie. the Item, StatusEffect.Signature, or Blast/Projectile, etc</param>
+        /// <param name="transformsToApply">The list of SL_EffectTransforms to apply.</param>
+        /// <param name="behaviour">The desired behaviour for these transoforms (remove original, overwrite, or none)</param>
+        public static void ApplyTransformList(Transform parent, List<SL_EffectTransform> transformsToApply, EffectBehaviours behaviour)
         {
-            var child = parent.Find(this.TransformName);
-            if (!child)
+            if (behaviour == EffectBehaviours.DestroyEffects)
             {
-                child = new GameObject(this.TransformName).transform;
-                child.parent = parent;
+                SL.DestroyChildren(parent);
             }
 
-            // apply effects
-            foreach (var effect in this.Effects)
+            foreach (var child in transformsToApply)
             {
-                effect.ApplyToTransform(child);
+                // The position and rotation of the effect can actually be important in some cases.
+                // Eg for Backstab, its actually used to determine to angle offset.
+                // So in some cases when overriding, we need to keep these values.
+                bool copyTranslation = false;
+                Vector3 pos = Vector3.zero;
+                Quaternion rot = Quaternion.identity;
+
+                if (behaviour == EffectBehaviours.OverrideEffects && parent.Find(child.TransformName) is Transform existing)
+                {
+                    copyTranslation = true;
+                    pos = existing.position;
+                    rot = existing.rotation;
+
+                    UnityEngine.Object.DestroyImmediate(existing.gameObject);
+                }
+
+                child.ApplyToTransform(parent, behaviour);
+
+                if (copyTranslation)
+                {
+                    var transform = parent.Find(child.TransformName);
+                    transform.position = pos;
+                    transform.rotation = rot;
+                }
             }
         }
 
-        [Obsolete("Use EffectTransform.ApplyToTransform instead.")]
-        public void ApplyToItem(Item item)
+        /// <summary>
+        /// Pass the desired parent Transform, this method will create or find the existing 'this.TransformName' on it, then apply the Effects and Conditions.
+        /// </summary>
+        /// <param name="parent">The PARENT transform to apply to (the Item, StatusEffect.Signature, Blast/Projectile, etc)</param>
+        /// <param name="behaviour">Desired EffectBehaviour</param>
+        public Transform ApplyToTransform(Transform parent, EffectBehaviours behaviour)
         {
-            ApplyToTransform(item.transform);
+            var child = new GameObject(this.TransformName).transform;
+            child.parent = parent;
+
+            // apply effects
+            if (this.Effects != null)
+            {
+                foreach (var effect in this.Effects)
+                {
+                    effect.ApplyToTransform(child);
+                }
+            }
+
+            // apply conditions
+            if (this.EffectConditions != null)
+            {
+                foreach (var condition in this.EffectConditions)
+                {
+                    condition.ApplyToTransform(child);
+                }
+            }
+
+            if (ChildEffects != null && ChildEffects.Count > 0)
+            {
+                var newParent = parent.Find(TransformName);
+                ApplyTransformList(newParent, ChildEffects, behaviour);
+            }
+
+            return child;
         }
 
         public static SL_EffectTransform ParseTransform(Transform transform)
@@ -50,18 +104,22 @@ namespace SideLoader
 
             foreach (Effect effect in transform.GetComponents<Effect>())
             {
-                var holder = SL_Effect.ParseEffect(effect);
-                if (holder != null)
+                if (!effect.enabled)
+                {
+                    continue;
+                }
+
+                if (SL_Effect.ParseEffect(effect) is SL_Effect holder)
                 {
                     effectTransformHolder.Effects.Add(holder);
                 }
             }
 
-            //foreach (EffectCondition condition in transform.GetComponents<EffectCondition>())
-            //{
-            //    var effectConditionHolder = EffectConditionHolder.ParseEffectCondition(condition);
-            //    effectTransformHolder.EffectConditions.Add(effectConditionHolder);
-            //}
+            foreach (EffectCondition condition in transform.GetComponents<EffectCondition>())
+            {
+                var effectConditionHolder = SL_EffectCondition.ParseCondition(condition);
+                effectTransformHolder.EffectConditions.Add(effectConditionHolder);
+            }
 
             foreach (Transform child in transform)
             {

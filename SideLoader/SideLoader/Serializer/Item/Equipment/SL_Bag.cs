@@ -15,8 +15,10 @@ namespace SideLoader
         public float? Preserver_Amount = -1;
         public bool? Nullify_Perish = false;
 
-        public void ApplyToItem(Bag item)
+        public override void ApplyToItem(Item item)
         {
+            base.ApplyToItem(item);
+
             // set container capacity
             var container = item.transform.Find("Content").GetComponent<ItemContainerStatic>();
             if (this.Capacity != null)
@@ -59,25 +61,23 @@ namespace SideLoader
             }
         }
 
-        public static SL_Bag ParseBag(Bag bag, SL_Equipment equipmentHolder)
+        public override void SerializeItem(Item item, SL_Item holder)
         {
-            var bagHolder = new SL_Bag
-            {
-                Capacity = bag.BagCapacity,
-                Restrict_Dodge = bag.RestrictDodge,
-                InventoryProtection = bag.InventoryProtection
-            };
+            base.SerializeItem(item, holder);
+
+            var bag = item as Bag;
+            var template = holder as SL_Bag;
+
+            template.Capacity = bag.BagCapacity;
+            template.Restrict_Dodge = bag.RestrictDodge;
+            template.InventoryProtection = bag.InventoryProtection;
 
             if (bag.GetComponentInChildren<Preserver>() is Preserver p
                 && At.GetValue(typeof(Preserver), p, "m_preservedElements") is List<Preserver.PreservedElement> list && list.Count > 0)
             {
-                bagHolder.Preserver_Amount = list[0].Preservation;
-                bagHolder.Nullify_Perish = p.NullifyPerishing;
+                template.Preserver_Amount = list[0].Preservation;
+                template.Nullify_Perish = p.NullifyPerishing;
             }
-
-            At.CopyFieldValues(bagHolder, equipmentHolder);
-
-            return bagHolder;
         }
     }
 }

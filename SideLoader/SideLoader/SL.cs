@@ -60,17 +60,16 @@ namespace SideLoader
 
             Instance = this;
 
+            /* Create base SL folder */
             if (!Directory.Exists(SL_FOLDER))
             {
                 Directory.CreateDirectory(SL_FOLDER);
             }
-
+            
+            /* setup Harmony */
             var harmony = new Harmony(GUID);
             harmony.PatchAll();
-        }
 
-        internal void Start()
-        {
             /* subscribe to SceneLoaded event */
             SceneManager.sceneLoaded += SceneManager_sceneLoaded;
 
@@ -84,20 +83,43 @@ namespace SideLoader
             obj.AddComponent<CustomScenes>();
             obj.AddComponent<CustomStatusEffects>();
             obj.AddComponent<CustomTextures>();
-            obj.AddComponent<RPCManager>();
-
             obj.AddComponent<DebugMenu>();
-
-            StartCoroutine(StartupCoroutine());
+            obj.AddComponent<RPCManager>();
         }
 
-        private IEnumerator StartupCoroutine()
+        /// <summary>
+        /// SideLoader's setup is a Finalizer on ResourcesPrefabManager.Load().
+        /// </summary>
+        [HarmonyPatch(typeof(ResourcesPrefabManager), "Load")]
+        public class ResourcesPrefabManager_Load
         {
-            // wait for RPM to finish loading
-            while (ResourcesPrefabManager.Instance == null || !ResourcesPrefabManager.Instance.Loaded) 
+            [HarmonyFinalizer]
+            public static Exception Finalizer(Exception __exception)
             {
-                yield return null;
+                if (__exception != null)
+                {
+                    Log("Exception on ResourcesPrefabManager.Load!", 0);
+                    Log(__exception.Message, 0);
+                    Log(__exception.StackTrace, 0);
+                }
+
+                Setup();
+
+                return null;
             }
+        }
+
+        public static void Setup()
+        {
+            // Prepare Blast and Projectile prefab dictionaries.
+
+            //SL_ShootBlast.DebugBlastNames();
+            //SL_ShootProjectile.DebugProjectileNames();
+
+            SL_ShootBlast.BuildBlastsDictionary();
+            SL_ShootProjectile.BuildProjectileDictionary();
+
+            // ==========================
 
             // BeforePacksLoaded callback
             TryInvoke(BeforePacksLoaded);
@@ -117,7 +139,7 @@ namespace SideLoader
                 var slFolder = modFolder + @"\SideLoader";
                 if (Directory.Exists(slFolder))
                 {
-                    TryLoadPack(name, slFolder, false);
+                    SLPack.TryLoadPack(name, slFolder, false);
                 }
             }
 
@@ -131,23 +153,26 @@ namespace SideLoader
                 }
 
                 var packname = Path.GetFileName(dir);
-                TryLoadPack(packname, dir, true);
+                SLPack.TryLoadPack(packname, dir, true);
             }
 
-            Log("------- Applying custom Statuses -------", 0);
+             // ====== Invoke Callbacks ======
+
+            Log("Applying custom Statuses", 0);
             TryInvoke(INTERNAL_ApplyStatuses);
 
-            Log("------- Applying custom Items -------", 0);
+            Log("Applying custom Items", 0);
             TryInvoke(INTERNAL_ApplyItems);
 
-            Log("------- Applying custom Recipes -------", 0);
+            Log("Applying custom Recipes", 0);
             TryInvoke(INTERNAL_ApplyRecipes);
 
-            Log("------- Applying custom Recipe Items -------", 0);
+            Log("Applying custom Recipe Items", 0);
             TryInvoke(INTERNAL_ApplyRecipeItems);
 
             PacksLoaded = true;
-            Log("------- SideLoader Setup Finished -------");
+            Log("SideLoader Setup Finished");
+            Log("-------------------------");
             TryInvoke(OnPacksLoaded);
 
             //// *********************************** temp debug ***********************************
@@ -160,37 +185,6 @@ namespace SideLoader
             //}
 
             //// **********************************************************************************
-        }
-
-        public static void TryInvoke(MulticastDelegate _delegate, params object[] args)
-        {
-            if (_delegate != null)
-            {
-                foreach (var action in _delegate.GetInvocationList())
-                {
-                    try
-                    {
-                        action.DynamicInvoke(args);
-                    }
-                    catch (Exception e)
-                    {
-                        Log("Exception invoking callback!\r\nMessage: " + e.Message + "\r\nStack: " + e.StackTrace, 1);
-                    }
-                }
-            }
-        }
-
-        private void TryLoadPack(string name, string path, bool inMainFolder)
-        {
-            try
-            {
-                var pack = SLPack.LoadFromFolder(name, inMainFolder);
-                Packs.Add(pack.Name, pack);
-            }
-            catch (Exception e)
-            {
-                Log("Error loading SLPack from folder: " + path + "\r\nMessage: " + e.Message + "\r\nStackTrace: " + e.StackTrace, 1);
-            }
         }
 
         // =============== Scene Change Events ====================
@@ -217,6 +211,32 @@ namespace SideLoader
 
         // ==================== Helpers ========================= //
 
+        /// <summary>
+        /// Generic helper for invoking a MulticastDelegate safely
+        /// </summary>
+        /// <param name="_delegate">Either an Action or UnityAction, generally.</param>
+        /// <param name="args">Any arguments the delegate expects.</param>
+        public static void TryInvoke(MulticastDelegate _delegate, params object[] args)
+        {
+            if (_delegate != null)
+            {
+                foreach (var action in _delegate.GetInvocationList())
+                {
+                    try
+                    {
+                        action.DynamicInvoke(args);
+                    }
+                    catch (Exception e)
+                    {
+                        Log("Exception invoking callback!\r\nMessage: " + e.Message + "\r\nStack: " + e.StackTrace, 1);
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Simple helper for loading an AssetBundle inside a try/catch.
+        /// </summary>
         public static AssetBundle LoadAssetBundle(string filepath)
         {
             try
@@ -227,6 +247,25 @@ namespace SideLoader
             {
                 Log(string.Format("Error loading bundle: {0}\r\nMessage: {1}\r\nStack Trace: {2}", filepath, e.Message, e.StackTrace), 1);
                 return null;
+            }
+        }
+
+        /// <summary> Small helper for destroying all children on a given Transform 't'. Uses DestroyImmediate(). </summary>
+        /// <param name="t"></param>
+        /// <param name="destroyContent">If true, will destroy children called "Content" (used for Bags)</param>
+        public static void DestroyChildren(Transform t, bool destroyContent = false)
+        {
+            var list = new List<GameObject>();
+            foreach (Transform child in t)
+            {
+                if (destroyContent || child.name != "Content")
+                {
+                    list.Add(child.gameObject);
+                }
+            }
+            for (int i = 0; i < list.Count; i++)
+            {
+                DestroyImmediate(list[i]);
             }
         }
 
@@ -255,19 +294,14 @@ namespace SideLoader
 
             At.CopyFieldValues(comp, other);
 
-            //FieldInfo[] finfos = type.GetFields(flags);
-            //foreach (var finfo in finfos)
-            //{
-            //    finfo.SetValue(comp, finfo.GetValue(other));
-            //}
-
             return comp as T;
         }
 
         // ==================== Internal / Misc ======================== //
 
         /// <summary>Debug.Log with [SideLoader] prefix.</summary>
-        /// <param name="log"></param> <param name="errorLevel">-1 = Debug.Log, 0 = Debug.LogWarning, 1 = Debug.LogError</param>
+        /// <param name="log">The message to log.</param>
+        /// <param name="errorLevel">-1 = Debug.Log, 0 = Debug.LogWarning, 1 = Debug.LogError</param>
         public static void Log(string log, int errorLevel = -1)
         {
             log = "[SideLoader] " + log;
@@ -283,12 +317,6 @@ namespace SideLoader
             {
                 Debug.Log(log);
             }
-        }
-
-        /// <summary>Remove invalid filename characters from a string</summary>
-        public static string ReplaceInvalidChars(string s)
-        {
-            return string.Join("_", s.Split(Path.GetInvalidFileNameChars()));
         }
     }
 }

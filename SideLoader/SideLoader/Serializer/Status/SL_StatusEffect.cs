@@ -8,6 +8,7 @@ using UnityEngine;
 
 namespace SideLoader
 {
+    [SL_Serialized]
     public class SL_StatusEffect
     {
         /// <summary> [NOT SERIALIZED] The name of the SLPack this custom status template comes from (or is using).
@@ -40,7 +41,7 @@ namespace SideLoader
 
         public List<string> Tags;
 
-        public SL_Item.TemplateBehaviour EffectsBehaviour = SL_Item.TemplateBehaviour.OverrideEffects;
+        public EffectBehaviours EffectBehaviour = EffectBehaviours.OverrideEffects;
         public List<SL_EffectTransform> Effects;
 
         public virtual void ApplyTemplate()
@@ -122,9 +123,9 @@ namespace SideLoader
                 }
             }
 
-            if (EffectsBehaviour == SL_Item.TemplateBehaviour.DestroyEffects)
+            if (EffectBehaviour == EffectBehaviours.DestroyEffects)
             {
-                CustomItems.DestroyChildren(status.transform);
+                SL.DestroyChildren(status.transform);
             }
 
             if (Effects != null)
@@ -138,17 +139,7 @@ namespace SideLoader
                     comp.SignatureUID = new UID($"{NewStatusID}_{status.IdentifierName}");
                 }
 
-                foreach (var effectTransform in Effects)
-                {
-                    if (EffectsBehaviour == SL_Item.TemplateBehaviour.OverrideEffects && signature.Find(effectTransform.TransformName) is Transform existing)
-                    {
-                        GameObject.DestroyImmediate(existing.gameObject);
-                        var newObj = new GameObject(effectTransform.TransformName);
-                        newObj.transform.parent = signature.transform;
-                    }
-
-                    effectTransform.ApplyToTransform(signature);
-                }
+                SL_EffectTransform.ApplyTransformList(signature, Effects, EffectBehaviour);
 
                 // fix StatusData for the new effects
                 CompileEffectsToData(status);
@@ -287,7 +278,7 @@ namespace SideLoader
                 {
                     var effectsChild = SL_EffectTransform.ParseTransform(child);
 
-                    if (effectsChild.ChildEffects.Count > 0 || effectsChild.Effects.Count > 0) // || effectsChild.EffectConditions.Count > 0)
+                    if (effectsChild.ChildEffects.Count > 0 || effectsChild.Effects.Count > 0 || effectsChild.EffectConditions.Count > 0)
                     {
                         template.Effects.Add(effectsChild);
                     }

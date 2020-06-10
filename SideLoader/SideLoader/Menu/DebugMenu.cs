@@ -22,7 +22,7 @@ namespace SideLoader
 
         private int SelectedItemID = 0;
         private int NewItemID = 0;
-        private SL_Item.TemplateBehaviour m_templateBehaviour = SL_Item.TemplateBehaviour.OverrideEffects;
+        private EffectBehaviours m_templateBehaviour = EffectBehaviours.DestroyEffects;
 
         private int SelectedStatusID = 0;
         private int NewStatusID = 0;
@@ -137,9 +137,9 @@ namespace SideLoader
             GUILayout.EndHorizontal();
 
             GUILayout.Label("Effects Behaviour:");
-            BehaviourButton(SL_Item.TemplateBehaviour.DestroyEffects, "Destroy Effects");
-            BehaviourButton(SL_Item.TemplateBehaviour.OverrideEffects, "Override Effects");
-            BehaviourButton(SL_Item.TemplateBehaviour.NONE, "None (leave all)");
+            BehaviourButton(EffectBehaviours.DestroyEffects, "Destroy Effects");
+            BehaviourButton(EffectBehaviours.OverrideEffects, "Override Effects");
+            BehaviourButton(EffectBehaviours.NONE, "None (leave all)");
 
             GUILayout.Space(15);
 
@@ -149,7 +149,7 @@ namespace SideLoader
             }
         }
 
-        private void BehaviourButton(SL_Item.TemplateBehaviour _behaviour, string _label)
+        private void BehaviourButton(EffectBehaviours _behaviour, string _label)
         {
             string label = "<color=";
             if (m_templateBehaviour == _behaviour)
@@ -230,7 +230,7 @@ namespace SideLoader
                     var template = SL_ImbueEffect.ParseImbueEffect(comp);
                     template.NewStatusID = NewStatusID;
                     Serializer.SaveToXml(folder, preset.gameObject.name, template);
-                    if (comp.ImbueStatusIcon != null)
+                    if (comp.ImbueStatusIcon)
                     {
                         CustomTextures.SaveIconAsPNG(comp.ImbueStatusIcon, folder);
                     }
@@ -243,7 +243,7 @@ namespace SideLoader
                     var template = SL_StatusEffect.ParseStatusEffect(comp);
                     template.NewStatusID = NewStatusID;
                     Serializer.SaveToXml(folder, preset.gameObject.name, template);
-                    if (comp.StatusIcon != null)
+                    if (comp.StatusIcon)
                     {
                         CustomTextures.SaveIconAsPNG(comp.StatusIcon, folder);
                     }
