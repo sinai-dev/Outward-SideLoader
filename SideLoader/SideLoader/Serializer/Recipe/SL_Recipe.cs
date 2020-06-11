@@ -82,6 +82,7 @@ namespace SideLoader
                         uid += $"{ing.AddedIngredientType.Tag.TagName}";
                     }
                 }
+                this.UID = uid;
                 At.SetValue(new UID(uid), typeof(Recipe), recipe, "m_uid");
             }
             else

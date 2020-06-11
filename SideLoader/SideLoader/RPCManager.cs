@@ -49,9 +49,24 @@ namespace SideLoader
         [PunRPC]
         private void RPCDestroyCharacter(string charUID)
         {
+            // First try the easy way... (this normally is the one that is called)
             if (CharacterManager.Instance.GetCharacter(charUID) is Character character)
             {
-                CustomCharacters.DestroyCharacter(character);
+                CustomCharacters.DestroyCharacterLocal(character);
+            }
+            else // Otherwise, sometimes we need to do this, but I think I fixed this happening much (or at all).
+            {
+                var characters = Resources.FindObjectsOfTypeAll<Character>();
+
+                try
+                {
+                    var c = characters.First(x => x.UID == charUID);
+                    CustomCharacters.DestroyCharacterLocal(c);
+                }
+                catch
+                {
+                    SL.Log("Could not destroy Character '" + charUID + "'");
+                }
             }
         }
     }

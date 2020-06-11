@@ -8,6 +8,7 @@ using System.IO;
 using System.Xml;
 using System.Xml.Serialization;
 using System.Reflection;
+using UnityEngine.SceneManagement;
 
 namespace SideLoader
 {
@@ -101,7 +102,6 @@ namespace SideLoader
 
         private static Type[] m_slTypes;
 
-
         /// <summary>
         /// Pass a Game Class type (eg, Item) and get the corresponding SideLoader class (eg, SL_Item).
         /// </summary>
@@ -131,7 +131,7 @@ namespace SideLoader
         }
 
         /// <summary>
-        /// Pass a SideLoader Class type (eg, SL_Item) and get the corresponding Game class (eg, Item).
+        /// Pass a SideLoader class type (eg, SL_Item) and get the corresponding Game class (eg, Item).
         /// </summary>
         /// <param name="_slType">Eg, typeof(SL_Item)</param>
         /// <param name="logging">If you want to log debug messages.</param>

@@ -10,10 +10,9 @@ namespace SideLoader
     public class SL_EffectTransform
     {
         public string TransformName = "";
+
         public List<SL_Effect> Effects = new List<SL_Effect>();
-
         public List<SL_EffectCondition> EffectConditions = new List<SL_EffectCondition>();
-
         public List<SL_EffectTransform> ChildEffects = new List<SL_EffectTransform>();
 
         /// <summary>
@@ -130,7 +129,7 @@ namespace SideLoader
                 }
 
                 var transformHolder = ParseTransform(child);
-                if (transformHolder.ChildEffects.Count > 0 || transformHolder.Effects.Count > 0) // || transformHolder.EffectConditions.Count > 0)
+                if (transformHolder.ChildEffects.Count > 0 || transformHolder.Effects.Count > 0 || transformHolder.EffectConditions.Count > 0)
                 {
                     effectTransformHolder.ChildEffects.Add(transformHolder);
                 }

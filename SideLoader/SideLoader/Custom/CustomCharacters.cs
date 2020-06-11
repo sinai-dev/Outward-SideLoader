@@ -59,6 +59,17 @@ namespace SideLoader
 			}
 		}
 
+		// Like the last patch, we sneak into when the game should have destroyed previous scene characters to cleanup there.
+		[HarmonyPatch(typeof(CharacterManager), "ClearNonPersitentCharacters")]
+		public class CharacterManager_ClearNonPersitentCharacters
+		{
+			[HarmonyPrefix]
+			public static void Prefix()
+            {
+				CleanupCharacters();
+            }
+        }
+
 		// ======================== PUBLIC HELPERS ======================== //
 
 		/// <summary>
@@ -277,45 +288,71 @@ namespace SideLoader
             Instance = this;
 
 			SetupBasicAIPrefab();
-
-			// I use this simple event for the cleanup, it's convenient for this.
-            SceneManager.sceneUnloaded += SceneManager_sceneUnloaded;
-		}
-
-        private void SceneManager_sceneUnloaded(Scene scene)
-        {
-			if (IsRealScene(scene))
-            {
-				//SL.Log("Scene unloading - removing instantiated characters!");
-
-				foreach (var character in ActiveCharacters)
-				{
-					DestroyCharacterRPC(character);
-				}
-			}
 		}
 
 		private static bool IsRealScene(Scene scene)
-        {
+		{
 			var name = scene.name.ToLower();
 
 			return !(name.Contains("lowmemory") || name.Contains("mainmenu"));
 		}
 
 		/// <summary>
+		/// The host calls this on Scene Changes to cleanup non-persistent characters (currently all SL_Character are non-persistent)
+		/// </summary>
+		public static void CleanupCharacters()
+        {
+			if (ActiveCharacters.Count > 0 && PhotonNetwork.isNonMasterClientInRoom)
+            {
+				SL.Log("Cleaning up " + ActiveCharacters.Count + " characters.");
+
+				// Reverse iteration to remove elements from a list
+				for (int i = ActiveCharacters.Count - 1; i >= 0; i--)
+				{
+					var character = ActiveCharacters[i];
+
+					if (character)
+					{
+						DestroyCharacterRPC(character);
+					}
+					else
+					{
+						SL.Log("Trying to destroy a null or destroyed character!");
+					}
+				}
+			}
+		}
+
+		/// <summary>
 		/// Used internally to destroy a Character locally. Use DestroyCharacterRPC to cleanup a character.
 		/// </summary>
-		public static void DestroyCharacter(Character character)
+		public static void DestroyCharacterLocal(Character character)
 		{
-			if (ActiveCharacters.Contains(character))
-			{
-				ActiveCharacters.Remove(character);
+			if (!character)
+            {
+				SL.Log("Trying to destroy a character that is null or already destroyed!");
+				return;
+            }
 
-				var pv = character.photonView;
-				int view = pv.viewID;
-				GameObject.DestroyImmediate(character.gameObject);
-				PhotonNetwork.UnAllocateViewID(view);
-			}
+			// Reverse iteration to remove elements from a list
+			for (int i = ActiveCharacters.Count - 1; i >= 0; i--)
+            {
+				var c = ActiveCharacters[i];
+				if (c)
+                {
+					if (c.UID == character.UID)
+					{
+						ActiveCharacters.RemoveAt(i);
+					}
+                }
+            }
+
+			var pv = character.photonView;
+			int view = pv.viewID;
+
+			GameObject.DestroyImmediate(character.gameObject);
+
+			PhotonNetwork.UnAllocateViewID(view);
 		}
 
 		/// <summary>

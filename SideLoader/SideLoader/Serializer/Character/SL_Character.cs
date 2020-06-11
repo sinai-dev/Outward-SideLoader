@@ -92,8 +92,6 @@ namespace SideLoader
 
             SL.TryInvoke(OnSpawn, character, extraRpcData);
 
-            SL.Log("Spawned character " + character.Name);
-
             character.gameObject.SetActive(true);
         }
 
