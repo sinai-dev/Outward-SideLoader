@@ -55,10 +55,7 @@ namespace SideLoader
                 }
             }
 
-            if (Effects != null)
-            {
-                SL_EffectTransform.ApplyTransformList(preset.transform, Effects, EffectBehaviour);
-            }
+            SL_EffectTransform.ApplyTransformList(preset.transform, Effects, EffectBehaviour);
         }
 
         public static SL_ImbueEffect ParseImbueEffect(ImbueEffectPreset imbue)

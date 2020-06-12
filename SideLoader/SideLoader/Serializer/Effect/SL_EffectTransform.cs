@@ -28,6 +28,11 @@ namespace SideLoader
                 SL.DestroyChildren(parent);
             }
 
+            if (transformsToApply == null)
+            {
+                return;
+            }
+
             foreach (var child in transformsToApply)
             {
                 // The position and rotation of the effect can actually be important in some cases.

@@ -162,10 +162,7 @@ namespace SideLoader
                 StatsHolder.ApplyToItem(stats);
             }
 
-            if (this.EffectTransforms != null && this.EffectTransforms.Count > 0)
-            {
-                SL_EffectTransform.ApplyTransformList(item.transform, this.EffectTransforms, this.EffectBehaviour);
-            }
+            SL_EffectTransform.ApplyTransformList(item.transform, this.EffectTransforms, this.EffectBehaviour);
 
             //************************  This will need to change after DLC.  ************************//
 

@@ -158,6 +158,22 @@ namespace SideLoader
             return t;
         }
 
+        private static readonly Dictionary<Type, XmlSerializer> m_xmlCache = new Dictionary<Type, XmlSerializer>();
+
+        private static XmlSerializer GetXmlSerializer(Type type)
+        {
+            if (m_xmlCache.ContainsKey(type))
+            {
+                return m_xmlCache[type];
+            }
+            else
+            {
+                var xml = new XmlSerializer(type, SLTypes);
+                m_xmlCache.Add(type, xml);
+                return xml;
+            }
+        }
+
         /// <summary>
         /// Save an SL_Type object to xml.
         /// </summary>
@@ -180,7 +196,8 @@ namespace SideLoader
                 File.Delete(path);
             }
 
-            XmlSerializer xml = new XmlSerializer(obj.GetType(), SLTypes);
+            var xml = GetXmlSerializer(obj.GetType());
+
             FileStream file = File.Create(path);
             xml.Serialize(file, obj);
             file.Close();
@@ -221,7 +238,7 @@ namespace SideLoader
 
             if (!string.IsNullOrEmpty(typeName) && SL_Assembly.GetType($"SideLoader.{typeName}") is Type type)
             {
-                XmlSerializer xml = new XmlSerializer(type, SLTypes);
+                var xml = GetXmlSerializer(type);
                 FileStream file = File.OpenRead(path);
                 var obj = xml.Deserialize(file);
                 file.Close();
