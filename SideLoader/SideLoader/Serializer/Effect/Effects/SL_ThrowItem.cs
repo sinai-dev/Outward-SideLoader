@@ -17,7 +17,7 @@ namespace SideLoader
             var comp = component as ThrowItem;
 
             comp.CollisionBehavior = this.CollisionBehaviour;
-            comp.ProjectileBehavior = this.ProjectileBehaviour;            
+            comp.ProjectileBehavior = this.ProjectileBehaviour;
             comp.DefenseLength = this.DefenseLength;
             comp.DefenseRange = this.DefenseRange;
         }

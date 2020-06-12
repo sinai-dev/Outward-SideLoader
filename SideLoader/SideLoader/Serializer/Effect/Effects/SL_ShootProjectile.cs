@@ -34,8 +34,8 @@ namespace SideLoader
         public float DefenseLength;
         public float DefenseRange;
 
-        public int PhysicsLayerMask;
-        public bool OnlyExplodeOnLayerMask;
+        //public int PhysicsLayerMask;
+        //public bool OnlyExplodeOnLayerMask;
 
         public EquipmentSoundMaterials ImpactSoundMaterial;
         public Vector2 LightIntensityFade;
@@ -93,8 +93,8 @@ namespace SideLoader
                 newProjectile.DisableOnHit = this.DisableOnHit;
                 newProjectile.EffectsOnlyIfHitCharacter = this.EffectsOnlyIfHitCharacter;
                 newProjectile.EndMode = this.EndMode;
-                newProjectile.OnlyExplodeOnLayers = this.OnlyExplodeOnLayerMask;
-                newProjectile.ExplodeOnContactWithLayers.value = this.PhysicsLayerMask;
+                //newProjectile.OnlyExplodeOnLayers = this.OnlyExplodeOnLayerMask;
+                //newProjectile.ExplodeOnContactWithLayers.value = this.PhysicsLayerMask;
                 newProjectile.LateShootTime = this.LateShootTime;
                 newProjectile.Lifespan = this.Lifespan;
                 newProjectile.LightIntensityFade = this.LightIntensityFade;
@@ -142,8 +142,8 @@ namespace SideLoader
                 template.DisableOnHit = projectile.DisableOnHit;
                 template.EffectsOnlyIfHitCharacter = projectile.EffectsOnlyIfHitCharacter;
                 template.EndMode = projectile.EndMode;
-                template.OnlyExplodeOnLayerMask = projectile.OnlyExplodeOnLayers;
-                template.PhysicsLayerMask = projectile.ExplodeOnContactWithLayers.value;
+                //template.OnlyExplodeOnLayerMask = projectile.OnlyExplodeOnLayers;
+                //template.PhysicsLayerMask = projectile.ExplodeOnContactWithLayers.value;
                 template.ImpactSoundMaterial = projectile.ImpactSoundMaterial;
                 template.LateShootTime = projectile.LateShootTime;
                 template.Lifespan = projectile.Lifespan;
