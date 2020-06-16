@@ -4,7 +4,7 @@
 <img align="center" src="https://i.imgur.com/9rxjYNT.png">
 </p>
 
-[![Version](https://img.shields.io/badge/BepInEx-5.0.1-green.svg)](https://github.com/BepInEx/BepInEx)
+[![Version](https://img.shields.io/badge/BepInEx-5.1-green.svg)](https://github.com/BepInEx/BepInEx)
 
 A library for Outward to help with custom assets, or changes to existing assets. Supports Textures, Audio and AssetBundle assets, and can work with custom or modified Items, Skills, Characters, Scenes, and more.
 
