@@ -33,20 +33,12 @@ namespace SideLoader
             {
                 if (m_SLAssembly == null)
                 {
-                    // We should be able to get it this way
                     m_SLAssembly = Assembly.GetExecutingAssembly();
-
-                    // If for some reason it doesnt work (perhaps called by another mod from outside SideLoader.dll before SideLoader initializes?)
-                    if (!m_SLAssembly.FullName.Contains("SideLoader"))
-                    {
-                        m_SLAssembly = AppDomain.CurrentDomain.GetAssemblies().First(x => x.FullName.Contains("SideLoader"));
-                    }
                 }
 
                 return m_SLAssembly;
             }
         }
-
         private static Assembly m_SLAssembly; 
         
         /// <summary>
@@ -58,14 +50,13 @@ namespace SideLoader
             {
                 if (m_gameAssembly == null)
                 {
-                    m_gameAssembly = AppDomain.CurrentDomain.GetAssemblies().First(x => x.FullName == m_gameAssemblyFullName);
+                    // Any game-class would work, I just picked Item.
+                    m_gameAssembly = typeof(Item).Assembly;
                 }
 
                 return m_gameAssembly;
             }
         }
-
-        private const string m_gameAssemblyFullName = "Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null";
         private static Assembly m_gameAssembly;
 
         /// <summary>
@@ -77,7 +68,13 @@ namespace SideLoader
             {
                 if (m_slTypes == null || m_slTypes.Length < 1)
                 {
-                    var list = new List<Type>();
+                    var list = new List<Type> 
+                    {
+                        // Serializable game classes (currently only use 1)
+                        typeof(WeaponStats.AttackData),
+                    };
+
+                    // add SL_Serialized types (custom types)
                     foreach (var type in SL_Assembly.GetTypes())
                     {
                         // check if marked as SL_Serialized
@@ -87,19 +84,12 @@ namespace SideLoader
                         }
                     }
 
-                    // add other types
-                    list.AddRange(new Type[]
-                    {
-                        typeof(WeaponStats.AttackData),
-                    });
-
                     m_slTypes = list.ToArray();
                 }
 
                 return m_slTypes;
             }
         }
-
         private static Type[] m_slTypes;
 
         /// <summary>
@@ -158,20 +148,94 @@ namespace SideLoader
             return t;
         }
 
+        /// <summary>
+        /// Get the "best-match" for the provided game class.
+        /// Will get the highest-level base class of the provided game class with a matching SL class.
+        /// </summary>
+        /// <param name="type">The game class you want a match for.</param>
+        /// <returns>Best-match SL Type, if any, otherwise null.</returns>
+        public static Type GetBestSLType(Type type)
+        {
+            if (GetSLType(type, false) is Type slType && !slType.IsAbstract)
+            {
+                return slType;
+            }
+            else
+            {
+                if (type.BaseType != null)
+                {
+                    return GetBestSLType(type.BaseType);
+                }
+                else
+                {
+                    return null;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Replaces a given 'existingComponent' on the 'transform', if it is not assignable from 'desiredType'.
+        /// If the desiredType is a base class of the existingComponent, this method will do nothing.
+        /// If the desiredType inherits from existingComponent, it will replace with desiredType and inherit values.
+        /// Example: You want AttackSkill but item is only a Skill. You can replace Skill with AttackSkill.
+        /// </summary>
+        /// <param name="transform">The transform to apply to</param>
+        /// <param name="desiredType">The desired class type (the game type, not the SL type)</param>
+        /// <param name="existingComponent">The existing component</param>
+        /// <returns>The component left on the transform after the method runs.</returns>
+        public static Component FixComponentTypeIfNeeded(Transform transform, Type desiredType, Component existingComponent)
+        {
+            if (!existingComponent || !transform || desiredType == null)
+            {
+                return existingComponent;
+            }
+
+            var currentType = existingComponent.GetType();
+
+            if (desiredType.IsAbstract || !desiredType.IsSubclassOf(currentType))
+            {
+                return existingComponent;
+            }
+
+            // Make sure we can assign from desired to current.
+            // Eg, current is MeleeWeapon and we want a ProjectileWeapon. We need to get the common base class (Weapon, in that case).
+            while (!currentType.IsAssignableFrom(desiredType) && currentType.BaseType != null)
+            {
+                currentType = currentType.BaseType;
+            }
+
+            // At this point we have either found a valid BaseType, or run out of BaseTypes to fall back on.
+            if (!currentType.IsAssignableFrom(desiredType))
+            {
+                // we failed to find a valid type...? This probably shouldn't happen.
+                SL.Log($"FixComponentTypeIfNeeded - could not find a compatible type of {currentType.Name} which is assignable to desired type: {desiredType.Name}!");
+                return existingComponent;
+            }
+            else
+            {
+                // add the new component type
+                var newComp = transform.gameObject.AddComponent(desiredType);
+
+                // recursively get all the field values
+                At.CopyFieldValues(newComp, existingComponent, currentType, true);
+
+                // remove the old component
+                GameObject.DestroyImmediate(existingComponent);
+
+                return newComp;
+            }
+        }
+
         private static readonly Dictionary<Type, XmlSerializer> m_xmlCache = new Dictionary<Type, XmlSerializer>();
 
         private static XmlSerializer GetXmlSerializer(Type type)
         {
-            if (m_xmlCache.ContainsKey(type))
+            if (!m_xmlCache.ContainsKey(type))
             {
-                return m_xmlCache[type];
+                m_xmlCache.Add(type, new XmlSerializer(type, SLTypes));
             }
-            else
-            {
-                var xml = new XmlSerializer(type, SLTypes);
-                m_xmlCache.Add(type, xml);
-                return xml;
-            }
+
+            return m_xmlCache[type];
         }
 
         /// <summary>

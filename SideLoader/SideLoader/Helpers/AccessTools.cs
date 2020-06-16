@@ -59,9 +59,11 @@ namespace SideLoader
         /// </summary>
         /// <param name="copyTo">The object which you are setting values to.</param>
         /// <param name="copyFrom">The object which you are getting values from.</param>
-        public static void CopyFieldValues(object copyTo, object copyFrom)
+        /// <param name="declaringType">Optional, manually define the declaring class type.</param>
+        /// <param name="recursive">Whether to recursively dive into the BaseTypes and copy those fields too</param>
+        public static void CopyFieldValues(object copyTo, object copyFrom, Type declaringType = null, bool recursive = false)
         {
-            var type = copyFrom.GetType();
+            var type = declaringType ?? copyFrom.GetType();
             foreach (FieldInfo fi in type.GetFields(FLAGS))
             {
                 try
@@ -71,15 +73,26 @@ namespace SideLoader
                 catch { }
             }
 
+
+            if (recursive && type.BaseType is Type baseType)
+            {
+                // We don't want to copy Unity low-level types, such as MonoBehaviour or Component.
+                // Copying these fields causes serious errors.
+                if (baseType != typeof(MonoBehaviour) && baseType != typeof(Component))
+                {
+                    CopyFieldValues(copyTo, copyFrom, type.BaseType, true);
+                }
+            }
+
             return;
         }
 
-        // Legacy At.InheritBaseValues support.
-        [Obsolete("Use At.CopyFieldValues instead (renamed after SL v2.1.9)")]
-        public static void InheritBaseValues(object _derived, object _base)
-        {
-            CopyFieldValues(_derived, _base);
-        }
+        //// Legacy At.InheritBaseValues support.
+        //[Obsolete("Use At.CopyFieldValues instead (renamed after SL v2.1.9)")]
+        //public static void InheritBaseValues(object _derived, object _base)
+        //{
+        //    CopyFieldValues(_derived, _base);
+        //}
 
         /// <summary>
         /// Helper to invoke a private or protected method.

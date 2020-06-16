@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using UnityEngine;
+using System.IO;
 
 namespace SideLoader
 {
@@ -265,14 +266,24 @@ namespace SideLoader
         {
             NONE,
             AshPriestCirclingMine,
+            BloodMageHeal,
             BoozuDecayTrash,
+            BoozuProudBeasttPreBlast,
+            BoozuProudBeasttPreBlastBig,
             BulletBlood,
             BulletBloodSyphonProjectile,
             BulletLightning,
             BulletNormal,
             BulletShatter,
+            CageBlast,
+            CageBossPreBlast,
+            CageBossProjectile,
             CorruptionSpiritShot,
+            ElementalBuffProjDecay,
+            ElementalBuffProjEthereal,
             ElementalBuffProjFire,
+            ElementalBuffProjFrost,
+            ElementalBuffProjLight,
             ElementalParasiteMortar,
             ElementalProjectileBolt,
             ElementalProjectileDecay,
@@ -282,8 +293,16 @@ namespace SideLoader
             ElementalProjectileLight,
             ElementalProjectilePoison,
             ElementalProjectileWind,
+            ElementalShot1Decay,
+            ElementalShot1Ethereal,
             ElementalShot1Fire,
+            ElementalShot1Frost,
+            ElementalShot1Light,
+            ElementalShot3Decay,
+            ElementalShot3Ethereal,
             ElementalShot3Fire,
+            ElementalShot3Frost,
+            ElementalShot3Light,
             EliteBurningManHoming,
             EliteCalixaGunShot,
             EliteCalixaJumpDecayHomming,
@@ -320,11 +339,14 @@ namespace SideLoader
             ImmaculateMaceWave,
             ImmaculateSwordMine,
             ImmaculateSwordMineProjectile,
+            JinxProjectile,
             LichGoldLightningBolt,
             LichGoldStaffBolt,
             LichJadeCirclingMine,
             LichJadeHomming,
             LichJadeMine,
+            LichRustProjectileEthereal,
+            LichRustTeleportPreBlast,
             ManticoreSpike,
             MultitargetStrike,
             ObsidianHoming,
@@ -349,24 +371,22 @@ namespace SideLoader
             TrogHexProjectile,
             VendavelIcicleProjectile,
             WindGust,
+
         }
 
-        //public static void DebugProjectileNames()
-        //{
-        //    var projs = Resources.FindObjectsOfTypeAll<Projectile>();
-        //    var names = new List<string>();
-        //    foreach (var proj in projs)
-        //    {
-        //        if (!names.Contains(proj.name))
-        //        {
-        //            names.Add(proj.name);
-        //            Debug.Log(proj.name + ",");
-        //        }
-        //        else
-        //        {
-        //            //Debug.LogWarning("!!!!!!!!! DUPLICATE PROJ NAME !!!!!!!!!!!!!");
-        //        }
-        //    }
-        //}
+        public static void DebugProjectileNames()
+        {
+            var projs = Resources.FindObjectsOfTypeAll<Projectile>();
+            var names = new List<string>();
+            foreach (var proj in projs)
+            {
+                if (!names.Contains(proj.name))
+                {
+                    names.Add(proj.name);
+                    //Debug.Log(proj.name + ",");
+                }
+            }
+            File.WriteAllLines("projectiles.txt", names.ToArray());
+        }
     }
 }

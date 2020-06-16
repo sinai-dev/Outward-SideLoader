@@ -6,13 +6,13 @@ using UnityEngine;
 using System.IO;
 using Object = UnityEngine.Object;
 
-namespace SideLoader
+namespace SideLoader.UI
 {
-    public class DebugMenu : MonoBehaviour
+    public class SL_GUI : MonoBehaviour
     {
-        public static DebugMenu Instance;
+        public static SL_GUI Instance;
 
-        private static Rect m_rect = new Rect(5, 5, 250, 410);
+        private static Rect m_rect = new Rect(5, 5, 350, 450);
 
         private int m_page = 0;
 
@@ -55,7 +55,7 @@ namespace SideLoader
             {
                 var orig = GUI.skin;
                 GUI.skin = UI.UIStyles.WindowSkin;
-                m_rect = GUI.Window(29, m_rect, WindowFunction, "SideLoader Debug (F6 Toggle)");
+                m_rect = GUI.Window(29, m_rect, WindowFunction, "SideLoader Menu (F6 Toggle)");
                 GUI.skin = orig;
             }
         }
@@ -71,26 +71,15 @@ namespace SideLoader
             GUILayout.BeginHorizontal();
             SetPageButton("Items", 0);
             SetPageButton("StatusEffect", 1);
+            //SetPageButton("Item Visual Helper", 2);
             GUILayout.EndHorizontal();
 
-            if (m_page == 0)
+            switch (m_page)
             {
-                ItemPage();
+                case 0: ItemPage(); break;
+                case 1: EffectsPage(); break;
+                //case 2: ItemVisualsPage(); break;
             }
-            else if (m_page == 1)
-            {
-                EffectsPage();
-            }
-
-            //GUILayout.BeginHorizontal();
-            //GUILayout.Label("Enemy name:");
-            //m_enemyName = GUILayout.TextField(m_enemyName, GUILayout.Width(150));
-            //GUILayout.EndHorizontal();
-
-            //if (GUILayout.Button("Clone enemy"))
-            //{
-            //    CloneCharacter(m_enemyName);
-            //}
 
             GUILayout.EndArea();
         }
@@ -109,11 +98,24 @@ namespace SideLoader
             if (GUILayout.Button(label))
             {
                 m_page = id;
+
+                // item visuals page uses a custom size
+                if (id == 2)
+                {
+                    m_rect.width = 575;
+                    m_rect.height = 250;
+                }
+                else
+                {
+                    m_rect.width = 350;
+                    m_rect.height = 450;
+                }
             }
 
             GUI.color = Color.white;
         }
 
+        #region ITEM GENERATOR
         private void ItemPage()
         {
             GUILayout.Label("Enter an Item ID to generate a template from. This will also save all material textures (if any).");
@@ -180,14 +182,16 @@ namespace SideLoader
                 var itemfolder = SL.GENERATED_FOLDER + @"\Items\" + item.gameObject.name;
                 Serializer.SaveToXml(itemfolder, item.Name, template);
 
-                CustomItemVisuals.SaveAllItemTextures(item, itemfolder + @"\Textures");
+                //CustomItemVisuals.SaveAllItemTextures(item, itemfolder + @"\Textures");
             }
             else
             {
                 SL.Log("DEBUG MENU: ID " + SelectedItemID + " is invalid!");
             }
         }
+        #endregion
 
+        #region STATUS GENERATOR
         private void EffectsPage()
         {
             GUILayout.Label("Enter a Status Effect Preset ID to generate a template from.");
@@ -255,85 +259,158 @@ namespace SideLoader
                 SL.Log("DEBUG MENU: PresetID " + SelectedStatusID + " is invalid!");
             }
         }
-    }
-}
+        #endregion
 
+        #region ITEM VISUALS HELPER
+        private bool m_aligning = false;
 
-namespace SideLoader.UI
-{
-    public class UIStyles
-    {
-        public static GUISkin WindowSkin
+        // desired item visuals and hot transform
+        private int m_currentVisualsID = 5500999;
+        private Transform m_currentVisuals;
+
+        // translate amounts
+        private float m_posAmount = 1f;
+        private float m_rotAmount = 30f;
+
+        // user input values
+        private Vector3 m_currentPos;
+        private Quaternion m_currentRot;
+
+        private Vector3 m_cachedPos;
+        private Vector3 m_cachedRot;
+
+        private void ItemVisualsPage()
         {
-            get
+            if (m_aligning)
             {
-                if (_customSkin == null)
+                var pos = m_currentVisuals.transform.localPosition;
+                var rot = m_currentVisuals.transform.localRotation.eulerAngles;
+
+                m_currentVisuals.transform.localPosition = UIStyles.Translate("Pos", pos, ref m_posAmount, true);
+                m_currentVisuals.transform.localRotation = Quaternion.Euler(UIStyles.Translate("Rot", rot, ref m_rotAmount, true));
+
+                //var pos = m_currentPos;
+                //var rot = m_currentRot.eulerAngles;
+
+                //m_currentPos = UIStyles.Translate("Pos", m_currentPos, ref m_posAmount, true);
+                //m_currentRot = Quaternion.Euler(UIStyles.Translate("Rot", m_currentRot.eulerAngles, ref m_rotAmount, true));
+
+                //var posChange = m_currentPos - pos;
+                //var rotChange = m_currentRot.eulerAngles - rot;
+
+                //if (posChange != Vector3.zero)
+                //{
+                //    m_currentVisuals.localPosition += posChange;
+                //}
+                //if (rotChange != Vector3.zero)
+                //{
+                //    var localRot = m_currentVisuals.localRotation.eulerAngles;
+                //    localRot += rotChange;
+                //    m_currentVisuals.localRotation = Quaternion.Euler(localRot);
+                //}
+            }
+            else
+            {
+                // set ID
+                GUILayout.BeginHorizontal();
+                GUILayout.Label("Item ID:", GUILayout.Width(60));
+                var idString = m_currentVisualsID.ToString();
+                idString = GUILayout.TextField(idString, GUILayout.Width(100));
+                if (int.TryParse(idString, out int id))
                 {
-                    try
+                    m_currentVisualsID = id;
+                }
+                GUILayout.EndHorizontal();
+
+                // enter current position/rotation
+                GUILayout.Label("Enter current pos/rot offsets here:");
+                m_currentPos = UIStyles.Translate("Pos", m_currentPos, ref m_posAmount, true);
+                var rotEuler = m_currentRot.eulerAngles;
+                rotEuler = UIStyles.Translate("Rot", rotEuler, ref m_rotAmount, true);
+                m_currentRot = Quaternion.Euler(rotEuler);
+                GUILayout.Label("After aligning, replace your template values with these values.");
+            }
+
+            GUI.color = m_aligning ? Color.green : Color.red;
+            if (GUILayout.Button((m_aligning ? "Stop" : "Start") + " Aligning"))
+            {
+                if (!CharacterManager.Instance.GetFirstLocalCharacter())
+                {
+                    SL.Log("You need to load up a character first!");
+                }
+                else
+                {
+                    StartStopAligning(!m_aligning);
+                }
+            }
+            GUI.color = Color.white;
+        }
+
+        private void StartStopAligning(bool start)
+        {
+            if (start)
+            {
+                var character = CharacterManager.Instance.GetFirstLocalCharacter();
+
+                if (ResourcesPrefabManager.Instance.GetItemPrefab(m_currentVisualsID) is Equipment equipment)
+                {
+                    character.transform.rotation = Quaternion.identity;
+
+                    SL_Character.TryEquipItem(character, m_currentVisualsID);
+
+                    if (character.Inventory.Equipment.GetEquippedItem(equipment.EquipSlot) is Equipment equippedItem)
                     {
-                        _customSkin = CreateWindowSkin();
-                    }
-                    catch
-                    {
-                        _customSkin = GUI.skin;
+                        var visualTrans = ((ItemVisual)At.GetValue(typeof(Item), equippedItem, "m_loadedVisual")).transform;
+
+                        foreach (Transform child in visualTrans)
+                        {
+                            if (!child.gameObject.activeSelf)
+                            {
+                                continue;
+                            }
+
+                            if (child.GetComponent<BoxCollider>() && child.GetComponent<MeshRenderer>())
+                            {
+                                Debug.Log("Found visuals, ready to align!");
+
+                                m_currentVisuals = child;
+                                m_aligning = true;
+
+                                m_cachedPos = m_currentVisuals.transform.localPosition;
+                                m_cachedRot = m_currentVisuals.transform.localRotation.eulerAngles;
+
+                                break;
+                            }
+                        }
                     }
                 }
-
-                return _customSkin;
-            }
-        }
-
-        public static void HorizontalLine(Color color)
-        {
-            var c = GUI.color;
-            GUI.color = color;
-            GUILayout.Box(GUIContent.none, HorizontalBar);
-            GUI.color = c;
-        }
-
-        private static GUISkin _customSkin;
-
-        public static Texture2D m_nofocusTex;
-        public static Texture2D m_focusTex;
-
-        private static GUIStyle _horizBarStyle;
-
-        private static GUIStyle HorizontalBar
-        {
-            get
-            {
-                if (_horizBarStyle == null)
+                
+                if (!m_aligning)
                 {
-                    _horizBarStyle = new GUIStyle();
-                    _horizBarStyle.normal.background = Texture2D.whiteTexture;
-                    _horizBarStyle.margin = new RectOffset(0, 0, 4, 4);
-                    _horizBarStyle.fixedHeight = 2;
-                }
+                    SL.Log("Couldn't start aligning!");
+                }                
+            }
+            else
+            {
+                var pos = m_currentVisuals.transform.localPosition;
+                var rot = m_currentVisuals.transform.localRotation.eulerAngles;
 
-                return _horizBarStyle;
+                var posChange = pos - m_cachedPos;
+                var rotChange = rot - m_cachedRot;
+
+                m_currentPos += posChange;
+                m_currentRot = Quaternion.Euler(m_currentRot.eulerAngles + rotChange);
+
+                m_currentVisuals = null;
+                m_cachedPos = Vector3.zero;
+                m_cachedRot = Vector3.zero;
+
+                m_aligning = false;
             }
         }
+        #endregion
 
-        private static GUISkin CreateWindowSkin()
-        {
-            var newSkin = Object.Instantiate(GUI.skin);
-            Object.DontDestroyOnLoad(newSkin);
-
-            m_nofocusTex = MakeTex(550, 700, new Color(0.1f, 0.1f, 0.1f, 0.7f));
-            m_focusTex = MakeTex(550, 700, new Color(0.3f, 0.3f, 0.3f, 1f));
-
-            newSkin.window.normal.background = m_nofocusTex;
-            newSkin.window.onNormal.background = m_focusTex;
-
-            newSkin.box.normal.textColor = Color.white;
-            newSkin.window.normal.textColor = Color.white;
-            newSkin.button.normal.textColor = Color.white;
-            newSkin.textField.normal.textColor = Color.white;
-            newSkin.label.normal.textColor = Color.white;
-
-            return newSkin;
-        }
-
+        #region HELPERS
         public static Texture2D MakeTex(int width, int height, Color col)
         {
             Color[] pix = new Color[width * height];
@@ -346,5 +423,6 @@ namespace SideLoader.UI
             result.Apply();
             return result;
         }
+        #endregion
     }
 }

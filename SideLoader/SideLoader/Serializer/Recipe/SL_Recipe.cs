@@ -30,7 +30,7 @@ namespace SideLoader
                 return;
             }
 
-            var results = new List<ItemQuantity>();
+            var results = new List<ItemReferenceQuantity>();
             foreach (var result in this.Results)
             {
                 var resultItem = ResourcesPrefabManager.Instance.GetItemPrefab(result.ItemID);
@@ -39,7 +39,7 @@ namespace SideLoader
                     SL.Log("Error: Could not get recipe result id : " + result.ItemID);
                     return;
                 }
-                results.Add(new ItemQuantity(resultItem, result.Quantity));
+                results.Add(new ItemReferenceQuantity(resultItem, result.Quantity));
             }
 
             var ingredients = new List<RecipeIngredient>();
@@ -70,7 +70,7 @@ namespace SideLoader
             // set or generate UID
             if (string.IsNullOrEmpty(this.UID))
             {
-                var uid = $"{recipe.Results[0].Item.ItemID}{recipe.Results[0].Quantity}";
+                var uid = $"{recipe.Results[0].ItemID}{recipe.Results[0].Quantity}";
                 foreach (var ing in recipe.Ingredients)
                 {
                     if (ing.AddedIngredient != null)
@@ -148,11 +148,11 @@ namespace SideLoader
                 }
             }
 
-            foreach (ItemQuantity item in recipe.Results)
+            foreach (ItemReferenceQuantity item in recipe.Results)
             {
                 recipeHolder.Results.Add(new ItemQty
                 {
-                    ItemID = item.Item.ItemID,
+                    ItemID = item.ItemID,
                     Quantity = item.Quantity
                 });
             }

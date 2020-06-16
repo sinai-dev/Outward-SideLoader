@@ -5,6 +5,7 @@ using System.Text;
 using UnityEngine;
 using System.IO;
 using System.Text.RegularExpressions;
+using HarmonyLib;
 
 namespace SideLoader
 {
@@ -17,221 +18,21 @@ namespace SideLoader
         */
 
         /// <summary> Custom Item Visual prefabs (including retexture-only) </summary>
-        private static readonly Dictionary<int, ItemVisualsLink> ItemVisuals = new Dictionary<int, ItemVisualsLink>();
+        private static readonly Dictionary<int, ItemVisualsLink> ItemVisuals = new Dictionary<int, ItemVisualsLink>();        
 
-        /// <summary>The three types of VisualPrefabs which custom items can use.</summary>
-        public enum VisualPrefabType
-        {
-            /// <summary>Standard item visuals</summary>
-            VisualPrefab,
-            /// <summary>The Special visuals, usually for equipped Armor Visuals.</summary>
-            SpecialVisualPrefabDefault,
-            /// <summary>Same as special visuals, but for the female alternative.</summary>
-            SpecialVisualPrefabFemale
-        }
-
-        /// <summary>Returns the Item Visuals for the given Item and VisualPrefabType</summary>
-        public static Transform GetItemVisuals(Item item, VisualPrefabType type)
-        {
-            Transform prefab = null;
-            switch (type)
-            {
-                case VisualPrefabType.VisualPrefab:
-                    prefab = item.VisualPrefab;
-                    break;
-                case VisualPrefabType.SpecialVisualPrefabDefault:
-                    prefab = item.SpecialVisualPrefabDefault;
-                    break;
-                case VisualPrefabType.SpecialVisualPrefabFemale:
-                    prefab = item.SpecialVisualPrefabFemale;
-                    break;
-                default:
-                    break;
-            }
-            return prefab;
-        }
-
-        ///// <summary>Use this to get the current ItemVisuals prefab an item is using (custom or original)</summary>
-        //public static Transform GetCustomItemVisuals(Item item, VisualPrefabType type)
-        //{
-        //    if (!ItemVisuals.ContainsKey(item.ItemID))
-        //    {
-        //        // return ResourcesPrefabManager.Instance.GetItemVisuals ??
-        //        return null;
-        //    }
-
-        //    switch (type)
-        //    {
-        //        case VisualPrefabType.VisualPrefab:
-        //            return ItemVisuals[item.ItemID].ItemVisuals; // ?? ResourcesPrefabManager.Instance.GetItemVisuals(id, type);
-        //        case VisualPrefabType.SpecialVisualPrefabDefault:
-        //            return ItemVisuals[item.ItemID].ItemSpecialVisuals;  // ?? ResourcesPrefabManager.Instance.GetItemVisuals(id, type);
-        //        case VisualPrefabType.SpecialVisualPrefabFemale:
-        //            return ItemVisuals[item.ItemID].ItemSpecialFemaleVisuals;  // ?? ResourcesPrefabManager.Instance.GetItemVisuals(id, type);
-        //        // impossible outcome, but needs to be here for compiler warning
-        //        default: return null; 
-        //    }
-        //}
-
-        ///// <summary>
-        ///// For replacing an item's visual prefab with your own prefab. For standard ItemVisuals, this only replaces the 3D model and leaves the rest.
-        ///// </summary>
-        ///// <param name="origPrefab">The original Transform you are replacing (eg Item.VisualPrefab, Item.SpecialVisualPrefabDefault, etc)</param>
-        ///// <param name="newVisuals">Your new prefab Transform.</param>
-        ///// 
+        // Match anything up to " (" 
+        private static readonly Regex materialRegex = new Regex(@".+?(?= \()");
 
         /// <summary>
-        /// Sets the provided visual prefab to the item.
+        /// Returns the true name of the given material name (removes "(Clone)" and "(Instance)", etc)
         /// </summary>
-        /// <param name="item">The item you want to set the visual prefab to.</param>
-        /// <param name="newVisuals">The new visual prefab transform</param>
-        /// <param name="type">The VisualPrefabType to set.</param>
-        /// <param name="positionOffset">Optional position offset</param>
-        /// <param name="rotationOffset">Optional rotation offset</param>
-        /// <param name="hideFace">Optionally hide the face (for helm/body)</param>
-        /// <param name="hideHair">Optionally hide the hair (for helm/body)</param>
-        public static void SetVisualPrefab(Item item, Transform newVisuals, VisualPrefabType type, Vector3 positionOffset, Vector3 rotationOffset, bool? hideFace = null, bool? hideHair = null)
+        public static string GetSafeMaterialName(string origName)
         {
-            var basePrefab = GameObject.Instantiate(GetItemVisuals(item, type).gameObject);
-            GameObject.DontDestroyOnLoad(basePrefab);
-            basePrefab.SetActive(false);
-
-            Debug.Log("Setting the " + type + " of " + item.Name + ", origprefab: " + basePrefab.name + ", newPrefab: " + newVisuals.name);            
-
-            var visualModel = UnityEngine.Object.Instantiate(newVisuals.gameObject);
-            UnityEngine.Object.DontDestroyOnLoad(visualModel.gameObject);
-
-            if (type == VisualPrefabType.VisualPrefab)
-            {
-                // At the moment, the only thing we replace on ItemVisuals is the 3d model, everything else is a clone.
-                foreach (Transform child in basePrefab.transform)
-                {
-                    // the real 3d model will always have boxcollider and meshrenderer. this is the object we want to replace.
-                    if (child.GetComponent<BoxCollider>() && child.GetComponent<MeshRenderer>())
-                    {
-                        child.gameObject.SetActive(false);
-
-                        visualModel.transform.position = child.position;
-                        visualModel.transform.rotation = child.rotation;
-                        visualModel.transform.parent = child.parent;
-
-                        break;
-                    }
-                }
-            }
-            else
-            {
-                if (!visualModel.GetComponent<ItemVisual>())
-                {
-                    if (basePrefab.GetComponent<ItemVisual>() is ItemVisual itemVisual)
-                    {
-                        if (itemVisual is ArmorVisuals armorVisuals)
-                        {
-                            var newcomp = visualModel.AddComponent<ArmorVisuals>();
-                            SL.GetCopyOf(newcomp, armorVisuals);
-                            if (hideHair != null)
-                            {
-                                newcomp.HideHair = (bool)hideHair;
-                            }
-                            if (hideFace != null)
-                            {
-                                newcomp.HideFace = (bool)hideFace;
-                            }
-                        }
-                        else
-                        {
-                            var newcomp = visualModel.AddComponent<ItemVisual>();
-                            SL.GetCopyOf(newcomp, itemVisual);
-                        }
-                    }
-                }
-
-                visualModel.transform.position = basePrefab.transform.position;
-                visualModel.transform.rotation = basePrefab.transform.rotation;
-                visualModel.gameObject.SetActive(false);
-
-                // we no longer need the clone for these visuals. we should clean it up.
-                UnityEngine.Object.DestroyImmediate(basePrefab.gameObject);
-            }
-
-            // add manual offsets
-            visualModel.transform.position += positionOffset;
-            visualModel.transform.eulerAngles += rotationOffset;
-
-            // set ItemVisualsLink
-            ItemVisualsLink link;
-            if (!ItemVisuals.ContainsKey(item.ItemID))
-            {
-                ItemVisuals.Add(item.ItemID, new ItemVisualsLink()
-                {
-                    LinkedItem = item,
-                });
-            }
-            link = ItemVisuals[item.ItemID];
-
-            switch (type) // set to CLONE for ItemVisuals, and the ACTUAL MODEL for Special Visuals
-            {
-                case VisualPrefabType.VisualPrefab:
-                    item.VisualPrefab = basePrefab.transform;
-                    link.ItemVisuals = basePrefab.transform;
-                    break;
-                case VisualPrefabType.SpecialVisualPrefabDefault:
-                    item.SpecialVisualPrefabDefault = visualModel.transform;
-                    link.ItemSpecialVisuals = visualModel.transform;
-                    break;
-                case VisualPrefabType.SpecialVisualPrefabFemale:
-                    item.SpecialVisualPrefabFemale = visualModel.transform;
-                    link.ItemSpecialFemaleVisuals = visualModel.transform;
-                    break;
-            }
+            return materialRegex.Match(origName).Value;
         }
 
-
-        /// <summary> Clone's an items current visual prefab (and materials), then sets this item's visuals to the new cloned prefab. </summary>
-        public static GameObject CloneVisualPrefab(Item item, VisualPrefabType type, Vector3 positionOffset, Vector3 rotationOffset)
+        public static ItemVisualsLink GetOrAddVisualLink(Item item)
         {
-            var prefab = GetItemVisuals(item, type);
-
-            if (!prefab)
-            {
-                SL.Log("Error, no VisualPrefabType defined or could not find visual prefab of that type!");
-                return null;
-            }
-
-            // Clone the visual prefab 
-            var newVisuals = UnityEngine.Object.Instantiate(prefab.gameObject);
-            newVisuals.SetActive(false);
-            UnityEngine.Object.DontDestroyOnLoad(newVisuals);
-
-            // add the position and rotation offsets
-            if (newVisuals.GetComponent<SkinnedMeshRenderer>())
-            {
-                newVisuals.transform.position += positionOffset;
-                newVisuals.transform.eulerAngles += rotationOffset;
-            }
-            else
-            {
-                foreach (Transform child in newVisuals.transform)
-                {
-                    if (child.GetComponent<BoxCollider>() && child.GetComponent<MeshRenderer>())
-                    {
-                        if (positionOffset != Vector3.zero)
-                        {
-                            child.transform.position += positionOffset;
-                        }
-                        if (rotationOffset != Vector3.zero)
-                        {
-                            child.transform.eulerAngles += rotationOffset;
-                        }
-                        break;
-                    }
-                }
-            }
-
-            // set the item's visuals to our new clone
-            At.SetValue(newVisuals.transform, typeof(Item), item, type.ToString());
-
-            // add to our CustomVisualPrefab dictionary
             if (!ItemVisuals.ContainsKey(item.ItemID))
             {
                 ItemVisuals.Add(item.ItemID, new ItemVisualsLink()
@@ -239,7 +40,15 @@ namespace SideLoader
                     LinkedItem = item
                 });
             }
+            // Set the item visuals dictionary link
             var link = ItemVisuals[item.ItemID];
+
+            return link;
+        }
+
+        public static void SetVisualPrefabLink(Item item, GameObject newVisuals, VisualPrefabType type)
+        {
+            var link = GetOrAddVisualLink(item);
             switch (type)
             {
                 case VisualPrefabType.VisualPrefab:
@@ -252,6 +61,119 @@ namespace SideLoader
                     link.ItemSpecialFemaleVisuals = newVisuals.transform;
                     break;
             }
+        }
+
+        public static void SetSpriteLink(Item item, Sprite sprite, bool skill = false)
+        {
+            var link = GetOrAddVisualLink(item);
+
+            if (skill)
+            {
+                link.SkillTreeIcon = sprite;
+            }
+            else
+            {
+                link.ItemIcon = sprite;
+            }
+        }
+
+        [HarmonyPatch(typeof(Item), "GetItemVisual", new Type[] { typeof(bool) })]
+        public class Item_GetItemVisuals
+        {
+            [HarmonyPrefix]
+            public static bool Prefix(Item __instance, bool _special, ref Transform __result)
+            {
+                if (ItemVisuals.ContainsKey(__instance.ItemID))
+                {
+                    var link = ItemVisuals[__instance.ItemID];
+                    if (!_special)
+                    {
+                        if (link.ItemVisuals)
+                        {
+                            __result = link.ItemVisuals;
+                            return false;
+                        }
+                    }
+                    else
+                    {
+                        if (__instance.HasSpecialVisualFemalePrefab && link.ItemSpecialFemaleVisuals)
+                        {
+                            __result = link.ItemSpecialFemaleVisuals;
+                            return false;
+                        }
+                        else if (!__instance.HasSpecialVisualFemalePrefab && link.ItemSpecialVisuals)
+                        {
+                            __result = link.ItemSpecialVisuals;
+                            return false;
+                        }
+                    }
+                }
+
+                return true;
+            }
+        }
+
+        [HarmonyPatch(typeof(Item), "ItemIcon", MethodType.Getter)]
+        public class Item_ItemIcon
+        {
+            [HarmonyPrefix]
+            public static bool Prefix(Item __instance, ref Sprite __result)
+            {
+                if (ItemVisuals.ContainsKey(__instance.ItemID) && ItemVisuals[__instance.ItemID] is ItemVisualsLink link && link.ItemIcon)
+                {
+                    __result = link.ItemIcon;
+                    return false;
+                }
+
+                return true;
+            }
+        }
+
+        /// <summary>Returns the original Item Visuals for the given Item and VisualPrefabType</summary>
+        public static Transform GetOrigItemVisuals(Item item, VisualPrefabType type)
+        {
+            Transform prefab = null;
+            switch (type)
+            {
+                case VisualPrefabType.VisualPrefab:
+                    prefab = ResourcesPrefabManager.Instance.GetItemVisualPrefab(item.VisualPrefabPath);
+                    break;
+                case VisualPrefabType.SpecialVisualPrefabDefault:
+                    prefab = ResourcesPrefabManager.Instance.GetItemVisualPrefab(item.SpecialVisualPrefabDefaultPath);
+                    break;
+                case VisualPrefabType.SpecialVisualPrefabFemale:
+                    prefab = ResourcesPrefabManager.Instance.GetItemVisualPrefab(item.SpecialVisualPrefabFemalePath);
+                    break;
+                default:
+                    break;
+            }
+            return prefab;
+        }
+
+        /// <summary> Clone's an items current visual prefab (and materials), then sets this item's visuals to the new cloned prefab. </summary>
+        public static GameObject CloneVisualPrefab(Item item, VisualPrefabType type, bool logging = false)
+        {
+            var prefab = GetOrigItemVisuals(item, type);
+
+            if (!prefab)
+            {
+                if (logging)
+                {
+                    SL.Log("Error, no VisualPrefabType defined or could not find visual prefab of that type!");
+                }
+                return null;
+            }
+
+            // Clone the visual prefab 
+            var newVisuals = UnityEngine.Object.Instantiate(prefab.gameObject);
+            newVisuals.SetActive(false);
+            UnityEngine.Object.DontDestroyOnLoad(newVisuals);
+
+            //// set the item's visuals to our new clone
+            //At.SetValue(newVisuals.transform, typeof(Item), item, type.ToString());
+
+            // add to our CustomVisualPrefab dictionary
+            SetVisualPrefabLink(item, newVisuals, type);
 
             // Clone the materials too so that changes to them don't affect the original item visuals
             foreach (var skinnedMesh in newVisuals.GetComponentsInChildren<SkinnedMeshRenderer>())
@@ -328,9 +250,9 @@ namespace SideLoader
         {
             var transforms = new Transform[]
             {
-                item.VisualPrefab,
-                item.SpecialVisualPrefabDefault,
-                item.SpecialVisualPrefabFemale
+                ResourcesPrefabManager.Instance.GetItemVisualPrefab(item.VisualPrefabPath),
+                ResourcesPrefabManager.Instance.GetItemVisualPrefab(item.SpecialVisualPrefabDefaultPath),
+                ResourcesPrefabManager.Instance.GetItemVisualPrefab(item.SpecialVisualPrefabFemalePath)
             };
 
             var prefab = transforms[(int)type];
@@ -356,17 +278,6 @@ namespace SideLoader
             return null;
         }
 
-        // Match anything up to " (" 
-        private static readonly Regex materialRegex = new Regex(@".+?(?= \()");
-
-        /// <summary>
-        /// Returns the true name of the given material name (removes "(Clone)" and "(Instance)", etc)
-        /// </summary>
-        public static string GetSafeMaterialName(string origName)
-        {
-            return materialRegex.Match(origName).Value;
-        }
-
         /// <summary>
         /// INTERNAL. For applying textures to an item from a given directory.
         /// </summary>
@@ -382,6 +293,11 @@ namespace SideLoader
                 var sprite = CustomTextures.CreateSprite(tex, CustomTextures.SpriteBorderTypes.ItemIcon);
                 UnityEngine.Object.DontDestroyOnLoad(sprite);
                 At.SetValue(sprite, typeof(Item), item, "m_itemIcon");
+                if (item.HasDefaultIcon)
+                {
+                    At.SetValue("not null", typeof(Item), item, "m_itemIconPath");
+                }
+                SetSpriteLink(item, sprite, false);
             }
 
             // check for Skill icon (if skill)
@@ -392,6 +308,7 @@ namespace SideLoader
                 var sprite = CustomTextures.CreateSprite(tex, CustomTextures.SpriteBorderTypes.SkillTreeIcon);
                 UnityEngine.Object.DontDestroyOnLoad(sprite);
                 skill.SkillTreeIcon = sprite;
+                SetSpriteLink(item, sprite, true);
             }
 
             // build dictionary of textures per material
@@ -499,6 +416,9 @@ namespace SideLoader
             }
         }
 
+
+        // ******************* FOR SAVING ITEM TEXTURES/MATERIALS *******************
+
         /// <summary>
         /// Saves textures from an Item to a directory.
         /// </summary>
@@ -562,6 +482,9 @@ namespace SideLoader
         {
             public Item LinkedItem;
             public SL_Item LinkedTemplate;
+
+            public Sprite ItemIcon;
+            public Sprite SkillTreeIcon;
 
             public Transform ItemVisuals;
             public Transform ItemSpecialVisuals;

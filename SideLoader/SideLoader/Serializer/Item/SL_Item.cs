@@ -46,7 +46,7 @@ namespace SideLoader
         public float? MobileCastMovementMult;
         public int? CastSheatheRequired;
 
-        public List<string> Tags = new List<string>();
+        public List<string> Tags;
 
         public SL_ItemStats StatsHolder;
 
@@ -61,23 +61,9 @@ namespace SideLoader
 
         /*       Visual Prefab stuff       */
 
-        /// <summary>The name of the AssetBundle where your custom ItemVisuals are loaded from</summary>
-        public string AssetBundleName = "";
-        /// <summary>The name of the GameObject for your standard Item Visuals, in the AssetBundle defined as AssetBundleName</summary>
-        public string ItemVisuals_PrefabName = "";
-        public Vector3 ItemVisuals_PositionOffset = Vector3.zero;
-        public Vector3 ItemVisuals_RotationOffset = Vector3.zero;
-        /// <summary>The name of the GameObject for your SPECIAL Visuals (commonly for Armor visuals), in the AssetBundle defined as AssetBundleName</summary>
-        public string SpecialVisuals_PrefabName = "";
-        public Vector3 SpecialVisuals_PositionOffset = Vector3.zero;
-        public Vector3 SpecialVisuals_RotationOffset = Vector3.zero;
-        /// <summary>The name of the GameObject for your SPECIAL FEMALE Visuals (commonly for Armor visuals), in the AssetBundle defined as AssetBundleName</summary>
-        public string FemaleVisuals_PrefabName = "";
-        public Vector3 FemaleVisuals_PositionOffset = Vector3.zero;
-        public Vector3 FemaleVisuals_RotationOffset = Vector3.zero;
-
-        public bool? VisualsHideFace;
-        public bool? VisualsHideHair;
+        public SL_ItemVisual ItemVisuals;
+        public SL_ItemVisual SpecialItemVisuals;
+        public SL_ItemVisual SpecialFemaleItemVisuals;
 
         public void ApplyTemplateToItem()
         {
@@ -88,6 +74,9 @@ namespace SideLoader
                 return;
             }
 
+            // re-set this, just to be safe. The component might have been replaced by FixComponentTypeIfNeeded.
+            CustomItems.SetItemID(New_ItemID, item);
+
             SL.Log("Applying Item Template. ID: " + New_ItemID + ", Name: " + (Name ?? item.Name));
 
             ApplyToItem(item);
@@ -95,12 +84,6 @@ namespace SideLoader
 
         public virtual void ApplyToItem(Item item)
         {
-            SLPack pack = null;
-            if (!string.IsNullOrEmpty(SLPackName) && SL.Packs.ContainsKey(SLPackName))
-            {
-                pack = SL.Packs[SLPackName];
-            }
-
             CustomItems.SetNameAndDescription(item, this.Name ?? item.Name, this.Description ?? item.Description);
 
             if (this.LegacyItemID != null)
@@ -152,11 +135,16 @@ namespace SideLoader
 
             if (this.StatsHolder != null)
             {
+                var desiredType = Serializer.GetGameType(this.StatsHolder.GetType());
+
                 var stats = item.GetComponent<ItemStats>();
                 if (!stats)
                 {
-                    var gameType = Serializer.GetGameType(this.StatsHolder.GetType());
-                    stats = (ItemStats)item.gameObject.AddComponent(gameType);
+                    stats = (ItemStats)item.gameObject.AddComponent(desiredType);
+                }
+                else
+                {
+                    stats = (ItemStats)Serializer.FixComponentTypeIfNeeded(item.transform, desiredType, stats);
                 }
 
                 StatsHolder.ApplyToItem(stats);
@@ -164,97 +152,44 @@ namespace SideLoader
 
             SL_EffectTransform.ApplyTransformList(item.transform, this.EffectTransforms, this.EffectBehaviour);
 
-            //************************  This will need to change after DLC.  ************************//
-
-            ApplyVisuals(pack, item);
-
-            // **************************************************************************************//
+            ApplyItemVisuals(item);
         }
 
-        private void ApplyVisuals(SLPack pack, Item item)
+        private void ApplyItemVisuals(Item item)
         {
-            AssetBundle bundle = null;
-            if (pack != null && !string.IsNullOrEmpty(AssetBundleName))
+            // Visual Prefabs
+            if (this.ItemVisuals != null)
             {
-                if (!pack.AssetBundles.ContainsKey(this.AssetBundleName))
-                {
-                    SL.Log("Error: The SLPack for this item does not contain an assetbundle by the name of " + this.AssetBundleName, 1);
-                }
-                else
-                {
-                    bundle = pack.AssetBundles[this.AssetBundleName];
-                }
+                ItemVisuals.Type = VisualPrefabType.VisualPrefab;
+                this.ItemVisuals.ApplyToItem(item);
+            }
+            else
+            {
+                CustomItemVisuals.CloneVisualPrefab(item, VisualPrefabType.VisualPrefab);
             }
 
-            for (int i = 0; i < 3; i++)
+            if (this.SpecialItemVisuals != null)
             {
-                Transform orig = null;
-                string prefabName = "";
-                Vector3 pos = Vector3.zero;
-                Vector3 rot = Vector3.zero;
+                this.SpecialItemVisuals.Type = VisualPrefabType.SpecialVisualPrefabDefault;
+                this.SpecialItemVisuals.ApplyToItem(item);
+            }
+            else
+            {
+                CustomItemVisuals.CloneVisualPrefab(item, VisualPrefabType.SpecialVisualPrefabDefault);
+            }
 
-                var type = (CustomItemVisuals.VisualPrefabType)i;
-                switch (type)
-                {
-                    case CustomItemVisuals.VisualPrefabType.VisualPrefab:
-                        prefabName = this.ItemVisuals_PrefabName;
-                        orig = item.VisualPrefab;
-                        pos = this.ItemVisuals_PositionOffset;
-                        rot = this.ItemVisuals_RotationOffset;
-                        break;
-                    case CustomItemVisuals.VisualPrefabType.SpecialVisualPrefabDefault:
-                        prefabName = this.SpecialVisuals_PrefabName;
-                        orig = item.SpecialVisualPrefabDefault;
-                        pos = this.SpecialVisuals_PositionOffset;
-                        rot = this.SpecialVisuals_RotationOffset;
-                        break;
-                    case CustomItemVisuals.VisualPrefabType.SpecialVisualPrefabFemale:
-                        prefabName = this.FemaleVisuals_PrefabName;
-                        orig = item.SpecialVisualPrefabFemale;
-                        pos = this.FemaleVisuals_PositionOffset;
-                        rot = this.FemaleVisuals_RotationOffset;
-                        break;
-                }
-
-                if (!orig)
-                {
-                    continue;
-                }
-
-                if (string.IsNullOrEmpty(prefabName))
-                {
-                    var newVisuals = CustomItemVisuals.CloneVisualPrefab(item, type, pos, rot);
-
-                    if (newVisuals.GetComponent<ArmorVisuals>() is ArmorVisuals armorVisuals)
-                    {
-                        if (this.VisualsHideFace != null)
-                        {
-                            armorVisuals.HideFace = (bool)this.VisualsHideFace;
-                        }
-                        if (this.VisualsHideHair != null)
-                        {
-                            armorVisuals.HideHair = (bool)this.VisualsHideHair;
-                        }
-                    }
-
-                    continue;
-                }
-                else if (bundle != null)
-                {
-                    var prefab = bundle.LoadAsset<GameObject>(prefabName);
-
-                    if (!prefab)
-                    {
-                        SL.Log("Error: Either we could not find a custom prefab by that name, or the original item does not use visuals for the given type", 1);
-                        continue;
-                    }
-
-                    CustomItemVisuals.SetVisualPrefab(item, prefab.transform, type, pos, rot, this.VisualsHideFace, this.VisualsHideHair);
-                }
+            if (this.SpecialFemaleItemVisuals != null)
+            {
+                this.SpecialFemaleItemVisuals.Type = VisualPrefabType.SpecialVisualPrefabFemale;
+                this.SpecialFemaleItemVisuals.ApplyToItem(item);
+            }
+            else
+            {
+                CustomItemVisuals.CloneVisualPrefab(item, VisualPrefabType.SpecialVisualPrefabFemale);
             }
 
             // Texture Replacements
-            if (pack != null && !string.IsNullOrEmpty(SubfolderName))
+            if (!string.IsNullOrEmpty(SLPackName) && SL.Packs.ContainsKey(SLPackName) && !string.IsNullOrEmpty(this.SubfolderName))
             {
                 CustomItemVisuals.TryApplyCustomTextures(this, item);
             }
@@ -262,23 +197,11 @@ namespace SideLoader
 
         // ***********************  FOR SERIALIZING AN ITEM INTO A TEMPLATE  *********************** //
 
-        private static Type GetBestSLType(Type type)
-        {
-            if (Serializer.GetSLType(type, false) is Type slType)
-            {
-                return slType;
-            }
-            else
-            {
-                return GetBestSLType(type.BaseType);
-            }
-        }
-
         public static SL_Item ParseItemToTemplate(Item item)
         {
             SL.Log("Parsing item to template: " + item.Name);
 
-            var type = GetBestSLType(item.GetType());
+            var type = Serializer.GetBestSLType(item.GetType());
 
             var holder = (SL_Item)Activator.CreateInstance(type);
 
@@ -314,20 +237,41 @@ namespace SideLoader
 
             if (item.Tags != null)
             {
+                holder.Tags = new List<string>();
+
                 foreach (Tag tag in item.Tags)
                 {
                     holder.Tags.Add(tag.TagName);
                 }
             }
 
-            foreach (Transform child in item.transform)
+            if (item.transform.childCount > 0)
             {
-                var effectsChild = SL_EffectTransform.ParseTransform(child);
-
-                if (effectsChild.ChildEffects.Count > 0 || effectsChild.Effects.Count > 0 || effectsChild.EffectConditions.Count > 0)
+                foreach (Transform child in item.transform)
                 {
-                    holder.EffectTransforms.Add(effectsChild);
+                    var effectsChild = SL_EffectTransform.ParseTransform(child);
+
+                    if (effectsChild.ChildEffects.Count > 0 || effectsChild.Effects.Count > 0 || effectsChild.EffectConditions.Count > 0)
+                    {
+                        holder.EffectTransforms.Add(effectsChild);
+                    }
                 }
+            }
+
+            if (item.HasVisualPrefab && ResourcesPrefabManager.Instance.GetItemVisualPrefab(item.VisualPrefabPath).GetComponent<ItemVisual>() is ItemVisual visual)
+            {
+                holder.ItemVisuals = SL_ItemVisual.ParseVisualToTemplate(visual);
+                holder.ItemVisuals.Type = VisualPrefabType.VisualPrefab;
+            }
+            if (item.HasSpecialVisualDefaultPrefab)
+            {
+                holder.SpecialItemVisuals = SL_ItemVisual.ParseVisualToTemplate(ResourcesPrefabManager.Instance.GetItemVisualPrefab(item.SpecialVisualPrefabDefaultPath).GetComponent<ItemVisual>());
+                holder.SpecialItemVisuals.Type = VisualPrefabType.SpecialVisualPrefabDefault;
+            }
+            if (item.HasSpecialVisualFemalePrefab)
+            {
+                holder.SpecialFemaleItemVisuals = SL_ItemVisual.ParseVisualToTemplate(ResourcesPrefabManager.Instance.GetItemVisualPrefab(item.SpecialVisualPrefabFemalePath).GetComponent<ItemVisual>());
+                holder.SpecialFemaleItemVisuals.Type = VisualPrefabType.SpecialVisualPrefabFemale;
             }
         }
     }

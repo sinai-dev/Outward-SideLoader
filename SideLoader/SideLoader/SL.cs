@@ -10,7 +10,7 @@ using UnityEngine.Events;
 using System.Reflection;
 using HarmonyLib;
 using BepInEx;
-using UnityEngine.UI;
+using SideLoader.UI;
 
 namespace SideLoader
 {
@@ -23,7 +23,7 @@ namespace SideLoader
         // Mod Info
         public const string GUID = "com.sinai." + MODNAME;
         public const string MODNAME = "SideLoader";
-        public const string VERSION = "2.4.0";
+        public const string VERSION = "2.5.0";
 
         // Folders
         public static string PLUGINS_FOLDER => Paths.PluginPath;
@@ -83,7 +83,7 @@ namespace SideLoader
             obj.AddComponent<CustomScenes>();
             obj.AddComponent<CustomStatusEffects>();
             obj.AddComponent<CustomTextures>();
-            obj.AddComponent<DebugMenu>();
+            obj.AddComponent<SL_GUI>();
             obj.AddComponent<RPCManager>();
         }
 

@@ -44,7 +44,7 @@ namespace SideLoader
         {
             var type = effect.GetType();
 
-            if (Serializer.GetSLType(type) is Type sl_type)
+            if (Serializer.GetBestSLType(type) is Type sl_type && !sl_type.IsAbstract)
             {
                 var holder = Activator.CreateInstance(sl_type) as SL_Effect;
                 holder.Delay = effect.Delay;

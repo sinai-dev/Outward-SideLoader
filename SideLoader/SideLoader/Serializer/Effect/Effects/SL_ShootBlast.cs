@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using UnityEngine;
@@ -194,18 +195,26 @@ namespace SideLoader
             NONE,
             AshGiantAsh,
             AshPriestExplosion,
+            Bleedblast_Trap,
             BleedblastImproved_Trap,
             Bludgeonblast_Trap,
             BoltElectricBlast,
             BoozuDecayBlast,
+            BoozuProudBeastBlast,
+            BoozuProudBeastBlastBig,
             BubbleIceBlast,
             BulletBloodSyphonBlast,
             BulletIceBlast,
             BurningBlast,
             BurningManFlamethrower,
+            CageBossBlastBig,
+            CageBossBlastSmall,
+            CageBossPunch,
             ColdBlast_HiddenTrap,
             ColdBlast_Trap,
             ConsumeSoulBlast,
+            DecayBlast_Enchantment,
+            ElectricBlast_Enchantment,
             ElementalParasiteLingerBlast,
             EliteAshGiantAsh,
             EliteBurningBlast,
@@ -220,6 +229,7 @@ namespace SideLoader
             EliteTrogGrenadeBlast,
             EliteTuanosaurFireblast,
             EliteTuanosaurFlamethrower,
+            EtherealBlast_Enchantment,
             EtherealBlast_HiddenTrap,
             EtherealBlast_RunicBlast,
             EtherealBlast_RunicBlastAmplified,
@@ -227,6 +237,7 @@ namespace SideLoader
             EtherealBlast_RunicTrapAmplified,
             EtherealBlast_Trap,
             Fireblast,
+            FireBlast_Enchantment,
             FireblastBeetle,
             FireLinger,
             FireWall,
@@ -239,10 +250,13 @@ namespace SideLoader
             ForceRaiseLightning,
             ForgeGolemRustLichMinionElectricblast,
             ForgeGolemRustLichMinionFlamethrower,
+            FrostBlast_Enchantment,
             Gateblast,
             GhostSoulSyphon,
             GiantHorrorAsh,
             GiantHorrorAshBlast,
+            GiantHorrorDecayThrower,
+            GiftOfBloodAllyBlast,
             GolemShieldedLingerBlast,
             GolemShieldedMortarBlast,
             GongStrikeDecay,
@@ -253,6 +267,11 @@ namespace SideLoader
             GongStrikePoison,
             GongStrikeSpiritual,
             GongStrikeWind,
+            HexTouchChillBlast,
+            HexTouchCurseBlast,
+            HexTouchDoomBlast,
+            HexTouchHauntBlast,
+            HexTouchScorchBlast,
             HiddenBonusDamageBlast_Trap,
             HornetBurst,
             HornetHeal,
@@ -274,7 +293,9 @@ namespace SideLoader
             LichRustOrderProj_0,
             LichRustOrderProj_1,
             LichRustOrderProj_2,
+            LichRustProjectileEtherealExplosion,
             LichRustReanimate,
+            LichRustTeleportBlast,
             LightLichDamageBlast_BoltElectric,
             MantisManaExplosion,
             Monster_1DamageBlast_BoltElectric,
@@ -288,6 +309,17 @@ namespace SideLoader
             PureIlluminatorExplosion2,
             PureIlluminatorExplosion3,
             PureIlluminatorMineLingerBlast,
+            RunicBeastBlast,
+            RuptureBlast,
+            RuptureBlast_Chill,
+            RuptureBlast_Confusion,
+            RuptureBlast_Curse,
+            RuptureBlast_Doom,
+            RuptureBlast_Haunt,
+            RuptureBlast_Pain,
+            RuptureBlast_RevealedSoul,
+            RuptureBlast_Scorch,
+            SappedBlast_Trap,
             ShieldAbsorbDecayBlast,
             ShieldAbsorbEtherealBlast,
             ShieldAbsorbFireBlast,
@@ -305,27 +337,31 @@ namespace SideLoader
             SupremeShellLazer,
             SupremeShellLeapBlast,
             SupremeShellRageBlast,
+            TormentBlast,
             ToxicBlast_Trap,
             ToxicBlastImproved_Trap,
             TrogGrenadeBlast,
             TuanosaurExplosion,
             VendavelWitchElectricBlast,
             VendavelWitchKickIceBlast,
-            WendigoSoulSyphon
+            WendigoSoulSyphon,
+
         }
 
-        //public static void DebugBlastNames()
-        //{
-        //    var blasts = Resources.FindObjectsOfTypeAll<Blast>();
-        //    var names = new List<string>();
-        //    foreach (var blast in blasts)
-        //    {
-        //        if (!names.Contains(blast.name))
-        //        {
-        //            names.Add(blast.name);
-        //            Debug.Log(blast.name + ",");
-        //        }
-        //    }
-        //}
+        public static void DebugBlastNames()
+        {
+            Debug.Log("----------- BLASTS ------------ ");
+            var blasts = Resources.FindObjectsOfTypeAll<Blast>();
+            var names = new List<string>();
+            foreach (var blast in blasts)
+            {
+                if (!names.Contains(blast.name))
+                {
+                    names.Add(blast.name);
+                    //Debug.Log(blast.name + ",");
+                }
+            }
+            File.WriteAllLines("blasts.txt", names.ToArray());
+        }
     }
 }

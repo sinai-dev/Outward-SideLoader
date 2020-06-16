@@ -136,23 +136,21 @@ namespace SideLoader
                 item.gameObject.SetActive(false);
                 item.gameObject.name = newID + "_" + name;
 
-                item.ItemID = newID;
-                SetItemID(newID, item);
-
                 // fix for name and description localization
                 SetNameAndDescription(item, original.Name, original.Description);
             }
 
+            if (template != null)
+            {
+                item = (Item)Serializer.FixComponentTypeIfNeeded(item.transform, Serializer.GetGameType(template.GetType()), item);
+            }
+
+            item.ItemID = newID;
+            SetItemID(newID, item);
+
             // Do this so that any changes we make are not destroyed on scene changes.
             // This is needed whether this is a clone or a new item.
             DontDestroyOnLoad(item.gameObject);
-
-            // fix for recipes (not sure if needed anymore?)
-            if (!item.GetComponent<TagSource>())
-            {
-                var tags = item.gameObject.AddComponent<TagSource>();
-                tags.RefreshTags();
-            }
 
             if (template != null)
             {
@@ -251,15 +249,12 @@ namespace SideLoader
         /// <summary> Adds the range of tags to the Items' TagSource, and optionally destroys the existing tags.</summary>
         public static void SetItemTags(Item item, List<string> tags, bool destroyExisting)
         {
-            TagSource tagsource;
-            if (destroyExisting && item.GetComponent<TagSource>() is TagSource origTags)
+            var tagsource = item.transform.GetOrAddComponent<TagSource>();
+
+            if (destroyExisting)
             {
-                DestroyImmediate(origTags);
-                tagsource = item.gameObject.AddComponent<TagSource>();
-            }
-            else
-            {
-                tagsource = item.gameObject.GetComponent<TagSource>();
+                At.SetValue(new List<Tag>(), typeof(TagListSelectorComponent), tagsource, "m_tags");
+                At.SetValue(new List<TagSourceSelector>(), typeof(TagListSelectorComponent), tagsource, "m_tagSelectors");
             }
 
             var list = new List<TagSourceSelector>();
