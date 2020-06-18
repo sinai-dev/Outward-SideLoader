@@ -23,7 +23,7 @@ namespace SideLoader
         // Mod Info
         public const string GUID = "com.sinai." + MODNAME;
         public const string MODNAME = "SideLoader";
-        public const string VERSION = "2.5.0";
+        public const string VERSION = "2.5.1";
 
         // Folders
         public static string PLUGINS_FOLDER => Paths.PluginPath;
@@ -118,6 +118,18 @@ namespace SideLoader
 
             SL_ShootBlast.BuildBlastsDictionary();
             SL_ShootProjectile.BuildProjectileDictionary();
+
+            //foreach (var item in CustomItems.RPM_ITEM_PREFABS.Values)
+            //{
+            //    if (item.DLCID == OTWStoreAPI.DLCs.Soroboreans || item.name.Contains("BloodSigil"))
+            //    {
+            //        if (item.ItemIcon)
+            //        {
+            //            var name = Serializer.ReplaceInvalidChars(item.Name);
+            //            CustomTextures.SaveIconAsPNG(item.ItemIcon, "ItemIcons", name);
+            //        }
+            //    }
+            //}
 
             // ==========================
 

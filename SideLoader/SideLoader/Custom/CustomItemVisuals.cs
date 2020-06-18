@@ -216,7 +216,7 @@ namespace SideLoader
             }
             else
             {
-                Debug.Log("Directory does not exist: " + texturesFolder);
+                SL.Log("Directory does not exist: " + texturesFolder);
             }
         }
 
@@ -248,14 +248,24 @@ namespace SideLoader
         /// </summary>
         public static Material[] GetMaterials(Item item, VisualPrefabType type)
         {
-            var transforms = new Transform[]
+            Transform prefab = null;
+            if (ItemVisuals.ContainsKey(item.ItemID))
             {
-                ResourcesPrefabManager.Instance.GetItemVisualPrefab(item.VisualPrefabPath),
-                ResourcesPrefabManager.Instance.GetItemVisualPrefab(item.SpecialVisualPrefabDefaultPath),
-                ResourcesPrefabManager.Instance.GetItemVisualPrefab(item.SpecialVisualPrefabFemalePath)
-            };
-
-            var prefab = transforms[(int)type];
+                var link = ItemVisuals[item.ItemID];
+                switch (type)
+                {
+                    case VisualPrefabType.VisualPrefab:
+                        prefab = link.ItemVisuals; break;
+                    case VisualPrefabType.SpecialVisualPrefabDefault:
+                        prefab = link.ItemSpecialVisuals; break;
+                    case VisualPrefabType.SpecialVisualPrefabFemale:
+                        prefab = link.ItemSpecialFemaleVisuals; break;
+                }
+            }
+            if (!prefab)
+            {
+                prefab = GetOrigItemVisuals(item, type);
+            }
 
             if (prefab)
             {
