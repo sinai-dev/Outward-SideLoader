@@ -128,22 +128,33 @@ namespace SideLoader
                 SL.DestroyChildren(status.transform);
             }
 
-            if (Effects != null)
+            Transform signature;
+            if (status.transform.childCount < 1)
             {
-                var signature = status.transform.GetChild(0);
-                if (!signature)
-                {
-                    signature = new GameObject($"SIGNATURE_{status.IdentifierName}").transform;
-                    signature.parent = status.transform;
-                    var comp = signature.gameObject.AddComponent<EffectSignature>();
-                    comp.SignatureUID = new UID($"{NewStatusID}_{status.IdentifierName}");
-                }
-
-                SL_EffectTransform.ApplyTransformList(signature, Effects, EffectBehaviour);
-
-                // fix StatusData for the new effects
-                CompileEffectsToData(status);
+                signature = new GameObject($"SIGNATURE_{status.IdentifierName}").transform;
+                signature.parent = status.transform;
+                var comp = signature.gameObject.AddComponent<EffectSignature>();
+                comp.SignatureUID = new UID($"{NewStatusID}_{status.IdentifierName}");
             }
+            else
+            {
+                signature = status.transform.GetChild(0);
+            }
+
+            if (Effects != null && Effects.Count > 1)
+            {
+                if (signature)
+                {
+                    SL_EffectTransform.ApplyTransformList(signature, Effects, EffectBehaviour);
+                }
+                else
+                {
+                    SL.Log("Could not get effect signature!", 1);
+                }
+            }
+
+            // fix StatusData for the new effects
+            CompileEffectsToData(status);
         }
 
         // There is no opposite of Effect.SetValue (you'd think it would be Effect.CompileData, but no...), so we have to do this manually.
