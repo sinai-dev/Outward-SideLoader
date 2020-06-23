@@ -350,7 +350,7 @@ namespace SideLoader
 			var pv = character.photonView;
 			int view = pv.viewID;
 
-			GameObject.DestroyImmediate(character.gameObject);
+			GameObject.Destroy(character.gameObject);
 
 			PhotonNetwork.UnAllocateViewID(view);
 		}
