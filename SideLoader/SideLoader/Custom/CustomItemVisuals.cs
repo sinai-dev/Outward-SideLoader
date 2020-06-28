@@ -96,12 +96,15 @@ namespace SideLoader
                     }
                     else
                     {
-                        if (__instance.HasSpecialVisualFemalePrefab && link.ItemSpecialFemaleVisuals)
+                        if (__instance.UseSpecialVisualFemale)
                         {
-                            __result = link.ItemSpecialFemaleVisuals;
-                            return false;
+                            if (link.ItemSpecialFemaleVisuals)
+                            {
+                                __result = link.ItemSpecialFemaleVisuals;
+                                return false;
+                            }
                         }
-                        else if (!__instance.HasSpecialVisualFemalePrefab && link.ItemSpecialVisuals)
+                        else if (link.ItemSpecialVisuals)
                         {
                             __result = link.ItemSpecialVisuals;
                             return false;
