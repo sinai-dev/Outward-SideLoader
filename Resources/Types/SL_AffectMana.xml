@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<SL_AffectMana xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-  <Delay>0</Delay>
-  <SyncType>Everyone</SyncType>
-  <OverrideCategory>None</OverrideCategory>
-  <AffectQuantity>0</AffectQuantity>
-  <IsModifier>false</IsModifier>
-</SL_AffectMana>

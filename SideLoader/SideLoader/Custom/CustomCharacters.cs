@@ -302,7 +302,7 @@ namespace SideLoader
 		/// </summary>
 		public static void CleanupCharacters()
         {
-			if (ActiveCharacters.Count > 0 && PhotonNetwork.isNonMasterClientInRoom)
+			if (ActiveCharacters.Count > 0 && !PhotonNetwork.isNonMasterClientInRoom)
             {
 				SL.Log("Cleaning up " + ActiveCharacters.Count + " characters.");
 
@@ -334,6 +334,8 @@ namespace SideLoader
 				return;
             }
 
+			character.gameObject.SetActive(false);
+
 			// Reverse iteration to remove elements from a list
 			for (int i = ActiveCharacters.Count - 1; i >= 0; i--)
             {
@@ -347,12 +349,26 @@ namespace SideLoader
                 }
             }
 
+			var m_characters = (DictionaryExt<string, Character>)At.GetValue(typeof(CharacterManager), CharacterManager.Instance, "m_characters");
+			if (m_characters.ContainsKey(character.UID))
+            {
+				m_characters.Remove(character.UID);
+            }
+
 			var pv = character.photonView;
 			int view = pv.viewID;
 
-			GameObject.Destroy(character.gameObject);
+			//  DestroyImmediate
+			GameObject.DestroyImmediate(character.gameObject);			
 
-			PhotonNetwork.UnAllocateViewID(view);
+			if (character)
+            {
+				Debug.LogError("ERROR - Could not seem to destroy character " + character.UID);
+            }
+			else
+            {
+				PhotonNetwork.UnAllocateViewID(view);
+			}
 		}
 
 		/// <summary>

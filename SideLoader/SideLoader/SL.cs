@@ -54,6 +54,15 @@ namespace SideLoader
 
         // ================ Main Setup ====================
 
+        internal void Update()
+        {
+            if (Input.GetKeyDown(KeyCode.End))
+            {
+                var c = CharacterManager.Instance.GetFirstLocalCharacter();
+                At.Call(typeof(CharacterStats), c.Stats, "IncreaseBurntStamina", null, -999f, 1f);
+            }
+        }
+
         internal void Awake()
         {            
             Log($"Version {VERSION} starting...", 0);

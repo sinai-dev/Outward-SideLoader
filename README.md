@@ -20,14 +20,3 @@ Requires [BepInEx](https://github.com/BepInEx/BepInEx).
 See the SideLoader Wiki for (mostly) complete documentation:
 
 <big><b>[SideLoader Wiki](https://github.com/sinaioutlander/Outward-SideLoader/wiki)</b></big>
-
-## Examples and Resources
-
-The "Resources" folder of this repository contains many useful files. There are examples to learn from, some blank icon templates, the human model rig for Outward, and other stuff. 
-
-## Thanks
-* <b>ehaugw</b> for your suggestions and design discussions. Also provided some examples used in the Resources folder.
-
-## Got questions? Want to contribute?
-
-Feel free to contact me in the [Outward Discord](discord.gg/outward), I'm Sinai#4637. My DMs are open so just shoot me a message or @ me in the modding channel.

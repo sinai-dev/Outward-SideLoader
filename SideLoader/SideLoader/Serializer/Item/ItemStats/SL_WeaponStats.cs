@@ -203,9 +203,9 @@ namespace SideLoader
                 Weapon.WeaponType.FistW_2H,
                 new WeaponStatData()
                 {   //                         1     2     3     4     5
-                    DamageMult = new float[] { 1.0f, 1.0f, 1.0f, 1.0f, 1.0f },
-                    ImpactMult = new float[] { 1.0f, 1.0f, 1.0f, 1.0f, 1.0f },
-                    StamMult   = new float[] { 1.0f, 1.0f, 1.0f, 1.0f, 1.0f }
+                    DamageMult = new float[] { 1.0f, 1.0f, 1.3f, 1.3f, 1.3f },
+                    ImpactMult = new float[] { 1.0f, 1.0f, 1.3f, 1.3f, 1.3f },
+                    StamMult   = new float[] { 1.0f, 1.0f, 1.3f, 1.2f, 1.2f }
                 }
             }
         };
