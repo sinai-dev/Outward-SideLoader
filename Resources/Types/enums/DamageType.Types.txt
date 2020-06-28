@@ -1,0 +1,10 @@
+Physical
+Ethereal
+Decay
+Electric
+Frost
+Fire
+DarkOLD
+LightOLD
+Raw
+Count

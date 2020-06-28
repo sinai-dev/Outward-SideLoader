@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<SL_WeaponDamage xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <Delay>0</Delay>
+  <SyncType>Everyone</SyncType>
+  <OverrideCategory>None</OverrideCategory>
+  <Damage />
+  <Damages_AI />
+  <Knockback>0</Knockback>
+  <HitInventory>false</HitInventory>
+  <OverrideType>Physical</OverrideType>
+  <ForceOnlyLeftHand>false</ForceOnlyLeftHand>
+  <Damage_Multiplier>0</Damage_Multiplier>
+  <Damage_Multiplier_Kback>0</Damage_Multiplier_Kback>
+  <Damage_Multiplier_Kdown>0</Damage_Multiplier_Kdown>
+  <Impact_Multiplier>0</Impact_Multiplier>
+  <Impact_Multiplier_Kback>0</Impact_Multiplier_Kback>
+  <Impact_Multiplier_Kdown>0</Impact_Multiplier_Kdown>
+</SL_WeaponDamage>

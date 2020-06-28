@@ -1,0 +1,4 @@
+NotSet
+DoNothing
+Destroy
+Replace

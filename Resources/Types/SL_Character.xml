@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<SL_Character xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <AddCombatAI>false</AddCombatAI>
+  <Gender>Male</Gender>
+  <HairColorIndex>0</HairColorIndex>
+  <HairStyleIndex>0</HairStyleIndex>
+  <HeadVariationIndex>0</HeadVariationIndex>
+  <SkinIndex>0</SkinIndex>
+  <SpawnPosition>
+    <x>0</x>
+    <y>0</y>
+    <z>0</z>
+  </SpawnPosition>
+  <Faction>NONE</Faction>
+  <Weapon_ID>0</Weapon_ID>
+  <Shield_ID>0</Shield_ID>
+  <Helmet_ID>0</Helmet_ID>
+  <Chest_ID>0</Chest_ID>
+  <Boots_ID>0</Boots_ID>
+  <Backpack_ID>0</Backpack_ID>
+  <CanDodge>true</CanDodge>
+  <CanBlock>true</CanBlock>
+  <Health>100</Health>
+  <ImpactResist>0</ImpactResist>
+  <Protection>0</Protection>
+  <Damage_Resists>
+    <float>0</float>
+    <float>0</float>
+    <float>0</float>
+    <float>0</float>
+    <float>0</float>
+    <float>0</float>
+  </Damage_Resists>
+  <Damage_Bonus>
+    <float>0</float>
+    <float>0</float>
+    <float>0</float>
+    <float>0</float>
+    <float>0</float>
+    <float>0</float>
+  </Damage_Bonus>
+  <Status_Immunity />
+</SL_Character>

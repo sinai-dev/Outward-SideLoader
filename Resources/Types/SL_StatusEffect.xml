@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<SL_StatusEffect xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <TargetStatusID>0</TargetStatusID>
+  <NewStatusID>0</NewStatusID>
+  <Lifespan xsi:nil="true" />
+  <RefreshRate xsi:nil="true" />
+  <BuildupRecoverySpeed xsi:nil="true" />
+  <IgnoreBuildupIfApplied xsi:nil="true" />
+  <DisplayedInHUD xsi:nil="true" />
+  <IsHidden xsi:nil="true" />
+  <EffectsBehaviour>OverrideEffects</EffectsBehaviour>
+</SL_StatusEffect>
