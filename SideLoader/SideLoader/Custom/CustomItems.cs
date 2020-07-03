@@ -142,7 +142,11 @@ namespace SideLoader
 
             if (template != null)
             {
-                item = (Item)Serializer.FixComponentTypeIfNeeded(item.transform, Serializer.GetGameType(template.GetType()), item);
+                var gameType = Serializer.GetGameType(template.GetType());
+                if (gameType != item.GetType())
+                {
+                    item = (Item)Serializer.FixComponentType(item.transform, gameType, item);
+                }
             }
 
             item.ItemID = newID;

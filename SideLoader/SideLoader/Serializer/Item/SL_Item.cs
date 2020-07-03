@@ -144,7 +144,7 @@ namespace SideLoader
                 }
                 else
                 {
-                    stats = (ItemStats)Serializer.FixComponentTypeIfNeeded(item.transform, desiredType, stats);
+                    stats = (ItemStats)Serializer.FixComponentType(item.transform, desiredType, stats);
                 }
 
                 StatsHolder.ApplyToItem(stats);

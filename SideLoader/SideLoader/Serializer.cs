@@ -174,16 +174,16 @@ namespace SideLoader
         }
 
         /// <summary>
-        /// Replaces a given 'existingComponent' on the 'transform', if it is not assignable from 'desiredType'.
-        /// If the desiredType is a base class of the existingComponent, this method will do nothing.
-        /// If the desiredType inherits from existingComponent, it will replace with desiredType and inherit values.
-        /// Example: You want AttackSkill but item is only a Skill. You can replace Skill with AttackSkill.
+        /// Replaces existingComponent type with desiredType ONLY if desiredType is not assignable from currentType.
+        /// That means if desiredType is Item and currentType is Weapon, this will do nothing.
+        /// If both types are the same, this will do nothing.
+        /// Otherwise, this will replace existingComponent with a desiredType component and inherit all possible values.
         /// </summary>
         /// <param name="transform">The transform to apply to</param>
         /// <param name="desiredType">The desired class type (the game type, not the SL type)</param>
         /// <param name="existingComponent">The existing component</param>
         /// <returns>The component left on the transform after the method runs.</returns>
-        public static Component FixComponentTypeIfNeeded(Transform transform, Type desiredType, Component existingComponent)
+        public static Component FixComponentType(Transform transform, Type desiredType, Component existingComponent)
         {
             if (!existingComponent || !transform || desiredType == null || desiredType.IsAbstract)
             {
@@ -192,38 +192,50 @@ namespace SideLoader
 
             var currentType = existingComponent.GetType();
 
-            //if (!desiredType.IsSubclassOf(currentType))
-            //{
-            //    return existingComponent;
-            //}
-
-            // Make sure we can assign from desired to current.
-            // Eg, current is MeleeWeapon and we want a ProjectileWeapon. We need to get the common base class (Weapon, in that case).
-            while (!currentType.IsAssignableFrom(desiredType) && currentType.BaseType != null)
+            // If the types are the same, or if currentType derives from desiredType, do nothing
+            // This is to allow using basic SL_Item (or whatever) templates on more complex types without replacing them.
+            if (desiredType.IsAssignableFrom(currentType)) 
             {
-                currentType = currentType.BaseType;
+                return existingComponent;
             }
 
-            // At this point we have either found a valid BaseType, or run out of BaseTypes to fall back on.
+            /* At this point, the following statements must be true:
+            *  - desiredType and currentType are not equal
+            *  - currentType does not inherit from desiredType, directly or indirectly
+            *  
+            *  desiredType may inherit from currentType, or they may share a common parent at some level.
+            */
+
+            if (!desiredType.IsSubclassOf(currentType))
+            {
+                // Desired type does not derive from current type.
+                // We need to recursively dive through currentType's BaseTypes until we find a type we can assign from.
+                // Eg, current is MeleeWeapon and we want a ProjectileWeapon. We need to get the common base class (Weapon, in that case).
+                // When currentType reaches Weapon, Weapon.IsAssignableFrom(ProjectileWeapon) will return true.
+                // We also want to make sure we didnt reach MonoBehaviour, and at least got a game class.
+                while (!currentType.IsAssignableFrom(desiredType) && currentType.BaseType != null && currentType.BaseType != typeof(MonoBehaviour))
+                {
+                    currentType = currentType.BaseType;
+                }
+            }
+
+            var newComp = transform.gameObject.AddComponent(desiredType);
+
+            // Final check if the value copying is valid, after operations above.
             if (!currentType.IsAssignableFrom(desiredType))
             {
-                // we failed to find a valid type...? This probably shouldn't happen.
                 SL.Log($"FixComponentTypeIfNeeded - could not find a compatible type of {currentType.Name} which is assignable to desired type: {desiredType.Name}!");
-                return existingComponent;
             }
             else
             {
-                // add the new component type
-                var newComp = transform.gameObject.AddComponent(desiredType);
-
                 // recursively get all the field values
                 At.CopyFieldValues(newComp, existingComponent, currentType, true);
-
-                // remove the old component
-                GameObject.DestroyImmediate(existingComponent);
-
-                return newComp;
             }
+
+            // remove the old component
+            GameObject.DestroyImmediate(existingComponent);
+
+            return newComp;
         }
 
         private static readonly Dictionary<Type, XmlSerializer> m_xmlCache = new Dictionary<Type, XmlSerializer>();
