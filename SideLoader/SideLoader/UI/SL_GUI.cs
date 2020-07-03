@@ -182,7 +182,7 @@ namespace SideLoader.UI
                 var itemfolder = SL.GENERATED_FOLDER + @"\Items\" + item.gameObject.name;
                 Serializer.SaveToXml(itemfolder, item.Name, template);
 
-                //CustomItemVisuals.SaveAllItemTextures(item, itemfolder + @"\Textures");
+                CustomItemVisuals.SaveAllItemTextures(item, itemfolder + @"\Textures");
             }
             else
             {

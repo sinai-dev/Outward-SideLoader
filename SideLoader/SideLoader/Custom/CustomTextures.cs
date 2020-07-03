@@ -363,16 +363,16 @@ namespace SideLoader
             // you might accidentally replace menu with generic names.
             // also, this doesnt work for item icons.
 
-            //var images = Resources.FindObjectsOfTypeAll<Image>().Where(x => x.sprite != null && x.sprite.texture != null);
+            var images = Resources.FindObjectsOfTypeAll<Image>().Where(x => x.sprite != null && x.sprite.texture != null);
 
-            //foreach (Image i in images)
-            //{
-            //    if (Textures.ContainsKey(i.sprite.texture.name))
-            //    {
-            //        SL.Log("Replacing sprite for " + i.name);
-            //        i.sprite = CreateSprite(Textures[i.sprite.texture.name]);
-            //    }
-            //}
+            foreach (Image i in images)
+            {
+                if (Textures.ContainsKey(i.sprite.texture.name))
+                {
+                    SL.Log("Replacing sprite for " + i.name);
+                    i.sprite = CreateSprite(Textures[i.sprite.texture.name]);
+                }
+            }
 
             var time = Math.Round(1000f * (Time.realtimeSinceStartup - start), 2);
 

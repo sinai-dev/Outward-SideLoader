@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using UnityEngine;
 
 namespace SideLoader
 {
@@ -58,6 +59,39 @@ namespace SideLoader
                     }
                 }
                 skill.RequiredItems = list.ToArray();
+            }
+
+            if (skill.transform.childCount > 0)
+            {
+                var activationConditions = new List<Skill.ActivationCondition>();
+
+                foreach (Transform child in skill.transform)
+                {
+                    if (child.name.Contains("Activation"))
+                    {
+                        foreach (var condition in child.GetComponentsInChildren<EffectCondition>())
+                        {
+                            var skillCondition = new Skill.ActivationCondition
+                            {
+                                Condition = condition
+                            };
+                            if (string.IsNullOrEmpty((string)At.GetValue(typeof(Skill.ActivationCondition), skillCondition, "m_messageLocKey")))
+                            {
+                                At.SetValue("Notification_Action_Invalid", typeof(Skill.ActivationCondition), skillCondition, "m_messageLocKey");
+                            }
+                            activationConditions.Add(skillCondition);
+                        }
+                    }
+                }
+
+                At.SetValue(activationConditions.ToArray(), typeof(Skill), skill, "m_additionalConditions");
+            }
+
+            if (skill.transform.Find("AdditionalActivationConditions") is Transform additionals)
+            {
+                
+                
+                
             }
         }
 

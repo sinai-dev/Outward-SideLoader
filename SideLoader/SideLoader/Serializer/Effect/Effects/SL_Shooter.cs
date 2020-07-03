@@ -20,10 +20,31 @@ namespace SideLoader
             if (__instance is ShootProjectile shootProjectile && shootProjectile.BaseProjectile is Projectile projectile && !projectile.gameObject.activeSelf)
             {
                 projectile.gameObject.SetActive(true);
+                EnableEffects(projectile.gameObject);
+                
             }
             else if (__instance is ShootBlast shootBlast && shootBlast.BaseBlast is Blast blast && !blast.gameObject.activeSelf)
             {
                 blast.gameObject.SetActive(true);
+                EnableEffects(blast.gameObject);
+            }
+        }
+
+        private static void EnableEffects(GameObject obj)
+        {
+            foreach (var effect in obj.GetComponentsInChildren<Effect>(true))
+            {
+                if (!effect.enabled)
+                {
+                    effect.enabled = true;
+                }
+            }
+            foreach (var condition in obj.GetComponentsInChildren<EffectCondition>(true))
+            {
+                if (!condition.enabled)
+                {
+                    condition.enabled = true;
+                }
             }
         }
     }
