@@ -185,17 +185,17 @@ namespace SideLoader
         /// <returns>The component left on the transform after the method runs.</returns>
         public static Component FixComponentTypeIfNeeded(Transform transform, Type desiredType, Component existingComponent)
         {
-            if (!existingComponent || !transform || desiredType == null)
+            if (!existingComponent || !transform || desiredType == null || desiredType.IsAbstract)
             {
                 return existingComponent;
             }
 
             var currentType = existingComponent.GetType();
 
-            if (desiredType.IsAbstract || !desiredType.IsSubclassOf(currentType))
-            {
-                return existingComponent;
-            }
+            //if (!desiredType.IsSubclassOf(currentType))
+            //{
+            //    return existingComponent;
+            //}
 
             // Make sure we can assign from desired to current.
             // Eg, current is MeleeWeapon and we want a ProjectileWeapon. We need to get the common base class (Weapon, in that case).
