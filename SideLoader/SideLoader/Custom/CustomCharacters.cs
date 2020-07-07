@@ -28,48 +28,6 @@ namespace SideLoader
 		/// </summary>
 		public static Dictionary<string, SL_Character> OnSpawnCallbacks = new Dictionary<string, SL_Character>();
 
-		// ======== harmony patches =========
-
-		// Just catches a harmless null ref exception, hiding it until I figure out a cleaner fix
-		[HarmonyPatch(typeof(Character), "ProcessOnEnable")]
-		public class Character_ProcessOnEnable
-        {
-			[HarmonyFinalizer]
-			public static Exception Finalizer()
-            {
-				return null;
-            }
-		}
-
-		// This harmony patch is to sneak into when the game applies characters.
-		// I figure it's best to do it at the same time.
-		[HarmonyPatch(typeof(NetworkLevelLoader), "MidLoadLevel")]
-		public class NetworkLevelLoader_MidLoadLevel
-		{
-			[HarmonyPostfix]
-			public static void Postfix()
-			{
-				var scene = SceneManager.GetActiveScene();
-				if (IsRealScene(scene))
-				{
-					SL.Log($"Spawning characters ({scene.name})");
-
-					SL.TryInvoke(INTERNAL_SpawnCharacters);
-				}
-			}
-		}
-
-		// Like the last patch, we sneak into when the game should have destroyed previous scene characters to cleanup there.
-		[HarmonyPatch(typeof(CharacterManager), "ClearNonPersitentCharacters")]
-		public class CharacterManager_ClearNonPersitentCharacters
-		{
-			[HarmonyPrefix]
-			public static void Prefix()
-            {
-				CleanupCharacters();
-            }
-        }
-
 		// ======================== PUBLIC HELPERS ======================== //
 
 		/// <summary>
@@ -79,6 +37,20 @@ namespace SideLoader
 		public static void DestroyCharacterRPC(Character character)
 		{
 			RPCManager.Instance.DestroyCharacter(character.UID);
+		}
+
+		/// <summary>
+		/// Used internally to invoke the SpawnCharacters events on valid scene load.
+		/// </summary>
+		public static void InvokeSpawnCharacters()
+		{
+			var scene = SceneManager.GetActiveScene();
+			if (IsRealScene(scene) && INTERNAL_SpawnCharacters != null)
+			{
+				SL.Log($"Spawning characters ({scene.name})");
+
+				SL.TryInvoke(INTERNAL_SpawnCharacters);
+			}
 		}
 
 		/// <summary>

@@ -40,34 +40,6 @@ namespace SideLoader
             RECIPES_PER_UTENSIL = At.GetValue(typeof(RecipeManager), RecipeManager.Instance, "m_recipeUIDsPerUstensils") as Dictionary<Recipe.CraftingType, List<UID>>;
         }
 
-        // ====================== Harmony Patches ====================== //
-
-        // fix for the recipe menu, which can break from some custom items when they are an ingredient.
-        [HarmonyPatch(typeof(ItemListDisplay), "SortBySupport")]
-        public class ItemListDisplay_SortBySupport
-        {
-            [HarmonyFinalizer]
-            public static Exception Finalizer(ref int __result, Exception __exception)
-            {
-                if (__exception != null)
-                {
-                    __result = -1;
-                }
-                return null;
-            }
-        }
-
-        // fix for ItemDetailsDisplay. Shouldn't really be needed anymore, but leaving it for now.
-        [HarmonyPatch(typeof(ItemDetailsDisplay), "RefreshDetail")]
-        public class ItemDetailsDisplay_RefreshDetail
-        {
-            [HarmonyFinalizer]
-            public static Exception Finalizer()
-            {
-                return null;
-            }
-        }
-
         // ================================================================================ //
         /*                                  Public Helpers                                  */
         // ================================================================================ //

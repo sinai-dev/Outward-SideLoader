@@ -2,17 +2,25 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Xml.Serialization;
 using UnityEngine;
+using UnityEngine.Experimental.UIElements;
 
 namespace SideLoader
 {
     public class SL_Weapon : SL_Equipment
     {
+        [Obsolete("Use a SL_WeaponLoadout in SL_Item.ItemExtensions instead")]
+        [XmlIgnore]
+        public int? MaxProjectileShots;
+
         public Weapon.WeaponType? WeaponType;
         public bool? Unblockable;
         public SwingSoundWeapon? SwingSound;
         public bool? SpecialIsZoom;
-        public int? MaxProjectileShots;
+
+        public float? MaxHealthLeechRatio;
+        public float? FlatHealthLeechRatio;
 
         public override void ApplyToItem(Item item)
         {
@@ -36,12 +44,15 @@ namespace SideLoader
             {
                 weapon.SpecialIsZoom = (bool)this.SpecialIsZoom;
             }
-            if (this.MaxProjectileShots != null && weapon is ProjectileWeapon projectile && projectile.GetComponent<WeaponLoadout>() is WeaponLoadout loadout)
+
+            if (this.MaxHealthLeechRatio != null)
             {
-                int maxshots = (int)this.MaxProjectileShots;
-                // must be >= 1
-                loadout.MaxProjectileLoaded = (maxshots <= 0) ? 1 : maxshots;
+                weapon.BaseMaxHealthAbsorbRatio = (float)this.MaxHealthLeechRatio;
             }
+            if (this.FlatHealthLeechRatio != null)
+            {
+                weapon.BaseHealthAbsorbRatio = (float)this.FlatHealthLeechRatio;
+            }            
         }
 
         public override void SerializeItem(Item item, SL_Item holder)
@@ -55,12 +66,13 @@ namespace SideLoader
             template.Unblockable = weapon.Unblockable;
             template.SwingSound = weapon.SwingSoundType;
             template.SpecialIsZoom = weapon.SpecialIsZoom;
-            template.MaxProjectileShots = -1;
 
-            if (weapon.GetComponent<WeaponLoadout>() is WeaponLoadout loadout)
-            {
-                template.MaxProjectileShots = loadout.MaxProjectileLoaded;
-            }
+            //template.MaxProjectileShots = -1;
+
+            //if (weapon.GetComponent<WeaponLoadout>() is WeaponLoadout loadout)
+            //{
+            //    template.MaxProjectileShots = loadout.MaxProjectileLoaded;
+            //}
         }
     }
 }

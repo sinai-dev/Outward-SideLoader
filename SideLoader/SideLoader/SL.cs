@@ -23,7 +23,7 @@ namespace SideLoader
         // Mod Info
         public const string GUID = "com.sinai." + MODNAME;
         public const string MODNAME = "SideLoader";
-        public const string VERSION = "2.5.5";
+        public const string VERSION = "2.6";
 
         // Folders
         public static string PLUGINS_FOLDER => Paths.PluginPath;
@@ -88,27 +88,8 @@ namespace SideLoader
         }
 
         /// <summary>
-        /// SideLoader's setup is a Finalizer on ResourcesPrefabManager.Load().
+        /// Called by a Harmony Patch Finalizer on ResourcesPrefabManager.Load
         /// </summary>
-        [HarmonyPatch(typeof(ResourcesPrefabManager), "Load")]
-        public class ResourcesPrefabManager_Load
-        {
-            [HarmonyFinalizer]
-            public static Exception Finalizer(Exception __exception)
-            {
-                if (__exception != null)
-                {
-                    Log("Exception on ResourcesPrefabManager.Load!", 0);
-                    Log(__exception.Message, 0);
-                    Log(__exception.StackTrace, 0);
-                }
-
-                Setup();
-
-                return null;
-            }
-        }
-
         public static void Setup()
         {
             // Prepare Blast and Projectile prefab dictionaries.

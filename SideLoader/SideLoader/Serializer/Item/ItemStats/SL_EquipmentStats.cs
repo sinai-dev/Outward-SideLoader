@@ -21,7 +21,10 @@ namespace SideLoader
         public float? Pouch_Bonus;
         public float? Heat_Protection;
         public float? Cold_Protection;
+        
         public float? Corruption_Protection; // for DLC
+        public float? Health_Regen;
+        public float? Cooldown_Reduction;
 
         public override void ApplyToItem(ItemStats stats)
         {
@@ -70,6 +73,14 @@ namespace SideLoader
             if (this.Corruption_Protection != null)
             {
                 At.SetValue((float)this.Corruption_Protection, typeof(EquipmentStats), stats, "m_corruptionProtection");
+            }
+            if (this.Cooldown_Reduction != null)
+            {
+                At.SetValue((float)this.Cooldown_Reduction, typeof(EquipmentStats), stats, "m_baseCooldownReductionBonus");
+            }
+            if (this.Health_Regen != null)
+            {
+                At.SetValue((float)this.Health_Regen, typeof(EquipmentStats), stats, "m_baseHealthRegenBonus");
             }
         }
 

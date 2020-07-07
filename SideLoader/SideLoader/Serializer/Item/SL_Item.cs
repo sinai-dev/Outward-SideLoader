@@ -50,6 +50,8 @@ namespace SideLoader
 
         public SL_ItemStats StatsHolder;
 
+        public List<SL_ItemExtension> ItemExtensions;
+
         /// <summary><list type="bullet">
         /// <item>NONE: Your effects are added on top of the existing ones.</item>
         /// <item>DestroyEffects: Destroys all child GameObjects on your item, except for "Content" (used for Bags)</item>
@@ -150,6 +152,11 @@ namespace SideLoader
                 StatsHolder.ApplyToItem(stats);
             }
 
+            if (this.ItemExtensions != null)
+            {
+                SL_ItemExtension.ApplyExtensionList(item, this.ItemExtensions);
+            }
+
             SL_EffectTransform.ApplyTransformList(item.transform, this.EffectTransforms, this.EffectBehaviour);
 
             ApplyItemVisuals(item);
@@ -233,6 +240,18 @@ namespace SideLoader
             if (item.GetComponent<ItemStats>() is ItemStats stats)
             {
                 holder.StatsHolder = SL_ItemStats.ParseItemStats(stats);
+            }
+
+            var extensions = item.gameObject.GetComponentsInChildren<ItemExtension>();
+            if (extensions != null && extensions.Length > 0)
+            {
+                holder.ItemExtensions = new List<SL_ItemExtension>();
+
+                foreach (var ext in extensions)
+                {
+                    var extHolder = SL_ItemExtension.SerializeExtension(ext);
+                    holder.ItemExtensions.Add(extHolder);
+                }
             }
 
             if (item.Tags != null)

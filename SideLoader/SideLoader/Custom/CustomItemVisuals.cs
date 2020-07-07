@@ -18,7 +18,7 @@ namespace SideLoader
         */
 
         /// <summary> Custom Item Visual prefabs (including retexture-only) </summary>
-        private static readonly Dictionary<int, ItemVisualsLink> ItemVisuals = new Dictionary<int, ItemVisualsLink>();        
+        private static readonly Dictionary<int, ItemVisualsLink> ItemVisuals = new Dictionary<int, ItemVisualsLink>();       
 
         // Match anything up to " (" 
         private static readonly Regex materialRegex = new Regex(@".+?(?= \()");
@@ -29,6 +29,15 @@ namespace SideLoader
         public static string GetSafeMaterialName(string origName)
         {
             return materialRegex.Match(origName).Value;
+        }
+
+        public static ItemVisualsLink GetItemVisualLink(Item item)
+        {
+            if (ItemVisuals.ContainsKey(item.ItemID))
+            {
+                return ItemVisuals[item.ItemID];
+            }
+            return null;
         }
 
         public static ItemVisualsLink GetOrAddVisualLink(Item item)
@@ -74,61 +83,6 @@ namespace SideLoader
             else
             {
                 link.ItemIcon = sprite;
-            }
-        }
-
-        [HarmonyPatch(typeof(Item), "GetItemVisual", new Type[] { typeof(bool) })]
-        public class Item_GetItemVisuals
-        {
-            [HarmonyPrefix]
-            public static bool Prefix(Item __instance, bool _special, ref Transform __result)
-            {
-                if (ItemVisuals.ContainsKey(__instance.ItemID))
-                {
-                    var link = ItemVisuals[__instance.ItemID];
-                    if (!_special)
-                    {
-                        if (link.ItemVisuals)
-                        {
-                            __result = link.ItemVisuals;
-                            return false;
-                        }
-                    }
-                    else
-                    {
-                        if (__instance.UseSpecialVisualFemale)
-                        {
-                            if (link.ItemSpecialFemaleVisuals)
-                            {
-                                __result = link.ItemSpecialFemaleVisuals;
-                                return false;
-                            }
-                        }
-                        else if (link.ItemSpecialVisuals)
-                        {
-                            __result = link.ItemSpecialVisuals;
-                            return false;
-                        }
-                    }
-                }
-
-                return true;
-            }
-        }
-
-        [HarmonyPatch(typeof(Item), "ItemIcon", MethodType.Getter)]
-        public class Item_ItemIcon
-        {
-            [HarmonyPrefix]
-            public static bool Prefix(Item __instance, ref Sprite __result)
-            {
-                if (ItemVisuals.ContainsKey(__instance.ItemID) && ItemVisuals[__instance.ItemID] is ItemVisualsLink link && link.ItemIcon)
-                {
-                    __result = link.ItemIcon;
-                    return false;
-                }
-
-                return true;
             }
         }
 

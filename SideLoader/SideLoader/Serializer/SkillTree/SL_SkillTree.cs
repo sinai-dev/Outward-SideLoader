@@ -16,6 +16,8 @@ namespace SideLoader
         public Sprite Sigil;
         public List<SL_SkillRow> SkillRows = new List<SL_SkillRow>();
 
+        public string UID;
+
         [XmlIgnore]
         private GameObject m_object;
 
@@ -39,7 +41,12 @@ namespace SideLoader
             m_object.name = this.Name;
             At.SetValue(this.Name, typeof(SkillSchool), school, "m_defaultName");
             At.SetValue("", typeof(SkillSchool), school, "m_nameLocKey");
-            At.SetValue(new UID(this.Name), typeof(SkillSchool), school, "m_uid");
+
+            if (string.IsNullOrEmpty(this.UID))
+            {
+                this.UID = this.Name;
+            }
+            At.SetValue(new UID(this.UID), typeof(SkillSchool), school, "m_uid");
 
             // fix the breakthrough int
             At.SetValue(-1, typeof(SkillSchool), school, "m_breakthroughSkillIndex");

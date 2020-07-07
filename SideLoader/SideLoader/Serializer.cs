@@ -174,8 +174,8 @@ namespace SideLoader
         }
 
         /// <summary>
-        /// Replaces existingComponent type with desiredType ONLY if desiredType is not assignable from currentType.
-        /// That means if desiredType is Item and currentType is Weapon, this will do nothing.
+        /// Replaces existingComponent type with desiredType ONLY if desiredType is not assignable from the existingComponent type.
+        /// That means if desiredType is Item and existingComponent type is Weapon, this will do nothing.
         /// If both types are the same, this will do nothing.
         /// Otherwise, this will replace existingComponent with a desiredType component and inherit all possible values.
         /// </summary>
@@ -198,13 +198,6 @@ namespace SideLoader
             {
                 return existingComponent;
             }
-
-            /* At this point, the following statements must be true:
-            *  - desiredType and currentType are not equal
-            *  - currentType does not inherit from desiredType, directly or indirectly
-            *  
-            *  desiredType may inherit from currentType, or they may share a common parent at some level.
-            */
 
             if (!desiredType.IsSubclassOf(currentType))
             {
