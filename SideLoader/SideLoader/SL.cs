@@ -55,7 +55,7 @@ namespace SideLoader
         // ================ Main Setup ====================
 
         internal void Awake()
-        {            
+        {
             Log($"Version {VERSION} starting...", 0);
 
             Instance = this;
@@ -226,7 +226,7 @@ namespace SideLoader
             }
             catch (Exception e)
             {
-                Log(string.Format("Error loading bundle: {0}\r\nMessage: {1}\r\nStack Trace: {2}", filepath, e.Message, e.StackTrace), 1);
+                Log($"Error loading bundle: {filepath}\r\nMessage: {e.Message}\r\nStack Trace: {e.StackTrace}");
                 return null;
             }
         }

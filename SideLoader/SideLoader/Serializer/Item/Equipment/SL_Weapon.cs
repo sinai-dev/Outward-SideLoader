@@ -19,8 +19,8 @@ namespace SideLoader
         public SwingSoundWeapon? SwingSound;
         public bool? SpecialIsZoom;
 
-        public float? MaxHealthLeechRatio;
-        public float? FlatHealthLeechRatio;
+        public float? HealthLeechRatio;
+        public float? HealthBurnLeechRatio;
 
         public override void ApplyToItem(Item item)
         {
@@ -45,13 +45,13 @@ namespace SideLoader
                 weapon.SpecialIsZoom = (bool)this.SpecialIsZoom;
             }
 
-            if (this.MaxHealthLeechRatio != null)
+            if (this.HealthLeechRatio != null)
             {
-                weapon.BaseMaxHealthAbsorbRatio = (float)this.MaxHealthLeechRatio;
+                weapon.BaseMaxHealthAbsorbRatio = (float)this.HealthLeechRatio;
             }
-            if (this.FlatHealthLeechRatio != null)
+            if (this.HealthBurnLeechRatio != null)
             {
-                weapon.BaseHealthAbsorbRatio = (float)this.FlatHealthLeechRatio;
+                weapon.BaseHealthAbsorbRatio = (float)this.HealthBurnLeechRatio;
             }            
         }
 
