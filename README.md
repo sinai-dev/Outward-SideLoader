@@ -22,6 +22,5 @@ See the SideLoader Wiki for (mostly) complete documentation:
 <big><b>[SideLoader Wiki](https://github.com/sinaioutlander/Outward-SideLoader/wiki)</b></big>
 
 ## Thanks To
-* ehaugw
 * Elec0
 * Everyone who gave feedback, ideas and reported bugs
