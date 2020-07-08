@@ -65,22 +65,3 @@ EmercarDungeon7,
 EmercarDungeonsSmall,
 EmercarDungeonsBosses,
 DreamWorld,
-
-----------------------
-NOT IMPLEMENTED (yet):
-
-Sirocco,
-NewSirocco,
-Caldera,
-CalderaDungeon1,
-CalderaDungeon2,
-CalderaDungeon3,
-CalderaDungeon4,
-CalderaDungeon5,
-CalderaDungeon6,
-CalderaDungeon7,
-CalderaDungeon8,
-CalderaDungeon9,
-CalderaDungeon10,
-CalderaDungeonsSmall,
-CalderaDungeonsBosses
