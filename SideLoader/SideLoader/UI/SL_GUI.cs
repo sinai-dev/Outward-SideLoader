@@ -14,11 +14,17 @@ namespace SideLoader.UI
 
         private static Rect m_rect = new Rect(5, 5, 350, 450);
 
-        private int m_page = 0;
+        public enum Pages
+        {
+            Items,
+            StatusEffects,
+            Enchantments,
+            // ItemVisualsHelper
+        }
 
-        public static bool ShowDebug = false;
+        private Pages m_page = 0;
 
-        private static bool m_debugFileExists = false;
+        public static bool ShowMenu = false;
 
         private int SelectedItemID = 0;
         private int NewItemID = 0;
@@ -27,35 +33,36 @@ namespace SideLoader.UI
         private int SelectedStatusID = 0;
         private int NewStatusID = 0;
 
+        private int SelectedEnchantmentID;
+        private int NewEnchantmentID;
+
         //// temp debug
         //private string m_enemyName = "";
 
         internal void Update()
         {
-            if (m_debugFileExists && Input.GetKeyDown(KeyCode.F6))
+            if ((Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl)) 
+                && (Input.GetKey(KeyCode.LeftAlt) || Input.GetKey(KeyCode.RightAlt)))
             {
-                ShowDebug = !ShowDebug;
+                if (Input.GetKeyDown(KeyCode.F6))
+                {
+                    ShowMenu = !ShowMenu;
+                }
             }
         }
 
         internal void Awake()
         {
             Instance = this;
-
-            if (File.Exists(SL.SL_FOLDER + @"\debug.txt"))
-            {
-                m_debugFileExists = true;
-                ShowDebug = true;
-            }
         }
 
         internal void OnGUI()
         {
-            if (ShowDebug)
+            if (ShowMenu)
             {
                 var orig = GUI.skin;
                 GUI.skin = UI.UIStyles.WindowSkin;
-                m_rect = GUI.Window(29, m_rect, WindowFunction, "SideLoader Menu (F6 Toggle)");
+                m_rect = GUI.Window(29, m_rect, WindowFunction, "SideLoader Menu (Ctrl+Alt+F6 Toggle)");
                 GUI.skin = orig;
             }
         }
@@ -69,24 +76,26 @@ namespace SideLoader.UI
             GUILayout.Space(20);
 
             GUILayout.BeginHorizontal();
-            SetPageButton("Items", 0);
-            SetPageButton("StatusEffect", 1);
-            //SetPageButton("Item Visual Helper", 2);
+            SetPageButton("Items", Pages.Items);
+            SetPageButton("StatusEffects", Pages.StatusEffects);
+            SetPageButton("Enchantments", Pages.Enchantments);
+            //SetPageButton("Item Visual Helper", 3);
             GUILayout.EndHorizontal();
 
             switch (m_page)
             {
-                case 0: ItemPage(); break;
-                case 1: EffectsPage(); break;
-                //case 2: ItemVisualsPage(); break;
+                case Pages.Items: ItemPage(); break;
+                case Pages.StatusEffects: EffectsPage(); break;
+                case Pages.Enchantments: EnchantmentsPage(); break;
+                //case 3: ItemVisualsPage(); break;
             }
 
             GUILayout.EndArea();
         }
 
-        private void SetPageButton(string label, int id)
+        private void SetPageButton(string label, Pages page)
         {
-            if (m_page == id)
+            if (m_page == page)
             {
                 GUI.color = Color.green;
             }
@@ -97,25 +106,25 @@ namespace SideLoader.UI
 
             if (GUILayout.Button(label))
             {
-                m_page = id;
+                m_page = page;
 
-                // item visuals page uses a custom size
-                if (id == 2)
-                {
-                    m_rect.width = 575;
-                    m_rect.height = 250;
-                }
-                else
-                {
-                    m_rect.width = 350;
-                    m_rect.height = 450;
-                }
+                //// item visuals page uses a custom size
+                //if (id == 2)
+                //{
+                //    m_rect.width = 575;
+                //    m_rect.height = 250;
+                //}
+                //else
+                //{
+                //    m_rect.width = 350;
+                //    m_rect.height = 450;
+                //}
             }
 
             GUI.color = Color.white;
         }
 
-        #region ITEM GENERATOR
+        #region ITEM GENERATOR (Page 1)
         private void ItemPage()
         {
             GUILayout.Label("Enter an Item ID to generate a template from. This will also save all material textures (if any).");
@@ -191,7 +200,7 @@ namespace SideLoader.UI
         }
         #endregion
 
-        #region STATUS GENERATOR
+        #region STATUS GENERATOR (Page 2)
         private void EffectsPage()
         {
             GUILayout.Label("Enter a Status Effect Preset ID to generate a template from.");
@@ -261,7 +270,59 @@ namespace SideLoader.UI
         }
         #endregion
 
-        #region ITEM VISUALS HELPER
+        #region ENCHANTMENTS GENERATOR (Page 3)
+
+        private void EnchantmentsPage()
+        {
+            GUILayout.Label("Enter an Enchantment ID to generate a template from.");
+            GUILayout.Label("Templates are generated to the folder Mods/SideLoader/_GENERATED/Enchantments/.");
+
+            GUILayout.BeginHorizontal();
+            GUILayout.Label("Target Enchantment ID:");
+            var selectedID = GUILayout.TextField(SelectedEnchantmentID.ToString(), GUILayout.Width(150));
+            if (int.TryParse(selectedID, out int id))
+            {
+                SelectedEnchantmentID = id;
+            }
+            GUILayout.EndHorizontal();
+            GUILayout.BeginHorizontal();
+            GUILayout.Label("New Enchantment ID:");
+            var newID = GUILayout.TextField(NewEnchantmentID.ToString(), GUILayout.Width(150));
+            if (int.TryParse(newID, out int id2))
+            {
+                NewEnchantmentID = id2;
+            }
+            GUILayout.EndHorizontal();
+            GUILayout.Space(15);
+            if (GUILayout.Button("Generate template"))
+            {
+                GenerateEnchantTemplate();
+            }
+        }
+
+        private void GenerateEnchantTemplate()
+        {
+            if (ResourcesPrefabManager.Instance.GetEnchantmentPrefab(SelectedEnchantmentID) is Enchantment enchantment
+                && RecipeManager.Instance.GetEnchantmentRecipeForID(SelectedEnchantmentID) is EnchantmentRecipe recipe)
+            {
+                SL.Log("Generating template from Enchantment: " + enchantment.Name);
+
+                var folder = SL.GENERATED_FOLDER + @"\Enchantments";
+
+                var template = SL_EnchantmentRecipe.SerializeEnchantment(recipe, enchantment);
+                template.EnchantmentID = NewEnchantmentID;
+
+                Serializer.SaveToXml(folder, recipe.name, template);
+            }
+            else
+            {
+                SL.Log($"Error: Could not find any Enchantment with the ID {SelectedEnchantmentID}", 0);
+            }
+        }    
+
+        #endregion
+
+        #region ITEM VISUALS HELPER (Page 4)
         private bool m_aligning = false;
 
         // desired item visuals and hot transform

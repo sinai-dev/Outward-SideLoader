@@ -38,6 +38,7 @@ namespace SideLoader
             AudioClip,
             AssetBundles,
             Characters,
+            Enchantments,
             Items,
             Recipes,
             StatusEffects,
@@ -110,6 +111,9 @@ namespace SideLoader
 
             // Character spawn callbacks
             pack.LoadCharacters();
+
+            // Custom Enchantments
+            pack.LoadEnchantments();
 
             return pack;
         }
@@ -345,8 +349,28 @@ namespace SideLoader
             }
         }
 
-        // legacy support
-        [Obsolete("Use SLPack.FolderPath instead.")]
-        public string FullDirectory { get => FolderPath; }
+        private void LoadEnchantments()
+        {
+            var dir = GetSubfolderPath(SubFolders.Enchantments);
+            if (!Directory.Exists(dir))
+            {
+                return;
+            }
+
+            foreach (var filePath in Directory.GetFiles(GetSubfolderPath(SubFolders.Enchantments)))
+            {
+                try
+                {
+                    if (Serializer.LoadFromXml(filePath) is SL_EnchantmentRecipe template)
+                    {
+                        template.Apply();
+                    }
+                }
+                catch
+                {
+                    SL.Log($"Exception loading Enchantment from {filePath}!");
+                }
+            }
+        }
     }
 }

@@ -53,6 +53,7 @@
     <Compile Include="Serializer\Item\ItemExtension\SL_WeaponLoadoutItem.cs" />
     <Compile Include="Serializer\Item\ItemVisual\SL_ArmorVisual.cs" />
     <Compile Include="Serializer\Item\ItemVisual\SL_ItemVisual.cs" />
+    <Compile Include="Serializer\Recipe\SL_EnchantmentRecipe.cs" />
     <Compile Include="UI\UIStyles.cs" />
     <Compile Include="RPCManager.cs" />
     <Compile Include="Serializer\Effect\Conditions\SL_ShooterPosStatusEffect.cs" />

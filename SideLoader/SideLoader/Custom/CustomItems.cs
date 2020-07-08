@@ -28,6 +28,9 @@ namespace SideLoader
         /// <summary>Cached RecipeManager.m_recipeUIDsPerUstensils Dictionary</summary>
         public static Dictionary<Recipe.CraftingType, List<UID>> RECIPES_PER_UTENSIL;
 
+        public static Dictionary<int, EnchantmentRecipe> ENCHANTMENT_RECIPES;
+        public static Dictionary<int, Enchantment> ENCHANTMENT_PREFABS;
+
         internal void Awake()
         {
             Instance = this;
@@ -38,6 +41,9 @@ namespace SideLoader
 
             ALL_RECIPES = At.GetValue(typeof(RecipeManager), RecipeManager.Instance, "m_recipes") as Dictionary<string, Recipe>;
             RECIPES_PER_UTENSIL = At.GetValue(typeof(RecipeManager), RecipeManager.Instance, "m_recipeUIDsPerUstensils") as Dictionary<Recipe.CraftingType, List<UID>>;
+
+            ENCHANTMENT_RECIPES = At.GetValue(typeof(RecipeManager), RecipeManager.Instance, "m_enchantmentRecipes") as Dictionary<int, EnchantmentRecipe>;
+            ENCHANTMENT_PREFABS = At.GetValue(typeof(ResourcesPrefabManager), ResourcesPrefabManager.Instance, "ENCHANTMENT_PREFABS") as Dictionary<int, Enchantment>;
         }
 
         // ================================================================================ //

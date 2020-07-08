@@ -65,14 +65,13 @@ namespace SideLoader
                 else
                 {
                     var extHolder = dict[game_type];
-                    var comp = (ItemExtension)item.gameObject.GetComponentInChildren(game_type);
 
                     if (extHolder.Savable != null)
                     {
-                        comp.Savable = (bool)extHolder.Savable;
+                        ext.Savable = (bool)extHolder.Savable;
                     }
 
-                    extHolder.ApplyToComponent(comp);
+                    extHolder.ApplyToComponent(ext);
                 }
             }
 
