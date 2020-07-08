@@ -97,7 +97,7 @@ namespace SideLoader
                         data.Type = EnchantmentRecipe.IngredientData.IngredientType.Generic;
                         data.IngredientTag = new TagSourceSelector(CustomTags.GetTag(ingData.SelectorValue));
                     }
-                    else
+                    else if (ingData.SelectorType == IngredientTypes.SpecificItem)
                     {
                         data.Type = EnchantmentRecipe.IngredientData.IngredientType.Specific;
                         data.SpecificIngredient = ResourcesPrefabManager.Instance.GetItemPrefab(ingData.SelectorValue);
@@ -132,7 +132,6 @@ namespace SideLoader
             GameObject.DontDestroyOnLoad(enchantmentObject);
             var enchantment = enchantmentObject.AddComponent<Enchantment>();
 
-            At.SetValue(this.EnchantmentID, typeof(EffectPreset), enchantment, "m_StatusEffectID");
             SetLocalization(this, out enchantment.CustomDescLocKey);
 
             enchantment.EnchantTime = this.EnchantTime;

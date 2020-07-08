@@ -1,3 +1,12 @@
+1	Castigation
+2	Humiliation
+3	Thirst
+4	Thirst (Bow)
+5	Favorable Wind
+6	Forge Fire
+7	Wendigo's Breath
+8	Priest's Prayers
+9	Scourge's Outbreak
 10	Specter's Wail
 11	Desert's Sun
 12	Winter's Cruelty
@@ -8,7 +17,6 @@
 17	Forbidden Knowledge
 18	Sanguine Flame
 19	Copper Flame
-1	Castigation
 20	Angel Light
 21	Blaze Blue
 22	Rain
@@ -19,18 +27,16 @@
 27	Spirit of Levant
 28	Spirit of Harmattan
 29	Spirit of Monsoon
-2	Humiliation
 30	Instinct
 31	Adrenaline
 32	Musing of a Philosopher
 33	Irrepressible Anger
 34	Whiplash
-35	Aegis
-36	Aegis
-37	Aegis
+35	Aegis (Chest)
+36	Aegis (Helmet)
+37	Aegis (Boots)
 38	Isolated Rumination
 39	Primal Wind
-3	Thirst
 40	Abundance
 41	Light as Wind
 42	Unexpected Resilience
@@ -39,61 +45,53 @@
 45	Unwavering Determination
 46	Crumbling Anger
 47	War Memento
-48	Elatt's Sanctity
-49	Elatt's Sanctity
-4	Thirst
-50	Elatt's Sanctity
+48	Elatt's Sanctity (Chest)
+49	Elatt's Sanctity (Helmet)
+50	Elatt's Sanctity (Boots)
 51	Twang
-52	Filter
-53	Filter
-54	Filter
-55	Flux 
-56	Warmaster
-57	Warmaster
-58	Warmaster
-59	Inner Cool
-5	Favorable Wind
-60	Inner Cool
-61	Inner Cool
-62	Inner Warmth
-63	Inner Warmth
-64	Inner Warmth
-65	Cocoon
-66	Cocoon
-67	Cocoon
-68	Assassin
-69	Assassin
-6	Forge Fire
-70	Assassin
-71	Economy
-72	Economy
-73	Economy
-74	Formless Material
-75	Formless Material
-76	Formless Material
-77	Arcane Unison
-78	Arcane Unison
-79	Arcane Unison
-7	Wendigo's Breath
-80	Rascal's Verve
-81	Rascal's Verve
-82	Rascal's Verve
-83	Beast of Burden
-84	Beast of Burden
-85	Beast of Burden
+52	Filter (Chest)
+53	Filter (Helmet))
+54	Filter (Boots)
+55	Flux
+56	Warmaster (Chest)
+57	Warmaster (Helmet)
+58	Warmaster (Boots)
+59	Inner Cool (Chest)
+60	Inner Cool (Helmet)
+61	Inner Cool (Boots)
+62	Inner Warmth (Chest)
+63	Inner Warmth (Helmet)
+64	Inner Warmth (Boots)
+65	Cocoon (Chest)
+66	Cocoon (Helmet)
+67	Cocoon (Boots)
+68	Assassin (Chest)
+69	Assassin (Helmet)
+70	Assassin (Boots)
+71	Economy (Helmet)
+72	Economy (Boots)
+73	Economy (Chest)
+74	Formless Material (Chest)
+75	Formless Material (Helmet)
+76	Formless Material (Boots)
+77	Arcane Unison (Chest)
+78	Arcane Unison (Helmet)
+79	Arcane Unison (Boots)
+80	Rascal's Verve (Chest)
+81	Rascal's Verve (Helmet)
+82	Rascal's Verve (Boots)
+83	Beast of Burden (Helmet)
+84	Beast of Burden (Chest)
+85	Beast of Burden (Boots)
 86	Enkindle
 87	Snow
 88	Rainbow Hex
 89	Abomination
-8	Priest's Prayers
 90	Redemption
 91	Weightless
 92	Poltergeist
-93	Stabilizing Forces
-94	Stabilizing Forces
+93	Stabilizing Forces (Chest)
+94	Stabilizing Forces (Helmet)
 95	Speed and Efficiency
 96	Order and Discipline
 97	Chaos and Creativity
-998	Enchantment_998
-999	Enchantment_999
-9	Scourge's Outbreak
