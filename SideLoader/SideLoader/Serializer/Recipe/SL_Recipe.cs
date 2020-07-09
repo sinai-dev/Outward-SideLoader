@@ -60,7 +60,7 @@ namespace SideLoader
                 });
             }
 
-            var recipe = ScriptableObject.CreateInstance("Recipe") as Recipe;
+            var recipe = ScriptableObject.CreateInstance<Recipe>();
 
             recipe.SetCraftingType(this.StationType);
 

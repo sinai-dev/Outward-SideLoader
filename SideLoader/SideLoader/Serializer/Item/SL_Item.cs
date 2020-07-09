@@ -46,23 +46,27 @@ namespace SideLoader
         public float? MobileCastMovementMult;
         public int? CastSheatheRequired;
 
+        /// <summary>
+        /// Item Tags, represented as strings (uses CustomTags.GetTag(string tagName)).
+        /// </summary>
         public List<string> Tags;
 
+        /// <summary>
+        /// Holder for the ItemStats object
+        /// </summary>
         public SL_ItemStats StatsHolder;
 
+        /// <summary>Determines how the ItemExtensions are replaced and edited</summary>
+        public EditBehaviours ExtensionsEditBehaviour = EditBehaviours.Override;
+        /// <summary>List of SL_ItemExtensions for this item. Can only have one per item.</summary>
         public List<SL_ItemExtension> ItemExtensions;
 
-        /// <summary><list type="bullet">
-        /// <item>NONE: Your effects are added on top of the existing ones.</item>
-        /// <item>DestroyEffects: Destroys all child GameObjects on your item, except for "Content" (used for Bags)</item>
-        /// <item>OverrideEffects (default): Only destroys child GameObjects if you have defined one of the same name.</item></list>
-        /// </summary>
-        public EffectBehaviours EffectBehaviour = EffectBehaviours.OverrideEffects;
-
+        /// <summary>Determines how the EffectTransforms are replaced and edited</summary>
+        public EditBehaviours EffectBehaviour = EditBehaviours.Override;
+        /// <summary>Transform heirarchy containing the Effects and EffectConditions</summary>
         public List<SL_EffectTransform> EffectTransforms = new List<SL_EffectTransform>();
 
-        /*       Visual Prefab stuff       */
-
+        // Visual prefab stuff
         public SL_ItemVisual ItemVisuals;
         public SL_ItemVisual SpecialItemVisuals;
         public SL_ItemVisual SpecialFemaleItemVisuals;
@@ -86,6 +90,21 @@ namespace SideLoader
 
         public virtual void ApplyToItem(Item item)
         {
+            // Obsolete checking
+
+            if (this.EffectBehaviour == EditBehaviours.DestroyEffects)
+            {
+                SL.Log("EditBehaviours.DestroyEffects is deprecated. Use EditBehaviours.Destroy instead.");
+                this.EffectBehaviour = EditBehaviours.Destroy;
+            }
+            else if (this.EffectBehaviour == EditBehaviours.OverrideEffects)
+            {
+                SL.Log("EditBehaviours.OverrideEffects is deprecated. Use EditBehaviours.Override instead.");
+                this.EffectBehaviour = EditBehaviours.Override;
+            }
+
+            // =================
+
             CustomItems.SetNameAndDescription(item, this.Name ?? item.Name, this.Description ?? item.Description);
 
             if (this.LegacyItemID != null)
@@ -154,7 +173,7 @@ namespace SideLoader
 
             if (this.ItemExtensions != null)
             {
-                SL_ItemExtension.ApplyExtensionList(item, this.ItemExtensions);
+                SL_ItemExtension.ApplyExtensionList(item, this.ItemExtensions, this.ExtensionsEditBehaviour);
             }
 
             SL_EffectTransform.ApplyTransformList(item.transform, this.EffectTransforms, this.EffectBehaviour);

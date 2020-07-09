@@ -7,7 +7,7 @@ using UnityEngine;
 namespace SideLoader
 {
     [SL_Serialized]
-    public class SL_EnchantmentRecipe
+    public partial class SL_EnchantmentRecipe
     {
         public int EnchantmentID;
         public string Name;
@@ -55,7 +55,7 @@ namespace SideLoader
         {
             SL.Log($"Applying Enchantment Recipe, ID: {this.EnchantmentID}, Name: {this.Name}");
 
-            var recipe = ScriptableObject.CreateInstance("EnchantmentRecipe") as EnchantmentRecipe;
+            var recipe = ScriptableObject.CreateInstance<EnchantmentRecipe>();
 
             recipe.RecipeID = this.EnchantmentID;
             recipe.ResultID = this.EnchantmentID;
@@ -138,7 +138,7 @@ namespace SideLoader
 
             if (this.Effects != null)
             {
-                SL_EffectTransform.ApplyTransformList(enchantment.transform, this.Effects, EffectBehaviours.NONE);
+                SL_EffectTransform.ApplyTransformList(enchantment.transform, this.Effects, EditBehaviours.NONE);
             }
 
             if (this.AddedDamages != null)

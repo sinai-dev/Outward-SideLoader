@@ -30,11 +30,22 @@ namespace SideLoader
         public bool DontPlayHitSound;
         public bool FXIsWorld;
 
-        public EffectBehaviours EffectBehaviour = EffectBehaviours.OverrideEffects;
+        public EditBehaviours EffectBehaviour = EditBehaviours.Override;
         public List<SL_EffectTransform> BlastEffects = new List<SL_EffectTransform>();
 
         public override void ApplyToComponent<T>(T component)
         {
+            if (this.EffectBehaviour == EditBehaviours.DestroyEffects)
+            {
+                SL.Log("EditBehaviours.DestroyEffects is deprecated. Use EditBehaviours.Destroy instead.");
+                this.EffectBehaviour = EditBehaviours.Destroy;
+            }
+            else if (this.EffectBehaviour == EditBehaviours.OverrideEffects)
+            {
+                SL.Log("EditBehaviours.OverrideEffects is deprecated. Use EditBehaviours.Override instead.");
+                this.EffectBehaviour = EditBehaviours.Override;
+            }
+
             base.ApplyToComponent(component);
 
             var comp = component as ShootBlast;

@@ -41,11 +41,22 @@ namespace SideLoader
 
         public List<string> Tags;
 
-        public EffectBehaviours EffectBehaviour = EffectBehaviours.OverrideEffects;
+        public EditBehaviours EffectBehaviour = EditBehaviours.Override;
         public List<SL_EffectTransform> Effects;
 
         public virtual void ApplyTemplate()
         {
+            if (this.EffectBehaviour == EditBehaviours.DestroyEffects)
+            {
+                SL.Log("EditBehaviours.DestroyEffects is deprecated. Use EditBehaviours.Destroy instead.");
+                this.EffectBehaviour = EditBehaviours.Destroy;
+            }
+            else if (this.EffectBehaviour == EditBehaviours.OverrideEffects)
+            {
+                SL.Log("EditBehaviours.OverrideEffects is deprecated. Use EditBehaviours.Override instead.");
+                this.EffectBehaviour = EditBehaviours.Override;
+            }
+
             var preset = ResourcesPrefabManager.Instance.GetEffectPreset(NewStatusID);
 
             if (!preset)
@@ -123,7 +134,7 @@ namespace SideLoader
                 }
             }
 
-            if (EffectBehaviour == EffectBehaviours.DestroyEffects)
+            if (EffectBehaviour == EditBehaviours.Destroy)
             {
                 SL.DestroyChildren(status.transform);
             }

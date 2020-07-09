@@ -39,6 +39,7 @@
     <Compile Include="Custom\CustomStatusEffects.cs" />
     <Compile Include="Custom\CustomTags.cs" />
     <Compile Include="Hooks.cs" />
+    <Compile Include="Serializer\General\EditBehaviours.cs" />
     <Compile Include="Serializer\Item\ItemExtension\SL_Deployable.cs" />
     <Compile Include="Serializer\Item\ItemExtension\SL_DestroyOnOwnerDeath.cs" />
     <Compile Include="Serializer\Item\ItemExtension\SL_Ephemeral.cs" />
@@ -123,7 +124,7 @@
     <Compile Include="Serializer\Effect\Effects\SL_UseLoadoutAmmunition.cs" />
     <Compile Include="Serializer\Effect\Effects\SL_VitalityDamage.cs" />
     <Compile Include="Serializer\Effect\SL_EffectCondition.cs" />
-    <Compile Include="Serializer\Effect\EffectBehaviours.cs" />
+    <Compile Include="Serializer\General\EffectBehaviours.cs" />
     <Compile Include="Serializer\Item\Equipment\SL_Armor.cs" />
     <Compile Include="Serializer\Item\Skill\SL_AttackSkill.cs" />
     <Compile Include="Serializer\Item\Skill\SL_CounterAbsorbSkill.cs" />

@@ -15,7 +15,7 @@ namespace SideLoader
         [XmlIgnore] public virtual bool AddToChild { get => false; }
         [XmlIgnore] public virtual string ChildToAddTo { get => ""; }
 
-        public static void ApplyExtensionList(Item item, List<SL_ItemExtension> list)
+        public static void ApplyExtensionList(Item item, List<SL_ItemExtension> list, EditBehaviours editBehaviour = EditBehaviours.Override)
         {
             var dict = new Dictionary<Type, SL_ItemExtension>(); // Key: Game_type, Value: SL_ItemExtension template.
 
@@ -55,32 +55,36 @@ namespace SideLoader
             // Now iterate the actual ItemExtension components, removing ones the user didn't define.
             // Also, apply SL templates to the Extensions now.
             var toRemove = new List<ItemExtension>();
-            foreach (var ext in item.GetComponentsInChildren<ItemExtension>())
+            foreach (var comp in item.GetComponentsInChildren<ItemExtension>())
             {
-                var game_type = ext.GetType();
+                var game_type = comp.GetType();
                 if (!dict.ContainsKey(game_type))
                 {
-                    toRemove.Add(ext);
+                    if (editBehaviour == EditBehaviours.Destroy)
+                        toRemove.Add(comp);
                 }
                 else
                 {
-                    var extHolder = dict[game_type];
+                    var template = dict[game_type];
 
-                    if (extHolder.Savable != null)
+                    if (template.Savable != null)
                     {
-                        ext.Savable = (bool)extHolder.Savable;
+                        comp.Savable = (bool)template.Savable;
                     }
 
-                    extHolder.ApplyToComponent(ext);
+                    template.ApplyToComponent(comp);
                 }
             }
 
-            // Finally, remove the Extensions we don't want to use.
-            var array = toRemove.ToArray();
-            for (int i = 0; i < array.Length; i++)
+            if (editBehaviour == EditBehaviours.Destroy)
             {
-                var comp = array[i];
-                GameObject.Destroy(comp);
+                // Finally, remove the Extensions we don't want to use.
+                var array = toRemove.ToArray();
+                for (int i = 0; i < array.Length; i++)
+                {
+                    var comp = array[i];
+                    GameObject.Destroy(comp);
+                }
             }
         }
 
