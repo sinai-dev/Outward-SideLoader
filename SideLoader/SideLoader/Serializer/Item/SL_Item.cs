@@ -90,21 +90,6 @@ namespace SideLoader
 
         public virtual void ApplyToItem(Item item)
         {
-            //// Obsolete checking
-
-            //if (this.EffectBehaviour == EditBehaviours.DestroyEffects)
-            //{
-            //    SL.Log("EditBehaviours.DestroyEffects is deprecated. Use EditBehaviours.Destroy instead.");
-            //    this.EffectBehaviour = EditBehaviours.Destroy;
-            //}
-            //else if (this.EffectBehaviour == EditBehaviours.OverrideEffects)
-            //{
-            //    SL.Log("EditBehaviours.OverrideEffects is deprecated. Use EditBehaviours.Override instead.");
-            //    this.EffectBehaviour = EditBehaviours.Override;
-            //}
-
-            //// =================
-
             CustomItems.SetNameAndDescription(item, this.Name ?? item.Name, this.Description ?? item.Description);
 
             if (this.LegacyItemID != null)

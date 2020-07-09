@@ -210,7 +210,7 @@ namespace SideLoader
                     catch (Exception e)
                     {
                         Log("Exception invoking callback! Checking for InnerException...", 1);
-                        LogInners(e);
+                        LogInnerException(e);
                     }
                 }
             }
@@ -233,7 +233,7 @@ namespace SideLoader
         }
 
         /// <summary> Small helper for destroying all children on a given Transform 't'. Uses DestroyImmediate(). </summary>
-        /// <param name="t"></param>
+        /// <param name="t">The transform whose children you want to destroy.</param>
         /// <param name="destroyContent">If true, will destroy children called "Content" (used for Bags)</param>
         public static void DestroyChildren(Transform t, bool destroyContent = false)
         {
@@ -303,21 +303,23 @@ namespace SideLoader
         /// <summary>
         /// Recursively logs inner exceptions from an Exception, if there are any.
         /// </summary>
-        public static void LogInners(Exception ex)
+        public static void LogInnerException(Exception ex)
         {
             var inner = ex.InnerException;
 
             if (inner != null)
             {
-                Log(inner.Message);
+                Log($"Inner Exception: {inner.Message}");
 
-                if (inner.InnerException is Exception innerInner)
+                if (inner.InnerException != null)
                 {
-                    LogInners(innerInner);
+                    // There is another level, keep going.
+                    LogInnerException(inner);
                 }
                 else
                 {
-                    Log($"Stack Trace: {inner.StackTrace}");
+                    // We reached the end, log the stack.
+                    Log($"Inner-most Stack Trace: {inner.StackTrace}");
                 }
             }
         }
