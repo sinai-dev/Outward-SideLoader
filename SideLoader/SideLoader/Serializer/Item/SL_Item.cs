@@ -57,12 +57,12 @@ namespace SideLoader
         public SL_ItemStats StatsHolder;
 
         /// <summary>Determines how the ItemExtensions are replaced and edited</summary>
-        public EditBehaviours ExtensionsEditBehaviour = EditBehaviours.Override;
+        public EditBehaviours ExtensionsEditBehaviour = EditBehaviours.NONE;
         /// <summary>List of SL_ItemExtensions for this item. Can only have one per item.</summary>
         public List<SL_ItemExtension> ItemExtensions;
 
-        /// <summary>Determines how the EffectTransforms are replaced and edited</summary>
-        public EditBehaviours EffectBehaviour = EditBehaviours.Override;
+        ///// <summary>Determines how the EffectTransforms are replaced and edited</summary>
+        public EffectBehaviours EffectBehaviour = EffectBehaviours.OverrideEffects;
         /// <summary>Transform heirarchy containing the Effects and EffectConditions</summary>
         public List<SL_EffectTransform> EffectTransforms = new List<SL_EffectTransform>();
 
@@ -90,20 +90,20 @@ namespace SideLoader
 
         public virtual void ApplyToItem(Item item)
         {
-            // Obsolete checking
+            //// Obsolete checking
 
-            if (this.EffectBehaviour == EditBehaviours.DestroyEffects)
-            {
-                SL.Log("EditBehaviours.DestroyEffects is deprecated. Use EditBehaviours.Destroy instead.");
-                this.EffectBehaviour = EditBehaviours.Destroy;
-            }
-            else if (this.EffectBehaviour == EditBehaviours.OverrideEffects)
-            {
-                SL.Log("EditBehaviours.OverrideEffects is deprecated. Use EditBehaviours.Override instead.");
-                this.EffectBehaviour = EditBehaviours.Override;
-            }
+            //if (this.EffectBehaviour == EditBehaviours.DestroyEffects)
+            //{
+            //    SL.Log("EditBehaviours.DestroyEffects is deprecated. Use EditBehaviours.Destroy instead.");
+            //    this.EffectBehaviour = EditBehaviours.Destroy;
+            //}
+            //else if (this.EffectBehaviour == EditBehaviours.OverrideEffects)
+            //{
+            //    SL.Log("EditBehaviours.OverrideEffects is deprecated. Use EditBehaviours.Override instead.");
+            //    this.EffectBehaviour = EditBehaviours.Override;
+            //}
 
-            // =================
+            //// =================
 
             CustomItems.SetNameAndDescription(item, this.Name ?? item.Name, this.Description ?? item.Description);
 

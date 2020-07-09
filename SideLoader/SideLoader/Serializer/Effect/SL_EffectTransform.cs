@@ -21,9 +21,9 @@ namespace SideLoader
         /// <param name="parent">The parent to apply to, ie. the Item, StatusEffect.Signature, or Blast/Projectile, etc</param>
         /// <param name="transformsToApply">The list of SL_EffectTransforms to apply.</param>
         /// <param name="behaviour">The desired behaviour for these transoforms (remove original, overwrite, or none)</param>
-        public static void ApplyTransformList(Transform parent, List<SL_EffectTransform> transformsToApply, EditBehaviours behaviour)
+        public static void ApplyTransformList(Transform parent, List<SL_EffectTransform> transformsToApply, EffectBehaviours behaviour)
         {
-            if (behaviour == EditBehaviours.Destroy)
+            if (behaviour == EffectBehaviours.DestroyEffects)
             {
                 SL.DestroyChildren(parent);
             }
@@ -42,7 +42,7 @@ namespace SideLoader
                 Vector3 pos = Vector3.zero;
                 Quaternion rot = Quaternion.identity;
 
-                if (behaviour == EditBehaviours.Override && parent.Find(child.TransformName) is Transform existing)
+                if (behaviour == EffectBehaviours.OverrideEffects && parent.Find(child.TransformName) is Transform existing)
                 {
                     copyTranslation = true;
                     pos = existing.position;
@@ -67,7 +67,7 @@ namespace SideLoader
         /// </summary>
         /// <param name="parent">The PARENT transform to apply to (the Item, StatusEffect.Signature, Blast/Projectile, etc)</param>
         /// <param name="behaviour">Desired EffectBehaviour</param>
-        public Transform ApplyToTransform(Transform parent, EditBehaviours behaviour)
+        public Transform ApplyToTransform(Transform parent, EffectBehaviours behaviour)
         {
             var child = new GameObject(this.TransformName).transform;
             child.parent = parent;

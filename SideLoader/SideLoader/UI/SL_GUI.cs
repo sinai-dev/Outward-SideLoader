@@ -28,7 +28,7 @@ namespace SideLoader.UI
 
         private int SelectedItemID = 0;
         private int NewItemID = 0;
-        private EditBehaviours m_templateBehaviour = EditBehaviours.Destroy;
+        private EffectBehaviours m_templateBehaviour = EffectBehaviours.DestroyEffects;
 
         private int SelectedStatusID = 0;
         private int NewStatusID = 0;
@@ -148,9 +148,9 @@ namespace SideLoader.UI
             GUILayout.EndHorizontal();
 
             GUILayout.Label("Effects Behaviour:");
-            BehaviourButton(EditBehaviours.Destroy, "Destroy Effects");
-            BehaviourButton(EditBehaviours.Override, "Override Effects");
-            BehaviourButton(EditBehaviours.NONE, "None (leave all)");
+            BehaviourButton(EffectBehaviours.DestroyEffects, "Destroy Effects");
+            BehaviourButton(EffectBehaviours.OverrideEffects, "Override Effects");
+            BehaviourButton(EffectBehaviours.NONE, "None (leave all)");
 
             GUILayout.Space(15);
 
@@ -160,7 +160,7 @@ namespace SideLoader.UI
             }
         }
 
-        private void BehaviourButton(EditBehaviours _behaviour, string _label)
+        private void BehaviourButton(EffectBehaviours _behaviour, string _label)
         {
             string label = "<color=";
             if (m_templateBehaviour == _behaviour)

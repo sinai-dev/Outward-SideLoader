@@ -14,9 +14,5 @@ namespace SideLoader
         Override,
         /// <summary>Destroys all existing objects before adding yours (if any).</summary>
         Destroy,
-
-        // Obsolete support
-        [Obsolete("Use 'Override' instead.")] OverrideEffects,
-        [Obsolete("Use 'Destroy' instead.")] DestroyEffects,
     }
 }

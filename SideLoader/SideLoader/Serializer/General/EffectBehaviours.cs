@@ -5,11 +5,10 @@ using System.Text;
 
 namespace SideLoader
 {
-    [Obsolete("Use EditBehaviours enum instead (more generalized)")]
     public enum EffectBehaviours
     {
-        //NONE,
-        //DestroyEffects,
-        //OverrideEffects
+        NONE,
+        DestroyEffects,
+        OverrideEffects
     }
 }

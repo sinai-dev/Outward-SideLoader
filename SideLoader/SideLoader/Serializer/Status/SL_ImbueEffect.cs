@@ -27,22 +27,11 @@ namespace SideLoader
         public string Name;
         public string Description;
 
-        public EditBehaviours EffectBehaviour = EditBehaviours.Override;
+        public EffectBehaviours EffectBehaviour = EffectBehaviours.OverrideEffects;
         public List<SL_EffectTransform> Effects;
 
         public void ApplyTemplate()
         {
-            if (this.EffectBehaviour == EditBehaviours.DestroyEffects)
-            {
-                SL.Log("EditBehaviours.DestroyEffects is deprecated. Use EditBehaviours.Destroy instead.");
-                this.EffectBehaviour = EditBehaviours.Destroy;
-            }
-            else if (this.EffectBehaviour == EditBehaviours.OverrideEffects)
-            {
-                SL.Log("EditBehaviours.OverrideEffects is deprecated. Use EditBehaviours.Override instead.");
-                this.EffectBehaviour = EditBehaviours.Override;
-            }
-
             var preset = (ImbueEffectPreset)ResourcesPrefabManager.Instance.GetEffectPreset(this.NewStatusID);
             if (!preset)
             {

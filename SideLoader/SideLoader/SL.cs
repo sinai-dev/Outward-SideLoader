@@ -209,7 +209,8 @@ namespace SideLoader
                     }
                     catch (Exception e)
                     {
-                        Log("Exception invoking callback!\r\nMessage: " + e.Message + "\r\nStack: " + e.StackTrace, 1);
+                        Log("Exception invoking callback! Checking for InnerException...", 1);
+                        LogInners(e);
                     }
                 }
             }
@@ -251,7 +252,6 @@ namespace SideLoader
         }
 
         /// <summary>Writes all the values from 'other' to 'comp', then returns comp.</summary>
-        /// CREDIT: https://answers.unity.com/questions/530178/how-to-get-a-component-from-an-object-and-add-it-t.html
         public static T GetCopyOf<T>(Component comp, T other) where T : Component
         {
             var type = comp.GetType();
@@ -297,6 +297,28 @@ namespace SideLoader
             else if (errorLevel < 0)
             {
                 Debug.Log(log);
+            }
+        }
+
+        /// <summary>
+        /// Recursively logs inner exceptions from an Exception, if there are any.
+        /// </summary>
+        public static void LogInners(Exception ex)
+        {
+            var inner = ex.InnerException;
+
+            if (inner != null)
+            {
+                Log(inner.Message);
+
+                if (inner.InnerException is Exception innerInner)
+                {
+                    LogInners(innerInner);
+                }
+                else
+                {
+                    Log($"Stack Trace: {inner.StackTrace}");
+                }
             }
         }
     }
