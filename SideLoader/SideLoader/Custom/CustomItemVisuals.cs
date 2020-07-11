@@ -12,11 +12,6 @@ namespace SideLoader
     /// <summary>Helper class used to manage custom Item Visuals.</summary>
     public class CustomItemVisuals
     {
-        /* 
-         * This will need fixing after DLC (Item.ItemVisual not a direct link, only string reference to Resources path)
-         * Will probably have to hook something like ResourcesPrefabManager.GetItemVisual(int id) 
-        */
-
         /// <summary> Custom Item Visual prefabs (including retexture-only) </summary>
         private static readonly Dictionary<int, ItemVisualsLink> ItemVisuals = new Dictionary<int, ItemVisualsLink>();       
 
@@ -44,12 +39,9 @@ namespace SideLoader
         {
             if (!ItemVisuals.ContainsKey(item.ItemID))
             {
-                ItemVisuals.Add(item.ItemID, new ItemVisualsLink()
-                {
-                    LinkedItem = item
-                });
+                ItemVisuals.Add(item.ItemID, new ItemVisualsLink());
             }
-            // Set the item visuals dictionary link
+
             var link = ItemVisuals[item.ItemID];
 
             return link;
@@ -72,6 +64,12 @@ namespace SideLoader
             }
         }
 
+        /// <summary>
+        /// Helper to set the ItemVisualLink Icon or SkillTreeIcon for an Item.
+        /// </summary>
+        /// <param name="item">The item you want to set to.</param>
+        /// <param name="sprite">The Sprite you want to set.</param>
+        /// <param name="skill">Whether this is a "small skill tree icon", or just the main item icon.</param>
         public static void SetSpriteLink(Item item, Sprite sprite, bool skill = false)
         {
             var link = GetOrAddVisualLink(item);
@@ -125,9 +123,6 @@ namespace SideLoader
             var newVisuals = UnityEngine.Object.Instantiate(prefab.gameObject);
             newVisuals.SetActive(false);
             UnityEngine.Object.DontDestroyOnLoad(newVisuals);
-
-            //// set the item's visuals to our new clone
-            //At.SetValue(newVisuals.transform, typeof(Item), item, type.ToString());
 
             // add to our CustomVisualPrefab dictionary
             SetVisualPrefabLink(item, newVisuals, type);
@@ -447,8 +442,8 @@ namespace SideLoader
         // used internally for managing custom item visuals with the resources prefab manager.
         public class ItemVisualsLink
         {
-            public Item LinkedItem;
-            public SL_Item LinkedTemplate;
+            // public Item LinkedItem;
+            // public SL_Item LinkedTemplate;
 
             public Sprite ItemIcon;
             public Sprite SkillTreeIcon;

@@ -159,7 +159,7 @@ namespace SideLoader
 
         // There is no opposite of Effect.SetValue (you'd think it would be Effect.CompileData, but no...), so we have to do this manually.
         // I think the StatusData is only needed for PunctualDamage and AffectX components as far as I can tell.
-        private static void CompileEffectsToData(StatusEffect status)
+        public static void CompileEffectsToData(StatusEffect status)
         {
             // Get the EffectSignature component
             var signature = status.GetComponentInChildren<EffectSignature>();
@@ -171,13 +171,18 @@ namespace SideLoader
             var effects = signature.GetComponentsInChildren<Effect>()?.ToList() ?? new List<Effect>();
             signature.Effects = effects;
 
+            status.StatusData.EffectSignature = signature;
+
             // Iterate over the effects
             foreach (var effect in effects)
             {
                 // Create a blank holder, in the case this effect isn't supported or doesn't serialize anything.
                 var data = new StatusData.EffectData()
                 {
-                    Data = new string[0]
+                    Data = new string[]
+                    {
+                        "0"
+                    }
                 };
 
                 var type = effect.GetType();
@@ -224,7 +229,7 @@ namespace SideLoader
                 }
                 else // otherwise I need to add support for this effect (maybe).
                 {
-                    SL.Log("[StatusEffect] Unsupported effect: " + type, 1);
+                    //SL.Log("[StatusEffect] Unsupported effect: " + type, 1);
                 }
 
                 list.Add(data);

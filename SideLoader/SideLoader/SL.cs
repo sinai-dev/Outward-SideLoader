@@ -23,7 +23,7 @@ namespace SideLoader
         // Mod Info
         public const string GUID = "com.sinai." + MODNAME;
         public const string MODNAME = "SideLoader";
-        public const string VERSION = "2.6.2";
+        public const string VERSION = "2.6.3";
 
         // Folders
         public static string PLUGINS_FOLDER => Paths.PluginPath;
@@ -251,29 +251,74 @@ namespace SideLoader
             }
         }
 
-        /// <summary>Writes all the values from 'other' to 'comp', then returns comp.</summary>
-        public static T GetCopyOf<T>(Component comp, T other) where T : Component
+        /// <summary>
+        /// Replaces existingComponent type with desiredType ONLY if desiredType is not assignable from the existingComponent type.
+        /// That means if desiredType is Item and existingComponent type is Weapon, this will do nothing.
+        /// If both types are the same, this will do nothing.
+        /// Otherwise, this will replace existingComponent with a desiredType component and inherit all possible values.
+        /// </summary>
+        /// <param name="desiredType">The desired class type (the game type, not the SL type)</param>
+        /// <param name="existingComponent">The existing component</param>
+        /// <returns>The component left on the transform after the method runs.</returns>
+        public static Component FixComponentType(Type desiredType, Component existingComponent)
         {
-            var type = comp.GetType();
-            if (!typeof(T).IsAssignableFrom(type))
+            if (!existingComponent || !existingComponent.transform || desiredType == null || desiredType.IsAbstract)
             {
-                SL.Log("Cannot assign " + typeof(T) + " from " + type);
-                return null;
-            }
-            
-            foreach (var pinfo in type.GetProperties(At.FLAGS))
-            {
-                if (pinfo.CanWrite)
-                {
-                    try
-                    {
-                        pinfo.SetValue(comp, pinfo.GetValue(other, null), null);
-                    }
-                    catch { }
-                }
+                return existingComponent;
             }
 
-            At.CopyFieldValues(comp, other);
+            var currentType = existingComponent.GetType();
+
+            // If currentType derives from desiredType (or they are the same type), do nothing
+            // This is to allow using basic SL_Item (or whatever) templates on more complex types without replacing them.
+            if (desiredType.IsAssignableFrom(currentType))
+            {
+                return existingComponent;
+            }
+
+            var newComp = existingComponent.gameObject.AddComponent(desiredType);
+
+            while (!currentType.IsAssignableFrom(desiredType) && currentType.BaseType != null && currentType.BaseType != typeof(MonoBehaviour))
+            {
+                // Desired type does not derive from current type.
+                // We need to recursively dive through currentType's BaseTypes until we find a type we can assign from.
+                // Eg, current is MeleeWeapon and we want a ProjectileWeapon. We need to get the common base class (Weapon, in that case).
+                // When currentType reaches Weapon, Weapon.IsAssignableFrom(ProjectileWeapon) will return true.
+                // We also want to make sure we didnt reach MonoBehaviour, and at least got a game class.
+                currentType = currentType.BaseType;
+            }
+
+            // Final check if the value copying is valid, after operations above.
+            if (currentType.IsAssignableFrom(desiredType))
+            {
+                // recursively get all the field values
+                At.CopyFields(newComp, existingComponent, currentType, true);
+                At.CopyProperties(newComp, existingComponent, currentType, true);
+            }
+            else
+            {
+                Log($"FixComponentTypeIfNeeded - could not find a compatible type of {currentType.Name} which is assignable to desired type: {desiredType.Name}!");
+            }
+
+            // remove the old component
+            GameObject.DestroyImmediate(existingComponent);
+
+            return newComp;
+        }
+
+        /// <summary>
+        /// Gets a copy of Component and adds it to the transform provided.
+        /// </summary>
+        /// <typeparam name="T">The Type of Component which will be added to the transform.</typeparam>
+        /// <param name="component">The existing component to copy from (and the T if not directly supplied)</param>
+        /// <param name="transform">The Transform to add to</param>
+        /// <returns></returns>
+        public static T GetCopyOf<T>(T component, Transform transform) where T : Component
+        {
+            var comp = transform.gameObject.AddComponent(component.GetType());
+
+            At.CopyProperties(comp, component, null, true);
+            At.CopyFields(comp, component, null, true);
 
             return comp as T;
         }
@@ -309,18 +354,15 @@ namespace SideLoader
 
             if (inner != null)
             {
-                Log($"Inner Exception: {inner.Message}");
-
-                if (inner.InnerException != null)
-                {
-                    // There is another level, keep going.
-                    LogInnerException(inner);
-                }
-                else
-                {
-                    // We reached the end, log the stack.
-                    Log($"Inner-most Stack Trace: {inner.StackTrace}");
-                }
+                // There is another level, we'll keep going.
+                Log($"Exception: {ex.Message}");
+                LogInnerException(inner);
+            }
+            else
+            {
+                // We reached the end, log the stack.
+                Log($"Inner-most Exception: {ex.Message}");
+                Log($"Inner-most Stack Trace: {ex.StackTrace}");
             }
         }
     }

@@ -36,7 +36,7 @@ namespace SideLoader
             foreach (var child in transformsToApply)
             {
                 // The position and rotation of the effect can actually be important in some cases.
-                // Eg for Backstab, its actually used to determine to angle offset.
+                // Eg for Backstab, its actually used to determine the angle offset.
                 // So in some cases when overriding, we need to keep these values.
                 bool copyTranslation = false;
                 Vector3 pos = Vector3.zero;
@@ -92,8 +92,7 @@ namespace SideLoader
 
             if (ChildEffects != null && ChildEffects.Count > 0)
             {
-                var newParent = parent.Find(TransformName);
-                ApplyTransformList(newParent, ChildEffects, behaviour);
+                ApplyTransformList(child, ChildEffects, behaviour);
             }
 
             return child;
@@ -121,6 +120,11 @@ namespace SideLoader
 
             foreach (EffectCondition condition in transform.GetComponents<EffectCondition>())
             {
+                if (!condition.enabled)
+                {
+                    continue;
+                }
+
                 var effectConditionHolder = SL_EffectCondition.ParseCondition(condition);
                 effectTransformHolder.EffectConditions.Add(effectConditionHolder);
             }

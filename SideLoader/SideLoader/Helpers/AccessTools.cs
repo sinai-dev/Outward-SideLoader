@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Reflection;
 using UnityEngine;
 
@@ -61,18 +62,21 @@ namespace SideLoader
         /// <param name="copyFrom">The object which you are getting values from.</param>
         /// <param name="declaringType">Optional, manually define the declaring class type.</param>
         /// <param name="recursive">Whether to recursively dive into the BaseTypes and copy those fields too</param>
-        public static void CopyFieldValues(object copyTo, object copyFrom, Type declaringType = null, bool recursive = false)
+        public static void CopyFields(object copyTo, object copyFrom, Type declaringType = null, bool recursive = false)
         {
             var type = declaringType ?? copyFrom.GetType();
-            foreach (FieldInfo fi in type.GetFields(FLAGS))
-            {
-                try
-                {
-                    fi.SetValue(copyTo, fi.GetValue(copyFrom));
-                }
-                catch { }
-            }
 
+            if (type.IsAssignableFrom(copyTo.GetType()) && type.IsAssignableFrom(copyFrom.GetType()))
+            {
+                foreach (FieldInfo fi in type.GetFields(FLAGS))
+                {
+                    try
+                    {
+                        fi.SetValue(copyTo, fi.GetValue(copyFrom));
+                    }
+                    catch { }
+                }
+            }
 
             if (recursive && type.BaseType is Type baseType)
             {
@@ -80,19 +84,46 @@ namespace SideLoader
                 // Copying these fields causes serious errors.
                 if (baseType != typeof(MonoBehaviour) && baseType != typeof(Component))
                 {
-                    CopyFieldValues(copyTo, copyFrom, type.BaseType, true);
+                    CopyFields(copyTo, copyFrom, type.BaseType, true);
                 }
             }
 
             return;
         }
 
-        //// Legacy At.InheritBaseValues support.
-        //[Obsolete("Use At.CopyFieldValues instead (renamed after SL v2.1.9)")]
-        //public static void InheritBaseValues(object _derived, object _base)
-        //{
-        //    CopyFieldValues(_derived, _base);
-        //}
+        /// <summary>
+        /// A helper to get all the properties from one class instance, and set them to another.
+        /// </summary>
+        /// <param name="copyTo">The object which you are setting values to.</param>
+        /// <param name="copyFrom">The object which you are getting values from.</param>
+        /// <param name="declaringType">Optional, manually define the declaring class type.</param>
+        /// <param name="recursive">Whether to recursively dive into the BaseTypes and copy those properties too</param>
+        public static void CopyProperties(object copyTo, object copyFrom, Type declaringType = null, bool recursive = false)
+        {
+            var type = declaringType ?? copyFrom.GetType();
+
+            if (type.IsAssignableFrom(copyTo.GetType()) && type.IsAssignableFrom(copyFrom.GetType()))
+            {
+                foreach (var pi in type.GetProperties(FLAGS).Where(x => x.CanWrite))
+                {
+                    try
+                    {
+                        pi.SetValue(copyTo, pi.GetValue(copyFrom, null), null);
+                    }
+                    catch { }
+                }
+            }
+
+            if (recursive && type.BaseType is Type baseType)
+            {
+                // We don't want to copy Unity low-level types, such as MonoBehaviour or Component.
+                // Copying these fields causes serious errors.
+                if (baseType != typeof(MonoBehaviour) && baseType != typeof(Component))
+                {
+                    CopyProperties(copyTo, copyFrom, type.BaseType, true);
+                }
+            }
+        }
 
         /// <summary>
         /// Helper to invoke a private or protected method.

@@ -106,21 +106,9 @@ namespace SideLoader
             }
             else
             {
-                if (!visualModel.GetComponent<ItemVisual>())
+                if (!visualModel.GetComponent<ItemVisual>() && basePrefab.GetComponent<ItemVisual>() is ItemVisual itemVisual)
                 {
-                    if (basePrefab.GetComponent<ItemVisual>() is ItemVisual itemVisual)
-                    {
-                        if (itemVisual is ArmorVisuals armorVisuals)
-                        {
-                            var newcomp = visualModel.AddComponent<ArmorVisuals>();
-                            SL.GetCopyOf(newcomp, armorVisuals);
-                        }
-                        else
-                        {
-                            var newcomp = visualModel.AddComponent<ItemVisual>();
-                            SL.GetCopyOf(newcomp, itemVisual);
-                        }
-                    }
+                    SL.GetCopyOf(itemVisual, visualModel.transform);
                 }
 
                 visualModel.transform.position = basePrefab.transform.position;

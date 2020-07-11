@@ -46,6 +46,8 @@ namespace SideLoader
         public float? MobileCastMovementMult;
         public int? CastSheatheRequired;
 
+        public float? OverrideSellModifier;
+
         /// <summary>
         /// Item Tags, represented as strings (uses CustomTags.GetTag(string tagName)).
         /// </summary>
@@ -134,6 +136,9 @@ namespace SideLoader
             if (this.CastType != null)
                 At.SetValue((Character.SpellCastType)this.CastType, typeof(Item), item, "m_activateEffectAnimType");
 
+            if (this.OverrideSellModifier != null)
+                At.SetValue((float)this.OverrideSellModifier, typeof(Item), item, "m_overrideSellModifier");
+
             if (this.Tags != null)
             {
                 CustomItems.SetItemTags(item, this.Tags, true);
@@ -150,7 +155,7 @@ namespace SideLoader
                 }
                 else
                 {
-                    stats = (ItemStats)Serializer.FixComponentType(item.transform, desiredType, stats);
+                    stats = (ItemStats)SL.FixComponentType(desiredType, stats);
                 }
 
                 StatsHolder.ApplyToItem(stats);
@@ -240,6 +245,8 @@ namespace SideLoader
             holder.BehaviorOnNoDurability = item.BehaviorOnNoDurability;
 
             holder.CastType = (Character.SpellCastType)At.GetValue(typeof(Item), item, "m_activateEffectAnimType");
+
+            this.OverrideSellModifier = (float)At.GetValue(typeof(Item), item, "m_overrideSellModifier");
 
             if (item.GetComponent<ItemStats>() is ItemStats stats)
             {

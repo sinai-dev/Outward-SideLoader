@@ -8,7 +8,6 @@ using UnityEngine;
 namespace SideLoader
 {
     // All HarmonyPatches used by SideLoader are in this file.
-    // They are separated into regions by category.
 
     #region CORE SETUP PATCH
 
@@ -112,7 +111,8 @@ namespace SideLoader
         [HarmonyPrefix]
         public static bool Prefix(Item __instance, ref Sprite __result)
         {
-            if (CustomItemVisuals.GetItemVisualLink(__instance) is CustomItemVisuals.ItemVisualsLink link)
+            if (CustomItemVisuals.GetItemVisualLink(__instance) is CustomItemVisuals.ItemVisualsLink link
+                && link.ItemIcon)
             {
                 __result = link.ItemIcon;
                 return false;

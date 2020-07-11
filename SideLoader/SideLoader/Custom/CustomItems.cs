@@ -123,7 +123,7 @@ namespace SideLoader
                 var gameType = Serializer.GetGameType(template.GetType());
                 if (gameType != item.GetType())
                 {
-                    item = (Item)Serializer.FixComponentType(item.transform, gameType, item);
+                    item = (Item)SL.FixComponentType(gameType, item);
                 }
             }
 

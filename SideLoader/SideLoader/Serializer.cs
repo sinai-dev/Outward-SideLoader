@@ -31,16 +31,16 @@ namespace SideLoader
         {
             get
             {
-                if (m_SLAssembly == null)
+                if (m_slAssembly == null)
                 {
-                    m_SLAssembly = Assembly.GetExecutingAssembly();
+                    m_slAssembly = Assembly.GetExecutingAssembly();
                 }
-
-                return m_SLAssembly;
+                return m_slAssembly;
             }
         }
-        private static Assembly m_SLAssembly; 
-        
+
+        private static Assembly m_slAssembly;
+
         /// <summary>
         /// The Assembly-Csharp.dll AppDomain reference.
         /// </summary>
@@ -57,6 +57,7 @@ namespace SideLoader
                 return m_gameAssembly;
             }
         }
+
         private static Assembly m_gameAssembly;
 
         /// <summary>
@@ -68,7 +69,7 @@ namespace SideLoader
             {
                 if (m_slTypes == null || m_slTypes.Length < 1)
                 {
-                    var list = new List<Type> 
+                    var list = new List<Type>
                     {
                         // Serializable game classes (currently only use 1)
                         typeof(WeaponStats.AttackData),
@@ -90,34 +91,24 @@ namespace SideLoader
                 return m_slTypes;
             }
         }
+
         private static Type[] m_slTypes;
 
+        private static readonly Dictionary<Type, XmlSerializer> m_xmlCache = new Dictionary<Type, XmlSerializer>();
+
         /// <summary>
-        /// Pass a Game Class type (eg, Item) and get the corresponding SideLoader class (eg, SL_Item).
+        /// Use this to get and cache an XmlSerializer for the provided Type, this will include all SL_Types as the extraTypes.
         /// </summary>
-        /// <param name="_gameType">Eg, typeof(Item)</param>
-        /// <param name="logging">If you want to log debug messages.</param>
-        public static Type GetSLType(Type _gameType, bool logging = true)
+        /// <param name="type">The root type of the document</param>
+        /// <returns>The new (or cached) XmlSerializer</returns>
+        public static XmlSerializer GetXmlSerializer(Type type)
         {
-            var name = $"SideLoader.SL_{_gameType.Name}";
-
-            Type t = null;
-            try
+            if (!m_xmlCache.ContainsKey(type))
             {
-                t = SL_Assembly.GetType(name);
-                if (t == null) throw new Exception("Null");
-            }
-            catch (Exception e)
-            {
-                if (logging)
-                {
-                    SL.Log($"Could not get SL_Assembly Type '{name}'", 0);
-                    SL.Log(e.Message, 0);
-                    SL.Log(e.StackTrace, 0);
-                }
+                m_xmlCache.Add(type, new XmlSerializer(type, SLTypes));
             }
 
-            return t;
+            return m_xmlCache[type];
         }
 
         /// <summary>
@@ -149,6 +140,34 @@ namespace SideLoader
         }
 
         /// <summary>
+        /// Pass a Game Class type (eg, Item) and get the corresponding SideLoader class (eg, SL_Item).
+        /// </summary>
+        /// <param name="_gameType">Eg, typeof(Item)</param>
+        /// <param name="logging">If you want to log debug messages.</param>
+        public static Type GetSLType(Type _gameType, bool logging = true)
+        {
+            var name = $"SideLoader.SL_{_gameType.Name}";
+
+            Type t = null;
+            try
+            {
+                t = SL_Assembly.GetType(name);
+                if (t == null) throw new Exception("Null");
+            }
+            catch (Exception e)
+            {
+                if (logging)
+                {
+                    SL.Log($"Could not get SL_Assembly Type '{name}'", 0);
+                    SL.Log(e.Message, 0);
+                    SL.Log(e.StackTrace, 0);
+                }
+            }
+
+            return t;
+        }
+
+        /// <summary>
         /// Get the "best-match" for the provided game class.
         /// Will get the highest-level base class of the provided game class with a matching SL class.
         /// </summary>
@@ -171,76 +190,6 @@ namespace SideLoader
                     return null;
                 }
             }
-        }
-
-        /// <summary>
-        /// Replaces existingComponent type with desiredType ONLY if desiredType is not assignable from the existingComponent type.
-        /// That means if desiredType is Item and existingComponent type is Weapon, this will do nothing.
-        /// If both types are the same, this will do nothing.
-        /// Otherwise, this will replace existingComponent with a desiredType component and inherit all possible values.
-        /// </summary>
-        /// <param name="transform">The transform to apply to</param>
-        /// <param name="desiredType">The desired class type (the game type, not the SL type)</param>
-        /// <param name="existingComponent">The existing component</param>
-        /// <returns>The component left on the transform after the method runs.</returns>
-        public static Component FixComponentType(Transform transform, Type desiredType, Component existingComponent)
-        {
-            if (!existingComponent || !transform || desiredType == null || desiredType.IsAbstract)
-            {
-                return existingComponent;
-            }
-
-            var currentType = existingComponent.GetType();
-
-            // If the types are the same, or if currentType derives from desiredType, do nothing
-            // This is to allow using basic SL_Item (or whatever) templates on more complex types without replacing them.
-            if (desiredType.IsAssignableFrom(currentType)) 
-            {
-                return existingComponent;
-            }
-
-            if (!desiredType.IsSubclassOf(currentType))
-            {
-                // Desired type does not derive from current type.
-                // We need to recursively dive through currentType's BaseTypes until we find a type we can assign from.
-                // Eg, current is MeleeWeapon and we want a ProjectileWeapon. We need to get the common base class (Weapon, in that case).
-                // When currentType reaches Weapon, Weapon.IsAssignableFrom(ProjectileWeapon) will return true.
-                // We also want to make sure we didnt reach MonoBehaviour, and at least got a game class.
-                while (!currentType.IsAssignableFrom(desiredType) && currentType.BaseType != null && currentType.BaseType != typeof(MonoBehaviour))
-                {
-                    currentType = currentType.BaseType;
-                }
-            }
-
-            var newComp = transform.gameObject.AddComponent(desiredType);
-
-            // Final check if the value copying is valid, after operations above.
-            if (!currentType.IsAssignableFrom(desiredType))
-            {
-                SL.Log($"FixComponentTypeIfNeeded - could not find a compatible type of {currentType.Name} which is assignable to desired type: {desiredType.Name}!");
-            }
-            else
-            {
-                // recursively get all the field values
-                At.CopyFieldValues(newComp, existingComponent, currentType, true);
-            }
-
-            // remove the old component
-            GameObject.DestroyImmediate(existingComponent);
-
-            return newComp;
-        }
-
-        private static readonly Dictionary<Type, XmlSerializer> m_xmlCache = new Dictionary<Type, XmlSerializer>();
-
-        private static XmlSerializer GetXmlSerializer(Type type)
-        {
-            if (!m_xmlCache.ContainsKey(type))
-            {
-                m_xmlCache.Add(type, new XmlSerializer(type, SLTypes));
-            }
-
-            return m_xmlCache[type];
         }
 
         /// <summary>

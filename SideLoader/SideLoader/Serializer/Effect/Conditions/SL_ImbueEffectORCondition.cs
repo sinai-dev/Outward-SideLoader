@@ -42,12 +42,20 @@ namespace SideLoader
 
         public override void SerializeEffect<T>(EffectCondition component, T template)
         {
-            var comp = component as ImbueEffectCondition;
-            var holder = template as SL_ImbueEffectCondition;
+            var comp = component as ImbueEffectORCondition;
+            var holder = template as SL_ImbueEffectORCondition;
 
             holder.AnyImbue = comp.AnyImbue;
             holder.WeaponToCheck = comp.WeaponToCheck;
-            holder.ImbuePresetID = comp.ImbueEffectPreset?.PresetID ?? -1;
+
+            if (comp.ImbueEffectPresets != null)
+            {
+                holder.ImbuePresetIDs = new List<int>();
+                foreach (var imbue in comp.ImbueEffectPresets)
+                {
+                    holder.ImbuePresetIDs.Add(imbue.PresetID);
+                }
+            }
         }
     }
 }
