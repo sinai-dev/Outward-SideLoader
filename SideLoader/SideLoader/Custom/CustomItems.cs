@@ -18,10 +18,36 @@ namespace SideLoader
         private static readonly Dictionary<int, Item> OrigItemPrefabs = new Dictionary<int, Item>();
 
         /// <summary>Cached ResourcesPrefabManager.ITEM_PREFABS Dictionary</summary>
-        public static Dictionary<string, Item> RPM_ITEM_PREFABS;
+        public static Dictionary<string, Item> RPM_ITEM_PREFABS
+        {
+            get
+            {
+                if (m_itemPrefabs == null)
+                {
+                    m_itemPrefabs = At.GetValue(typeof(ResourcesPrefabManager), null, "ITEM_PREFABS") as Dictionary<string, Item>;
+                }
+                return m_itemPrefabs;
+            }
+        }
+        private static Dictionary<string, Item> m_itemPrefabs;
 
         /// <summary>Cached LocalizationManager.ItemLocalization</summary>
-        public static Dictionary<int, ItemLocalization> ITEM_LOCALIZATION;
+        public static Dictionary<int, ItemLocalization> ITEM_LOCALIZATION
+        {
+            get
+            {
+                if (m_itemLocalization == null)
+                {
+                    try
+                    {
+                        m_itemLocalization = At.GetValue(typeof(LocalizationManager), LocalizationManager.Instance, "m_itemLocalization") as Dictionary<int, ItemLocalization>;
+                    }
+                    catch { }
+                }
+                return m_itemLocalization;
+            }
+        }
+        private static Dictionary<int, ItemLocalization> m_itemLocalization;
 
         /// <summary>Cached RecipeManager.m_recipes Dictionary</summary>
         public static Dictionary<string, Recipe> ALL_RECIPES;
@@ -35,10 +61,7 @@ namespace SideLoader
         {
             Instance = this;
 
-            // Cache useful dictionaries used by the game
-            RPM_ITEM_PREFABS = At.GetValue(typeof(ResourcesPrefabManager), null, "ITEM_PREFABS") as Dictionary<string, Item>;
-            ITEM_LOCALIZATION = At.GetValue(typeof(LocalizationManager), LocalizationManager.Instance, "m_itemLocalization") as Dictionary<int, ItemLocalization>;
-
+            // Cache useful dictionaries used by the game            
             ALL_RECIPES = At.GetValue(typeof(RecipeManager), RecipeManager.Instance, "m_recipes") as Dictionary<string, Recipe>;
             RECIPES_PER_UTENSIL = At.GetValue(typeof(RecipeManager), RecipeManager.Instance, "m_recipeUIDsPerUstensils") as Dictionary<Recipe.CraftingType, List<UID>>;
 

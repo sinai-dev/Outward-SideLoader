@@ -82,6 +82,10 @@ namespace SideLoader
                 // Fix localization
                 GetStatusLocalization(original, out string name, out string desc);
                 SetStatusLocalization(newEffect, name, desc);
+
+                // Fix status data and stack
+                At.SetValue<List<StatusData>>(null, typeof(StatusEffect), newEffect, "m_statusStack");
+                //At.SetValue<StatusData.EffectData[]>(null, typeof(StatusEffect), newEffect, "m_totalData");
             }
 
             newEffect.gameObject.name = template.NewStatusID + "_" + (template.Name ?? newEffect.IdentifierName);
