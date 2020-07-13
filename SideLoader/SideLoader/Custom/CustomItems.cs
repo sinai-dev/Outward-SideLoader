@@ -17,56 +17,12 @@ namespace SideLoader
         /// <summary>Cached ORIGINAL Item Prefabs (not modified)</summary>
         private static readonly Dictionary<int, Item> OrigItemPrefabs = new Dictionary<int, Item>();
 
-        /// <summary>Cached ResourcesPrefabManager.ITEM_PREFABS Dictionary</summary>
-        public static Dictionary<string, Item> RPM_ITEM_PREFABS
-        {
-            get
-            {
-                if (m_itemPrefabs == null)
-                {
-                    m_itemPrefabs = At.GetValue(typeof(ResourcesPrefabManager), null, "ITEM_PREFABS") as Dictionary<string, Item>;
-                }
-                return m_itemPrefabs;
-            }
-        }
-        private static Dictionary<string, Item> m_itemPrefabs;
-
-        /// <summary>Cached LocalizationManager.ItemLocalization</summary>
-        public static Dictionary<int, ItemLocalization> ITEM_LOCALIZATION
-        {
-            get
-            {
-                if (m_itemLocalization == null)
-                {
-                    try
-                    {
-                        m_itemLocalization = At.GetValue(typeof(LocalizationManager), LocalizationManager.Instance, "m_itemLocalization") as Dictionary<int, ItemLocalization>;
-                    }
-                    catch { }
-                }
-                return m_itemLocalization;
-            }
-        }
-        private static Dictionary<int, ItemLocalization> m_itemLocalization;
-
-        /// <summary>Cached RecipeManager.m_recipes Dictionary</summary>
-        public static Dictionary<string, Recipe> ALL_RECIPES;
-        /// <summary>Cached RecipeManager.m_recipeUIDsPerUstensils Dictionary</summary>
-        public static Dictionary<Recipe.CraftingType, List<UID>> RECIPES_PER_UTENSIL;
-
-        public static Dictionary<int, EnchantmentRecipe> ENCHANTMENT_RECIPES;
-        public static Dictionary<int, Enchantment> ENCHANTMENT_PREFABS;
+        public static Dictionary<string, Item> RPM_ITEM_PREFABS => References.RPM_ITEM_PREFABS;
+        public static Dictionary<int, ItemLocalization> ITEM_LOCALIZATION => References.ITEM_LOCALIZATION;
 
         internal void Awake()
         {
             Instance = this;
-
-            // Cache useful dictionaries used by the game            
-            ALL_RECIPES = At.GetValue(typeof(RecipeManager), RecipeManager.Instance, "m_recipes") as Dictionary<string, Recipe>;
-            RECIPES_PER_UTENSIL = At.GetValue(typeof(RecipeManager), RecipeManager.Instance, "m_recipeUIDsPerUstensils") as Dictionary<Recipe.CraftingType, List<UID>>;
-
-            ENCHANTMENT_RECIPES = At.GetValue(typeof(RecipeManager), RecipeManager.Instance, "m_enchantmentRecipes") as Dictionary<int, EnchantmentRecipe>;
-            ENCHANTMENT_PREFABS = At.GetValue(typeof(ResourcesPrefabManager), ResourcesPrefabManager.Instance, "ENCHANTMENT_PREFABS") as Dictionary<int, Enchantment>;
         }
 
         // ================================================================================ //
@@ -190,13 +146,13 @@ namespace SideLoader
             //SL.Log("Setting a custom Item ID to the ResourcesPrefabManager dictionary. ID: " + ID + ", item name: " + item.Name);
 
             var id = _ID.ToString();
-            if (RPM_ITEM_PREFABS.ContainsKey(id))
+            if (References.RPM_ITEM_PREFABS.ContainsKey(id))
             {
-                RPM_ITEM_PREFABS[id] = item;
+                References.RPM_ITEM_PREFABS[id] = item;
             }
             else
             {
-                RPM_ITEM_PREFABS.Add(id, item);
+                References.RPM_ITEM_PREFABS.Add(id, item);
             }
         }
 
@@ -221,15 +177,15 @@ namespace SideLoader
             At.SetValue(name, typeof(Item), _item, "m_name");
             At.SetValue(desc, typeof(Item), _item, "m_description");
 
-            if (ITEM_LOCALIZATION.ContainsKey(_item.ItemID))
+            if (References.ITEM_LOCALIZATION.ContainsKey(_item.ItemID))
             {
-                ITEM_LOCALIZATION[_item.ItemID].Name = name;
-                ITEM_LOCALIZATION[_item.ItemID].Desc = desc;
+                References.ITEM_LOCALIZATION[_item.ItemID].Name = name;
+                References.ITEM_LOCALIZATION[_item.ItemID].Desc = desc;
             }
             else
             {
                 ItemLocalization loc = new ItemLocalization(name, desc);
-                ITEM_LOCALIZATION.Add(_item.ItemID, loc);
+                References.ITEM_LOCALIZATION.Add(_item.ItemID, loc);
             }
         }
 

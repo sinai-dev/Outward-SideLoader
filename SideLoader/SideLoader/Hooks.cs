@@ -137,7 +137,7 @@ namespace SideLoader
         {
             if (__instance is AddStatusEffect addStatusEffect && addStatusEffect.Status is StatusEffect _old)
             {
-                if (CustomStatusEffects.RPM_STATUS_EFFECTS.ContainsKey(_old.IdentifierName))
+                if (References.RPM_STATUS_EFFECTS.ContainsKey(_old.IdentifierName))
                 {
                     if (ResourcesPrefabManager.Instance.GetStatusEffectPrefab(_old.IdentifierName) is StatusEffect _new)
                         addStatusEffect.Status = _new;

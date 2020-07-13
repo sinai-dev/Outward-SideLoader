@@ -93,8 +93,8 @@ namespace SideLoader
             recipe.Init();
 
             // fix Recipe Manager dictionaries to contain our recipe
-            var dict = CustomItems.ALL_RECIPES;
-            var dict2 = CustomItems.RECIPES_PER_UTENSIL;
+            var dict = References.ALL_RECIPES;
+            var dict2 = References.RECIPES_PER_UTENSIL;
 
             if (dict.ContainsKey(recipe.UID))
             {

@@ -38,8 +38,11 @@
     <Compile Include="Custom\CustomItemVisuals.cs" />
     <Compile Include="Custom\CustomStatusEffects.cs" />
     <Compile Include="Custom\CustomTags.cs" />
+    <Compile Include="Helpers\References.cs" />
     <Compile Include="Hooks.cs" />
     <Compile Include="Serializer\General\EditBehaviours.cs" />
+    <Compile Include="Serializer\Item\ItemContainer\SL_DeployableTrap.cs" />
+    <Compile Include="Serializer\Item\ItemContainer\Trap\SL_TrapEffectRecipe.cs" />
     <Compile Include="Serializer\Item\ItemExtension\SL_Deployable.cs" />
     <Compile Include="Serializer\Item\ItemExtension\SL_DestroyOnOwnerDeath.cs" />
     <Compile Include="Serializer\Item\ItemExtension\SL_Ephemeral.cs" />

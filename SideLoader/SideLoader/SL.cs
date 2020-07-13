@@ -23,7 +23,7 @@ namespace SideLoader
         // Mod Info
         public const string GUID = "com.sinai." + MODNAME;
         public const string MODNAME = "SideLoader";
-        public const string VERSION = "2.6.3";
+        public const string VERSION = "2.6.4";
 
         // Folders
         public static string PLUGINS_FOLDER => Paths.PluginPath;
@@ -92,6 +92,7 @@ namespace SideLoader
         /// </summary>
         public static void Setup()
         {
+            // ==========================
             // Prepare Blast and Projectile prefab dictionaries.
 
             //SL_ShootBlast.DebugBlastNames();
@@ -107,15 +108,10 @@ namespace SideLoader
 
             // ====== Read SL Packs ======
 
-            // new structure: BepInEx\plugins\ModName\SideLoader\
+            // 'BepInEx\plugins\...' packs:
             foreach (string modFolder in Directory.GetDirectories(PLUGINS_FOLDER))
             {
                 string name = Path.GetFileName(modFolder);
-
-                if (name == "SideLoader" || name == "ModConfigs" || name == "PartialityWrapper")
-                {
-                    continue;
-                }
 
                 var slFolder = modFolder + @"\SideLoader";
                 if (Directory.Exists(slFolder))
@@ -124,7 +120,7 @@ namespace SideLoader
                 }
             }
 
-            // Mods\SideLoader\ folder packs:
+            // 'Mods\SideLoader\...' packs:
             foreach (string dir in Directory.GetDirectories(SL_FOLDER))
             {
                 if (dir == GENERATED_FOLDER)
@@ -137,35 +133,30 @@ namespace SideLoader
                 SLPack.TryLoadPack(packname, dir, true);
             }
 
-             // ====== Invoke Callbacks ======
+            // ====== Invoke Callbacks ======
 
-            Log("Applying custom Statuses", 0);
-            TryInvoke(INTERNAL_ApplyStatuses);
+            Dictionary<string, MulticastDelegate> delegates = new Dictionary<string, MulticastDelegate>
+            {
+                { "Status Effects", INTERNAL_ApplyStatuses },
+                { "Items", INTERNAL_ApplyItems },
+                { "Recipes", INTERNAL_ApplyRecipes },
+                { "Recipe Items", INTERNAL_ApplyRecipeItems },
+            };
 
-            Log("Applying custom Items", 0);
-            TryInvoke(INTERNAL_ApplyItems);
-
-            Log("Applying custom Recipes", 0);
-            TryInvoke(INTERNAL_ApplyRecipes);
-
-            Log("Applying custom Recipe Items", 0);
-            TryInvoke(INTERNAL_ApplyRecipeItems);
+            foreach (var entry in delegates)
+            {
+                if (entry.Value != null)
+                {
+                    Log($"Applying custom {entry.Key}, count: {entry.Value.GetInvocationList().Length}");
+                    TryInvoke(entry.Value);
+                }
+            }
 
             PacksLoaded = true;
             Log("SideLoader Setup Finished");
             Log("-------------------------");
+
             TryInvoke(OnPacksLoaded);
-
-            //// *********************************** temp debug ***********************************
-
-            //// I use this to generate the "Types" xml resources.
-
-            //foreach (var type in Serializer.SLTypes.Where(x => !x.IsAbstract))
-            //{
-            //    Serializer.SaveToXml(GENERATED_FOLDER + @"\Types", type.Name, Activator.CreateInstance(type));
-            //}
-
-            //// **********************************************************************************
         }
 
         // =============== Scene Change Events ====================
@@ -235,12 +226,13 @@ namespace SideLoader
         /// <summary> Small helper for destroying all children on a given Transform 't'. Uses DestroyImmediate(). </summary>
         /// <param name="t">The transform whose children you want to destroy.</param>
         /// <param name="destroyContent">If true, will destroy children called "Content" (used for Bags)</param>
-        public static void DestroyChildren(Transform t, bool destroyContent = false)
+        /// <param name="destroyActivator">If true, will destroy children called "Activator" (used for Deployables / Traps)</param>
+        public static void DestroyChildren(Transform t, bool destroyContent = false, bool destroyActivator = false)
         {
             var list = new List<GameObject>();
             foreach (Transform child in t)
             {
-                if (destroyContent || child.name != "Content")
+                if ((destroyContent || child.name != "Content") && (destroyActivator || child.name != "Activator"))
                 {
                     list.Add(child.gameObject);
                 }

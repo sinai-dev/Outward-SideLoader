@@ -192,29 +192,29 @@ namespace SideLoader
             // =========== SET DICTIONARY REFS ============
       
             // Recipe dict
-            if (CustomItems.ENCHANTMENT_RECIPES.ContainsKey(this.EnchantmentID))
+            if (References.ENCHANTMENT_RECIPES.ContainsKey(this.EnchantmentID))
             {
-                CustomItems.ENCHANTMENT_RECIPES[this.EnchantmentID] = recipe;
+                References.ENCHANTMENT_RECIPES[this.EnchantmentID] = recipe;
             }
             else
             {
-                CustomItems.ENCHANTMENT_RECIPES.Add(this.EnchantmentID, recipe);
+                References.ENCHANTMENT_RECIPES.Add(this.EnchantmentID, recipe);
             }
 
             // Enchantment dict
-            if (CustomItems.ENCHANTMENT_PREFABS.ContainsKey(this.EnchantmentID))
+            if (References.ENCHANTMENT_PREFABS.ContainsKey(this.EnchantmentID))
             {
-                CustomItems.ENCHANTMENT_PREFABS[this.EnchantmentID] = enchantment;
+                References.ENCHANTMENT_PREFABS[this.EnchantmentID] = enchantment;
             }
             else
             {
-                CustomItems.ENCHANTMENT_PREFABS.Add(this.EnchantmentID, enchantment);
+                References.ENCHANTMENT_PREFABS.Add(this.EnchantmentID, enchantment);
             }
         }
 
         public static void SetLocalization(SL_EnchantmentRecipe recipe, out string descKey)
         {
-            var dict = CustomStatusEffects.GENERAL_LOCALIZATION;
+            var dict = References.GENERAL_LOCALIZATION;
 
             var nameKey = $"Enchantment_{recipe.EnchantmentID}";
             descKey = $"DESC_{nameKey}";

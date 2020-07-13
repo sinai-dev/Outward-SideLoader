@@ -14,10 +14,12 @@ namespace SideLoader
 
         public static readonly Dictionary<int, EffectPreset> OrigEffectPresets = new Dictionary<int, EffectPreset>();
 
-        public static Dictionary<int, EffectPreset> RPM_EFFECT_PRESETS;
-        public static Dictionary<string, StatusEffect> RPM_STATUS_EFFECTS;
+        // ================== INTERNAL ==================
 
-        public static Dictionary<string, string> GENERAL_LOCALIZATION;
+        internal void Awake()
+        {
+            Instance = this;            
+        }
 
         // ================== HELPERS ==================
 
@@ -91,24 +93,24 @@ namespace SideLoader
             newEffect.gameObject.name = template.NewStatusID + "_" + (template.Name ?? newEffect.IdentifierName);
 
             // fix RPM_STATUS_EFFECTS dictionary
-            if (!RPM_STATUS_EFFECTS.ContainsKey(newEffect.IdentifierName))
+            if (!References.RPM_STATUS_EFFECTS.ContainsKey(newEffect.IdentifierName))
             {
-                RPM_STATUS_EFFECTS.Add(newEffect.IdentifierName, newEffect);
+                References.RPM_STATUS_EFFECTS.Add(newEffect.IdentifierName, newEffect);
             }
             else
             {
-                RPM_STATUS_EFFECTS[newEffect.IdentifierName] = newEffect;
+                References.RPM_STATUS_EFFECTS[newEffect.IdentifierName] = newEffect;
             }
 
             // fix RPM_Presets dictionary
-            if (!RPM_EFFECT_PRESETS.ContainsKey(template.NewStatusID))
+            if (!References.RPM_EFFECT_PRESETS.ContainsKey(template.NewStatusID))
             {
-                RPM_EFFECT_PRESETS.Add(template.NewStatusID, newEffect.GetComponent<EffectPreset>());
+                References.RPM_EFFECT_PRESETS.Add(template.NewStatusID, newEffect.GetComponent<EffectPreset>());
             }
             else
             {
                 //SL.Log("A Status Effect already exists with the Identifier " + template.StatusIdentifier + ", replacing with " + template.Name);
-                RPM_EFFECT_PRESETS[template.NewStatusID] = newEffect.GetComponent<EffectPreset>();
+                References.RPM_EFFECT_PRESETS[template.NewStatusID] = newEffect.GetComponent<EffectPreset>();
             }
 
             // Always do this
@@ -156,25 +158,25 @@ namespace SideLoader
             var nameKey = $"NAME_{preset.PresetID}_{effect.IdentifierName}";
             At.SetValue(nameKey, typeof(StatusEffect), effect, "m_nameLocKey");
 
-            if (GENERAL_LOCALIZATION.ContainsKey(nameKey))
+            if (References.GENERAL_LOCALIZATION.ContainsKey(nameKey))
             {
-                GENERAL_LOCALIZATION[nameKey] = name;
+                References.GENERAL_LOCALIZATION[nameKey] = name;
             }
             else
             {
-                GENERAL_LOCALIZATION.Add(nameKey, name);
+                References.GENERAL_LOCALIZATION.Add(nameKey, name);
             }
 
             var descKey = $"DESC_{preset.PresetID}_{effect.IdentifierName}";
             At.SetValue(descKey, typeof(StatusEffect), effect, "m_descriptionLocKey");
 
-            if (GENERAL_LOCALIZATION.ContainsKey(descKey))
+            if (References.GENERAL_LOCALIZATION.ContainsKey(descKey))
             {
-                GENERAL_LOCALIZATION[descKey] = description;
+                References.GENERAL_LOCALIZATION[descKey] = description;
             }
             else
             {
-                GENERAL_LOCALIZATION.Add(descKey, description);
+                References.GENERAL_LOCALIZATION.Add(descKey, description);
             }
         }
 
@@ -224,14 +226,14 @@ namespace SideLoader
             newEffect.gameObject.name = template.NewStatusID + "_" + (template.Name ?? newEffect.Name);
 
             // fix RPM_Presets dictionary
-            if (!RPM_EFFECT_PRESETS.ContainsKey(template.NewStatusID))
+            if (!References.RPM_EFFECT_PRESETS.ContainsKey(template.NewStatusID))
             {
-                RPM_EFFECT_PRESETS.Add(template.NewStatusID, newEffect.GetComponent<EffectPreset>());
+                References.RPM_EFFECT_PRESETS.Add(template.NewStatusID, newEffect.GetComponent<EffectPreset>());
             }
             else
             {
                 //SL.Log("An imbue already exists with the ID " + template.NewStatusID + ", replacing...");
-                RPM_EFFECT_PRESETS[template.NewStatusID] = newEffect;
+                References.RPM_EFFECT_PRESETS[template.NewStatusID] = newEffect;
             }
 
             // Always do this
@@ -274,46 +276,31 @@ namespace SideLoader
             var nameKey = $"NAME_{preset.PresetID}_{preset.Name.Trim()}";
             At.SetValue(nameKey, typeof(ImbueEffectPreset), preset, "m_imbueNameKey");
 
-            if (GENERAL_LOCALIZATION.ContainsKey(nameKey))
+            if (References.GENERAL_LOCALIZATION.ContainsKey(nameKey))
             {
-                GENERAL_LOCALIZATION[nameKey] = name;
+                References.GENERAL_LOCALIZATION[nameKey] = name;
             }
             else
             {
-                GENERAL_LOCALIZATION.Add(nameKey, name);
+                References.GENERAL_LOCALIZATION.Add(nameKey, name);
             }
 
             var descKey = $"DESC_{preset.PresetID}_{preset.Name.Trim()}";
             At.SetValue(descKey, typeof(ImbueEffectPreset), preset, "m_imbueDescKey");
 
-            if (GENERAL_LOCALIZATION.ContainsKey(descKey))
+            if (References.GENERAL_LOCALIZATION.ContainsKey(descKey))
             {
-                GENERAL_LOCALIZATION[descKey] = description;
+                References.GENERAL_LOCALIZATION[descKey] = description;
             }
             else
             {
-                GENERAL_LOCALIZATION.Add(descKey, description);
+                References.GENERAL_LOCALIZATION.Add(descKey, description);
             }
 
             if (preset.GetComponent<StatusEffect>() is StatusEffect status)
             {
                 SetStatusLocalization(status, name, description);
             }
-        }
-
-        // ======== MISC HELPERS ========
-
-
-
-        // ================== INTERNAL ==================
-
-        internal void Awake()
-        {
-            Instance = this;
-
-            RPM_EFFECT_PRESETS = (Dictionary<int, EffectPreset>)At.GetValue(typeof(ResourcesPrefabManager), null, "EFFECTPRESET_PREFABS");
-            RPM_STATUS_EFFECTS = (Dictionary<string, StatusEffect>)At.GetValue(typeof(ResourcesPrefabManager), null, "STATUSEFFECT_PREFABS");
-            GENERAL_LOCALIZATION = (Dictionary<string, string>)At.GetValue(typeof(LocalizationManager), LocalizationManager.Instance, "m_generalLocalization");
         }
     }
 }

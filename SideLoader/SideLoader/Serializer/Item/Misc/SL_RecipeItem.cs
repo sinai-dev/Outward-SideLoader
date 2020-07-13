@@ -15,9 +15,9 @@ namespace SideLoader
 
             var recipeItem = item as RecipeItem;
 
-            if (this.RecipeUID != null && CustomItems.ALL_RECIPES.ContainsKey(this.RecipeUID))
+            if (this.RecipeUID != null && References.ALL_RECIPES.ContainsKey(this.RecipeUID))
             {
-                var recipe = CustomItems.ALL_RECIPES[this.RecipeUID];
+                var recipe = References.ALL_RECIPES[this.RecipeUID];
 
                 recipeItem.Recipe = recipe;
             }
