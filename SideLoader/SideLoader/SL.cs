@@ -23,7 +23,7 @@ namespace SideLoader
         // Mod Info
         public const string GUID = "com.sinai." + MODNAME;
         public const string MODNAME = "SideLoader";
-        public const string VERSION = "2.6.4";
+        public const string VERSION = "2.6.5";
 
         // Folders
         public static string PLUGINS_FOLDER => Paths.PluginPath;
@@ -49,8 +49,8 @@ namespace SideLoader
         public static event Action INTERNAL_ApplyItems;
         /// <summary>Only called once on startup. It is a callback used by SL_Recipes and SL_EnchantmentRecipes to apply after all CustomItems are loaded.</summary>
         public static event Action INTERNAL_ApplyRecipes;
-        /// <summary>Only called once on startup. It is a callback used by SL_RecipeItems to apply after all SL_Recipes are loaded.</summary>
-        public static event Action INTERNAL_ApplyRecipeItems;
+        /// <summary>Only called once on startup. It is a callback used by SL_RecipeItems and other templates to apply after all other templates are loaded.</summary>
+        public static event Action INTERNAL_ApplyLateItems;
 
         // ================ Main Setup ====================
 
@@ -140,7 +140,7 @@ namespace SideLoader
                 { "Status Effects", INTERNAL_ApplyStatuses },
                 { "Items", INTERNAL_ApplyItems },
                 { "Recipes", INTERNAL_ApplyRecipes },
-                { "Recipe Items", INTERNAL_ApplyRecipeItems },
+                { "Recipe Items", INTERNAL_ApplyLateItems },
             };
 
             foreach (var entry in delegates)

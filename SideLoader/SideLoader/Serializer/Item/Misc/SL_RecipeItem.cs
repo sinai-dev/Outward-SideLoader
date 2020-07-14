@@ -7,6 +7,8 @@ namespace SideLoader
 {
     public class SL_RecipeItem : SL_Item
     {
+        public override bool ShouldApplyLate => true;
+
         public string RecipeUID;
 
         public override void ApplyToItem(Item item)

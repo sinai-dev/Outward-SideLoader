@@ -7,6 +7,8 @@ namespace SideLoader
 {
     public class SL_DeployableTrap : SL_Item
     {
+        public override bool ShouldApplyLate => true;
+
         public bool? OneTimeUse;
         public List<SL_TrapEffectRecipe> TrapRecipeEffects;
 

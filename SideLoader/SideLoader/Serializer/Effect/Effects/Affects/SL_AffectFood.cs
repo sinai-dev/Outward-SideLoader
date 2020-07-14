@@ -11,7 +11,7 @@ namespace SideLoader
 
         public override void ApplyToComponent<T>(T component)
         {
-            (component as AffectDrink).SetAffectDrinkQuantity(AffectQuantity);
+            (component as AffectFood).SetAffectFoodQuantity(this.AffectQuantity);
         }
 
         public override void SerializeEffect<T>(T effect, SL_Effect holder)

@@ -19,6 +19,9 @@ namespace SideLoader
         [XmlIgnore]
         public string SubfolderName;
 
+        [XmlIgnore]
+        public virtual bool ShouldApplyLate { get => false; }
+
         /// <summary>The Item ID of the Item you are cloning FROM</summary>
         public int Target_ItemID = -1;
         /// <summary>The NEW Item ID for your custom Item (can be the same as target, will overwrite)</summary>
@@ -48,14 +51,10 @@ namespace SideLoader
 
         public float? OverrideSellModifier;
 
-        /// <summary>
-        /// Item Tags, represented as strings (uses CustomTags.GetTag(string tagName)).
-        /// </summary>
+        /// <summary>Item Tags, represented as strings (uses CustomTags.GetTag(string tagName)).</summary>
         public List<string> Tags;
 
-        /// <summary>
-        /// Holder for the ItemStats object
-        /// </summary>
+        /// <summary>Holder for the ItemStats object</summary>
         public SL_ItemStats StatsHolder;
 
         /// <summary>Determines how the ItemExtensions are replaced and edited</summary>
@@ -73,7 +72,37 @@ namespace SideLoader
         public SL_ItemVisual SpecialItemVisuals;
         public SL_ItemVisual SpecialFemaleItemVisuals;
 
-        public void ApplyTemplateToItem()
+        [Obsolete("Use SL_Item.Apply() instead (renamed).")]
+        public void ApplyTemplateToItem() => Apply();
+
+        /// <summary>
+        /// The normal (and safest) way to apply the template. 
+        /// If SL.PacksLoaded = true this will apply the template immediately.
+        /// Otherwise it uses a callback to apply later.
+        /// </summary>
+        public void Apply()
+        {
+            if (SL.PacksLoaded)
+            {
+                ApplyToItem();
+            }
+            else
+            {
+                if (ShouldApplyLate)
+                {
+                    SL.INTERNAL_ApplyLateItems += ApplyToItem;
+                }
+                else
+                {
+                    SL.INTERNAL_ApplyItems += ApplyToItem;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Tries to apply the template immediately, with the template's New_ItemID.
+        /// </summary>
+        public void ApplyToItem()
         {
             var item = ResourcesPrefabManager.Instance.GetItemPrefab(New_ItemID);
             if (!item)
@@ -82,16 +111,19 @@ namespace SideLoader
                 return;
             }
 
-            // re-set this, just to be safe. The component might have been replaced by FixComponentTypeIfNeeded.
-            CustomItems.SetItemID(New_ItemID, item);
-
-            SL.Log("Applying Item Template. ID: " + New_ItemID + ", Name: " + (Name ?? item.Name));
-
             ApplyToItem(item);
         }
 
+        /// <summary>
+        /// Applies the template immediately to the provided Item.
+        /// </summary>
         public virtual void ApplyToItem(Item item)
         {
+            SL.Log("Applying Item Template. ID: " + New_ItemID + ", Name: " + (Name ?? item.Name));
+
+            // re-set this, just to be safe. The component might have been replaced by FixComponentTypeIfNeeded.
+            CustomItems.SetItemID(New_ItemID, item);
+
             CustomItems.SetNameAndDescription(item, this.Name ?? item.Name, this.Description ?? item.Description);
 
             if (this.LegacyItemID != null)
@@ -171,7 +203,10 @@ namespace SideLoader
             ApplyItemVisuals(item);
         }
 
-        private void ApplyItemVisuals(Item item)
+        /// <summary>
+        /// Applies the ItemVisuals, and checks for pngs and materials to apply in `SLPack\Items\SubfolderPath\Textures\`.
+        /// </summary>
+        public void ApplyItemVisuals(Item item)
         {
             // Visual Prefabs
             if (this.ItemVisuals != null)

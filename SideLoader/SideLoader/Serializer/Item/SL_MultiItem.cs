@@ -14,7 +14,7 @@ namespace SideLoader
         {
             foreach (var template in this.Items)
             {
-                template.ApplyTemplateToItem();
+                template.Apply();
             }
         }
 

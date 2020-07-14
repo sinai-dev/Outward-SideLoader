@@ -141,7 +141,7 @@ namespace SideLoader
                 signature = status.transform.GetChild(0);
             }
 
-            if (Effects != null && Effects.Count > 1)
+            if (Effects != null && Effects.Count > 0)
             {
                 if (signature)
                 {
