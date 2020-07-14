@@ -19,13 +19,15 @@ namespace SideLoader
                 return;
             }
 
+            component.Invert = false;
+
             (component as PassiveSkillCondition).Inverse = this.Invert;
             (component as PassiveSkillCondition).PassiveSkill = skill;
         }
 
         public override void SerializeEffect<T>(EffectCondition component, T template)
         {
-            (template as SL_PassiveSkillCondition).Invert = (component as PassiveSkillCondition).Inverse;
+            template.Invert = (component as PassiveSkillCondition).Inverse;
             (template as SL_PassiveSkillCondition).ReqSkillID = (component as PassiveSkillCondition).PassiveSkill.ItemID;
         }
     }

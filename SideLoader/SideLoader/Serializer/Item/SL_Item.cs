@@ -121,6 +121,8 @@ namespace SideLoader
         {
             SL.Log("Applying Item Template. ID: " + New_ItemID + ", Name: " + (Name ?? item.Name));
 
+            item.gameObject.name = $"{New_ItemID}_{(Name ?? item.Name)}";
+
             // re-set this, just to be safe. The component might have been replaced by FixComponentTypeIfNeeded.
             CustomItems.SetItemID(New_ItemID, item);
 
