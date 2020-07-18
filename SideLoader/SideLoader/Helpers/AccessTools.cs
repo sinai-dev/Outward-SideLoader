@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 using System.Reflection;
 using UnityEngine;
@@ -8,11 +8,6 @@ namespace SideLoader
     /// <summary> AccessTools (Reflection Helpers) by Sinai</summary>
     public static class At
     {
-        /* 
-         * These helper methods can be used to simplify Reflection.
-         * Make sure you set the namespace above to your project's namespace.
-        */
-
         /// <summary>
         /// The common four BindingFlags, which is all that is needed for most things in Outward.
         /// </summary>
