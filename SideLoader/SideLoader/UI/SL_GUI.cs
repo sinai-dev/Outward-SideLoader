@@ -30,8 +30,11 @@ namespace SideLoader.UI
         private int NewItemID = 0;
         private EffectBehaviours m_templateBehaviour = EffectBehaviours.DestroyEffects;
 
-        private int SelectedStatusID = 0;
-        private int NewStatusID = 0;
+        private string TargetStatusIdentifier = "";
+        private int TargetStatusID = -1;
+
+        private string NewStatusIdentifier = "";
+        private int NewStatusID = -1;
 
         private int SelectedEnchantmentID;
         private int NewEnchantmentID;
@@ -203,59 +206,84 @@ namespace SideLoader.UI
         #region STATUS GENERATOR (Page 2)
         private void EffectsPage()
         {
-            GUILayout.Label("Enter a Status Effect Preset ID to generate a template from.");
             GUILayout.Label("Templates are generated to the folder Mods/SideLoader/_GENERATED/StatusEffects/.");
+
+            GUILayout.Label("Option 1: Enter a Status Effect Preset ID to generate a template from.");
 
             GUILayout.BeginHorizontal();
             GUILayout.Label("Target Status ID:");
-            var selectedID = GUILayout.TextField(SelectedStatusID.ToString(), GUILayout.Width(150));
-            if (int.TryParse(selectedID, out int id))
+            var targetIDString = GUILayout.TextField(TargetStatusID.ToString(), GUILayout.Width(150));
+            if (int.TryParse(targetIDString, out int targetID))
             {
-                SelectedStatusID = id;
+                TargetStatusID = targetID;
             }
             GUILayout.EndHorizontal();
             GUILayout.BeginHorizontal();
             GUILayout.Label("New Status ID:");
-            var newID = GUILayout.TextField(NewStatusID.ToString(), GUILayout.Width(150));
-            if (int.TryParse(newID, out int id2))
+            var newIDString = GUILayout.TextField(NewStatusID.ToString(), GUILayout.Width(150));
+            if (int.TryParse(newIDString, out int newID))
             {
-                NewStatusID = id2;
+                NewStatusID = newID;
             }
             GUILayout.EndHorizontal();
-            GUILayout.Space(15);
-            if (GUILayout.Button("Generate template"))
+            if (GUILayout.Button("Generate from Preset ID"))
             {
-                GenerateStatusTemplate();
+                GenerateStatusTemplate(true);
+            }
+
+            GUILayout.Label("Option 2: Enter a Status Effect Identifier Name to generate a template from.");
+
+            GUILayout.BeginHorizontal();
+            GUILayout.Label("Target Status Identifier Name:");
+            TargetStatusIdentifier = GUILayout.TextField(TargetStatusIdentifier.ToString(), GUILayout.Width(150));
+            GUILayout.EndHorizontal();
+            GUILayout.BeginHorizontal();
+            GUILayout.Label("New Status Identifier:");
+            NewStatusIdentifier = GUILayout.TextField(NewStatusIdentifier, GUILayout.Width(150));
+            GUILayout.EndHorizontal();
+            if (GUILayout.Button("Generate from Identifier Name"))
+            {
+                GenerateStatusTemplate(false);
             }
         }
 
-        private void GenerateStatusTemplate()
+        private void GenerateStatusTemplate(bool fromPresetID)
         {
-            if (ResourcesPrefabManager.Instance.GetEffectPreset(SelectedStatusID) is EffectPreset preset)
+            GameObject prefab;
+            if (fromPresetID)
             {
-                SL.Log("Generating template for " + preset.gameObject.name + "...");
+                prefab = ResourcesPrefabManager.Instance.GetEffectPreset(TargetStatusID)?.gameObject;
+            }
+            else
+            {
+                prefab = ResourcesPrefabManager.Instance.GetStatusEffectPrefab(TargetStatusIdentifier)?.gameObject;
+            }
 
-                var folder = SL.GENERATED_FOLDER + @"\StatusEffects\" + preset.gameObject.name;
+            if (prefab)
+            {
+                SL.Log("Generating template for " + prefab.name + "...");
 
-                if (preset is ImbueEffectPreset)
+                var folder = SL.GENERATED_FOLDER + @"\StatusEffects\" + prefab.name;
+
+                if (prefab.GetComponent<ImbueEffectPreset>() is ImbueEffectPreset imbueEffect)
                 {
-                    var comp = preset as ImbueEffectPreset;
-                    var template = SL_ImbueEffect.ParseImbueEffect(comp);
+                    var template = SL_ImbueEffect.ParseImbueEffect(imbueEffect);
                     template.NewStatusID = NewStatusID;
-                    Serializer.SaveToXml(folder, preset.gameObject.name, template);
-                    if (comp.ImbueStatusIcon)
+                    Serializer.SaveToXml(folder, imbueEffect.name, template);
+                    if (imbueEffect.ImbueStatusIcon)
                     {
-                        CustomTextures.SaveIconAsPNG(comp.ImbueStatusIcon, folder);
+                        CustomTextures.SaveIconAsPNG(imbueEffect.ImbueStatusIcon, folder);
                     }
                 }
                 else
                 {
-                    var tempObj = Instantiate(preset.gameObject);
+                    var tempObj = Instantiate(prefab.gameObject);
 
                     var comp = tempObj.GetComponent<StatusEffect>();
                     var template = SL_StatusEffect.ParseStatusEffect(comp);
                     template.NewStatusID = NewStatusID;
-                    Serializer.SaveToXml(folder, preset.gameObject.name, template);
+                    template.StatusIdentifier = NewStatusIdentifier;
+                    Serializer.SaveToXml(folder, prefab.name, template);
                     if (comp.StatusIcon)
                     {
                         CustomTextures.SaveIconAsPNG(comp.StatusIcon, folder);
@@ -265,7 +293,7 @@ namespace SideLoader.UI
             }
             else
             {
-                SL.Log("DEBUG MENU: PresetID " + SelectedStatusID + " is invalid!");
+                SL.Log("Could not find a Status with this target!");
             }
         }
         #endregion

@@ -21,7 +21,9 @@ namespace SideLoader
                 return;
             }
 
+            comp.Invert = false;
             comp.Inverse = this.Invert;
+
             comp.StatusEffectPrefab = status;
         }
 

@@ -5,6 +5,7 @@ using System.Text;
 using UnityEngine;
 using System.IO;
 using HarmonyLib;
+using Discord;
 
 namespace SideLoader
 {
@@ -12,7 +13,10 @@ namespace SideLoader
     {
         public static CustomStatusEffects Instance;
 
+        /// <summary>Cached un-edited Effect Presets, used for all Status and Imbues which have a Preset ID.</summary>
         public static readonly Dictionary<int, EffectPreset> OrigEffectPresets = new Dictionary<int, EffectPreset>();
+        /// <summary>Cached un-edited Status Effects. <b>Only used for StatusEffects which do not have a Preset ID.</b></summary>
+        public static readonly Dictionary<string, StatusEffect> OrigStatusEffects = new Dictionary<string, StatusEffect>();
 
         // ================== INTERNAL ==================
 
@@ -39,6 +43,28 @@ namespace SideLoader
             }
         }
 
+        public static StatusEffect GetOrigStatusEffect(string identifier, bool checkPresets = true)
+        {
+            if (OrigStatusEffects.ContainsKey(identifier))
+            {
+                return OrigStatusEffects[identifier];
+            }
+            else
+            {
+                var status = ResourcesPrefabManager.Instance.GetStatusEffectPrefab(identifier);
+                if (checkPresets)
+                {
+                    // check if it was backed up from a Preset ID
+                    if (status?.GetComponent<EffectPreset>() is EffectPreset preset
+                        && GetOrigEffectPreset(preset.PresetID)?.GetComponent<StatusEffect>() is StatusEffect presetStatus)
+                    {
+                        return presetStatus;
+                    }
+                }
+                return status;
+            }
+        }
+
         /// <summary>
         /// Use this to create or modify a Status Effect.
         /// </summary>
@@ -46,25 +72,69 @@ namespace SideLoader
         public static StatusEffect CreateCustomStatus(SL_StatusEffect template)
         {
             var preset = GetOrigEffectPreset(template.TargetStatusID);
-            var original = preset.GetComponent<StatusEffect>();
+            var original = preset?.GetComponent<StatusEffect>();
 
             if (!original)
             {
-                SL.Log("Could not find a Status Effect with the Preset ID " + template.TargetStatusID, 1);
-                return null;
+                bool found = false;
+                if (!string.IsNullOrEmpty(template.TargetStatusIdentifier))
+                {
+                    var status = GetOrigStatusEffect(template.TargetStatusIdentifier, false);
+                    if (status)
+                    {
+                        found = true;
+                        original = status;
+                        template.CloneByIdentifier = true;
+
+                        if (template.NewStatusID > 0)
+                        {
+                            preset = status.gameObject.GetOrAddComponent<EffectPreset>();
+                            At.SetValue(template.NewStatusID, typeof(EffectPreset), preset, "m_StatusEffectID");
+                        }
+                    }
+                }
+                if (!found)
+                {
+                    SL.Log("Could not find a Status Effect with the Preset ID " + template.TargetStatusID, 1);
+                    return null;
+                }
             }
 
             StatusEffect newEffect;
 
-            if (template.TargetStatusID == template.NewStatusID)
+            bool editingOrig;
+            if (template.CloneByIdentifier)
             {
-                if (!OrigEffectPresets.ContainsKey(template.TargetStatusID))
+                editingOrig = template.StatusIdentifier == template.TargetStatusIdentifier;
+            }
+            else
+            {
+                editingOrig = template.NewStatusID == template.TargetStatusID;
+            }
+
+            if (editingOrig)
+            {
+                if (template.CloneByIdentifier)
                 {
-                    // instantiate and cache original
-                    var cached = Instantiate(original.gameObject).GetComponent<EffectPreset>();
-                    cached.gameObject.SetActive(false);
-                    DontDestroyOnLoad(cached.gameObject);
-                    OrigEffectPresets.Add(template.TargetStatusID, cached);
+                    if (!OrigStatusEffects.ContainsKey(template.TargetStatusIdentifier))
+                    {
+                        // instantiate and cache original
+                        var cached = Instantiate(original.gameObject).GetComponent<StatusEffect>();
+                        cached.gameObject.SetActive(false);
+                        DontDestroyOnLoad(cached.gameObject);
+                        OrigStatusEffects.Add(template.TargetStatusIdentifier, cached);
+                    }
+                }
+                else
+                {
+                    if (!OrigEffectPresets.ContainsKey(template.TargetStatusID))
+                    {
+                        // instantiate and cache original
+                        var cached = Instantiate(original.gameObject).GetComponent<EffectPreset>();
+                        cached.gameObject.SetActive(false);
+                        DontDestroyOnLoad(cached.gameObject);
+                        OrigEffectPresets.Add(template.TargetStatusID, cached);
+                    }
                 }
 
                 newEffect = original;
@@ -75,11 +145,14 @@ namespace SideLoader
                 newEffect = Instantiate(original.gameObject).GetComponent<StatusEffect>();
                 newEffect.gameObject.SetActive(false);
 
-                // Set Preset ID
-                At.SetValue(template.NewStatusID, typeof(EffectPreset), preset, "m_StatusEffectID");
-
                 // Set Status identifier
                 At.SetValue(template.StatusIdentifier, typeof(StatusEffect), newEffect, "m_identifierName");
+
+                if (preset)
+                {
+                    // Set Preset ID
+                    At.SetValue(template.NewStatusID, typeof(EffectPreset), preset, "m_StatusEffectID");
+                }
 
                 // Fix localization
                 GetStatusLocalization(original, out string name, out string desc);
@@ -90,7 +163,14 @@ namespace SideLoader
                 //At.SetValue<StatusData.EffectData[]>(null, typeof(StatusEffect), newEffect, "m_totalData");
             }
 
-            newEffect.gameObject.name = template.NewStatusID + "_" + (template.Name ?? newEffect.IdentifierName);
+            int presetID = newEffect.GetComponent<EffectPreset>()?.PresetID ?? -1;
+
+            var id = "";
+            if (presetID > 0)
+            {
+                id += presetID + "_";
+            }
+            newEffect.gameObject.name = id + newEffect.IdentifierName;
 
             // fix RPM_STATUS_EFFECTS dictionary
             if (!References.RPM_STATUS_EFFECTS.ContainsKey(newEffect.IdentifierName))
@@ -103,14 +183,17 @@ namespace SideLoader
             }
 
             // fix RPM_Presets dictionary
-            if (!References.RPM_EFFECT_PRESETS.ContainsKey(template.NewStatusID))
+            if (template.NewStatusID > 0)
             {
-                References.RPM_EFFECT_PRESETS.Add(template.NewStatusID, newEffect.GetComponent<EffectPreset>());
-            }
-            else
-            {
-                //SL.Log("A Status Effect already exists with the Identifier " + template.StatusIdentifier + ", replacing with " + template.Name);
-                References.RPM_EFFECT_PRESETS[template.NewStatusID] = newEffect.GetComponent<EffectPreset>();
+                if (!References.RPM_EFFECT_PRESETS.ContainsKey(template.NewStatusID))
+                {
+                    References.RPM_EFFECT_PRESETS.Add(template.NewStatusID, newEffect.GetComponent<EffectPreset>());
+                }
+                else
+                {
+                    //SL.Log("A Status Effect already exists with the Identifier " + template.StatusIdentifier + ", replacing with " + template.Name);
+                    References.RPM_EFFECT_PRESETS[template.NewStatusID] = newEffect.GetComponent<EffectPreset>();
+                }
             }
 
             // Always do this
@@ -153,9 +236,7 @@ namespace SideLoader
                 description = oldDesc;
             }
 
-            var preset = effect.GetComponent<EffectPreset>();
-
-            var nameKey = $"NAME_{preset.PresetID}_{effect.IdentifierName}";
+            var nameKey = $"NAME_{effect.IdentifierName}";
             At.SetValue(nameKey, typeof(StatusEffect), effect, "m_nameLocKey");
 
             if (References.GENERAL_LOCALIZATION.ContainsKey(nameKey))
@@ -167,7 +248,7 @@ namespace SideLoader
                 References.GENERAL_LOCALIZATION.Add(nameKey, name);
             }
 
-            var descKey = $"DESC_{preset.PresetID}_{effect.IdentifierName}";
+            var descKey = $"DESC_{effect.IdentifierName}";
             At.SetValue(descKey, typeof(StatusEffect), effect, "m_descriptionLocKey");
 
             if (References.GENERAL_LOCALIZATION.ContainsKey(descKey))

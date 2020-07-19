@@ -13,12 +13,15 @@ namespace SideLoader
     {
         /// <summary> [NOT SERIALIZED] The name of the SLPack this custom status template comes from (or is using).
         /// If defining from C#, you can set this to the name of the pack you want to load assets from.</summary>
-        [XmlIgnore]
-        public string SLPackName;
+        [XmlIgnore] public string SLPackName;
         /// <summary> [NOT SERIALIZED] The name of the folder this custom status is using for the icon.png (MyPack/StatusEffects/[SubfolderName]/icon.png).</summary>
-        [XmlIgnore]
-        public string SubfolderName;
+        [XmlIgnore] public string SubfolderName;
 
+        /// <summary>Used internally.</summary>
+        [XmlIgnore] public bool CloneByIdentifier = false;
+
+        /// <summary> [Optional] Used if your TargetStatusID is not set. This clones based on a StatusEffect.IdentifierName instead.</summary>
+        public string TargetStatusIdentifier;
         /// <summary>This is the Preset ID of the Status Effect you want to base from.</summary>
         public int TargetStatusID;
         /// <summary>The new Preset ID for your Status Effect</summary>
@@ -31,7 +34,7 @@ namespace SideLoader
 
         public float? Lifespan;
         public float? RefreshRate;
-        //public StatusEffectFamily.LengthTypes? LengthType; // need to add EffectFamily support for this
+        public StatusEffectFamily.LengthTypes? LengthType;
         
         public float? BuildupRecoverySpeed;
         public bool? IgnoreBuildupIfApplied;
@@ -46,17 +49,14 @@ namespace SideLoader
 
         public virtual void ApplyTemplate()
         {
-            var preset = ResourcesPrefabManager.Instance.GetEffectPreset(NewStatusID);
-
-            if (!preset)
+            StatusEffect status = ResourcesPrefabManager.Instance.GetStatusEffectPrefab(this.StatusIdentifier);
+            if (!status)
             {
-                SL.Log("Could not find a StatusEffect with the PresetID " + NewStatusID, 1);
+                SL.Log("Could not find a StatusEffect with the Identifier: " + StatusIdentifier, 1);
                 return;
             }
 
-            SL.Log("Applying Status Effect template, ID " + NewStatusID + ", " + Name ?? preset.name);
-
-            var status = preset.GetComponent<StatusEffect>();
+            SL.Log("Applying Status Effect template: " + Name ?? status.name);
 
             CustomStatusEffects.SetStatusLocalization(status, Name, Description);
 
@@ -70,11 +70,6 @@ namespace SideLoader
             {
                 status.RefreshRate = (float)RefreshRate;
             }
-
-            //if (LengthType != null)
-            //{
-            //    status.LengthType
-            //}
 
             if (BuildupRecoverySpeed != null)
             {
@@ -127,6 +122,45 @@ namespace SideLoader
             {
                 SL.DestroyChildren(status.transform);
             }
+
+            // setup family and length type
+            StatusEffectFamily.LengthTypes lengthType = status.EffectFamily?.LengthType ?? StatusEffectFamily.LengthTypes.Short;
+            if (LengthType != null)
+            {
+                lengthType = (StatusEffectFamily.LengthTypes)LengthType;
+            }
+
+            bool editingOrig;
+            if (CloneByIdentifier)
+            {
+                editingOrig = this.StatusIdentifier == this.TargetStatusIdentifier;
+            }
+            else
+            {
+                editingOrig = this.TargetStatusID == this.NewStatusID;
+            }
+            if (!editingOrig)
+            {
+                var family = new StatusEffectFamily
+                {
+                    Name = this.StatusIdentifier + "_FAMILY",
+                    LengthType = lengthType,
+                    MaxStackCount = 1,
+                    StackBehavior = StatusEffectFamily.StackBehaviors.IndependantUnique
+                };
+
+                At.SetValue(StatusEffect.FamilyModes.Bind, typeof(StatusEffect), status, "m_familyMode");
+                At.SetValue(family, typeof(StatusEffect), status, "m_bindFamily");
+            }
+            else
+            {
+                if (status.EffectFamily != null)
+                {
+                    status.EffectFamily.LengthType = lengthType;
+                }
+            }
+
+            // setup signature and finalize
 
             Transform signature;
             if (status.transform.childCount < 1)
@@ -245,21 +279,17 @@ namespace SideLoader
         public static SL_StatusEffect ParseStatusEffect(StatusEffect status)
         {
             var preset = status.GetComponent<EffectPreset>();
-            if (!preset)
-            {
-                SL.Log("This StatusEffect does not have an EffectPreset component, we can't serialize this yet sorry!", 1);
-                return null;
-            }
 
             var template = new SL_StatusEffect()
             {
-                TargetStatusID = preset.PresetID,
+                TargetStatusID = preset?.PresetID ?? -1,
+                TargetStatusIdentifier = status.IdentifierName,
                 StatusIdentifier = status.IdentifierName,
                 IgnoreBuildupIfApplied = status.IgnoreBuildUpIfApplied,
                 BuildupRecoverySpeed = status.BuildUpRecoverSpeed,
                 DisplayedInHUD = status.DisplayInHud,
                 IsHidden = status.IsHidden,
-                //LengthType = status.LengthType,
+                LengthType = status.LengthType,
                 Lifespan = status.StatusData.LifeSpan,
                 RefreshRate = status.RefreshRate
             };
