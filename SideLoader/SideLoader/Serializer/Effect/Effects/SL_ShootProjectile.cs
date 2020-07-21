@@ -11,6 +11,7 @@ namespace SideLoader
     {
         public ProjectilePrefabs BaseProjectile;
         public List<SL_ProjectileShot> ProjectileShots = new List<SL_ProjectileShot>();
+        public int InstantiatedAmount = 1;
 
         public float Lifespan;
         public float LateShootTime;
@@ -62,6 +63,7 @@ namespace SideLoader
                 var newProjectile = copy.GetComponent<Projectile>();
                 comp.BaseProjectile = newProjectile;
 
+                comp.IntanstiatedAmount = this.InstantiatedAmount;
                 comp.AddDirection = this.AddDirection;
                 comp.AddRotationForce = this.AddRotationForce;
                 comp.AutoTarget = this.AutoTarget;
@@ -137,6 +139,8 @@ namespace SideLoader
                 template.TargetRange = comp.TargetRange;
                 template.YMagnitudeAffect = comp.YMagnitudeAffect;
                 template.YMagnitudeForce = comp.YMagnitudeForce;
+
+                template.InstantiatedAmount = comp.IntanstiatedAmount;
 
                 template.DefenseLength = projectile.DefenseLength;
                 template.DefenseRange = projectile.DefenseRange;
