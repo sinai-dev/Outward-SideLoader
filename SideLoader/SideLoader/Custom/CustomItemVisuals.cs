@@ -280,6 +280,8 @@ namespace SideLoader
 
             Dictionary<int, Dictionary<string, List<Texture2D>>> itemTextures = new Dictionary<int, Dictionary<string, List<Texture2D>>>();
 
+            Dictionary<int, List<Sprite>> icons = new Dictionary<int, List<Sprite>>();
+
             foreach (var name in names)
             {
                 try
@@ -291,34 +293,56 @@ namespace SideLoader
                     string[] splitPath = name.Split('/');
 
                     int id = int.Parse(splitPath[1].Substring(0, 7));
-                    var mat = "";
-                    if (splitPath[2] == "textures")
+                    
+                    if (tex.name.Contains("icon"))
                     {
-                        mat = splitPath[3];
-                        tex.name = splitPath[4];
+                        tex.name = tex.name.Replace(".png", "");
+
+                        if (!icons.ContainsKey(id))
+                        {
+                            icons.Add(id, new List<Sprite>());
+                        }
+
+                        Sprite sprite;
+                        if (tex.name.Contains("skill"))
+                        {
+                            sprite = CustomTextures.CreateSprite(tex, CustomTextures.SpriteBorderTypes.SkillTreeIcon);
+                        }
+                        else
+                        {
+                            sprite = CustomTextures.CreateSprite(tex, CustomTextures.SpriteBorderTypes.ItemIcon);
+                        }
+                        icons[id].Add(sprite);
                     }
                     else
                     {
-                        mat = splitPath[2];
-                        tex.name = splitPath[3];
-                    }
+                        var mat = "";
+                        if (splitPath[2] == "textures")
+                        {
+                            mat = splitPath[3];
+                        }
+                        else
+                        {
+                            mat = splitPath[2];
+                        }
 
-                    tex.name = tex.name.Replace(".png", "");
+                        tex.name = tex.name.Replace(".png", "");
 
-                    if (!itemTextures.ContainsKey(id))
-                    {
-                        itemTextures.Add(id, new Dictionary<string, List<Texture2D>>());
-                    }
-                    if (!itemTextures[id].ContainsKey(mat))
-                    {
-                        itemTextures[id].Add(mat, new List<Texture2D>());
-                    }
+                        if (!itemTextures.ContainsKey(id))
+                        {
+                            itemTextures.Add(id, new Dictionary<string, List<Texture2D>>());
+                        }
+                        if (!itemTextures[id].ContainsKey(mat))
+                        {
+                            itemTextures[id].Add(mat, new List<Texture2D>());
+                        }
 
-                    itemTextures[id][mat].Add(tex);
+                        itemTextures[id][mat].Add(tex);
+                    }
                 }
                 catch (Exception ex)
                 {
-                    Debug.Log("Exception setting textures from asset bundle!");
+                    Debug.Log("Exception loading textures from asset bundle!");
                     Debug.Log(ex.Message);
                     Debug.Log(ex.StackTrace);
                 }
@@ -329,6 +353,14 @@ namespace SideLoader
                 if (ResourcesPrefabManager.Instance.GetItemPrefab(entry.Key) is Item item)
                 {
                     ApplyTexturesByName(entry.Value, null, item);
+                }
+            }
+
+            foreach (var entry in icons)
+            {
+                if (ResourcesPrefabManager.Instance.GetItemPrefab(entry.Key) is Item item)
+                {
+                    ApplyIconsByName(entry.Value.ToArray(), item);
                 }
             }
         }
