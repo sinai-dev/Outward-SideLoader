@@ -293,7 +293,7 @@ namespace SideLoader
                     string[] splitPath = name.Split('/');
 
                     int id = int.Parse(splitPath[1].Substring(0, 7));
-                    
+
                     if (tex.name.Contains("icon"))
                     {
                         tex.name = tex.name.Replace(".png", "");
@@ -339,6 +339,10 @@ namespace SideLoader
 
                         itemTextures[id][mat].Add(tex);
                     }
+                }
+                catch (InvalidCastException) 
+                {
+                    // suppress
                 }
                 catch (Exception ex)
                 {
