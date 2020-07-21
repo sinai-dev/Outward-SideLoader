@@ -6,6 +6,7 @@ using UnityEngine;
 using System.IO;
 using System.Text.RegularExpressions;
 using HarmonyLib;
+using Steamworks;
 
 namespace SideLoader
 {
@@ -13,7 +14,7 @@ namespace SideLoader
     public class CustomItemVisuals
     {
         /// <summary> Custom Item Visual prefabs (including retexture-only) </summary>
-        private static readonly Dictionary<int, ItemVisualsLink> ItemVisuals = new Dictionary<int, ItemVisualsLink>();       
+        private static readonly Dictionary<int, ItemVisualsLink> ItemVisuals = new Dictionary<int, ItemVisualsLink>();
 
         // Match anything up to " (" 
         private static readonly Regex materialRegex = new Regex(@".+?(?= \()");
@@ -76,10 +77,16 @@ namespace SideLoader
 
             if (skill)
             {
+                (item as Skill).SkillTreeIcon = sprite;
                 link.SkillTreeIcon = sprite;
             }
             else
             {
+                At.SetValue(sprite, typeof(Item), item, "m_itemIcon");
+                if (item.HasDefaultIcon)
+                {
+                    At.SetValue("not null", typeof(Item), item, "m_itemIconPath");
+                }
                 link.ItemIcon = sprite;
             }
         }
@@ -195,6 +202,22 @@ namespace SideLoader
         }
 
         /// <summary>
+        /// Applies textures and icons to the item from the given directory.
+        /// The icons should be in the base folder, called "icon.png" and "skillicon.png".
+        /// The textures should be in sub-folders for each material (name of folder is material name), and each texture should be named after the shader layer it is setting.
+        /// </summary>
+        /// <param name="dir">Full path relative to Outward folder.</param>
+        /// <param name="item">The item to apply to.</param>
+        private static void ApplyTexturesFromFolder(string dir, Item item)
+        {
+            var sprites = GetIconsFromFolder(dir);
+            ApplyIconsByName(sprites, item);
+
+            var textures = GetTexturesFromFolder(dir, out Dictionary<string, SL_Material> slMaterials);
+            ApplyTexturesByName(textures, slMaterials, item);
+        }
+
+        /// <summary>
         /// Gets an array of the Materials on the given visual prefab type for the given item.
         /// These are actual references to the Materials, not a copy like Unity's Renderer.Materials[]
         /// </summary>
@@ -240,13 +263,81 @@ namespace SideLoader
             return null;
         }
 
+        // ========= asset bundle item textures =========
+
         /// <summary>
-        /// INTERNAL. For applying textures to an item from a given directory.
+        /// Searches the provided AssetBundle for folders in the expected format, and applies textures to the corresponding Item.
+        /// Each item must have its own sub-folder, where the name of this folder starts with the Item's ItemID.
+        /// The folder name can have anything else after the ID, but it must start with the ID.
+        /// Eg., '2000010_IronSword\' would be valid to set the textures on the Iron Sword. 
+        /// The textures should be placed inside this folder and should match the Shader Layer names of the texture (the same way you set Item textures from a folder).
+        /// <b>NOTE: Does not set item icons (sprites).</b>
         /// </summary>
-        /// <param name="dir">Full path relative to Outward folder.</param>
-        /// <param name="item">The item to apply to.</param>
-        private static void ApplyTexturesFromFolder(string dir, Item item)
+        /// <param name="bundle"></param>
+        public static void ApplyTexturesFromAssetBundle(AssetBundle bundle)
         {
+            string[] names = bundle.GetAllAssetNames();
+
+            Dictionary<int, Dictionary<string, List<Texture2D>>> itemTextures = new Dictionary<int, Dictionary<string, List<Texture2D>>>();
+
+            foreach (var name in names)
+            {
+                try
+                {
+                    Texture2D tex = (Texture2D)bundle.LoadAsset(name);
+
+                    Debug.Log("Loading texture from AssetBundle, path: " + name);
+
+                    string[] splitPath = name.Split('/');
+
+                    int id = int.Parse(splitPath[1].Substring(0, 7));
+                    var mat = "";
+                    if (splitPath[2] == "textures")
+                    {
+                        mat = splitPath[3];
+                        tex.name = splitPath[4];
+                    }
+                    else
+                    {
+                        mat = splitPath[2];
+                        tex.name = splitPath[3];
+                    }
+
+                    tex.name = tex.name.Replace(".png", "");
+
+                    if (!itemTextures.ContainsKey(id))
+                    {
+                        itemTextures.Add(id, new Dictionary<string, List<Texture2D>>());
+                    }
+                    if (!itemTextures[id].ContainsKey(mat))
+                    {
+                        itemTextures[id].Add(mat, new List<Texture2D>());
+                    }
+
+                    itemTextures[id][mat].Add(tex);
+                }
+                catch (Exception ex)
+                {
+                    Debug.Log("Exception setting textures from asset bundle!");
+                    Debug.Log(ex.Message);
+                    Debug.Log(ex.StackTrace);
+                }
+            }
+
+            foreach (var entry in itemTextures)
+            {
+                if (ResourcesPrefabManager.Instance.GetItemPrefab(entry.Key) is Item item)
+                {
+                    ApplyTexturesByName(entry.Value, null, item);
+                }
+            }
+        }
+
+        // ====== getting textures from folder ===========
+
+        public static Sprite[] GetIconsFromFolder(string dir)
+        {
+            List<Sprite> list = new List<Sprite>();
             // Check for normal item icon
             var iconPath = dir + @"\icon.png";
             if (File.Exists(iconPath))
@@ -254,31 +345,32 @@ namespace SideLoader
                 var tex = CustomTextures.LoadTexture(iconPath, false, false);
                 var sprite = CustomTextures.CreateSprite(tex, CustomTextures.SpriteBorderTypes.ItemIcon);
                 UnityEngine.Object.DontDestroyOnLoad(sprite);
-                At.SetValue(sprite, typeof(Item), item, "m_itemIcon");
-                if (item.HasDefaultIcon)
-                {
-                    At.SetValue("not null", typeof(Item), item, "m_itemIconPath");
-                }
-                SetSpriteLink(item, sprite, false);
+                list.Add(sprite);
+                sprite.name = "icon";
             }
 
             // check for Skill icon (if skill)
             var skillPath = dir + @"\skillicon.png";
-            if (item is Skill skill && File.Exists(skillPath))
+            if (File.Exists(skillPath))
             {
                 var tex = CustomTextures.LoadTexture(skillPath, false, false);
                 var sprite = CustomTextures.CreateSprite(tex, CustomTextures.SpriteBorderTypes.SkillTreeIcon);
                 UnityEngine.Object.DontDestroyOnLoad(sprite);
-                skill.SkillTreeIcon = sprite;
-                SetSpriteLink(item, sprite, true);
+                list.Add(sprite);
+                sprite.name = "skillicon";
             }
 
+            return list.ToArray();
+        }
+
+        public static Dictionary<string, List<Texture2D>> GetTexturesFromFolder(string dir, out Dictionary<string, SL_Material> slMaterials)
+        {
             // build dictionary of textures per material
             // Key: Material name (Safe), Value: Texture
             var textures = new Dictionary<string, List<Texture2D>>();
 
             // also keep a dict of the SL_Material templates
-            var matHolders = new Dictionary<string, SL_Material>();
+            slMaterials = new Dictionary<string, SL_Material>();
 
             foreach (var subfolder in Directory.GetDirectories(dir))
             {
@@ -293,7 +385,7 @@ namespace SideLoader
                 {
                     var matHolder = Serializer.LoadFromXml(matPath) as SL_Material;
                     texCfgDict = matHolder.TextureConfigsToDict();
-                    matHolders.Add(matname, matHolder);
+                    slMaterials.Add(matname, matHolder);
                 }
 
                 // read the textures
@@ -306,7 +398,9 @@ namespace SideLoader
                     {
                         var name = Path.GetFileNameWithoutExtension(filepath);
 
-                        bool linear = name.Contains("NormTex") || name == "_BumpMap" || name == "_NormalMap";
+                        var check = name.ToLower();
+
+                        bool linear = check.Contains("normtex") || check == "_bumpmap" || check == "_normalmap";
 
                         bool mipmap = true;
                         if (texCfgDict != null && texCfgDict.ContainsKey(name))
@@ -321,10 +415,54 @@ namespace SideLoader
                 }
             }
 
+            return textures;
+        }
+
+        // ========= setting textures on item =========
+
+        /// <summary>
+        /// Sets the provided sprites to the item. The list (of 1 or 2 length) should contain either/or: the main item icon called "icon", and the skill tree icon called "skillicon".
+        /// </summary>
+        /// <param name="icons">A list of 1 or 2 length. Item icons should be called "icon", and skill tree icons should be called "skillicon".</param>
+        /// <param name="item">The item to set to.</param>
+        public static void ApplyIconsByName(Sprite[] icons, Item item)
+        {
+            foreach (var sprite in icons)
+            {
+                if (sprite.name.ToLower() == "icon")
+                {
+                    SetSpriteLink(item, sprite, false);
+                }
+                else if (sprite.name.ToLower() == "skillicon")
+                {
+                    SetSpriteLink(item, sprite, true);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Applies textures to the item using the provided dictionary.
+        /// </summary>
+        /// <param name="textures">Key: Material names (with GetSafeMaterialName), Value: List of Textures to apply, names should match the shader layers of the material.</param>
+        /// <param name="slMaterials">[OPTIONAL] Key: Material names with GetSafeMaterialName, Value: SL_Material template to apply.</param>
+        /// <param name="item">The item to apply to</param>
+        public static void ApplyTexturesByName(Dictionary<string, List<Texture2D>> textures, Dictionary<string, SL_Material> slMaterials, Item item)
+        {
+            if (slMaterials == null)
+            {
+                slMaterials = new Dictionary<string, SL_Material>();
+            }
+
             // apply to mats
             for (int i = 0; i < 3; i++)
             {
                 var prefabtype = (VisualPrefabType)i;
+
+                if (!ItemVisuals.ContainsKey(item.ItemID) || !ItemVisuals[item.ItemID].GetVisuals(prefabtype))
+                {
+                    CloneVisualPrefab(item, prefabtype, false);
+                }
+
                 var mats = GetMaterials(item, prefabtype);
 
                 if (mats == null || mats.Length < 1)
@@ -334,18 +472,25 @@ namespace SideLoader
 
                 foreach (var mat in mats)
                 {
-                    var matname = GetSafeMaterialName(mat.name);
+                    var matname = GetSafeMaterialName(mat.name).ToLower();
 
                     // apply the SL_material template first (set shader, etc)
                     SL_Material matHolder = null;
-                    if (matHolders.ContainsKey(matname))
+                    if (slMaterials.ContainsKey(matname))
                     {
-                        matHolder = matHolders[matname];
+                        matHolder = slMaterials[matname];
                         matHolder.ApplyToMaterial(mat);
                     }
                     else if (!textures.ContainsKey(matname))
                     {
                         continue;
+                    }
+
+                    // build list of actual shader layer names
+                    Dictionary<string, string> actualShaderNames = new Dictionary<string, string>();
+                    foreach (var layer in mat.GetTexturePropertyNames())
+                    {
+                        actualShaderNames.Add(layer.ToLower(), layer);
                     }
 
                     // set actual textures
@@ -357,13 +502,19 @@ namespace SideLoader
                             {
                                 mat.SetTexture(tex.name, tex);
                                 SL.Log("Set texture " + tex.name + " on " + matname);
+                            }                            
+                            else if (actualShaderNames.ContainsKey(tex.name))
+                            {
+                                var realname = actualShaderNames[tex.name];
+                                mat.SetTexture(realname, tex);
+                                SL.Log("Set texture " + realname + " on " + matname);
                             }
                             else
                             {
                                 SL.Log("Couldn't find a shader property called " + tex.name + "!");
                             }
                         }
-                        catch 
+                        catch
                         {
                             SL.Log("Exception setting texture " + tex.name + " on material!");
                         }
@@ -444,6 +595,17 @@ namespace SideLoader
         {
             // public Item LinkedItem;
             // public SL_Item LinkedTemplate;
+
+            public Transform GetVisuals(VisualPrefabType type)
+            {
+                switch (type)
+                {
+                    case VisualPrefabType.VisualPrefab: return ItemVisuals; 
+                    case VisualPrefabType.SpecialVisualPrefabDefault: return ItemSpecialVisuals;
+                    case VisualPrefabType.SpecialVisualPrefabFemale: return ItemSpecialFemaleVisuals;
+                    default: return null;
+                }
+            }
 
             public Sprite ItemIcon;
             public Sprite SkillTreeIcon;

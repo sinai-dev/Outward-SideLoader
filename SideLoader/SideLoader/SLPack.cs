@@ -266,6 +266,12 @@ namespace SideLoader
                 // check for subfolders (items which are using custom texture pngs)
                 foreach (var folder in Directory.GetDirectories(itemsfolder))
                 {
+                    if (Path.GetFileName(folder) == "TextureBundles")
+                    {
+                        // folder used to load bulk textures for items, continue for now
+                        continue;
+                    }
+
                     //SL.Log("Parsing CustomItem subfolder: " + Path.GetFileName(folder));
 
                     foreach (string path in Directory.GetFiles(folder, "*.xml"))
@@ -306,6 +312,22 @@ namespace SideLoader
                     catch (Exception e)
                     {
                         SL.Log("LoadFromFolder: Error creating custom item! \r\nMessage: " + e.Message + "\r\nStack: " + e.StackTrace);
+                    }
+                }
+            }
+        }
+
+        public void TryApplyItemTextureBundles()
+        {
+            var itemsFolder = this.GetSubfolderPath(SubFolders.Items);
+            var bundlesFolder = $@"{itemsFolder}\TextureBundles";
+            if (Directory.Exists(bundlesFolder))
+            {
+                foreach (var file in Directory.GetFiles(bundlesFolder))
+                {
+                    if (SL.LoadAssetBundle(file) is AssetBundle bundle)
+                    {
+                        CustomItemVisuals.ApplyTexturesFromAssetBundle(bundle);
                     }
                 }
             }

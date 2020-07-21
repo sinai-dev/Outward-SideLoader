@@ -23,7 +23,7 @@ namespace SideLoader
         // Mod Info
         public const string GUID = "com.sinai." + MODNAME;
         public const string MODNAME = "SideLoader";
-        public const string VERSION = "2.6.6";
+        public const string VERSION = "2.6.7";
 
         // Folders
         public static string PLUGINS_FOLDER => Paths.PluginPath;
@@ -150,6 +150,12 @@ namespace SideLoader
                     Log($"Applying custom {entry.Key}, count: {entry.Value.GetInvocationList().Length}");
                     TryInvoke(entry.Value);
                 }
+            }
+
+            // Check for TextureBundles in SL Packs
+            foreach (var pack in Packs.Values)
+            {
+                pack.TryApplyItemTextureBundles();
             }
 
             PacksLoaded = true;
