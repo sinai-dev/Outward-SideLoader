@@ -17,7 +17,7 @@ Requires [BepInEx](https://github.com/BepInEx/BepInEx).
 
 ## How To Use SideLoader
 
-See the SideLoader Wiki for (mostly) complete documentation:
+See the SideLoader Wiki for documentation and guides:
 
 <big><b>[SideLoader Wiki](https://github.com/sinaioutlander/Outward-SideLoader/wiki)</b></big>
 
