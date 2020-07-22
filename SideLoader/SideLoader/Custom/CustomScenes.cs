@@ -12,31 +12,14 @@ using System.Collections;
 
 namespace SideLoader
 {
-    public class CustomScenes : MonoBehaviour
+    public class CustomScenes 
     {
-        public static CustomScenes Instance;
-
-        internal void Awake()
-        {
-            Instance = this;
-        }
-
-        //internal void Update()
-        //{
-        //    if (Input.GetKeyDown(KeyCode.Pause))
-        //    {
-        //        var bundle = SL.Packs["scenetest"].AssetBundles["scenebundle"];
-
-        //        LoadSceneFromBundle(bundle, Vector3.zero, 0, 0);
-        //    }
-        //}
-
         public static void LoadSceneFromBundle(AssetBundle bundle, Vector3 spawnPoint, int bundleSceneIndex = 0, float timeOffset = 0f)
         {
             string scenePath = bundle.GetAllScenePaths()[bundleSceneIndex];
             NetworkLevelLoader.Instance.LoadLevel(timeOffset, scenePath, 0);
 
-            Instance.StartCoroutine(LoadSceneCoroutine(spawnPoint));
+            SL.Instance.StartCoroutine(LoadSceneCoroutine(spawnPoint));
         }
 
         private static IEnumerator LoadSceneCoroutine(Vector3 spawnPoint)

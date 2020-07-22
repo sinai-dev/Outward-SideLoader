@@ -410,7 +410,7 @@ namespace SideLoader
 
             foreach (var subfolder in Directory.GetDirectories(dir))
             {
-                var matname = Path.GetFileName(subfolder);
+                var matname = Path.GetFileName(subfolder).ToLower();
 
                 SL.Log("Reading folder " + matname);
 
@@ -435,7 +435,6 @@ namespace SideLoader
                         var name = Path.GetFileNameWithoutExtension(filepath);
 
                         var check = name.ToLower();
-
                         bool linear = check.Contains("normtex") || check == "_bumpmap" || check == "_normalmap";
 
                         bool mipmap = true;
@@ -443,6 +442,9 @@ namespace SideLoader
                         {
                             mipmap = texCfgDict[name].UseMipMap;
                         }
+
+                        // at this point we can safely turn it lower case for compatibility going forward
+                        name = name.ToLower();
 
                         var tex = CustomTextures.LoadTexture(filepath, mipmap, linear);
                         tex.name = name;
@@ -496,7 +498,11 @@ namespace SideLoader
 
                 if (!ItemVisuals.ContainsKey(item.ItemID) || !ItemVisuals[item.ItemID].GetVisuals(prefabtype))
                 {
-                    CloneVisualPrefab(item, prefabtype, false);
+                    var prefab = CloneVisualPrefab(item, prefabtype, false);
+                    if (!prefab)
+                    {
+                        continue;
+                    }
                 }
 
                 var mats = GetMaterials(item, prefabtype);
@@ -522,11 +528,12 @@ namespace SideLoader
                         continue;
                     }
 
-                    // build list of actual shader layer names
-                    Dictionary<string, string> actualShaderNames = new Dictionary<string, string>();
+                    // build list of actual shader layer names.
+                    // Key: ToLower(), Value: original.
+                    Dictionary<string, string> layersToLower = new Dictionary<string, string>();
                     foreach (var layer in mat.GetTexturePropertyNames())
                     {
-                        actualShaderNames.Add(layer.ToLower(), layer);
+                        layersToLower.Add(layer.ToLower(), layer);
                     }
 
                     // set actual textures
@@ -539,9 +546,9 @@ namespace SideLoader
                                 mat.SetTexture(tex.name, tex);
                                 SL.Log("Set texture " + tex.name + " on " + matname);
                             }                            
-                            else if (actualShaderNames.ContainsKey(tex.name))
+                            else if (layersToLower.ContainsKey(tex.name))
                             {
-                                var realname = actualShaderNames[tex.name];
+                                var realname = layersToLower[tex.name];
                                 mat.SetTexture(realname, tex);
                                 SL.Log("Set texture " + realname + " on " + matname);
                             }

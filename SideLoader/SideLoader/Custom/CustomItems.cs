@@ -10,20 +10,13 @@ using HarmonyLib;
 
 namespace SideLoader
 {
-    public class CustomItems : MonoBehaviour
+    public class CustomItems
     {
-        public static CustomItems Instance;
-
         /// <summary>Cached ORIGINAL Item Prefabs (not modified)</summary>
         private static readonly Dictionary<int, Item> OrigItemPrefabs = new Dictionary<int, Item>();
 
         public static Dictionary<string, Item> RPM_ITEM_PREFABS => References.RPM_ITEM_PREFABS;
         public static Dictionary<int, ItemLocalization> ITEM_LOCALIZATION => References.ITEM_LOCALIZATION;
-
-        internal void Awake()
-        {
-            Instance = this;
-        }
 
         // ================================================================================ //
         /*                                  Public Helpers                                  */
@@ -78,9 +71,9 @@ namespace SideLoader
                 // Modifying the original prefab for the first time. Cache it in case someone else wants the true original.
                 if (!OrigItemPrefabs.ContainsKey(newID))
                 {
-                    var cached = Instantiate(original.gameObject).GetComponent<Item>();
+                    var cached = GameObject.Instantiate(original.gameObject).GetComponent<Item>();
                     cached.gameObject.SetActive(false);
-                    DontDestroyOnLoad(cached.gameObject);
+                    GameObject.DontDestroyOnLoad(cached.gameObject);
                     OrigItemPrefabs.Add(cached.ItemID, cached);
                 }
 
@@ -89,7 +82,7 @@ namespace SideLoader
             }
             else // making a new item
             {
-                item = Instantiate(original.gameObject).GetComponent<Item>();
+                item = GameObject.Instantiate(original.gameObject).GetComponent<Item>();
                 item.gameObject.SetActive(false);
                 item.gameObject.name = newID + "_" + name;
 
@@ -111,7 +104,7 @@ namespace SideLoader
 
             // Do this so that any changes we make are not destroyed on scene changes.
             // This is needed whether this is a clone or a new item.
-            DontDestroyOnLoad(item.gameObject);
+            GameObject.DontDestroyOnLoad(item.gameObject);
 
             if (template != null)
             {

@@ -73,16 +73,14 @@ namespace SideLoader
             /* subscribe to SceneLoaded event */
             SceneManager.sceneLoaded += SceneManager_sceneLoaded;
 
+            /* setup custom textures */
+            CustomTextures.Init();
+
             /* Setup Behaviour gameobject */
             var obj = new GameObject("SideLoader_Behaviour");
             DontDestroyOnLoad(obj);
 
-            /* Add Behaviour Components */
-            obj.AddComponent<CustomCharacters>();
-            obj.AddComponent<CustomItems>();
-            obj.AddComponent<CustomScenes>();
-            obj.AddComponent<CustomStatusEffects>();
-            obj.AddComponent<CustomTextures>();
+            /* Add Behaviour Components */            
             obj.AddComponent<SL_GUI>();
             obj.AddComponent<RPCManager>();
         }

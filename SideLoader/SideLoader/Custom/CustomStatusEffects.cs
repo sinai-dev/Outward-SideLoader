@@ -9,21 +9,12 @@ using Discord;
 
 namespace SideLoader
 {
-    public class CustomStatusEffects : MonoBehaviour
+    public class CustomStatusEffects
     {
-        public static CustomStatusEffects Instance;
-
         /// <summary>Cached un-edited Effect Presets, used for all Status and Imbues which have a Preset ID.</summary>
         public static readonly Dictionary<int, EffectPreset> OrigEffectPresets = new Dictionary<int, EffectPreset>();
         /// <summary>Cached un-edited Status Effects. <b>Only used for StatusEffects which do not have a Preset ID.</b></summary>
         public static readonly Dictionary<string, StatusEffect> OrigStatusEffects = new Dictionary<string, StatusEffect>();
-
-        // ================== INTERNAL ==================
-
-        internal void Awake()
-        {
-            Instance = this;            
-        }
 
         // ================== HELPERS ==================
 
@@ -119,9 +110,9 @@ namespace SideLoader
                     if (!OrigStatusEffects.ContainsKey(template.TargetStatusIdentifier))
                     {
                         // instantiate and cache original
-                        var cached = Instantiate(original.gameObject).GetComponent<StatusEffect>();
+                        var cached = GameObject.Instantiate(original.gameObject).GetComponent<StatusEffect>();
                         cached.gameObject.SetActive(false);
-                        DontDestroyOnLoad(cached.gameObject);
+                        GameObject.DontDestroyOnLoad(cached.gameObject);
                         OrigStatusEffects.Add(template.TargetStatusIdentifier, cached);
                     }
                 }
@@ -130,9 +121,9 @@ namespace SideLoader
                     if (!OrigEffectPresets.ContainsKey(template.TargetStatusID))
                     {
                         // instantiate and cache original
-                        var cached = Instantiate(original.gameObject).GetComponent<EffectPreset>();
+                        var cached = GameObject.Instantiate(original.gameObject).GetComponent<EffectPreset>();
                         cached.gameObject.SetActive(false);
-                        DontDestroyOnLoad(cached.gameObject);
+                        GameObject.DontDestroyOnLoad(cached.gameObject);
                         OrigEffectPresets.Add(template.TargetStatusID, cached);
                     }
                 }
@@ -142,7 +133,7 @@ namespace SideLoader
             else
             {
                 // instantiate original and use that as newEffect
-                newEffect = Instantiate(original.gameObject).GetComponent<StatusEffect>();
+                newEffect = GameObject.Instantiate(original.gameObject).GetComponent<StatusEffect>();
                 newEffect.gameObject.SetActive(false);
 
                 // Set Status identifier
@@ -197,7 +188,7 @@ namespace SideLoader
             }
 
             // Always do this
-            DontDestroyOnLoad(newEffect.gameObject);
+            GameObject.DontDestroyOnLoad(newEffect.gameObject);
 
             // Apply template
             if (SL.PacksLoaded)
@@ -282,9 +273,9 @@ namespace SideLoader
                 if (!OrigEffectPresets.ContainsKey(template.TargetStatusID))
                 {
                     // instantiate and cache original
-                    var cached = Instantiate(original.gameObject).GetComponent<EffectPreset>();
+                    var cached = GameObject.Instantiate(original.gameObject).GetComponent<EffectPreset>();
                     cached.gameObject.SetActive(false);
-                    DontDestroyOnLoad(cached.gameObject);
+                    GameObject.DontDestroyOnLoad(cached.gameObject);
                     OrigEffectPresets.Add(template.TargetStatusID, cached);
                 }
 
@@ -293,7 +284,7 @@ namespace SideLoader
             else
             {
                 // instantiate original and use that as newEffect
-                newEffect = Instantiate(original.gameObject).GetComponent<ImbueEffectPreset>();
+                newEffect = GameObject.Instantiate(original.gameObject).GetComponent<ImbueEffectPreset>();
                 newEffect.gameObject.SetActive(false);
 
                 // Set Preset ID
@@ -318,7 +309,7 @@ namespace SideLoader
             }
 
             // Always do this
-            DontDestroyOnLoad(newEffect.gameObject);
+            GameObject.DontDestroyOnLoad(newEffect.gameObject);
 
             // Apply template
             if (SL.PacksLoaded)

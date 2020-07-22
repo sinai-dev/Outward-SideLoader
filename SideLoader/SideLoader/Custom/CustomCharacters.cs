@@ -13,11 +13,23 @@ namespace SideLoader
 	/// <summary>
 	/// This class contains helpers for creating custom Characters, and will manage their PhotonView IDs and clean them up on scene changes.
 	/// </summary>
-	public class CustomCharacters : MonoBehaviour
+	public class CustomCharacters
 	{
-		public static CustomCharacters Instance;
-
-		public static GameObject BasicAIPrefab { get; private set; }
+		/// <summary>
+		/// Note: Do not modify this Prefab directly. If you want to change it, clone it first and change the clone.
+		/// </summary>
+		public static GameObject BasicAIPrefab
+        {
+			get
+            {
+				if (!m_basicAIPrefab)
+                {
+					SetupBasicAIPrefab();
+                }
+				return m_basicAIPrefab;
+            }
+        }
+		private static GameObject m_basicAIPrefab;
 
 		private static readonly List<Character> ActiveCharacters = new List<Character>();
 
@@ -167,7 +179,7 @@ namespace SideLoader
 
 			if (!string.IsNullOrEmpty(visualData))
 			{
-				Instance.StartCoroutine(SL_Character.SetVisuals(character, visualData));
+				SL.Instance.StartCoroutine(SL_Character.SetVisuals(character, visualData));
 			}
 
 			if (addCombatAI)
@@ -189,7 +201,7 @@ namespace SideLoader
 			if (character.gameObject.GetPhotonView() is PhotonView view)
 			{
 				int id = view.viewID;
-				DestroyImmediate(view);
+				GameObject.DestroyImmediate(view);
 
 				if (id > 0)
 				{
@@ -243,7 +255,7 @@ namespace SideLoader
 			// remove unwanted components
 			if (_char.GetComponent<NavMeshObstacle>() is NavMeshObstacle navObstacle)
 			{
-				Destroy(navObstacle);
+				GameObject.Destroy(navObstacle);
 			}
 
 			// initialize the AI States (not entirely necessary, but helpful if we want to do something with the AI immediately after)
@@ -257,8 +269,6 @@ namespace SideLoader
 
 		internal void Awake()
         {
-            Instance = this;
-
 			SetupBasicAIPrefab();
 		}
 
@@ -363,10 +373,10 @@ namespace SideLoader
 			if (character.GetComponent<PlayerCharacterStats>() is PlayerCharacterStats pStats)
 			{
 				pStats.enabled = false;
-				DestroyImmediate(pStats);
+				GameObject.DestroyImmediate(pStats);
 				if (character.GetComponent<PlayerCharacterStats>())
 				{
-					Destroy(pStats);
+					GameObject.Destroy(pStats);
 				}
 			}
 			// add new CharacterStats
@@ -374,7 +384,156 @@ namespace SideLoader
 			At.SetValue(newStats, typeof(Character), character, "m_characterStats");
 			SetupBlankCharacterStats(newStats);
 		}
-		
+
+		// ================= OTHER INTERNAL ================== //
+
+		private static void SetupBlankCharacterStats(CharacterStats stats)
+		{
+			At.SetValue(new Stat[] { new Stat(0f), new Stat(0f), new Stat(0f), new Stat(0f), new Stat(0f), new Stat(0f), new Stat(0f), new Stat(0f), new Stat(0f) },
+				typeof(CharacterStats), stats, "m_damageResistance");
+			At.SetValue(new Stat[] { new Stat(0f), new Stat(0f), new Stat(0f), new Stat(0f), new Stat(0f), new Stat(0f), new Stat(0f), new Stat(0f), new Stat(0f) },
+				typeof(CharacterStats), stats, "m_damageProtection");
+			At.SetValue(new Stat[] { new Stat(1f), new Stat(1f), new Stat(1f), new Stat(1f), new Stat(1f), new Stat(1f), new Stat(1f), new Stat(1f), new Stat(1f) },
+				typeof(CharacterStats), stats, "m_damageTypesModifier");
+
+			At.SetValue(new Stat(0f), typeof(CharacterStats), stats, "m_heatRegenRate");
+			At.SetValue(new Stat(0f), typeof(CharacterStats), stats, "m_coldRegenRate");
+			At.SetValue(new Stat(0f), typeof(CharacterStats), stats, "m_heatProtection");
+			At.SetValue(new Stat(0f), typeof(CharacterStats), stats, "m_coldProtection");
+			At.SetValue(new Stat(0f), typeof(CharacterStats), stats, "m_corruptionResistance");
+			At.SetValue(new Stat(0f), typeof(CharacterStats), stats, "m_waterproof");
+			At.SetValue(new Stat(0f), typeof(CharacterStats), stats, "m_healthRegen");
+			At.SetValue(new Stat(0f), typeof(CharacterStats), stats, "m_manaRegen");
+			At.SetValue(new TagSourceSelector[0], typeof(CharacterStats), stats, "m_statusEffectsNaturalImmunity");
+		}
+
+		/// <summary>
+		/// This is a completely custom AI States setup from scratch. It copies the Summoned Ghost AI.
+		/// </summary>
+		private static void SetupBasicAIPrefab()
+		{
+			// Check if we've already set up the Prefab...
+			if (BasicAIPrefab != null) { return; }
+
+			var _AIStatesPrefab = new GameObject("AIRoot").AddComponent<AIRoot>();
+			_AIStatesPrefab.gameObject.SetActive(false);
+
+			// -- create base state objects --
+
+			// state 1: Wander
+			var wanderState = new GameObject("1_Wander").AddComponent<AISWander>();
+			wanderState.transform.parent = _AIStatesPrefab.transform;
+
+			// state 2: Suspicious
+			var susState = new GameObject("2_Suspicious").AddComponent<AISSuspicious>();
+			susState.transform.parent = _AIStatesPrefab.transform;
+
+			//state 3: alert
+			var alertState = new GameObject("3_Alert").AddComponent<AISSuspicious>();
+			alertState.transform.parent = _AIStatesPrefab.transform;
+
+			//state 4: Combat
+			var combatState = new GameObject("4_Combat").AddComponent<AISCombatMelee>();
+			combatState.transform.parent = _AIStatesPrefab.transform;
+
+			// ---- setup actual state parameters and links ----
+
+			// setup 1 - Wander
+
+			wanderState.SpeedModif = 1.1f; // set custom state speed
+			wanderState.ContagionRange = 20f;
+
+			var wanderDetection = new GameObject("Detection").AddComponent<AICEnemyDetection>();
+			wanderDetection.transform.parent = wanderState.transform;
+			var wanderDetectEffects = new GameObject("DetectEffects").AddComponent<AIESwitchState>();
+			wanderDetectEffects.ToState = susState;
+			wanderDetectEffects.transform.parent = wanderDetection.transform;
+			wanderDetection.DetectEffectsTrans = wanderDetectEffects.transform;
+
+			//setup 2 - Suspicious
+
+			susState.SpeedModif = 1.75f;
+			susState.SuspiciousDuration = 5f;
+			susState.Range = 30;
+			susState.WanderFar = true;
+			susState.TurnModif = 0.9f;
+
+			var susEnd = new GameObject("EndSuspiciousEffects").AddComponent<AIESwitchState>();
+			susEnd.ToState = wanderState;
+			var sheathe = susEnd.gameObject.AddComponent<AIESheathe>();
+			sheathe.Sheathed = true;
+			susEnd.transform.parent = susState.transform;
+			susState.EndSuspiciousEffectsTrans = susEnd.transform;
+
+			var susDetection = new GameObject("Detection").AddComponent<AICEnemyDetection>();
+			susDetection.transform.parent = susState.transform;
+			var susDetectEffects = new GameObject("DetectEffects").AddComponent<AIESwitchState>();
+			susDetectEffects.ToState = combatState;
+			susDetectEffects.transform.parent = susDetection.transform;
+			susDetection.DetectEffectsTrans = susDetectEffects.transform;
+			var susSuspiciousEffects = new GameObject("SuspiciousEffects").AddComponent<AIESwitchState>();
+			susSuspiciousEffects.ToState = alertState;
+			susSuspiciousEffects.transform.parent = susDetection.transform;
+			susDetection.SuspiciousEffectsTrans = susSuspiciousEffects.transform;
+
+			// setup 3 - alert
+
+			alertState.SpeedModif = 1.75f;
+
+			var alertEnd = new GameObject("EndSuspiciousEffects").AddComponent<AIESwitchState>();
+			alertEnd.ToState = susState;
+			var alertsheathe = alertEnd.gameObject.AddComponent<AIESheathe>();
+			alertsheathe.Sheathed = true;
+			alertEnd.transform.parent = alertState.transform;
+			alertState.EndSuspiciousEffectsTrans = alertEnd.transform;
+
+			var alertDetection = new GameObject("Detection").AddComponent<AICEnemyDetection>();
+			alertDetection.transform.parent = alertState.transform;
+			var alertDetectEffects = new GameObject("DetectEffects").AddComponent<AIESwitchState>();
+			alertDetectEffects.ToState = combatState;
+			alertDetectEffects.transform.parent = alertDetection.transform;
+			alertDetection.DetectEffectsTrans = alertDetectEffects.transform;
+
+			// setup 4 - Combat
+
+			combatState.ChargeTime = new Vector2(4, 8);
+			combatState.TargetVulnerableChargeTimeMult = 0.5f;
+			combatState.ChargeAttackRangeMult = 1;
+			combatState.ChargeAttackTimeToAttack = 0.4f;
+			combatState.ChargeStartRangeMult = new Vector2(0.8f, 3.0f);
+			combatState.AttackPatterns = new AttackPattern[]
+			{
+				new AttackPattern { ID = 0, Chance = 20, Range = new Vector2(0.9f, 2.5f), Attacks = new AttackPattern.AtkTypes[] { AttackPattern.AtkTypes.Normal } },
+				new AttackPattern { ID = 1, Chance = 15, Range = new Vector2(0.0f, 2.9f), Attacks = new AttackPattern.AtkTypes[] { AttackPattern.AtkTypes.Normal, AttackPattern.AtkTypes.Normal } },
+				new AttackPattern { ID = 2, Chance = 30, Range = new Vector2(0.0f, 1.5f), Attacks = new AttackPattern.AtkTypes[] { AttackPattern.AtkTypes.Special }},
+				new AttackPattern { ID = 3, Chance = 30, Range = new Vector2(0.0f, 1.5f), Attacks = new AttackPattern.AtkTypes[] { AttackPattern.AtkTypes.Normal, AttackPattern.AtkTypes.Special }},
+				new AttackPattern { ID = 4, Chance = 30, Range = new Vector2(0.0f, 1.3f), Attacks = new AttackPattern.AtkTypes[] { AttackPattern.AtkTypes.Normal, AttackPattern.AtkTypes.Normal, AttackPattern.AtkTypes.Special }}
+			};
+			combatState.SpeedModifs = new float[] { 0.8f, 1.3f, 1.7f };
+			combatState.ChanceToAttack = 75;
+			combatState.KnowsUnblockable = true;
+			combatState.DodgeCooldown = 3f;
+			combatState.CanBlock = true;
+			combatState.CanDodge = true;
+
+			var combatDetect = new GameObject("Detection").AddComponent<AICEnemyDetection>();
+			combatDetect.transform.parent = combatState.transform;
+			var combatEnd = new GameObject("EndCombatEffects").AddComponent<AIESwitchState>();
+			combatEnd.ToState = wanderState;
+			combatEnd.transform.parent = combatState.transform;
+
+			m_basicAIPrefab = _AIStatesPrefab.gameObject;
+			GameObject.DontDestroyOnLoad(m_basicAIPrefab);
+			BasicAIPrefab.SetActive(false);
+		}
+
+		// legacy support
+
+		[Obsolete("Use CustomCharacters.CreateCharacter instead (naming change)")]
+		public static GameObject InstantiatePlayerPrefab(Vector3 _position, string _UID)
+		{
+			return CreateCharacter(_position, _UID);
+		}
 
 		// ===================== A test I did with cloning enemies. It mostly works. =======================
 
@@ -461,157 +620,5 @@ namespace SideLoader
 		//		SL.Log("Error cloning enemy: " + e.Message + "\r\nStack: " + e.StackTrace, 1);
 		//	}
 		//}
-
-
-		// ================= OTHER INTERNAL ================== //
-
-		private static void SetupBlankCharacterStats(CharacterStats stats)
-		{
-			At.SetValue(new Stat[] { new Stat(0f), new Stat(0f), new Stat(0f), new Stat(0f), new Stat(0f), new Stat(0f), new Stat(0f), new Stat(0f), new Stat(0f) },
-				typeof(CharacterStats), stats, "m_damageResistance");
-			At.SetValue(new Stat[] { new Stat(0f), new Stat(0f), new Stat(0f), new Stat(0f), new Stat(0f), new Stat(0f), new Stat(0f), new Stat(0f), new Stat(0f) },
-				typeof(CharacterStats), stats, "m_damageProtection");
-			At.SetValue(new Stat[] { new Stat(1f), new Stat(1f), new Stat(1f), new Stat(1f), new Stat(1f), new Stat(1f), new Stat(1f), new Stat(1f), new Stat(1f) },
-				typeof(CharacterStats), stats, "m_damageTypesModifier");
-
-			At.SetValue(new Stat(0f), typeof(CharacterStats), stats, "m_heatRegenRate");
-			At.SetValue(new Stat(0f), typeof(CharacterStats), stats, "m_coldRegenRate");
-			At.SetValue(new Stat(0f), typeof(CharacterStats), stats, "m_heatProtection");
-			At.SetValue(new Stat(0f), typeof(CharacterStats), stats, "m_coldProtection");
-			At.SetValue(new Stat(0f), typeof(CharacterStats), stats, "m_corruptionResistance");
-			At.SetValue(new Stat(0f), typeof(CharacterStats), stats, "m_waterproof");
-			At.SetValue(new Stat(0f), typeof(CharacterStats), stats, "m_healthRegen");
-			At.SetValue(new Stat(0f), typeof(CharacterStats), stats, "m_manaRegen");
-			At.SetValue(new TagSourceSelector[0], typeof(CharacterStats), stats, "m_statusEffectsNaturalImmunity");
-		}
-
-		/// <summary>
-		/// This is a completely custom AI States setup from scratch. It copies the Summoned Ghost AI.
-		/// </summary>
-		private void SetupBasicAIPrefab()
-		{
-			// Check if we've already set up the Prefab...
-			if (BasicAIPrefab != null) { return; }
-
-			var _AIStatesPrefab = new GameObject("AIRoot").AddComponent<AIRoot>();
-			_AIStatesPrefab.gameObject.SetActive(false);
-
-			// -- create base state objects --
-
-			// state 1: Wander
-			var wanderState = new GameObject("1_Wander").AddComponent<AISWander>();
-			wanderState.transform.parent = _AIStatesPrefab.transform;
-
-			// state 2: Suspicious
-			var susState = new GameObject("2_Suspicious").AddComponent<AISSuspicious>();
-			susState.transform.parent = _AIStatesPrefab.transform;
-
-			//state 3: alert
-			var alertState = new GameObject("3_Alert").AddComponent<AISSuspicious>();
-			alertState.transform.parent = _AIStatesPrefab.transform;
-
-			//state 4: Combat
-			var combatState = new GameObject("4_Combat").AddComponent<AISCombatMelee>();
-			combatState.transform.parent = _AIStatesPrefab.transform;
-
-			// ---- setup actual state parameters and links ----
-
-			// setup 1 - Wander
-
-			wanderState.SpeedModif = 1.7f; // set custom state speed
-			wanderState.ContagionRange = 20f;
-			//wanderState.FollowMaxRange = 3f;
-
-			var wanderDetection = new GameObject("Detection").AddComponent<AICEnemyDetection>();
-			wanderDetection.transform.parent = wanderState.transform;
-			var wanderDetectEffects = new GameObject("DetectEffects").AddComponent<AIESwitchState>();
-			wanderDetectEffects.ToState = susState;
-			wanderDetectEffects.transform.parent = wanderDetection.transform;
-			wanderDetection.DetectEffectsTrans = wanderDetectEffects.transform;
-
-			//setup 2 - Suspicious
-
-			susState.SpeedModif = 2f;
-			susState.SuspiciousDuration = 3f;
-			susState.Range = 10;
-			susState.WanderFar = true;
-			susState.TurnModif = 0.5f;
-
-			var susEnd = new GameObject("EndSuspiciousEffects").AddComponent<AIESwitchState>();
-			susEnd.ToState = wanderState;
-			var sheathe = susEnd.gameObject.AddComponent<AIESheathe>();
-			sheathe.Sheathed = true;
-			susEnd.transform.parent = susState.transform;
-			susState.EndSuspiciousEffectsTrans = susEnd.transform;
-
-			var susDetection = new GameObject("Detection").AddComponent<AICEnemyDetection>();
-			susDetection.transform.parent = susState.transform;
-			var susDetectEffects = new GameObject("DetectEffects").AddComponent<AIESwitchState>();
-			susDetectEffects.ToState = combatState;
-			susDetectEffects.transform.parent = susDetection.transform;
-			susDetection.DetectEffectsTrans = susDetectEffects.transform;
-			var susSuspiciousEffects = new GameObject("SuspiciousEffects").AddComponent<AIESwitchState>();
-			susSuspiciousEffects.ToState = alertState;
-			susSuspiciousEffects.transform.parent = susDetection.transform;
-			susDetection.SuspiciousEffectsTrans = susSuspiciousEffects.transform;
-
-			// setup 3 - alert
-
-			alertState.SpeedModif = 2f;
-
-			var alertEnd = new GameObject("EndSuspiciousEffects").AddComponent<AIESwitchState>();
-			alertEnd.ToState = susState;
-			var alertsheathe = alertEnd.gameObject.AddComponent<AIESheathe>();
-			alertsheathe.Sheathed = true;
-			alertEnd.transform.parent = alertState.transform;
-			alertState.EndSuspiciousEffectsTrans = alertEnd.transform;
-
-			var alertDetection = new GameObject("Detection").AddComponent<AICEnemyDetection>();
-			alertDetection.transform.parent = alertState.transform;
-			var alertDetectEffects = new GameObject("DetectEffects").AddComponent<AIESwitchState>();
-			alertDetectEffects.ToState = combatState;
-			alertDetectEffects.transform.parent = alertDetection.transform;
-			alertDetection.DetectEffectsTrans = alertDetectEffects.transform;
-
-			// setup 4 - Combat
-
-			combatState.ChargeTime = new Vector2(4, 8);
-			combatState.TargetVulnerableChargeTimeMult = 0.5f;
-			combatState.ChargeAttackRangeMult = 1;
-			combatState.ChargeAttackTimeToAttack = 0.4f;
-			combatState.ChargeStartRangeMult = new Vector2(0.8f, 3.0f);
-			combatState.AttackPatterns = new AttackPattern[]
-			{
-				new AttackPattern { ID = 0, Chance = 20, Range = new Vector2(0.9f, 2.5f), Attacks = new AttackPattern.AtkTypes[] { AttackPattern.AtkTypes.Normal } },
-				new AttackPattern { ID = 1, Chance = 15, Range = new Vector2(0.0f, 2.9f), Attacks = new AttackPattern.AtkTypes[] { AttackPattern.AtkTypes.Normal, AttackPattern.AtkTypes.Normal } },
-				new AttackPattern { ID = 2, Chance = 30, Range = new Vector2(0.0f, 1.5f), Attacks = new AttackPattern.AtkTypes[] { AttackPattern.AtkTypes.Special }},
-				new AttackPattern { ID = 3, Chance = 30, Range = new Vector2(0.0f, 1.5f), Attacks = new AttackPattern.AtkTypes[] { AttackPattern.AtkTypes.Normal, AttackPattern.AtkTypes.Special }},
-				new AttackPattern { ID = 4, Chance = 30, Range = new Vector2(0.0f, 1.3f), Attacks = new AttackPattern.AtkTypes[] { AttackPattern.AtkTypes.Normal, AttackPattern.AtkTypes.Normal, AttackPattern.AtkTypes.Special }}
-			};
-			combatState.SpeedModifs = new float[] { 0.8f, 1.3f, 1.7f };
-			combatState.ChanceToAttack = 75;
-			combatState.KnowsUnblockable = true;
-			combatState.DodgeCooldown = 3f;
-			combatState.CanBlock = false;
-			combatState.CanDodge = true;
-
-			var combatDetect = new GameObject("Detection").AddComponent<AICEnemyDetection>();
-			combatDetect.transform.parent = combatState.transform;
-			var combatEnd = new GameObject("EndCombatEffects").AddComponent<AIESwitchState>();
-			combatEnd.ToState = wanderState;
-			combatEnd.transform.parent = combatState.transform;
-
-			BasicAIPrefab = _AIStatesPrefab.gameObject;
-			DontDestroyOnLoad(BasicAIPrefab);
-			BasicAIPrefab.SetActive(false);
-		}
-
-		// legacy support
-
-		[Obsolete("Use CustomCharacters.CreateCharacter instead (naming change)")]
-		public static GameObject InstantiatePlayerPrefab(Vector3 _position, string _UID)
-		{
-			return CreateCharacter(_position, _UID);
-		}
 	}
 }

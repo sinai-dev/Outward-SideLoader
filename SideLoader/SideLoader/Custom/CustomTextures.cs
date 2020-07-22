@@ -12,10 +12,8 @@ using UnityEngine.Experimental.Rendering;
 
 namespace SideLoader
 {
-    public class CustomTextures : MonoBehaviour
+    public class CustomTextures
     {
-        public static CustomTextures Instance;
-
         public static Dictionary<string, Texture2D> Textures = new Dictionary<string, Texture2D>();
 
         // helper enum for certain types of icon borders that Nine Dots use
@@ -28,7 +26,7 @@ namespace SideLoader
 
         /// <summary>
         /// Handles how different types of Textures are loaded with Texture2D.LoadImage.
-        /// If it's not a Normal or GenTex, just use Default.
+        /// If it's not a Normal (bump map) or GenTex, just use Default.
         /// </summary>
         public enum TextureType
         {
@@ -37,10 +35,8 @@ namespace SideLoader
             GenTex
         }
 
-        internal void Awake()
+        public static void Init()
         {
-            Instance = this;
-
             QualitySettings.masterTextureLimit = 0;
 
             SL.OnPacksLoaded += ReplaceActiveTextures;
@@ -58,12 +54,6 @@ namespace SideLoader
         {
             return LoadTextureInternal(filePath, mipmap, linear);
         }
-
-        //[Obsolete("Use CustomTextures.LoadTexture(string filePath, bool mipmap, bool linear) instead.")]
-        //public static Texture2D LoadTexture(string filePath, bool isNormal = false)
-        //{
-        //    return LoadTexture(filePath, true, true);
-        //}
 
         private static Texture2D LoadTextureInternal(string filePath, bool mipmap, bool linear)
         {
@@ -232,9 +222,9 @@ namespace SideLoader
         {
             var list = new List<SL_Material.ShaderProperty>();
 
-            if (Instance.ShaderPropertyDicts.ContainsKey(m.shader.name))
+            if (ShaderPropertyDicts.ContainsKey(m.shader.name))
             {
-                var dict = Instance.ShaderPropertyDicts[m.shader.name];
+                var dict = ShaderPropertyDicts[m.shader.name];
 
                 foreach (var entry in dict)
                 {
@@ -272,7 +262,7 @@ namespace SideLoader
             return list;
         }
 
-        private readonly Dictionary<string, Dictionary<string, ShaderPropType>> ShaderPropertyDicts = new Dictionary<string, Dictionary<string, ShaderPropType>>()
+        private static readonly Dictionary<string, Dictionary<string, ShaderPropType>> ShaderPropertyDicts = new Dictionary<string, Dictionary<string, ShaderPropType>>()
         {
             { "Custom/Main Set/Main Standard",      CustomMainSetMainStandard },
             { "Custom/Distort/DistortTextureSpec",  CustomDistortDistortTextureSpec }
