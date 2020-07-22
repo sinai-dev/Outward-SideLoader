@@ -204,37 +204,37 @@ namespace SideLoader
 
     // Just catches a harmless null ref exception, hiding it until I figure out a cleaner fix
     [HarmonyPatch(typeof(Character), "ProcessOnEnable")]
-	public class Character_ProcessOnEnable
-	{
-		[HarmonyFinalizer]
-		public static Exception Finalizer()
-		{
-			return null;
-		}
-	}
+    public class Character_ProcessOnEnable
+    {
+        [HarmonyFinalizer]
+        public static Exception Finalizer()
+        {
+            return null;
+        }
+    }
 
-	// This harmony patch is to sneak into when the game applies characters.
-	// I figure it's best to do it at the same time.
-	[HarmonyPatch(typeof(NetworkLevelLoader), "MidLoadLevel")]
-	public class NetworkLevelLoader_MidLoadLevel
-	{
-		[HarmonyPostfix]
-		public static void Postfix()
-		{
-			CustomCharacters.InvokeSpawnCharacters();
-		}
-	}
+    // This harmony patch is to sneak into when the game applies characters.
+    // I figure it's best to do it at the same time.
+    [HarmonyPatch(typeof(NetworkLevelLoader), "MidLoadLevel")]
+    public class NetworkLevelLoader_MidLoadLevel
+    {
+        [HarmonyPostfix]
+        public static void Postfix()
+        {
+            CustomCharacters.InvokeSpawnCharacters();
+        }
+    }
 
-	// Like the last patch, we sneak into when the game should have destroyed previous scene characters to cleanup there.
-	[HarmonyPatch(typeof(CharacterManager), "ClearNonPersitentCharacters")]
-	public class CharacterManager_ClearNonPersitentCharacters
-	{
-		[HarmonyPrefix]
-		public static void Prefix()
-		{
-			CustomCharacters.CleanupCharacters();
-		}
-	}
+    // Like the last patch, we sneak into when the game should have destroyed previous scene characters to cleanup there.
+    [HarmonyPatch(typeof(CharacterManager), "ClearNonPersitentCharacters")]
+    public class CharacterManager_ClearNonPersitentCharacters
+    {
+        [HarmonyPrefix]
+        public static void Prefix()
+        {
+            CustomCharacters.CleanupCharacters();
+        }
+    }
 
-	#endregion
+    #endregion
 }
