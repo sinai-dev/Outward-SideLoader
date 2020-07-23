@@ -413,7 +413,7 @@ namespace SideLoader
         private static void SetupBasicAIPrefab()
         {
             // Check if we've already set up the Prefab...
-            if (BasicAIPrefab != null) { return; }
+            if (m_basicAIPrefab) { return; }
 
             var _AIStatesPrefab = new GameObject("AIRoot").AddComponent<AIRoot>();
             _AIStatesPrefab.gameObject.SetActive(false);
@@ -524,7 +524,7 @@ namespace SideLoader
 
             m_basicAIPrefab = _AIStatesPrefab.gameObject;
             GameObject.DontDestroyOnLoad(m_basicAIPrefab);
-            BasicAIPrefab.SetActive(false);
+            m_basicAIPrefab.SetActive(false);
         }
 
         // legacy support
