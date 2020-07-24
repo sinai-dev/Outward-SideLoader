@@ -271,33 +271,37 @@ namespace SideLoader
         /// The folder name can have anything else after the ID, but it must start with the ID.
         /// Eg., '2000010_IronSword\' would be valid to set the textures on the Iron Sword. 
         /// The textures should be placed inside this folder and should match the Shader Layer names of the texture (the same way you set Item textures from a folder).
-        /// <b>NOTE: Does not set item icons (sprites).</b>
         /// </summary>
-        /// <param name="bundle"></param>
+        /// <param name="bundle">The AssetBundle to apply Textures from.</param>
         public static void ApplyTexturesFromAssetBundle(AssetBundle bundle)
         {
+            // Keys: Item IDs
+            // Values: List of Textures/Sprites to apply to the item
+            // The ItemTextures Value Key is the Material name, and the List<Texture2D> are the actual textures.
+            var itemTextures = new Dictionary<int, Dictionary<string, List<Texture2D>>>();
+            var icons = new Dictionary<int, List<Sprite>>();
+
             string[] names = bundle.GetAllAssetNames();
-
-            Dictionary<int, Dictionary<string, List<Texture2D>>> itemTextures = new Dictionary<int, Dictionary<string, List<Texture2D>>>();
-
-            Dictionary<int, List<Sprite>> icons = new Dictionary<int, List<Sprite>>();
-
             foreach (var name in names)
             {
                 try
                 {
-                    Texture2D tex = (Texture2D)bundle.LoadAsset(name);
-
                     Debug.Log("Loading texture from AssetBundle, path: " + name);
 
+                    Texture2D tex = (Texture2D)bundle.LoadAsset(name);
+
+                    // cleanup the name (remove ".png")
+                    tex.name = tex.name.Replace(".png", "");
+
+                    // Split the assetbundle path by forward slashes
                     string[] splitPath = name.Split('/');
 
+                    // Get the ID from the first 7 characters of the path
                     int id = int.Parse(splitPath[1].Substring(0, 7));
 
+                    // Identify icons by name
                     if (tex.name.Contains("icon"))
                     {
-                        tex.name = tex.name.Replace(".png", "");
-
                         if (!icons.ContainsKey(id))
                         {
                             icons.Add(id, new List<Sprite>());
@@ -314,7 +318,7 @@ namespace SideLoader
                         }
                         icons[id].Add(sprite);
                     }
-                    else
+                    else // is not an icon
                     {
                         var mat = "";
                         if (splitPath[2] == "textures")
@@ -325,8 +329,6 @@ namespace SideLoader
                         {
                             mat = splitPath[2];
                         }
-
-                        tex.name = tex.name.Replace(".png", "");
 
                         if (!itemTextures.ContainsKey(id))
                         {
@@ -352,6 +354,7 @@ namespace SideLoader
                 }
             }
 
+            // Apply material textures
             foreach (var entry in itemTextures)
             {
                 if (ResourcesPrefabManager.Instance.GetItemPrefab(entry.Key) is Item item)
@@ -360,6 +363,7 @@ namespace SideLoader
                 }
             }
 
+            // Apply icons
             foreach (var entry in icons)
             {
                 if (ResourcesPrefabManager.Instance.GetItemPrefab(entry.Key) is Item item)

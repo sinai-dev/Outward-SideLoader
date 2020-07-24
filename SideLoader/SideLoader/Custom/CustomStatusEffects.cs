@@ -76,12 +76,6 @@ namespace SideLoader
                         found = true;
                         original = status;
                         template.CloneByIdentifier = true;
-
-                        if (template.NewStatusID > 0)
-                        {
-                            preset = status.gameObject.GetOrAddComponent<EffectPreset>();
-                            At.SetValue(template.NewStatusID, typeof(EffectPreset), preset, "m_StatusEffectID");
-                        }
                     }
                 }
                 if (!found)

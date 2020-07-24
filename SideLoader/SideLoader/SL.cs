@@ -107,19 +107,19 @@ namespace SideLoader
             // ====== Read SL Packs ======
 
             // 'BepInEx\plugins\...' packs:
-            foreach (string modFolder in Directory.GetDirectories(PLUGINS_FOLDER))
+            foreach (var dir in Directory.GetDirectories(PLUGINS_FOLDER))
             {
-                string name = Path.GetFileName(modFolder);
+                var name = Path.GetFileName(dir);
 
-                var slFolder = modFolder + @"\SideLoader";
+                var slFolder = dir + @"\SideLoader";
                 if (Directory.Exists(slFolder))
                 {
-                    SLPack.TryLoadPack(name, slFolder, false);
+                    SLPack.TryLoadPack(name, false);
                 }
             }
 
             // 'Mods\SideLoader\...' packs:
-            foreach (string dir in Directory.GetDirectories(SL_FOLDER))
+            foreach (var dir in Directory.GetDirectories(SL_FOLDER))
             {
                 if (dir == GENERATED_FOLDER)
                 {
@@ -127,8 +127,8 @@ namespace SideLoader
                     continue;
                 }
 
-                var packname = Path.GetFileName(dir);
-                SLPack.TryLoadPack(packname, dir, true);
+                var name = Path.GetFileName(dir);
+                SLPack.TryLoadPack(name, true);
             }
 
             // ====== Invoke Callbacks ======

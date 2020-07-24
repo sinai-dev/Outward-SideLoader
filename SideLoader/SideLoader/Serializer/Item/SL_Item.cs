@@ -20,15 +20,15 @@ namespace SideLoader
         public string SubfolderName;
 
         [XmlIgnore]
-        public virtual bool ShouldApplyLate { get => false; }
+        public virtual bool ShouldApplyLate => false;
 
         /// <summary>The Item ID of the Item you are cloning FROM</summary>
         public int Target_ItemID = -1;
         /// <summary>The NEW Item ID for your custom Item (can be the same as target, will overwrite)</summary>
         public int New_ItemID = -1;
 
-        public string Name = null;
-        public string Description = null;
+        public string Name;
+        public string Description;
 
         /// <summary>The Item ID of the Legacy Item (the upgrade of this item when placed in a Legacy Chest)</summary>
         public int? LegacyItemID;

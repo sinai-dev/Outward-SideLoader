@@ -54,25 +54,27 @@ namespace SideLoader
             return $@"{this.FolderPath}\{subFolder}";
         }
 
-        public static void TryLoadPack(string name, string path, bool inMainFolder)
+        /// <summary>
+        /// Safely tries to load an SLPack with the provided name, either in the Mods\SideLoader\ folder or the BepInEx\plugins\ folder.
+        /// </summary>
+        /// <param name="name">The name of the SLPack folder.</param>
+        /// <param name="inMainFolder">Is it in the Mods\SideLoader\ directory? (If not, it should be in BepInEx\plugins\)</param>
+        public static void TryLoadPack(string name, bool inMainFolder)
         {
             try
             {
-                var pack = SLPack.LoadFromFolder(name, inMainFolder);
-                
                 if (SL.Packs.ContainsKey(name))
                 {
                     SL.Log($"ERROR: An SLPack already exists with the name '{name}'! Please use a unique name.", 1);
                     return;
                 }
-                else
-                {
-                    SL.Packs.Add(pack.Name, pack);
-                }
+
+                var pack = LoadFromFolder(name, inMainFolder);
+                SL.Packs.Add(pack.Name, pack);
             }
             catch (Exception e)
             {
-                SL.Log("Error loading SLPack from folder: " + path + "\r\nMessage: " + e.Message + "\r\nStackTrace: " + e.StackTrace, 1);
+                SL.Log("Error loading SLPack from folder: " + name + "\r\nMessage: " + e.Message + "\r\nStackTrace: " + e.StackTrace, 1);
             }
         }
 
@@ -81,7 +83,7 @@ namespace SideLoader
         /// </summary>
         /// <param name="name">The name of the SideLoader pack (ie. the name of the folder inside Mods/SideLoader/)</param>
         /// <param name="inMainSLFolder">Is the SLPack in Mods\SideLoader? If not, it should be Mods\ModName\SideLoader\ structure.</param>
-        public static SLPack LoadFromFolder(string name, bool inMainSLFolder = true)
+        private static SLPack LoadFromFolder(string name, bool inMainSLFolder = true)
         {
             var pack = new SLPack()
             {

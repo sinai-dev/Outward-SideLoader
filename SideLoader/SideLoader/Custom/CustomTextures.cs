@@ -49,16 +49,9 @@ namespace SideLoader
         /// <param name="filePath">The full or relative filepath</param>
         /// <param name="mipmap">Do you want mipmaps for this texture?</param>
         /// <param name="linear">Is this linear or sRGB? (Normal or non-normal)</param>
-        /// <returns></returns>
+        /// <returns>The Texture2D (or null if there was an error)</returns>
         public static Texture2D LoadTexture(string filePath, bool mipmap, bool linear)
         {
-            return LoadTextureInternal(filePath, mipmap, linear);
-        }
-
-        private static Texture2D LoadTextureInternal(string filePath, bool mipmap, bool linear)
-        {
-            //var name = Path.GetFileNameWithoutExtension(filePath);
-
             if (File.Exists(filePath))
             {
                 var fileData = File.ReadAllBytes(filePath);
@@ -195,15 +188,14 @@ namespace SideLoader
                 c.b = Mathf.Sqrt(1 - Mathf.Clamp01(Vector2.Dot(rg, rg))); //recalculate the blue channel (z)
 
                 colors[i] = new Color(
-                    c.r * 0.5f + 0.5f,
-                    c.g * 0.5f + 0.25f, 
-                    c.b * 0.5f + 0.5f
+                    (c.r * 0.5f) + 0.5f,
+                    (c.g * 0.5f) + 0.25f, 
+                    (c.b * 0.5f) + 0.5f
                 );
             }
 
             var newtex = new Texture2D(tex.width, tex.height, TextureFormat.RGBA32, false);
             newtex.SetPixels(colors); //apply pixels to the texture
-            //newtex.Apply(false, false);
 
             return newtex;
         }
