@@ -5,7 +5,6 @@ using System.Text;
 using UnityEngine;
 using System.IO;
 using HarmonyLib;
-using Discord;
 
 namespace SideLoader
 {
@@ -76,6 +75,12 @@ namespace SideLoader
                         found = true;
                         original = status;
                         template.CloneByIdentifier = true;
+
+                        if (template.NewStatusID > 0)
+                        {
+                            preset = original.transform.GetOrAddComponent<EffectPreset>();
+                            At.SetValue(template.NewStatusID, typeof(EffectPreset), preset, "m_StatusEffectID");
+                        }
                     }
                 }
                 if (!found)

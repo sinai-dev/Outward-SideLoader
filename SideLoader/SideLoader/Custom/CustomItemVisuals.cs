@@ -403,6 +403,14 @@ namespace SideLoader
             return list.ToArray();
         }
 
+        /// <summary>
+        /// Checks the provided folder for sub-folders, each sub-folder should be the name of a material.
+        /// Inside this folder there should be the texture PNG files (named after Shader Layers), and the properties.xml file.
+        /// SideLoader will load everything and return it to you in two dictionaries.
+        /// </summary>
+        /// <param name="dir">The base directory to check (eg. "SLPack\Items\MyItem\Textures\")</param>
+        /// <param name="slMaterials">Secondary out paramater for the SL Material templates. Key: Material Name, Value: SL_Material.</param>
+        /// <returns>Key: Material name, Value: List of Texture2D for the material.</returns>
         public static Dictionary<string, List<Texture2D>> GetTexturesFromFolder(string dir, out Dictionary<string, SL_Material> slMaterials)
         {
             // build dictionary of textures per material
@@ -582,7 +590,7 @@ namespace SideLoader
         /// <summary>
         /// Saves textures from an Item to a directory.
         /// </summary>
-        /// <param name="item"></param>
+        /// <param name="item">The item to apply to.</param>
         /// <param name="dir">Full path, relative to Outward folder</param>
         public static void SaveAllItemTextures(Item item, string dir)
         {
@@ -637,12 +645,16 @@ namespace SideLoader
             }
         }
 
-        // used internally for managing custom item visuals with the resources prefab manager.
+        /// <summary>
+        /// Used internally for managing custom item visuals for the ResourcesPrefabManager.
+        /// </summary>
         public class ItemVisualsLink
         {
-            // public Item LinkedItem;
-            // public SL_Item LinkedTemplate;
-
+            /// <summary>
+            /// Returns the linked ItemVisuals for the provided VisualPrefabType (if any), otherwise null.
+            /// </summary>
+            /// <param name="type">The type of Visual Prefab you want.</param>
+            /// <returns>The linked Transform, or null.</returns>
             public Transform GetVisuals(VisualPrefabType type)
             {
                 switch (type)
