@@ -9,6 +9,7 @@ using UnityEngine.UI;
 using System.Threading;
 using UnityEditor;
 using UnityEngine.Experimental.Rendering;
+using System.Net;
 
 namespace SideLoader
 {
@@ -214,35 +215,49 @@ namespace SideLoader
         {
             var list = new List<SL_Material.ShaderProperty>();
 
+            if (ShaderPropertyDicts == null)
+            {
+                Debug.Log("Dict is null");
+                return list;
+            }
+
             if (ShaderPropertyDicts.ContainsKey(m.shader.name))
             {
                 var dict = ShaderPropertyDicts[m.shader.name];
 
-                foreach (var entry in dict)
+                if (dict == null)
                 {
-                    switch (entry.Value)
+                    Debug.Log("ShaderProperties for material " + m.shader.name + " is in main dict, but Property Dict is null");
+                    return list;
+                }
+                else
+                {
+                    foreach (var entry in dict)
                     {
-                        case ShaderPropType.Color:
-                            list.Add(new SL_Material.ColorProp()
-                            {
-                                Name = entry.Key,
-                                Value = m.GetColor(entry.Key)
-                            });
-                            break;
-                        case ShaderPropType.Float:
-                            list.Add(new SL_Material.FloatProp()
-                            {
-                                Name = entry.Key,
-                                Value = m.GetFloat(entry.Key)
-                            });
-                            break;
-                        case ShaderPropType.Vector:
-                            list.Add(new SL_Material.VectorProp()
-                            {
-                                Name = entry.Key,
-                                Value = m.GetVector(entry.Key)
-                            });
-                            break;
+                        switch (entry.Value)
+                        {
+                            case ShaderPropType.Color:
+                                list.Add(new SL_Material.ColorProp()
+                                {
+                                    Name = entry.Key,
+                                    Value = m.GetColor(entry.Key)
+                                });
+                                break;
+                            case ShaderPropType.Float:
+                                list.Add(new SL_Material.FloatProp()
+                                {
+                                    Name = entry.Key,
+                                    Value = m.GetFloat(entry.Key)
+                                });
+                                break;
+                            case ShaderPropType.Vector:
+                                list.Add(new SL_Material.VectorProp()
+                                {
+                                    Name = entry.Key,
+                                    Value = m.GetVector(entry.Key)
+                                });
+                                break;
+                        }
                     }
                 }
             }
@@ -254,59 +269,61 @@ namespace SideLoader
             return list;
         }
 
+        public const string CUSTOM_MAINSET_MAINSTANDARD = "Custom/Main Set/Main Standard";
+        public const string CUSTOM_DISTORT_DISTORTTEXTURESPEC = "Custom/Distort/DistortTextureSpec";
+
+        /// <summary>
+        /// Keys: see the CustomTextures.CUSTOM_ const strings, Values: Shader Property names and types.
+        /// </summary>
         private static readonly Dictionary<string, Dictionary<string, ShaderPropType>> ShaderPropertyDicts = new Dictionary<string, Dictionary<string, ShaderPropType>>()
         {
-            { "Custom/Main Set/Main Standard",      CustomMainSetMainStandard },
-            { "Custom/Distort/DistortTextureSpec",  CustomDistortDistortTextureSpec }
-        };
-
-        /// <summary>
-        /// Properties on Nine Dots' "Custom/Main Set/Main Standard" shader.
-        /// </summary>
-        public static Dictionary<string, ShaderPropType> CustomMainSetMainStandard = new Dictionary<string, ShaderPropType>
-        {
-            { "_Color",                 ShaderPropType.Color },
-            { "_Cutoff",                ShaderPropType.Float },
-            { "_Dither",                ShaderPropType.Float },
-            { "_DoubleFaced",           ShaderPropType.Float },
-            { "_NormStr",               ShaderPropType.Float },
-            { "_SpecColor",             ShaderPropType.Color },
-            { "_SmoothMin",             ShaderPropType.Float },
-            { "_SmoothMax",             ShaderPropType.Float },
-            { "_OccStr",                ShaderPropType.Float },
-            { "_EmissionColor",         ShaderPropType.Color },
-            { "_EmitAnimSettings",      ShaderPropType.Vector },
-            { "_EmitScroll",            ShaderPropType.Float },
-            { "_EmitPulse",             ShaderPropType.Float },
-            { "_DetColor",              ShaderPropType.Color },
-            { "_DetTiling",             ShaderPropType.Vector },
-            { "_DetNormStr",            ShaderPropType.Float },
-            { "_VPRTexColor",           ShaderPropType.Color },
-            { "_VPRTexSettings",        ShaderPropType.Vector },
-            { "_VPRSpecColor",          ShaderPropType.Color },
-            { "_VPRNormStr",            ShaderPropType.Float },
-            { "_VPRUnderAuto",          ShaderPropType.Float },
-            { "_VPRTiling",             ShaderPropType.Float },
-            { "_AutoTexColor",          ShaderPropType.Color },
-            { "_AutoTexSettings",       ShaderPropType.Vector },
-            { "_AutoTexHideEmission",   ShaderPropType.Float },
-            { "_AutoSpecColor",         ShaderPropType.Color },
-            { "_AutoNormStr",           ShaderPropType.Float },
-            { "_AutoTexTiling",         ShaderPropType.Float },
-            { "_SnowEnabled",           ShaderPropType.Float }
-        };
-
-        /// <summary>
-        /// Properties on Nine Dots' "Custom/Distort/DistortTextureSpec" shader.
-        /// </summary>
-        public static Dictionary<string, ShaderPropType> CustomDistortDistortTextureSpec = new Dictionary<string, ShaderPropType>
-        {
-            { "_Color",             ShaderPropType.Color },
-            { "_SpecColor",         ShaderPropType.Color },
-            { "_NormalStrength",    ShaderPropType.Float },
-            { "_Speed",             ShaderPropType.Float },
-            { "_Scale",             ShaderPropType.Float },
-            { "_MaskPow",           ShaderPropType.Float },
+            {
+                CUSTOM_MAINSET_MAINSTANDARD,      
+                new Dictionary<string, ShaderPropType>
+                {
+                    { "_Color",                 ShaderPropType.Color },
+                    { "_Cutoff",                ShaderPropType.Float },
+                    { "_Dither",                ShaderPropType.Float },
+                    { "_DoubleFaced",           ShaderPropType.Float },
+                    { "_NormStr",               ShaderPropType.Float },
+                    { "_SpecColor",             ShaderPropType.Color },
+                    { "_SmoothMin",             ShaderPropType.Float },
+                    { "_SmoothMax",             ShaderPropType.Float },
+                    { "_OccStr",                ShaderPropType.Float },
+                    { "_EmissionColor",         ShaderPropType.Color },
+                    { "_EmitAnimSettings",      ShaderPropType.Vector },
+                    { "_EmitScroll",            ShaderPropType.Float },
+                    { "_EmitPulse",             ShaderPropType.Float },
+                    { "_DetColor",              ShaderPropType.Color },
+                    { "_DetTiling",             ShaderPropType.Vector },
+                    { "_DetNormStr",            ShaderPropType.Float },
+                    { "_VPRTexColor",           ShaderPropType.Color },
+                    { "_VPRTexSettings",        ShaderPropType.Vector },
+                    { "_VPRSpecColor",          ShaderPropType.Color },
+                    { "_VPRNormStr",            ShaderPropType.Float },
+                    { "_VPRUnderAuto",          ShaderPropType.Float },
+                    { "_VPRTiling",             ShaderPropType.Float },
+                    { "_AutoTexColor",          ShaderPropType.Color },
+                    { "_AutoTexSettings",       ShaderPropType.Vector },
+                    { "_AutoTexHideEmission",   ShaderPropType.Float },
+                    { "_AutoSpecColor",         ShaderPropType.Color },
+                    { "_AutoNormStr",           ShaderPropType.Float },
+                    { "_AutoTexTiling",         ShaderPropType.Float },
+                    { "_SnowEnabled",           ShaderPropType.Float }
+                } 
+            },
+            {
+                CUSTOM_DISTORT_DISTORTTEXTURESPEC,
+                new Dictionary<string, ShaderPropType>
+                {
+                    { "_Color",             ShaderPropType.Color },
+                    { "_SpecColor",         ShaderPropType.Color },
+                    { "_NormalStrength",    ShaderPropType.Float },
+                    { "_Speed",             ShaderPropType.Float },
+                    { "_Scale",             ShaderPropType.Float },
+                    { "_MaskPow",           ShaderPropType.Float },
+                }
+            }
         };
 
         // ============= GLOBAL TEXTURE REPLACEMENT ===============
