@@ -23,7 +23,7 @@ namespace SideLoader
         // Mod Info
         public const string GUID = "com.sinai." + MODNAME;
         public const string MODNAME = "SideLoader";
-        public const string VERSION = "2.6.72";
+        public const string VERSION = "2.7.0";
 
         // Folders
         public static string PLUGINS_FOLDER => Paths.PluginPath;
