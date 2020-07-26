@@ -19,7 +19,7 @@ Requires [BepInEx](https://github.com/BepInEx/BepInEx).
 
 See the SideLoader Wiki for documentation and guides:
 
-<big><b>[SideLoader Wiki](https://github.com/sinaioutlander/Outward-SideLoader/wiki)</b></big>
+<big><b>[SideLoader Wiki](https://sinaioutlander.github.io/#/)</b></big>
 
 ## Thanks To
 * Elec0
