@@ -1,7 +1,7 @@
 # Outward SideLoader
 
 <p align="center">
-<img align="center" src="https://i.imgur.com/9rxjYNT.png">
+<img align="center" src="https://i.imgur.com/DWezCnm.png">
 </p>
 
 [![Version](https://img.shields.io/badge/BepInEx-5.2-green.svg)](https://github.com/BepInEx/BepInEx)
