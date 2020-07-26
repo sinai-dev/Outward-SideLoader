@@ -6,7 +6,7 @@
 
 [![Version](https://img.shields.io/badge/BepInEx-5.2-green.svg)](https://github.com/BepInEx/BepInEx)
 
-A library for Outward to help with custom assets, or changes to existing assets. Supports Textures, Audio and AssetBundle assets, and can work with custom or modified Items, Skills, Characters, Scenes, and more.
+SideLoader is an API and a tool for Mod Development in the game Outward. It is deigned to simplify the process of creating new content and modifying existing content. SideLoader is capable of loading AssetBundles, Textures, Audio, and XML files, as well as offering a powerful C# API.
 
 Requires [BepInEx](https://github.com/BepInEx/BepInEx).
 
