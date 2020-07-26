@@ -11,9 +11,8 @@ SideLoader is an API and a tool for Mod Development in the game Outward. It is d
 Requires [BepInEx](https://github.com/BepInEx/BepInEx).
 
 ## Release
-
-* [NexusMods (Download and Instructions)](https://www.nexusmods.com/outward/mods/96)
-* [Patch Notes](https://github.com/sinaioutlander/Outward-SideLoader/releases)
+* [Latest Release](https://github.com/sinaioutlander/Outward-SideLoader/releases)
+* [How To Install](https://sinaioutlander.github.io/#/GettingStarted/Installation)
 
 ## How To Use SideLoader
 
