@@ -13,11 +13,19 @@ using System.Net;
 
 namespace SideLoader
 {
+    /// <summary>
+    /// SideLoader's helper class for working with Texture2Ds.
+    /// </summary>
     public class CustomTextures
     {
+        /// <summary>
+        /// Public dictionary of textures being used for global replacements.
+        /// </summary>
         public static Dictionary<string, Texture2D> Textures = new Dictionary<string, Texture2D>();
 
-        // helper enum for certain types of icon borders that Nine Dots use
+        /// <summary>
+        /// Helper enum for certain types of icon borders that Nine Dots use.
+        /// </summary>
         public enum SpriteBorderTypes
         {
             NONE,
@@ -36,6 +44,9 @@ namespace SideLoader
             GenTex
         }
 
+        /// <summary>
+        /// Used internally.
+        /// </summary>
         public static void Init()
         {
             QualitySettings.masterTextureLimit = 0;
@@ -109,6 +120,12 @@ namespace SideLoader
             return Sprite.Create(tex, rect, Vector2.zero, 100f, 1, SpriteMeshType.Tight);
         }
 
+        /// <summary>
+        /// Save an Icon as a png file.
+        /// </summary>
+        /// <param name="icon">The icon to save.</param>
+        /// <param name="dir">The directory to save at.</param>
+        /// <param name="name">The filename of the icon.</param>
         public static void SaveIconAsPNG(Sprite icon, string dir, string name = "icon")
         {
             if (!Directory.Exists(dir))
@@ -119,6 +136,13 @@ namespace SideLoader
             SaveTextureAsPNG(icon.texture, dir, name, false);
         }
 
+        /// <summary>
+        /// Save a Texture2D as a png file.
+        /// </summary>
+        /// <param name="_tex">The texture to save.</param>
+        /// <param name="dir">The directory to save at.</param>
+        /// <param name="name">The filename to save as.</param>
+        /// <param name="normal">Is this a Normal map (bump map)?</param>
         public static void SaveTextureAsPNG(Texture2D _tex, string dir, string name, bool normal)
         {
             if (!Directory.Exists(dir))
@@ -204,6 +228,9 @@ namespace SideLoader
 
         // =========== Shader Properties Helpers ===========
 
+        /// <summary>
+        /// Helper enum for the types of Shader Properties which SideLoader supports.
+        /// </summary>
         public enum ShaderPropType
         {
             Color,
@@ -211,6 +238,11 @@ namespace SideLoader
             Float
         }
 
+        /// <summary>
+        /// Get the Properties for the Shader on the provided material.
+        /// </summary>
+        /// <param name="m">The material to get properties for.</param>
+        /// <returns>If supported, the list of Shader Properties.</returns>
         public static List<SL_Material.ShaderProperty> GetProperties(Material m)
         {
             var list = new List<SL_Material.ShaderProperty>();
@@ -328,6 +360,9 @@ namespace SideLoader
 
         // ============= GLOBAL TEXTURE REPLACEMENT ===============
 
+        /// <summary>
+        /// Internal method used to replace active textures from our Textures dictionary.
+        /// </summary>
         public static void ReplaceActiveTextures()
         {
             if (Textures.Count < 1)

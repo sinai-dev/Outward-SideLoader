@@ -10,7 +10,7 @@ using Steamworks;
 
 namespace SideLoader
 {
-    /// <summary>Helper class used to manage custom Item Visuals.</summary>
+    /// <summary>SideLoader's manger class for Custom Item Visuls. Contains useful methods for managing item visuals.</summary>
     public class CustomItemVisuals
     {
         /// <summary> Custom Item Visual prefabs (including retexture-only) </summary>

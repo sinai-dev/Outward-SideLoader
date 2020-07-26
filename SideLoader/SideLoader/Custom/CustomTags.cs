@@ -5,6 +5,9 @@ using System.Text;
 
 namespace SideLoader
 {
+    /// <summary>
+    /// A helper class for getting Tags more easily, and for creating new ones too.
+    /// </summary>
     public class CustomTags
     {
         /// <summary>

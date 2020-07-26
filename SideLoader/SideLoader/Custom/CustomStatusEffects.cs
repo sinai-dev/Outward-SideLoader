@@ -8,6 +8,9 @@ using HarmonyLib;
 
 namespace SideLoader
 {
+    /// <summary>
+    /// SideLoader's manager class for Custom Status Effects. Contains helpful methods for creating and managing SL_StatusEffects and SL_ImbueEffects.
+    /// </summary>
     public class CustomStatusEffects
     {
         /// <summary>Cached un-edited Effect Presets, used for all Status and Imbues which have a Preset ID.</summary>
@@ -33,6 +36,12 @@ namespace SideLoader
             }
         }
 
+        /// <summary>
+        /// Get the original Status Effect with this identifier.
+        /// </summary>
+        /// <param name="identifier">The identifier to get.</param>
+        /// <param name="checkPresets">If it's not found in the Identifier dictionary, should we check the Presets dictionary for the original too?</param>
+        /// <returns></returns>
         public static StatusEffect GetOrigStatusEffect(string identifier, bool checkPresets = true)
         {
             if (OrigStatusEffects.ContainsKey(identifier))
@@ -202,6 +211,12 @@ namespace SideLoader
             return newEffect;
         }
 
+        /// <summary>
+        /// Get the Localization for the Status Effect (name and description).
+        /// </summary>
+        /// <param name="effect">The Status Effect to get localization for.</param>
+        /// <param name="name">The output name.</param>
+        /// <param name="desc">The output description.</param>
         public static void GetStatusLocalization(StatusEffect effect, out string name, out string desc)
         {
             var namekey = (string)At.GetValue(typeof(StatusEffect), effect, "m_nameLocKey");
@@ -323,6 +338,12 @@ namespace SideLoader
             return newEffect;
         }
 
+        /// <summary>
+        /// Helper to get the name and description for an Imbue.
+        /// </summary>
+        /// <param name="preset">The Imbue Preset to get localization for.</param>
+        /// <param name="name">The output name.</param>
+        /// <param name="desc">The output description.</param>
         public static void GetImbueLocalization(ImbueEffectPreset preset, out string name, out string desc)
         {
             name = preset.Name;

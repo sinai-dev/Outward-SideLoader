@@ -8,7 +8,13 @@ namespace SideLoader
 {
     public class SL_AddStatusEffectBuildUp : SL_Effect
     {
+        /// <summary>
+        /// Must use a Status Identifier, not the actual name of the status effect.
+        /// </summary>
         public string StatusEffect = "";
+        /// <summary>
+        /// The effect build-up value, between 0 and 100.
+        /// </summary>
         public float Buildup;
 
         public override void ApplyToComponent<T>(T component)

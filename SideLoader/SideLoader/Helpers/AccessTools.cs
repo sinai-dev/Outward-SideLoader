@@ -5,11 +5,11 @@ using UnityEngine;
 
 namespace SideLoader
 {
-    /// <summary> AccessTools (Reflection Helpers) by Sinai</summary>
+    /// <summary>At (AccessTools) is a collection of Reflection Helpers.</summary>
     public static class At
     {
         /// <summary>
-        /// The common four BindingFlags, which is all that is needed for most things in Outward.
+        /// Common BindingFlags, and the only ones that are really needed for Outward.
         /// </summary>
         public static readonly BindingFlags FLAGS = BindingFlags.Public | BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Static;
 

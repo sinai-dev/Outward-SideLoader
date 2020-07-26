@@ -86,7 +86,7 @@ namespace SideLoader
         }
 
         /// <summary>
-        /// Called by a Harmony Patch Finalizer on ResourcesPrefabManager.Load
+        /// SideLoader's Setup method. Called by a Harmony Patch Finalizer on ResourcesPrefabManager.Load
         /// </summary>
         public static void Setup()
         {

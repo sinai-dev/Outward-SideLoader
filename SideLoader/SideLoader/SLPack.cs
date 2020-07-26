@@ -7,6 +7,9 @@ using System.IO;
 
 namespace SideLoader
 {
+    /// <summary>
+    /// Handles internal management of SL Packs (folders which SideLoader will load and apply).
+    /// </summary>
     public class SLPack
     {
         /// <summary>The FolderName of this SLPack</summary>

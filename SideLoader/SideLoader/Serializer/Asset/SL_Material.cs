@@ -7,18 +7,26 @@ using System.Xml.Serialization;
 
 namespace SideLoader
 {
+    /// <summary>Wrapper for serializing a UnityEngine.Material object.</summary>
     [SL_Serialized]
     public class SL_Material
     {
+        /// <summary>The name of the Material (private set).</summary>
         [XmlIgnore]
         public string Name { get; private set; }
 
+        /// <summary>The Shader to use for the Material.</summary>
         public string ShaderName;
 
+        /// <summary>Shader Keywords to enable.</summary>
         public List<string> Keywords = new List<string>();
+        /// <summary>List of Shader Properties to set.</summary>
         public List<ShaderProperty> Properties = new List<ShaderProperty>();
+        /// <summary>List of TextureConfigs to apply.</summary>
         public List<TextureConfig> TextureConfigs = new List<TextureConfig>(); 
 
+        /// <summary>Applies this SL_Material template to the provided Material.</summary>
+        /// <param name="mat">The material to apply to.</param>
         public void ApplyToMaterial(Material mat)
         {
             SL.Log("SL_Material applying to " + mat.name);
@@ -79,6 +87,10 @@ namespace SideLoader
             }
         }
 
+        /// <summary>
+        /// Apply the TextureConfigs to the provided Material.
+        /// </summary>
+        /// <param name="mat">The material to apply to.</param>
         public void ApplyTextureSettings(Material mat)
         {
             var dict = TextureConfigsToDict();
@@ -94,6 +106,10 @@ namespace SideLoader
             }
         }
 
+        /// <summary>
+        /// Converts the TextureConfigs list into a Dictionary (key: Texture name).
+        /// </summary>
+        /// <returns>The completed dictionary.</returns>
         public Dictionary<string, TextureConfig> TextureConfigsToDict()
         {
             var dict = new Dictionary<string, TextureConfig>();
@@ -106,6 +122,11 @@ namespace SideLoader
             return dict;
         }
 
+        /// <summary>
+        /// Serializes a Material into a SL_Material.
+        /// </summary>
+        /// <param name="mat">The material to serialize.</param>
+        /// <returns>Serialized SL_Material.</returns>
         public static SL_Material ParseMaterial(Material mat)
         {
             var holder = new SL_Material()
@@ -132,32 +153,43 @@ namespace SideLoader
             return holder;
         }
 
+        /// <summary>
+        /// Container class for setting config values to a Texture on a Material.
+        /// </summary>
         [SL_Serialized]
         public class TextureConfig
         {
+            /// <summary>The name of the Texture to apply to (shader layer name).</summary>
             public string TextureName;
+            /// <summary>Whether or not to use MipMap on the texture.</summary>
             public bool UseMipMap = true;
+            /// <summary>If using MipMap, the bias level.</summary>
             public float MipMapBias = 0;
         }
 
+        /// <summary>Abstract wrapper used to serialize Shader Properties.</summary>
         [SL_Serialized]
         public abstract class ShaderProperty
         {
+            /// <summary>Name of the Property.</summary>
             public string Name;
         }
 
         public class FloatProp : ShaderProperty
         {
+            /// <summary>Float value to set.</summary>
             public float Value;
         }
 
         public class ColorProp : ShaderProperty
         {
+            /// <summary>UnityEngine.Color value to set.</summary>
             public Color Value;
         }
 
         public class VectorProp : ShaderProperty
         {
+            /// <summary>UnityEngine.Vector4 value to set.</summary>
             public Vector4 Value;
         }
     }

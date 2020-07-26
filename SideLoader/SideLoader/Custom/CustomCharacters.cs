@@ -11,11 +11,12 @@ using UnityEngine.SceneManagement;
 namespace SideLoader
 {
     /// <summary>
-    /// This class contains helpers for creating custom Characters, and will manage their PhotonView IDs and clean them up on scene changes.
+    /// SideLoader's manager class for Custom Characters. Contains useful methods for the creation, mangement and destruction  of SL_Characters.
     /// </summary>
     public class CustomCharacters
     {
         /// <summary>
+        /// The generic AI Prefab which SideLoader uses to give characters combat AI.
         /// Note: Do not modify this Prefab directly. If you want to change it, clone it first and change the clone.
         /// </summary>
         public static GameObject BasicAIPrefab
@@ -33,9 +34,13 @@ namespace SideLoader
 
         private static readonly List<Character> ActiveCharacters = new List<Character>();
 
+        /// <summary>
+        /// Internal event called on scene changes.
+        /// </summary>
         public static event Action INTERNAL_SpawnCharacters;
 
         /// <summary>
+        /// Internal dictionary which manages the OnSpawn callbacks.
         /// Key: Spawn callback UID (generally template UID), Value: SL_Character with OnSpawn event to invoke
         /// </summary>
         public static Dictionary<string, SL_Character> OnSpawnCallbacks = new Dictionary<string, SL_Character>();
@@ -154,7 +159,7 @@ namespace SideLoader
         }
 
         /// <summary>
-        /// INTERNAL. Coroutine that executes locally for all clients to spawn a Character (continues directly from CreateCharacter)
+        /// Internal coroutine that executes locally for all clients to spawn a Character (continues directly from CreateCharacter)
         /// </summary>
         public static IEnumerator SpawnCharacterCoroutine(string charUID, int viewID, string name, string visualData, bool addCombatAI, string spawnCallbackUID, string extraRpcData)
         {
@@ -232,7 +237,7 @@ namespace SideLoader
         }
 
         /// <summary>
-        /// Add basic combat AI to a Character.
+        /// Helper to add basic combat AI to a Character.
         /// </summary>
         public static CharacterAI SetupBasicAI(Character _char)
         {
@@ -280,7 +285,7 @@ namespace SideLoader
         }
 
         /// <summary>
-        /// The host calls this on Scene Changes to cleanup non-persistent characters (currently all SL_Character are non-persistent)
+        /// Internal. The host calls this on Scene Changes to cleanup non-persistent characters (currently all SL_Character are non-persistent)
         /// </summary>
         public static void CleanupCharacters()
         {
@@ -354,9 +359,9 @@ namespace SideLoader
         }
 
         /// <summary>
-        /// Used internally by this class. Use CreateCharacter to create a new character.
+        /// Used internally to create a new character.
         /// </summary>
-        public static void AddActiveCharacter(Character character)
+        private static void AddActiveCharacter(Character character)
         {
             if (!ActiveCharacters.Contains(character))
             {
@@ -365,7 +370,7 @@ namespace SideLoader
         }
 
         /// <summary>
-        /// Removes PlayerCharacterStats and replaces with CharacterStats
+        /// Removes PlayerCharacterStats and replaces with CharacterStats.
         /// </summary>
         public static void FixStats(Character character)
         {
@@ -387,7 +392,11 @@ namespace SideLoader
 
         // ================= OTHER INTERNAL ================== //
 
-        private static void SetupBlankCharacterStats(CharacterStats stats)
+        /// <summary>
+        /// Resets a CharacterStats to have all default stats (default for the Player).
+        /// </summary>
+        /// <param name="stats"></param>
+        public static void SetupBlankCharacterStats(CharacterStats stats)
         {
             At.SetValue(new Stat[] { new Stat(0f), new Stat(0f), new Stat(0f), new Stat(0f), new Stat(0f), new Stat(0f), new Stat(0f), new Stat(0f), new Stat(0f) },
                 typeof(CharacterStats), stats, "m_damageResistance");

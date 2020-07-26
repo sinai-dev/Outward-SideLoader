@@ -9,27 +9,19 @@ using UnityEngine.Networking;
 
 namespace SideLoader
 {
-    /// <summary>Helper class used to manage custom Audio/Music, and replacements.</summary>
+    /// <summary>Helper class used to manage and replace Audio and Music.</summary>
     public class CustomAudio
     {
         /// <summary>The GlobalAudioManager Instance reference (since its not public)</summary>
-        public static GlobalAudioManager GAMInstance;
+        public static GlobalAudioManager GAMInstance => References.GlobalAudioManager;
 
         /// <summary>Replace a global sound with the provided AudioClip.</summary>
         public static void ReplaceAudio(GlobalAudioManager.Sounds sound, AudioClip clip)
         {
             if (!GAMInstance)
             {
-                var list = Resources.FindObjectsOfTypeAll<GlobalAudioManager>();
-                if (list != null && list.Length > 0 && list[0])
-                {
-                    GAMInstance = list[0];                    
-                }
-                else
-                { 
-                    Debug.LogWarning("Cannot find GlobalAudioManager Instance!");
-                    return;
-                }
+                Debug.LogWarning("Cannot find GlobalAudioManager Instance!");
+                return;
             }
 
             try

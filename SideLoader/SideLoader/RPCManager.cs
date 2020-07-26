@@ -8,6 +8,9 @@ using HarmonyLib;
 
 namespace SideLoader
 {
+    /// <summary>
+    /// Used internally to manage various networking features, using Photon RPC calls.
+    /// </summary>
     public class RPCManager : Photon.MonoBehaviour
     {
         public static RPCManager Instance;

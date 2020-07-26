@@ -460,12 +460,6 @@
     <None Include="..\.editorconfig">
       <Link>.editorconfig</Link>
     </None>
-    <None Include="_docs\api\index.md" />
-    <None Include="_docs\articles\intro.md" />
-    <None Include="_docs\articles\toc.md" />
-    <None Include="docfx.json" />
-    <None Include="_docs\index.md" />
-    <None Include="_docs\toc.yml" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

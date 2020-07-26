@@ -8,6 +8,7 @@ using System.Xml.Serialization;
 
 namespace SideLoader
 {
+    /// <summary>SideLoader's wrapper for Custom Characters.</summary>
     [SL_Serialized]
     public class SL_Character
     {
@@ -17,40 +18,55 @@ namespace SideLoader
         /// </summary>
         public event Action<Character, string> OnSpawn;
 
-        // core
+        /// <summary>The Unique ID for this character.</summary>
         public string UID;
+        /// <summary>The display name for this character.</summary>
         public string Name;
 
-        // spawn
+        /// <summary>The Scene Name to spawn in (referring to scene build names).</summary>
         public string SceneToSpawn;
+        /// <summary>The Vector3 position to spawn at.</summary>
         public Vector3 SpawnPosition;
 
-        // ai
+        /// <summary>Whether or not to add basic Combat AI to the character.</summary>
         public bool AddCombatAI = false;
+        /// <summary>If combat AI enabled, can the character dodge?</summary>
         public bool? CanDodge;
+        /// <summary>If combat AI enabled, can the character block?</summary>
         public bool? CanBlock;
 
-        // character info
+        /// <summary>Faction to set for the Character.</summary>
         public Character.Factions? Faction = Character.Factions.NONE;
 
-        // visuals
+        /// <summary>Visual Data to set for the character.</summary>
         public VisualData CharacterVisualsData;
 
-        // gear
+        /// <summary>Item ID for Weapon</summary>
         public int? Weapon_ID;
+        /// <summary>Item ID for Shield</summary>
         public int? Shield_ID;
+        /// <summary>Item ID for Helmet</summary>
         public int? Helmet_ID;
+        /// <summary>Item ID for Chest Armor</summary>
         public int? Chest_ID;
+        /// <summary>Item ID for Boots</summary>
         public int? Boots_ID;
+        /// <summary>Item ID for Backpack</summary>
         public int? Backpack_ID;
 
         // stats
         [XmlIgnore] private const string StatSourceID = "SL_Stat";
+        /// <summary>Base max health stat, default 100.</summary>
         public float? Health = 100;
+        /// <summary>Base health regen stat, default 0.</summary>
         public float? HealthRegen = 0f;
+        /// <summary>Base impact resist stat, default 0.</summary>
         public float? ImpactResist = 0;
+        /// <summary>Base protection stat, default 0.</summary>
         public float? Protection = 0;
+        /// <summary>Base damage resists, default all 0.</summary>
         public float[] Damage_Resists = new float[6] { 0f, 0f, 0f, 0f, 0f, 0f };
+        /// <summary>Base damage bonuses, default all 0.</summary>
         public float[] Damage_Bonus = new float[6] { 0f, 0f, 0f, 0f, 0f, 0f };
 
         /// <summary>
@@ -84,6 +100,9 @@ namespace SideLoader
             }
         }
 
+        /// <summary>
+        /// Internal method used to invoke the OnSpawn callback.
+        /// </summary>
         public void INTERNAL_OnSpawn(Character character, string extraRpcData)
         {
             character.gameObject.SetActive(false);
@@ -445,13 +464,19 @@ namespace SideLoader
             index = Mathf.Clamp(index, 0, limit);
         }
 
+        /// <summary>Wrapper for Visual Data to apply to a Character.</summary>
         [SL_Serialized]
         public class VisualData
         {
+            /// <summary>Gender of the character (Male or Female)</summary>
             public Character.Gender Gender = Character.Gender.Male;
+            /// <summary>Hair color index (refer to character creation options)</summary>
             public int HairColorIndex = 0;
+            /// <summary>Hair style index (refer to character creation options)</summary>
             public int HairStyleIndex = 0;
+            /// <summary>Head variation index (refer to character creation options)</summary>
             public int HeadVariationIndex = 0;
+            /// <summary>Skin index (refer to character creation options)</summary>
             public int SkinIndex = 0;
 
             /// <summary>

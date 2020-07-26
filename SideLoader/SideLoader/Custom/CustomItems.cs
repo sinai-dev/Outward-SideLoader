@@ -10,12 +10,17 @@ using HarmonyLib;
 
 namespace SideLoader
 {
+    /// <summary>
+    /// SideLoader's manager class for Custom Items. Contains useful methods for the creation, mangement and destruction  of SL_Items.
+    /// </summary>
     public class CustomItems
     {
         /// <summary>Cached ORIGINAL Item Prefabs (not modified)</summary>
         private static readonly Dictionary<int, Item> OrigItemPrefabs = new Dictionary<int, Item>();
 
+        /// <summary>For legacy support. Use the SideLoader.References class for these sorts of references.</summary>
         public static Dictionary<string, Item> RPM_ITEM_PREFABS => References.RPM_ITEM_PREFABS;
+        /// <summary>For legacy support. Use the SideLoader.References class for these sorts of references.</summary>
         public static Dictionary<int, ItemLocalization> ITEM_LOCALIZATION => References.ITEM_LOCALIZATION;
 
         // ================================================================================ //
@@ -36,7 +41,8 @@ namespace SideLoader
         }
 
         /// <summary>
-        /// If defining a custom item after SL.OnPacksLoaded, just provide the template, it will automatically be applied.
+        /// Simple method to apply a SL_Item template. 
+        /// If defining a custom item after SL.OnPacksLoaded it will be applied instantly, otherwise it uses a callback to be applied later.
         /// </summary>
         /// <param name="template"></param>
         /// <returns>Your new custom item (or the original item, if modifying an existing one)</returns>
@@ -47,6 +53,7 @@ namespace SideLoader
 
         /// <summary>
         /// Clones an item prefab and returns the clone to you. Caches the original prefab for other mods or other custom items to reference.
+        /// If you provide a SL_Item template, this will be applied as well (either immediately or with a callback later).
         /// </summary>
         /// <param name="cloneTargetID">The Item ID of the Item you want to clone from</param>
         /// <param name="newID">The new Item ID for your cloned item. Can be the same as the target, will overwrite.</param>
@@ -115,7 +122,7 @@ namespace SideLoader
         }
 
         /// <summary>
-        /// Fixes the ResourcesPrefabManager.ITEM_PREFABS dictionary for a custom Item ID. Will overwrite if the ID exists.
+        /// Sets the ResourcesPrefabManager.ITEM_PREFABS dictionary for a custom Item ID. Will overwrite if the ID exists.
         /// This is called by CustomItems.CreateCustomItem
         /// </summary>
         /// <param name="_ID">The Item ID you want to set</param>

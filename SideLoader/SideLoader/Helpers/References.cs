@@ -3,10 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Localizer;
+using UnityEngine;
+using System.Collections;
 
 namespace SideLoader
 {
-    /// <summary>Helpers to access useful dictionaries and lists maintained by the game.</summary>
+    /// <summary>Helpers to access useful dictionaries, lists and instances maintained by the game.</summary>
     public class References
     {
         // =================== LOCALIZATION ===================
@@ -148,5 +150,29 @@ namespace SideLoader
             }
         }
         private static Dictionary<int, EnchantmentRecipe> m_enchantmentRecipes;
+
+        // ============= OTHER =========== 
+
+        public static GlobalAudioManager GlobalAudioManager
+        {
+            get
+            {
+                if (!m_GlobalAudioManager)
+                {
+                    var list = Resources.FindObjectsOfTypeAll<GlobalAudioManager>();
+                    if (list != null && list.Length > 0 && list[0])
+                    {
+                        m_GlobalAudioManager = list[0];
+                    }
+                    else
+                    {
+                        Debug.LogWarning("Cannot find GlobalAudioManager Instance!");
+                    }
+                }
+                return m_GlobalAudioManager;
+            }
+        }
+
+        private static GlobalAudioManager m_GlobalAudioManager;
     }
 }

@@ -6,14 +6,20 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using System.Collections;
 
-/*
- *  This class is not yet finished. Still in testing phases. At the moment it just loads a scene from an AssetBundle.
-*/
-
 namespace SideLoader
 {
+    /// <summary>
+    /// Work-in-progress class, used to manage custom scenes.
+    /// </summary>
     public class CustomScenes 
     {
+        /// <summary>
+        /// Load a Scene from an AssetBundle.
+        /// </summary>
+        /// <param name="bundle">The AssetBundle to load from.</param>
+        /// <param name="spawnPoint">A Vector3 to spawn the characters at.</param>
+        /// <param name="bundleSceneIndex">The Index of this scene in the AssetBundle (default is 0)</param>
+        /// <param name="timeOffset">A time offset (in hours) applied to the Characters.</param>
         public static void LoadSceneFromBundle(AssetBundle bundle, Vector3 spawnPoint, int bundleSceneIndex = 0, float timeOffset = 0f)
         {
             string scenePath = bundle.GetAllScenePaths()[bundleSceneIndex];

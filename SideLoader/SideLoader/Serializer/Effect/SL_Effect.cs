@@ -10,12 +10,16 @@ namespace SideLoader
     [SL_Serialized]
     public abstract class SL_Effect
     {
+        /// <summary>The time, in seconds, after which the effects will be applied. Default is 0.</summary>
         public float Delay = 0f;
+        /// <summary>Sync type determines the networking behaviour.</summary>
         public Effect.SyncTypes SyncType = Effect.SyncTypes.Everyone;
+        /// <summary>Override the SL_EffectTransform.TransformName category with a manual value.</summary>
         public EffectSynchronizer.EffectCategories OverrideCategory = EffectSynchronizer.EffectCategories.None;
 
         public abstract void ApplyToComponent<T>(T component) where T : Effect;
 
+        /// <summary>Adds and applies this effect to the provided Transform.</summary>
         public Effect ApplyToTransform(Transform t)
         {
             var type = this.GetType();
@@ -40,6 +44,7 @@ namespace SideLoader
 
         public abstract void SerializeEffect<T>(T effect, SL_Effect holder) where T : Effect;
 
+        /// <summary>Serialize an effect and get the equivalent SL_Effect.</summary>
         public static SL_Effect ParseEffect(Effect effect)
         {
             var type = effect.GetType();

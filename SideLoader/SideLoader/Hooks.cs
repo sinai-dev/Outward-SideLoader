@@ -5,7 +5,7 @@ using System.Text;
 using HarmonyLib;
 using UnityEngine;
 
-namespace SideLoader
+namespace SideLoader.Hooks
 {
     // All HarmonyPatches used by SideLoader are in this file.
 
