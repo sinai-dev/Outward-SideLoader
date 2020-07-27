@@ -180,10 +180,16 @@ namespace SideLoader
         }
     }
 
+    /// <summary>
+    /// Helper enum for the possible Visual Prefab types on Items. 
+    /// </summary>
     public enum VisualPrefabType
     {
+        /// <summary>Item.VisualPrefab</summary>
         VisualPrefab,
+        /// <summary>Item.SpecialVisualPrefabDefault</summary>
         SpecialVisualPrefabDefault,
+        /// <summary>Item.SpecialVisualPrefabFemale</summary>
         SpecialVisualPrefabFemale
     }
 }

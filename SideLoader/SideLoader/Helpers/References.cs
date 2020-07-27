@@ -153,7 +153,7 @@ namespace SideLoader
 
         // ============= OTHER =========== 
 
-        public static GlobalAudioManager GlobalAudioManager
+        public static GlobalAudioManager GLOBALAUDIOMANAGER
         {
             get
             {

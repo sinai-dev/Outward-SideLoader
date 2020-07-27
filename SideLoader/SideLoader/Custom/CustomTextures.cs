@@ -28,8 +28,11 @@ namespace SideLoader
         /// </summary>
         public enum SpriteBorderTypes
         {
+            /// <summary>No icon border.</summary>
             NONE,
+            /// <summary>The border for Item Icons.</summary>
             ItemIcon,
+            /// <summary>The border for Skill Tree Icons.</summary>
             SkillTreeIcon,
         }
 
@@ -39,8 +42,11 @@ namespace SideLoader
         /// </summary>
         public enum TextureType
         {
+            /// <summary>No special behaviour applied to the Texture.</summary>
             Default,
+            /// <summary>For Normal Map (bump map) textures.</summary>
             Normal,
+            /// <summary>For GenTex (Generative Texture), for Nine Dots' shader.</summary>
             GenTex
         }
 
@@ -233,8 +239,11 @@ namespace SideLoader
         /// </summary>
         public enum ShaderPropType
         {
+            /// <summary>Property Value is a Color</summary>
             Color,
+            /// <summary>Property Value is a Vector4</summary>
             Vector,
+            /// <summary>Property Value is a float</summary>
             Float
         }
 

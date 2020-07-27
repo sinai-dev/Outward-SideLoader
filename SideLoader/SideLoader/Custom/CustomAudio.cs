@@ -13,7 +13,7 @@ namespace SideLoader
     public class CustomAudio
     {
         /// <summary>The GlobalAudioManager Instance reference (since its not public)</summary>
-        public static GlobalAudioManager GAMInstance => References.GlobalAudioManager;
+        public static GlobalAudioManager GAMInstance => References.GLOBALAUDIOMANAGER;
 
         /// <summary>Replace a global sound with the provided AudioClip.</summary>
         public static void ReplaceAudio(GlobalAudioManager.Sounds sound, AudioClip clip)

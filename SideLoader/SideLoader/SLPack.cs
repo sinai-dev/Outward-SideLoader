@@ -16,10 +16,15 @@ namespace SideLoader
         public string Name { get; private set; }
 
         /// <summary>
-        /// True = folder is in <b>Outward\Mods\SideLoader\</b>. False = folder is in <b>Outward\BepInEx\plugins\MyPack\SideLoader\</b>.
+        /// Used internally to track where this SL Pack was loaded from.
+        /// True = folder is `Outward\Mods\SideLoader\{Name}`. 
+        /// False = folder is `Outward\BepInEx\plugins\{Name}\SideLoader\`.
         /// </summary>
         public bool InMainSLFolder = false;
 
+        /// <summary>
+        /// Returns the folder path for this SL Pack (relative to Outward directory).
+        /// </summary>
         public string FolderPath 
         { 
             get 
@@ -30,12 +35,18 @@ namespace SideLoader
             } 
         }
 
+        /// <summary>AssetBundles loaded from the `AssetBundles\` folder. Dictionary Key is the file name.</summary>
         public Dictionary<string, AssetBundle> AssetBundles = new Dictionary<string, AssetBundle>();
+        /// <summary>Texture2Ds loaded from the PNGs in the 'Texture2D\' folder (not from the `Items\...` folders). Dictionary Key is the file name (without ".png")</summary>
         public Dictionary<string, Texture2D> Texture2D = new Dictionary<string, Texture2D>();
+        /// <summary>AudioClips loaded from the WAV files in the `AudioClip\` folder. Dictionary Key is the file name (without ".wav")</summary>
         public Dictionary<string, AudioClip> AudioClips = new Dictionary<string, AudioClip>();
-
+        /// <summary>SL_Characters loaded from the `Characters\` folder. Dictionary Key is the SL_Character.UID value.</summary>
         public Dictionary<string, SL_Character> CharacterTemplates = new Dictionary<string, SL_Character>();
 
+        /// <summary>
+        /// The supported sub-folders in an SL Pack. 
+        /// </summary>
         public enum SubFolders
         {
             AudioClip,
