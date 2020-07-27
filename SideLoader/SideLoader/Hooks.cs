@@ -198,6 +198,38 @@ namespace SideLoader.Hooks
         }
     }
 
+    /// <summary>
+    /// Patch for ShootBlastHornetControl to allow them to end based on the Lifespan.
+    /// </summary>
+    [HarmonyPatch(typeof(ShootBlastHornetControl), "Update")]
+    public class ShootBlastHornetControl_Update
+    {
+        [HarmonyPostfix]
+        public static void Postfix(ShootBlastHornetControl __instance, bool ___m_hornetsOut)
+        {
+            var lifespan = __instance.BlastLifespan;
+
+            if (!___m_hornetsOut || lifespan <= 0)
+            {
+                // effect is not active. return.
+                return;
+            }
+
+            var subs = (SubEffect[])At.GetValue(typeof(Effect), __instance, "m_subEffects");
+            if (subs != null && subs.Length > 0)
+            {
+                var blast = subs[0] as Blast;
+
+                // effect is active, but blast has been disabled. stop effect.
+                if (!blast.gameObject.activeSelf)
+                {
+                    Debug.Log($"Stopping effect!");
+                    At.Call(typeof(ShootBlastHornetControl), __instance, "Stop", null, new object[0]);
+                }
+            }
+        }
+    }
+
     #endregion
 
     #region SL_CHARACTER PATCHES

@@ -23,15 +23,16 @@ namespace SideLoader
         // Mod Info
         public const string GUID = "com.sinai." + MODNAME;
         public const string MODNAME = "SideLoader";
-        public const string VERSION = "2.7.0";
+        public const string VERSION = "2.7.1";
 
         // Folders
         public static string PLUGINS_FOLDER => Paths.PluginPath;
         public const string SL_FOLDER = @"Mods\SideLoader";
         public static string GENERATED_FOLDER { get => SL_FOLDER + @"\_GENERATED"; }
 
-        // Loaded SLPacks
+        /// <summary>All loaded SL Packs. Key: Pack name, Value: SL Pack.</summary>
         public static Dictionary<string, SLPack> Packs = new Dictionary<string, SLPack>();
+        /// <summary>Have SL Packs been loaded yet?</summary>
         public static bool PacksLoaded { get; private set; } = false;
 
         // Events
