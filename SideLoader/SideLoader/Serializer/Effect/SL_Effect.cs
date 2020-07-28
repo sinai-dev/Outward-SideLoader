@@ -27,6 +27,8 @@ namespace SideLoader
             if (Serializer.GetGameType(type) is Type game_type)
             {
                 var comp = t.gameObject.AddComponent(game_type) as Effect;
+
+                // set base fields
                 comp.Delay = this.Delay;
                 comp.SyncType = this.SyncType;
                 comp.OverrideEffectCategory = this.OverrideCategory;

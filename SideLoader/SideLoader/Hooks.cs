@@ -157,8 +157,10 @@ namespace SideLoader.Hooks
     #region SL_SHOOTER PATCHES
 
     /// <summary>
-    /// Patch to re-enable the disabled blast/projectile prefabs before they are used. 
-    /// We need to disable them when we clone them, but here they need to be activated again.
+    /// This patch fixes some things for Blast and Projectile EffectSynchronizers.
+    /// Due to the way we clone and setup these prefabs, we need to fix a few things here.
+    /// 1) Set the ParentEffect (the ShootBlast or ShootProjectile)
+    /// 2) Re-enable the prefab.
     /// </summary>
     [HarmonyPatch(typeof(Shooter), "Setup", new Type[] { typeof(TargetingSystem), typeof(Transform) })]
     public class ShootProjectile_Setup
@@ -168,32 +170,16 @@ namespace SideLoader.Hooks
         {
             if (__instance is ShootProjectile shootProjectile && shootProjectile.BaseProjectile is Projectile projectile && !projectile.gameObject.activeSelf)
             {
+                At.SetValue(__instance, typeof(SubEffect), projectile, "m_parentEffect");
+
                 projectile.gameObject.SetActive(true);
-                EnableEffects(projectile.gameObject);
 
             }
             else if (__instance is ShootBlast shootBlast && shootBlast.BaseBlast is Blast blast && !blast.gameObject.activeSelf)
             {
-                blast.gameObject.SetActive(true);
-                EnableEffects(blast.gameObject);
-            }
-        }
+                At.SetValue(__instance, typeof(SubEffect), blast, "m_parentEffect");
 
-        private static void EnableEffects(GameObject obj)
-        {
-            foreach (var effect in obj.GetComponentsInChildren<Effect>(true))
-            {
-                if (!effect.enabled)
-                {
-                    effect.enabled = true;
-                }
-            }
-            foreach (var condition in obj.GetComponentsInChildren<EffectCondition>(true))
-            {
-                if (!condition.enabled)
-                {
-                    condition.enabled = true;
-                }
+                blast.gameObject.SetActive(true);
             }
         }
     }
