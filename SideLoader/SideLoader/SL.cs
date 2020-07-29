@@ -23,7 +23,7 @@ namespace SideLoader
         // Mod Info
         public const string GUID = "com.sinai." + MODNAME;
         public const string MODNAME = "SideLoader";
-        public const string VERSION = "2.7.2";
+        public const string VERSION = "2.7.3";
 
         // Folders
         public static string PLUGINS_FOLDER => Paths.PluginPath;
@@ -234,10 +234,22 @@ namespace SideLoader
         /// <param name="destroyActivator">If true, will destroy children called "Activator" (used for Deployables / Traps)</param>
         public static void DestroyChildren(Transform t, bool destroyContent = false, bool destroyActivator = false)
         {
+            DestroyChildren(t, destroyContent, destroyActivator, false);
+        }
+
+        /// <summary> Small helper for destroying all children on a given Transform 't'. Uses DestroyImmediate(). </summary>
+        /// <param name="t">The transform whose children you want to destroy.</param>
+        /// <param name="destroyContent">If true, will destroy children called "Content" (used for Bags)</param>
+        /// <param name="destroyActivator">If true, will destroy children called "Activator" (used for Deployables / Traps)</param>
+        /// <param name="destroyVFX">If true, will destroy children whose names begin with "VFX".</param>
+        public static void DestroyChildren(Transform t, bool destroyContent, bool destroyActivator, bool destroyVFX)
+        {
             var list = new List<GameObject>();
             foreach (Transform child in t)
             {
-                if ((destroyContent || child.name != "Content") && (destroyActivator || child.name != "Activator"))
+                if ((destroyContent || child.name != "Content") 
+                    && (destroyActivator || child.name != "Activator")
+                    && (destroyVFX || !child.name.StartsWith("VFX")))
                 {
                     list.Add(child.gameObject);
                 }

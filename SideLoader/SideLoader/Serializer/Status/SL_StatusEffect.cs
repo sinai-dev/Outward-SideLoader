@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -17,14 +18,15 @@ namespace SideLoader
         /// <summary> [NOT SERIALIZED] The name of the folder this custom status is using for the icon.png (MyPack/StatusEffects/[SubfolderName]/icon.png).</summary>
         [XmlIgnore] public string SubfolderName;
 
-        /// <summary>Used internally.</summary>
-        [XmlIgnore] public bool CloneByIdentifier = false;
-
-        /// <summary> [Optional] Used if your TargetStatusID is not set. This clones based on a StatusEffect.IdentifierName instead.</summary>
+        /// <summary> The StatusEffect you would like to clone from. Can also use TargetStatusID (checks for a Preset ID), but this takes priority.</summary>
         public string TargetStatusIdentifier;
-        /// <summary>This is the Preset ID of the Status Effect you want to base from.</summary>
+        /// <summary>[Optional] Used if SideLoader could not find anything with your TargetStatusIdentifier.</summary>
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public int TargetStatusID;
-        /// <summary>The new Preset ID for your Status Effect</summary>
+        /// <summary>Internal C# override, so that TargetStatusID is not included in generated XML templates.</summary>
+        public bool ShouldSerializeTargetStatusID() { return false; }
+
+        /// <summary>The new Preset ID for your Status Effect.</summary>
         public int NewStatusID;
         /// <summary>The new Status Identifier name for your Status Effect. Used by ResourcesPrefabManager.GetStatusEffect(string identifier)</summary>
         public string StatusIdentifier;
@@ -35,7 +37,9 @@ namespace SideLoader
         public float? Lifespan;
         public float? RefreshRate;
         public StatusEffectFamily.LengthTypes? LengthType;
-        
+
+        public string AmplifiedStatusIdentifier;
+
         public float? BuildupRecoverySpeed;
         public bool? IgnoreBuildupIfApplied;
 
@@ -91,6 +95,19 @@ namespace SideLoader
                 status.IsHidden = (bool)IsHidden;
             }
 
+            if (!string.IsNullOrEmpty(this.AmplifiedStatusIdentifier))
+            {
+                var amp = ResourcesPrefabManager.Instance.GetStatusEffectPrefab(AmplifiedStatusIdentifier);
+                if (amp)
+                {
+                    At.SetValue(amp, typeof(StatusEffect), status, "m_amplifiedStatus");
+                }
+                else
+                {
+                    SL.Log("StatusEffect.ApplyTemplate - could not find AmplifiedStatusIdentifier " + this.AmplifiedStatusIdentifier);
+                }
+            }
+
             if (Tags != null)
             {
                 var tagList = (List<Tag>)At.GetValue(typeof(StatusEffect), status, "m_tags");
@@ -130,15 +147,7 @@ namespace SideLoader
                 lengthType = (StatusEffectFamily.LengthTypes)LengthType;
             }
 
-            bool editingOrig;
-            if (CloneByIdentifier)
-            {
-                editingOrig = this.StatusIdentifier == this.TargetStatusIdentifier;
-            }
-            else
-            {
-                editingOrig = this.TargetStatusID == this.NewStatusID;
-            }
+            bool editingOrig = this.StatusIdentifier == this.TargetStatusIdentifier;
             if (!editingOrig)
             {
                 var family = new StatusEffectFamily
@@ -291,7 +300,8 @@ namespace SideLoader
                 IsHidden = status.IsHidden,
                 LengthType = status.LengthType,
                 Lifespan = status.StatusData.LifeSpan,
-                RefreshRate = status.RefreshRate
+                RefreshRate = status.RefreshRate,
+                AmplifiedStatusIdentifier = status.AmplifiedStatus?.IdentifierName ?? "",
             };
 
             CustomStatusEffects.GetStatusLocalization(status, out template.Name, out template.Description);

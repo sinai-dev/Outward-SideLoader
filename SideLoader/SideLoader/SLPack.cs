@@ -37,7 +37,7 @@ namespace SideLoader
 
         /// <summary>AssetBundles loaded from the `AssetBundles\` folder. Dictionary Key is the file name.</summary>
         public Dictionary<string, AssetBundle> AssetBundles = new Dictionary<string, AssetBundle>();
-        /// <summary>Texture2Ds loaded from the PNGs in the 'Texture2D\' folder (not from the `Items\...` folders). Dictionary Key is the file name (without ".png")</summary>
+        /// <summary>Texture2Ds loaded from the PNGs in the `Texture2D\` folder (not from the `Items\...` folders). Dictionary Key is the file name (without ".png")</summary>
         public Dictionary<string, Texture2D> Texture2D = new Dictionary<string, Texture2D>();
         /// <summary>AudioClips loaded from the WAV files in the `AudioClip\` folder. Dictionary Key is the file name (without ".wav")</summary>
         public Dictionary<string, AudioClip> AudioClips = new Dictionary<string, AudioClip>();

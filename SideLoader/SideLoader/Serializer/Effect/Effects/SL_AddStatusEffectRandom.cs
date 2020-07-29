@@ -32,6 +32,8 @@ namespace SideLoader
             }
 
             comp.ForceID = this.ForceID;
+
+            comp.VfxSystems = comp.transform.root.GetComponentsInChildren<VFXSystem>();
         }
 
         public override void SerializeEffect<T>(T effect, SL_Effect holder)

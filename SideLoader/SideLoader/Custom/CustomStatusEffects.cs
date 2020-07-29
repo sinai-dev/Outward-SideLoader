@@ -13,10 +13,11 @@ namespace SideLoader
     /// </summary>
     public class CustomStatusEffects
     {
-        /// <summary>Cached un-edited Effect Presets, used for all Status and Imbues which have a Preset ID.</summary>
-        public static readonly Dictionary<int, EffectPreset> OrigEffectPresets = new Dictionary<int, EffectPreset>();
-        /// <summary>Cached un-edited Status Effects. <b>Only used for StatusEffects which do not have a Preset ID.</b></summary>
+        /// <summary>Cached un-edited Status Effects.</summary>
         public static readonly Dictionary<string, StatusEffect> OrigStatusEffects = new Dictionary<string, StatusEffect>();
+
+        /// <summary>Cached un-edited Effect Presets, used by Imbue Presets. For StatusEffects, use GetOrigStatusEffect.</summary>
+        public static readonly Dictionary<int, EffectPreset> OrigEffectPresets = new Dictionary<int, EffectPreset>();
 
         // ================== HELPERS ==================
 
@@ -24,6 +25,7 @@ namespace SideLoader
         /// Helper to get the cached ORIGINAL (not modified) EffectPreset of this PresetID.
         /// </summary>
         /// <param name="presetID">The Preset ID of the effect preset you want.</param>
+        /// <returns>The EffectPreset, if found.</returns>
         public static EffectPreset GetOrigEffectPreset(int presetID)
         {
             if (OrigEffectPresets.ContainsKey(presetID))
@@ -40,9 +42,8 @@ namespace SideLoader
         /// Get the original Status Effect with this identifier.
         /// </summary>
         /// <param name="identifier">The identifier to get.</param>
-        /// <param name="checkPresets">If it's not found in the Identifier dictionary, should we check the Presets dictionary for the original too?</param>
-        /// <returns></returns>
-        public static StatusEffect GetOrigStatusEffect(string identifier, bool checkPresets = true)
+        /// <returns>The EffectPreset, if found, otherwise null.</returns>
+        public static StatusEffect GetOrigStatusEffect(string identifier)
         {
             if (OrigStatusEffects.ContainsKey(identifier))
             {
@@ -50,17 +51,7 @@ namespace SideLoader
             }
             else
             {
-                var status = ResourcesPrefabManager.Instance.GetStatusEffectPrefab(identifier);
-                if (checkPresets)
-                {
-                    // check if it was backed up from a Preset ID
-                    if (status?.GetComponent<EffectPreset>() is EffectPreset preset
-                        && GetOrigEffectPreset(preset.PresetID)?.GetComponent<StatusEffect>() is StatusEffect presetStatus)
-                    {
-                        return presetStatus;
-                    }
-                }
-                return status;
+                return ResourcesPrefabManager.Instance.GetStatusEffectPrefab(identifier);
             }
         }
 
@@ -68,72 +59,70 @@ namespace SideLoader
         /// Use this to create or modify a Status Effect.
         /// </summary>
         /// <param name="template">The SL_StatusEffect template.</param>
+        /// <returns>The new or existing StatusEffect.</returns>
         public static StatusEffect CreateCustomStatus(SL_StatusEffect template)
         {
-            var preset = GetOrigEffectPreset(template.TargetStatusID);
-            var original = preset?.GetComponent<StatusEffect>();
+            StatusEffect original;
+            EffectPreset preset;
 
-            if (!original)
+            if (string.IsNullOrEmpty(template.TargetStatusIdentifier))
             {
-                bool found = false;
-                if (!string.IsNullOrEmpty(template.TargetStatusIdentifier))
+                preset = ResourcesPrefabManager.Instance.GetEffectPreset(template.TargetStatusID);
+                if (preset)
                 {
-                    var status = GetOrigStatusEffect(template.TargetStatusIdentifier, false);
-                    if (status)
+                    original = preset.GetComponent<StatusEffect>();
+                    if (original)
                     {
-                        found = true;
-                        original = status;
-                        template.CloneByIdentifier = true;
-
-                        if (template.NewStatusID > 0)
-                        {
-                            preset = original.transform.GetOrAddComponent<EffectPreset>();
-                            At.SetValue(template.NewStatusID, typeof(EffectPreset), preset, "m_StatusEffectID");
-                        }
+                        template.TargetStatusIdentifier = original.IdentifierName;
                     }
-                }
-                if (!found)
-                {
-                    SL.Log("Could not find a Status Effect with the Preset ID " + template.TargetStatusID, 1);
-                    return null;
-                }
-            }
-
-            StatusEffect newEffect;
-
-            bool editingOrig;
-            if (template.CloneByIdentifier)
-            {
-                editingOrig = template.StatusIdentifier == template.TargetStatusIdentifier;
-            }
-            else
-            {
-                editingOrig = template.NewStatusID == template.TargetStatusID;
-            }
-
-            if (editingOrig)
-            {
-                if (template.CloneByIdentifier)
-                {
-                    if (!OrigStatusEffects.ContainsKey(template.TargetStatusIdentifier))
+                    else
                     {
-                        // instantiate and cache original
-                        var cached = GameObject.Instantiate(original.gameObject).GetComponent<StatusEffect>();
-                        cached.gameObject.SetActive(false);
-                        GameObject.DontDestroyOnLoad(cached.gameObject);
-                        OrigStatusEffects.Add(template.TargetStatusIdentifier, cached);
+                        SL.Log("Could not find a StatusEffect on provided EffectPreset ID " + template.TargetStatusID);
+                        return null;
                     }
                 }
                 else
                 {
-                    if (!OrigEffectPresets.ContainsKey(template.TargetStatusID))
+                    SL.Log("Could not find a StatusEffect with the TargetStatusID " + template.TargetStatusID);
+                    return null;
+                }
+            }
+            else
+            {
+                original = ResourcesPrefabManager.Instance.GetStatusEffectPrefab(template.TargetStatusIdentifier);
+                if (original)
+                {
+                    preset = original.GetComponent<EffectPreset>();
+                    if (!preset && template.NewStatusID > 0)
                     {
-                        // instantiate and cache original
-                        var cached = GameObject.Instantiate(original.gameObject).GetComponent<EffectPreset>();
-                        cached.gameObject.SetActive(false);
-                        GameObject.DontDestroyOnLoad(cached.gameObject);
-                        OrigEffectPresets.Add(template.TargetStatusID, cached);
+                        preset = original.gameObject.AddComponent<EffectPreset>();
+                        At.SetValue(template.NewStatusID, typeof(EffectPreset), preset, "m_StatusEffectID");
                     }
+                }
+                else
+                {
+                    SL.Log("Could not find a StatusEffect with the TargetIdentifier " + template.TargetStatusIdentifier);
+                    return null;
+                }
+            }
+
+            if (!original)
+            {
+                return null;
+            }
+
+            StatusEffect newEffect;
+
+            if (template.TargetStatusIdentifier == template.StatusIdentifier)
+            {
+                // editing orig status
+                if (!OrigStatusEffects.ContainsKey(template.TargetStatusIdentifier))
+                {
+                    // instantiate and cache original
+                    var cached = GameObject.Instantiate(original.gameObject).GetComponent<StatusEffect>();
+                    cached.gameObject.SetActive(false);
+                    GameObject.DontDestroyOnLoad(cached.gameObject);
+                    OrigStatusEffects.Add(template.TargetStatusIdentifier, cached);
                 }
 
                 newEffect = original;
@@ -159,7 +148,9 @@ namespace SideLoader
 
                 // Fix status data and stack
                 At.SetValue<List<StatusData>>(null, typeof(StatusEffect), newEffect, "m_statusStack");
-                //At.SetValue<StatusData.EffectData[]>(null, typeof(StatusEffect), newEffect, "m_totalData");
+
+                // fix for Amplified Boons
+                At.SetValue<StatusEffect>(null, typeof(StatusEffect), newEffect, "m_amplifiedStatus");
             }
 
             int presetID = newEffect.GetComponent<EffectPreset>()?.PresetID ?? -1;

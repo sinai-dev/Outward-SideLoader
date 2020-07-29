@@ -26,16 +26,18 @@ namespace SideLoader.UI
 
         public static bool ShowMenu = false;
 
+        // Items
         private int SelectedItemID = 0;
         private int NewItemID = 0;
         private EffectBehaviours m_templateBehaviour = EffectBehaviours.DestroyEffects;
 
+        // Status/Imbues
         private string TargetStatusIdentifier = "";
-        private int TargetStatusID = -1;
-
         private string NewStatusIdentifier = "";
+        private int TargetStatusID = -1;
         private int NewStatusID = -1;
 
+        // Enchants
         private int SelectedEnchantmentID;
         private int NewEnchantmentID;
 
@@ -208,30 +210,8 @@ namespace SideLoader.UI
         {
             GUILayout.Label("Templates are generated to the folder Mods/SideLoader/_GENERATED/StatusEffects/.");
 
-            GUILayout.Label("Option 1: Enter a Status Effect Preset ID to generate a template from.");
-
-            GUILayout.BeginHorizontal();
-            GUILayout.Label("Target Status ID:");
-            var targetIDString = GUILayout.TextField(TargetStatusID.ToString(), GUILayout.Width(150));
-            if (int.TryParse(targetIDString, out int targetID))
-            {
-                TargetStatusID = targetID;
-            }
-            GUILayout.EndHorizontal();
-            GUILayout.BeginHorizontal();
-            GUILayout.Label("New Status ID:");
-            var newIDString = GUILayout.TextField(NewStatusID.ToString(), GUILayout.Width(150));
-            if (int.TryParse(newIDString, out int newID))
-            {
-                NewStatusID = newID;
-            }
-            GUILayout.EndHorizontal();
-            if (GUILayout.Button("Generate from Preset ID"))
-            {
-                GenerateStatusTemplate(true);
-            }
-
-            GUILayout.Label("Option 2: Enter a Status Effect Identifier Name to generate a template from.");
+            GUILayout.Label("<b>SL_StatusEffects:</b>");
+            GUILayout.Label("Enter a Status Effect Identifier Name to generate a template from.");
 
             GUILayout.BeginHorizontal();
             GUILayout.Label("Target Status Identifier Name:");
@@ -244,6 +224,32 @@ namespace SideLoader.UI
             if (GUILayout.Button("Generate from Identifier Name"))
             {
                 GenerateStatusTemplate(false);
+            }
+
+            GUILayout.Space(15);
+
+            GUILayout.Label("<b>SL_ImbueEffects:</b>");
+            GUILayout.Label("Enter a Imbue Effect Preset ID (number) to generate a template from.");
+
+            GUILayout.BeginHorizontal();
+            GUILayout.Label("Target Preset ID:");
+            var targetIDString = GUILayout.TextField(TargetStatusID.ToString(), GUILayout.Width(150));
+            if (int.TryParse(targetIDString, out int targetID))
+            {
+                TargetStatusID = targetID;
+            }
+            GUILayout.EndHorizontal();
+            GUILayout.BeginHorizontal();
+            GUILayout.Label("New Preset ID:");
+            var newIDString = GUILayout.TextField(NewStatusID.ToString(), GUILayout.Width(150));
+            if (int.TryParse(newIDString, out int newID))
+            {
+                NewStatusID = newID;
+            }
+            GUILayout.EndHorizontal();
+            if (GUILayout.Button("Generate from Preset ID"))
+            {
+                GenerateStatusTemplate(true);
             }
         }
 
@@ -281,7 +287,7 @@ namespace SideLoader.UI
 
                     var comp = tempObj.GetComponent<StatusEffect>();
                     var template = SL_StatusEffect.ParseStatusEffect(comp);
-                    template.NewStatusID = NewStatusID;
+                    //template.NewStatusID = NewStatusID;
                     template.StatusIdentifier = NewStatusIdentifier;
                     Serializer.SaveToXml(folder, prefab.name, template);
                     if (comp.StatusIcon)
