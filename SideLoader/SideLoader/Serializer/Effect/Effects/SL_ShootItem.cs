@@ -5,11 +5,11 @@ using System.Text;
 
 namespace SideLoader
 {
-    [Obsolete("This class requires the use of ItemExtensions (WeaponLoadoutItem), so I haven't implemented it yet.")]
+    /// <summary>
+    /// Shell class, doesn't require any extra fields, but requires a WeaponLoadoutItem ItemExtension on the Item.
+    /// </summary>
     public class SL_ShootItem : SL_ShootProjectile
     {
-
-
         public override void ApplyToComponent<T>(T component)
         {
             base.ApplyToComponent(component);

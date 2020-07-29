@@ -54,6 +54,34 @@ namespace SideLoader
 
             var comp = component as ShootProjectile;
 
+            comp.IntanstiatedAmount = this.InstantiatedAmount;
+            comp.AddDirection = this.AddDirection;
+            comp.AddRotationForce = this.AddRotationForce;
+            comp.AutoTarget = this.AutoTarget;
+            comp.AutoTargetMaxAngle = this.AutoTargetMaxAngle;
+            comp.AutoTargetRange = this.AutoTargetRange;
+            comp.IgnoreShooterCollision = this.IgnoreShooterCollision;
+            comp.ProjectileForce = this.ProjectileForce;
+            comp.TargetCountPerProjectile = this.TargetCountPerProjectile;
+            comp.TargetingMode = this.TargetingMode;
+            comp.TargetRange = this.TargetRange;
+            comp.YMagnitudeAffect = this.YMagnitudeAffect;
+            comp.YMagnitudeForce = this.YMagnitudeForce;
+
+            var list = new List<ProjectileShot>();
+            foreach (var shot in this.ProjectileShots)
+            {
+                list.Add(new ProjectileShot()
+                {
+                    RandomLocalDirectionAdd = shot.RandomLocalDirectionAdd,
+                    LocalDirectionOffset = shot.LocalDirectionOffset,
+                    LockDirection = shot.LockDirection,
+                    MustShoot = shot.MustShoot,
+                    NoBaseDir = shot.NoBaseDir
+                });
+            }
+            comp.ProjectileShots = list.ToArray();
+
             if (GetProjectilePrefab(this.BaseProjectile) is GameObject projectile)
             {
                 var copy = GameObject.Instantiate(projectile);
@@ -63,41 +91,11 @@ namespace SideLoader
                 var newProjectile = copy.GetComponent<Projectile>();
                 comp.BaseProjectile = newProjectile;
 
-                comp.IntanstiatedAmount = this.InstantiatedAmount;
-                comp.AddDirection = this.AddDirection;
-                comp.AddRotationForce = this.AddRotationForce;
-                comp.AutoTarget = this.AutoTarget;
-                comp.AutoTargetMaxAngle = this.AutoTargetMaxAngle;
-                comp.AutoTargetRange = this.AutoTargetRange;
-                comp.IgnoreShooterCollision = this.IgnoreShooterCollision;
-                comp.ProjectileForce = this.ProjectileForce;
-                comp.TargetCountPerProjectile = this.TargetCountPerProjectile;
-                comp.TargetingMode = this.TargetingMode;
-                comp.TargetRange = this.TargetRange;
-                comp.YMagnitudeAffect = this.YMagnitudeAffect;
-                comp.YMagnitudeForce = this.YMagnitudeForce;
-
-                var list = new List<ProjectileShot>();
-                foreach (var shot in this.ProjectileShots)
-                {
-                    list.Add(new ProjectileShot()
-                    {
-                        RandomLocalDirectionAdd = shot.RandomLocalDirectionAdd,
-                        LocalDirectionOffset = shot.LocalDirectionOffset,
-                        LockDirection = shot.LockDirection,
-                        MustShoot = shot.MustShoot,
-                        NoBaseDir = shot.NoBaseDir
-                    });
-                }
-                comp.ProjectileShots = list.ToArray();
-
                 newProjectile.DefenseLength = this.DefenseLength;
                 newProjectile.DefenseRange = this.DefenseRange;
                 newProjectile.DisableOnHit = this.DisableOnHit;
                 newProjectile.EffectsOnlyIfHitCharacter = this.EffectsOnlyIfHitCharacter;
                 newProjectile.EndMode = this.EndMode;
-                //newProjectile.OnlyExplodeOnLayers = this.OnlyExplodeOnLayerMask;
-                //newProjectile.ExplodeOnContactWithLayers.value = this.PhysicsLayerMask;
                 newProjectile.LateShootTime = this.LateShootTime;
                 newProjectile.Lifespan = this.Lifespan;
                 newProjectile.LightIntensityFade = this.LightIntensityFade;
@@ -123,54 +121,43 @@ namespace SideLoader
             var template = holder as SL_ShootProjectile;
             var comp = effect as ShootProjectile;
 
-            if (comp.BaseProjectile is Projectile projectile && GetProjectilePrefabEnum(projectile) != ProjectilePrefabs.NONE)
+            template.AddDirection = comp.AddDirection;
+            template.AddRotationForce = comp.AddRotationForce;
+            template.AutoTarget = comp.AutoTarget;
+            template.AutoTargetMaxAngle = comp.AutoTargetMaxAngle;
+            template.AutoTargetRange = comp.AutoTargetRange;
+            template.IgnoreShooterCollision = comp.IgnoreShooterCollision;
+            template.ProjectileForce = comp.ProjectileForce;
+            template.TargetCountPerProjectile = comp.TargetCountPerProjectile;
+            template.TargetingMode = comp.TargetingMode;
+            template.TargetRange = comp.TargetRange;
+            template.YMagnitudeAffect = comp.YMagnitudeAffect;
+            template.YMagnitudeForce = comp.YMagnitudeForce;
+            template.InstantiatedAmount = comp.IntanstiatedAmount;
+
+            var prefabEnum = GetProjectilePrefabEnum(comp.BaseProjectile);
+
+            if (prefabEnum != ProjectilePrefabs.NONE)
             {
-                template.BaseProjectile = GetProjectilePrefabEnum(projectile);
+                var proj = comp.BaseProjectile;
 
-                template.AddDirection = comp.AddDirection;
-                template.AddRotationForce = comp.AddRotationForce;
-                template.AutoTarget = comp.AutoTarget;
-                template.AutoTargetMaxAngle = comp.AutoTargetMaxAngle;
-                template.AutoTargetRange = comp.AutoTargetRange;
-                template.IgnoreShooterCollision = comp.IgnoreShooterCollision;
-                template.ProjectileForce = comp.ProjectileForce;
-                template.TargetCountPerProjectile = comp.TargetCountPerProjectile;
-                template.TargetingMode = comp.TargetingMode;
-                template.TargetRange = comp.TargetRange;
-                template.YMagnitudeAffect = comp.YMagnitudeAffect;
-                template.YMagnitudeForce = comp.YMagnitudeForce;
+                template.BaseProjectile = prefabEnum;
+                template.DefenseLength = proj.DefenseLength;
+                template.DefenseRange = proj.DefenseRange;
+                template.DisableOnHit = proj.DisableOnHit;
+                template.EffectsOnlyIfHitCharacter = proj.EffectsOnlyIfHitCharacter;
+                template.EndMode = proj.EndMode;
+                template.ImpactSoundMaterial = proj.ImpactSoundMaterial;
+                template.LateShootTime = proj.LateShootTime;
+                template.Lifespan = proj.Lifespan;
+                template.LightIntensityFade = proj.LightIntensityFade;
+                template.PointOffset = proj.PointOffset;
+                template.TrailEnabled = proj.TrailEnabled;
+                template.TrailTime = proj.TrailTime;
+                template.Unblockable = proj.Unblockable;
 
-                template.InstantiatedAmount = comp.IntanstiatedAmount;
-
-                template.DefenseLength = projectile.DefenseLength;
-                template.DefenseRange = projectile.DefenseRange;
-                template.DisableOnHit = projectile.DisableOnHit;
-                template.EffectsOnlyIfHitCharacter = projectile.EffectsOnlyIfHitCharacter;
-                template.EndMode = projectile.EndMode;
-                //template.OnlyExplodeOnLayerMask = projectile.OnlyExplodeOnLayers;
-                //template.PhysicsLayerMask = projectile.ExplodeOnContactWithLayers.value;
-                template.ImpactSoundMaterial = projectile.ImpactSoundMaterial;
-                template.LateShootTime = projectile.LateShootTime;
-                template.Lifespan = projectile.Lifespan;
-                template.LightIntensityFade = projectile.LightIntensityFade;
-                template.PointOffset = projectile.PointOffset;
-                template.TrailEnabled = projectile.TrailEnabled;
-                template.TrailTime = projectile.TrailTime;
-                template.Unblockable = projectile.Unblockable;
-
-                foreach (var shot in comp.ProjectileShots)
-                {
-                    template.ProjectileShots.Add(new SL_ProjectileShot()
-                    {
-                        RandomLocalDirectionAdd = shot.RandomLocalDirectionAdd,
-                        LocalDirectionOffset = shot.LocalDirectionOffset,
-                        LockDirection = shot.LockDirection,
-                        MustShoot = shot.MustShoot,
-                        NoBaseDir = shot.NoBaseDir
-                    });
-                }
-
-                foreach (Transform child in projectile.transform)
+                template.ProjectileEffects = new List<SL_EffectTransform>();
+                foreach (Transform child in proj.transform)
                 {
                     var effectsChild = SL_EffectTransform.ParseTransform(child);
 
@@ -183,6 +170,18 @@ namespace SideLoader
             else if (comp.BaseProjectile)
             {
                 SL.Log("Couldn't parse blast prefab to enum: " + comp.BaseProjectile.name);
+            }
+
+            foreach (var shot in comp.ProjectileShots)
+            {
+                template.ProjectileShots.Add(new SL_ProjectileShot()
+                {
+                    RandomLocalDirectionAdd = shot.RandomLocalDirectionAdd,
+                    LocalDirectionOffset = shot.LocalDirectionOffset,
+                    LockDirection = shot.LockDirection,
+                    MustShoot = shot.MustShoot,
+                    NoBaseDir = shot.NoBaseDir
+                });
             }
         }
 
@@ -254,6 +253,11 @@ namespace SideLoader
         /// <param name="projectile">The projectile prefab</param>
         public static ProjectilePrefabs GetProjectilePrefabEnum(Projectile projectile)
         {
+            if (!projectile)
+            {
+                return ProjectilePrefabs.NONE;
+            }
+
             var prefabName = projectile.name.Replace("(Clone)", "").Trim();
 
             if (Enum.TryParse(prefabName, out ProjectilePrefabs name))
