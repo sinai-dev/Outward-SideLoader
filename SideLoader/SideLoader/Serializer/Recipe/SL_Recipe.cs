@@ -52,6 +52,16 @@ namespace SideLoader
                     return;
                 }
 
+                var tag = TagSourceManager.GetCraftingIngredient(StationType);
+
+                if (!ingredientItem.HasTag(tag))
+                {
+                    Debug.Log($"Adding tag {tag.TagName} to " + ingredientItem.name);
+                    var selectors = At.GetValue(typeof(TagListSelectorComponent), ingredientItem.GetComponent<TagSource>(), "m_tagSelectors") 
+                        as List<TagSourceSelector>;
+                    selectors.Add(new TagSourceSelector(tag));
+                }
+
                 ingredients.Add(new RecipeIngredient()
                 {
                     ActionType = ingredient.Type,
