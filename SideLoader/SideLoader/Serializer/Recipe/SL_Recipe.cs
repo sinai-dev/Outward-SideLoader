@@ -52,14 +52,17 @@ namespace SideLoader
                     return;
                 }
 
+                // The item needs the station type tag in order to be used in a manual recipe on that station
                 var tag = TagSourceManager.GetCraftingIngredient(StationType);
-
                 if (!ingredientItem.HasTag(tag))
                 {
                     Debug.Log($"Adding tag {tag.TagName} to " + ingredientItem.name);
-                    var selectors = At.GetValue(typeof(TagListSelectorComponent), ingredientItem.GetComponent<TagSource>(), "m_tagSelectors") 
-                        as List<TagSourceSelector>;
-                    selectors.Add(new TagSourceSelector(tag));
+
+                    ((List<TagSourceSelector>)At.GetValue(
+                        typeof(TagListSelectorComponent), 
+                        ingredientItem.GetComponent<TagSource>(), 
+                        "m_tagSelectors")
+                    ).Add(new TagSourceSelector(tag));
                 }
 
                 ingredients.Add(new RecipeIngredient()

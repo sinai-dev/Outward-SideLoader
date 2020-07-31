@@ -14,6 +14,11 @@ namespace SideLoader
         [XmlIgnore]
         public VisualPrefabType Type;
 
+        /// <summary>
+        /// Used to set the visual prefab from an existing prefab at the given path. Checks the Unity Resources "folder" for the asset path.
+        /// </summary>
+        public string ResourcesPrefabPath = "";
+
         /// <summary>SLPack using for AssetBundle visuals</summary>
         public string Prefab_SLPack = "";
         /// <summary>AssetBundle file name inside specified Prefab_SLPack</summary>
@@ -31,11 +36,17 @@ namespace SideLoader
         /// <summary>Optional, add offset to rotation</summary>
         public Vector3? RotationOffset;
 
+        /// <summary>
+        /// Apply the SL_ItemVisual prefab to the Item.
+        /// </summary>
+        /// <param name="item">The Item to set to.</param>
         public void ApplyToItem(Item item)
         {
             if (CustomItemVisuals.GetOrigItemVisuals(item, Type) is Transform prefab)
             {
                 bool setPrefab = false;
+                
+                // Check for SLPack Prefabs first
                 if (!string.IsNullOrEmpty(Prefab_SLPack) && SL.Packs.ContainsKey(Prefab_SLPack))
                 {
                     var pack = SL.Packs[this.Prefab_SLPack];
@@ -43,15 +54,64 @@ namespace SideLoader
                     if (pack.AssetBundles.ContainsKey(Prefab_AssetBundle))
                     {
                         var newVisuals = pack.AssetBundles[Prefab_AssetBundle].LoadAsset<GameObject>(Prefab_Name);
-                        prefab = SetVisualPrefab(item, this.Type, newVisuals.transform, prefab).transform;
+                        prefab = SetCustomVisualPrefab(item, this.Type, newVisuals.transform, prefab).transform;
                         setPrefab = true;
                     }
                 }
+                // Check for ResourcesPrefabPath.
+                else if (!string.IsNullOrEmpty(ResourcesPrefabPath))
+                {
+                    // Only set this if the user has defined a different value than what exists on the item.
+                    bool set = false;
+                    switch (Type)
+                    {
+                        case VisualPrefabType.VisualPrefab:
+                            set = item.VisualPrefabPath == ResourcesPrefabPath; break;
+                        case VisualPrefabType.SpecialVisualPrefabDefault:
+                            set = item.SpecialVisualPrefabDefaultPath == ResourcesPrefabPath; break;
+                        case VisualPrefabType.SpecialVisualPrefabFemale:
+                            set = item.SpecialVisualPrefabFemalePath == ResourcesPrefabPath; break;
+                    }
+
+                    if (!set)
+                    {
+                        // get visuals by GetOrigItemVIsuals? May as well just save the ID then?
+                        //var id = ResourcesPrefabPath.Substring(ResourcesPrefabPath.LastIndexOf('/'), 7);
+                        //var orig = CustomItemVisuals.GetOrigItemVisuals(ResourcesPrefabManager.Instance.GetItemPrefab(id), Type);
+
+                        // If another SL Item modifies these visuals, we will be getting the modified version...
+                        var orig = ResourcesPrefabManager.Instance.GetItemVisualPrefab(ResourcesPrefabPath);
+
+                        if (!orig)
+                        {
+                            SL.Log("SL_ItemVisual: Could not find an Item Visual at the Resources path: " + ResourcesPrefabPath);
+                        }
+                        else
+                        {
+                            CustomItemVisuals.CloneVisualPrefab(item, orig.gameObject, Type, true);
+
+                            switch (Type)
+                            {
+                                case VisualPrefabType.VisualPrefab:
+                                    At.SetValue(ResourcesPrefabPath, typeof(Item), item, "m_visualPrefabPath"); break;
+                                case VisualPrefabType.SpecialVisualPrefabDefault:
+                                    At.SetValue(ResourcesPrefabPath, typeof(Item), item, "m_specialVisualPrefabDefaultPath"); break;
+                                case VisualPrefabType.SpecialVisualPrefabFemale:
+                                    At.SetValue(ResourcesPrefabPath, typeof(Item), item, "m_specialVisualPrefabFemalePath"); break;
+                            }
+
+                            setPrefab = true;
+                        }
+                    }
+                }
+
+                // If we didn't change the Visual Prefab in any way, clone the original to avoid conflicts.
                 if (!setPrefab)
                 {
                     prefab = CustomItemVisuals.CloneVisualPrefab(item, Type).transform;
                 }
 
+                // Get the actual visuals (for weapons and a lot of items, this is not the base prefab).
                 Transform actualVisuals = prefab.transform;
                 if (prefab.childCount > 0)
                 {
@@ -74,7 +134,15 @@ namespace SideLoader
             }
         }
 
-        public GameObject SetVisualPrefab(Item item, VisualPrefabType type, Transform newVisuals, Transform oldVisuals)
+        /// <summary>
+        /// Sets a CUSTOM visual prefab to an Item. Don't use this for transmogs.
+        /// </summary>
+        /// <param name="item">The Item to set to.</param>
+        /// <param name="type">The Type of visual prefab you are setting.</param>
+        /// <param name="newVisuals">The new CUSTOM visual prefab.</param>
+        /// <param name="oldVisuals">The original visual prefab.</param>
+        /// <returns></returns>
+        public GameObject SetCustomVisualPrefab(Item item, VisualPrefabType type, Transform newVisuals, Transform oldVisuals)
         {
             Debug.Log($"Setting the {type} for {item.Name}");
 
@@ -127,32 +195,46 @@ namespace SideLoader
             return basePrefab;
         }
 
-        public virtual void ApplyToVisuals(ItemVisual itemVisual, Transform actualVisuals)
+        /// <summary>
+        /// Applies the values to the ItemVisual component itself.
+        /// </summary>
+        /// <param name="itemVisual">The ItemVisual to apply to.</param>
+        /// <param name="visuals">The visual prefab you want to set to.</param>
+        public virtual void ApplyToVisuals(ItemVisual itemVisual, Transform visuals)
         {
-            SL.Log($"Applying ItemVisuals settings to " + actualVisuals.name);
+            SL.Log($"Applying ItemVisuals settings to " + visuals.name);
 
             if (Position != null)
             {
-                actualVisuals.localPosition = (Vector3)Position;
+                visuals.localPosition = (Vector3)Position;
             }
             if (Rotation != null)
             {
-                actualVisuals.eulerAngles = (Vector3)Rotation;
+                visuals.eulerAngles = (Vector3)Rotation;
             }
             if (PositionOffset != null)
             {
-                actualVisuals.localPosition += (Vector3)PositionOffset;
+                visuals.localPosition += (Vector3)PositionOffset;
             }
             if (RotationOffset != null)
             {
-                actualVisuals.eulerAngles += (Vector3)RotationOffset;
+                visuals.eulerAngles += (Vector3)RotationOffset;
             }            
         }
 
-        public static SL_ItemVisual ParseVisualToTemplate(ItemVisual itemVisual)
+        public static SL_ItemVisual ParseVisualToTemplate(Item item, VisualPrefabType type, ItemVisual itemVisual)
         {
             var template = (SL_ItemVisual)Activator.CreateInstance(Serializer.GetBestSLType(itemVisual.GetType()));
             template.SerializeItemVisuals(itemVisual);
+            switch (type)
+            {
+                case VisualPrefabType.VisualPrefab:
+                    template.ResourcesPrefabPath = item.VisualPrefabPath; break;
+                case VisualPrefabType.SpecialVisualPrefabDefault:
+                    template.ResourcesPrefabPath = item.SpecialVisualPrefabDefaultPath; break;
+                case VisualPrefabType.SpecialVisualPrefabFemale:
+                    template.ResourcesPrefabPath = item.SpecialVisualPrefabFemalePath; break;
+            };
             return template;
         }
 
@@ -173,10 +255,11 @@ namespace SideLoader
                     }
                 }
             }
-            //else
-            //{
-            //    SL.Log("Custom SkinnedMesh Visual Prefabs (eg. Bows, Armor) are not supported yet, sorry!");
-            //}
+            else
+            {
+                Position = itemVisual.transform.position;
+                Rotation = itemVisual.transform.rotation.eulerAngles;
+            }
         }
     }
 

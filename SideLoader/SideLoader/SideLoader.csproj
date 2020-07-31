@@ -47,6 +47,7 @@
     <Compile Include="Serializer\Effect\Effects\SL_AddStatusEffectRandom.cs" />
     <Compile Include="Serializer\Effect\Effects\SL_CreateItemEffect.cs" />
     <Compile Include="Serializer\Effect\Effects\SL_WeaponDamageFlurry.cs" />
+    <Compile Include="Serializer\Effect\Effects\SL_WindAltarActivatedCondition.cs" />
     <Compile Include="Serializer\General\EditBehaviours.cs" />
     <Compile Include="Serializer\Item\ItemContainer\SL_DeployableTrap.cs" />
     <Compile Include="Serializer\Item\ItemContainer\Trap\SL_TrapEffectRecipe.cs" />

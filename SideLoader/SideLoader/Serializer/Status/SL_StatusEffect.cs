@@ -45,6 +45,7 @@ namespace SideLoader
 
         public bool? DisplayedInHUD;
         public bool? IsHidden;
+        public bool? IsMalusEffect;
 
         public List<string> Tags;
 
@@ -93,6 +94,11 @@ namespace SideLoader
             if (IsHidden != null)
             {
                 status.IsHidden = (bool)IsHidden;
+            }
+
+            if (IsMalusEffect != null)
+            {
+                status.IsMalusEffect = (bool)this.IsMalusEffect;
             }
 
             if (!string.IsNullOrEmpty(this.AmplifiedStatusIdentifier))

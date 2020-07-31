@@ -23,7 +23,7 @@ namespace SideLoader
         // Mod Info
         public const string GUID = "com.sinai." + MODNAME;
         public const string MODNAME = "SideLoader";
-        public const string VERSION = "2.7.31";
+        public const string VERSION = "2.7.5";
 
         // Folders
         public static string PLUGINS_FOLDER => Paths.PluginPath;
@@ -89,21 +89,41 @@ namespace SideLoader
         /// <summary>
         /// SideLoader's Setup method. Called by a Harmony Patch Finalizer on ResourcesPrefabManager.Load
         /// </summary>
-        public static void Setup()
+        public static void Setup(bool firstSetup = true)
         {
+            if (firstSetup)
+            {
+                // ==========================
+                // Prepare Blast and Projectile prefab dictionaries.
+
+                //SL_ShootBlast.DebugBlastNames();
+                //SL_ShootProjectile.DebugProjectileNames();
+
+                SL_ShootBlast.BuildBlastsDictionary();
+                SL_ShootProjectile.BuildProjectileDictionary();
+            }
+            else
+            {
+                // Reset packs
+                Packs.Clear();
+
+                // Clear textures dictionary
+                CustomTextures.Textures.Clear();
+
+                // Reset internal invocation lists (not sure if needed?)
+                INTERNAL_ApplyItems = null;
+                INTERNAL_ApplyLateItems = null;
+                INTERNAL_ApplyRecipes = null;
+                INTERNAL_ApplyStatuses = null;
+            }
+
             // ==========================
-            // Prepare Blast and Projectile prefab dictionaries.
 
-            //SL_ShootBlast.DebugBlastNames();
-            //SL_ShootProjectile.DebugProjectileNames();
-
-            SL_ShootBlast.BuildBlastsDictionary();
-            SL_ShootProjectile.BuildProjectileDictionary();
-
-            // ==========================
-
-            // BeforePacksLoaded callback
-            TryInvoke(BeforePacksLoaded);
+            if (firstSetup)
+            {
+                // BeforePacksLoaded callback
+                TryInvoke(BeforePacksLoaded);
+            }
 
             // ====== Read SL Packs ======
 
@@ -151,17 +171,23 @@ namespace SideLoader
                 }
             }
 
-            // Check for TextureBundles in SL Packs
-            foreach (var pack in Packs.Values)
+            if (firstSetup)
             {
-                pack.TryApplyItemTextureBundles();
+                // Check for TextureBundles in SL Packs
+                foreach (var pack in Packs.Values)
+                {
+                    pack.TryApplyItemTextureBundles();
+                }
             }
 
             PacksLoaded = true;
             Log("SideLoader Setup Finished");
             Log("-------------------------");
 
-            TryInvoke(OnPacksLoaded);
+            if (firstSetup)
+            {
+                TryInvoke(OnPacksLoaded);
+            }
         }
 
         // =============== Scene Change Events ====================

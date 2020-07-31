@@ -19,6 +19,7 @@ namespace SideLoader.UI
             Items,
             StatusEffects,
             Enchantments,
+            HotReload,
             // ItemVisualsHelper
         }
 
@@ -84,6 +85,7 @@ namespace SideLoader.UI
             SetPageButton("Items", Pages.Items);
             SetPageButton("StatusEffects", Pages.StatusEffects);
             SetPageButton("Enchantments", Pages.Enchantments);
+            SetPageButton("Hot Reload", Pages.HotReload);
             //SetPageButton("Item Visual Helper", 3);
             GUILayout.EndHorizontal();
 
@@ -92,6 +94,7 @@ namespace SideLoader.UI
                 case Pages.Items: ItemPage(); break;
                 case Pages.StatusEffects: EffectsPage(); break;
                 case Pages.Enchantments: EnchantmentsPage(); break;
+                case Pages.HotReload: HotReloadPage(); break;
                 //case 3: ItemVisualsPage(); break;
             }
 
@@ -352,11 +355,26 @@ namespace SideLoader.UI
             {
                 SL.Log($"Error: Could not find any Enchantment with the ID {SelectedEnchantmentID}", 0);
             }
-        }    
+        }
 
         #endregion
 
-        #region ITEM VISUALS HELPER (Page 4)
+        #region HOT RELOAD (Page 4)
+        private void HotReloadPage()
+        {
+            GUILayout.Label("You can use this to reload and re-apply all SL Pack folders. " +
+                "In some situations this might be buggy, but most things should be fine." +
+                "\n\n" +
+                "Note: modified Items will need to be re-spawned, and Skills need to be re-learned. Going to menu or reloading the scene will reset everything.");
+
+            if (GUILayout.Button("Hot Reload"))
+            {
+                SL.Setup(false);
+            }
+        }
+        #endregion
+
+        #region ITEM VISUALS HELPER (Page ?)
         private bool m_aligning = false;
 
         // desired item visuals and hot transform

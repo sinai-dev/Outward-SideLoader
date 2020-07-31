@@ -126,6 +126,19 @@ namespace SideLoader
                 return null;
             }
 
+            return CloneVisualPrefab(item, prefab.gameObject, type, logging);
+        }
+
+        /// <summary>
+        /// Clones the provided 'prefab' GameObject, and sets it to the provided Item and VisualPrefabType.
+        /// </summary>
+        /// <param name="item">The Item to apply to.</param>
+        /// <param name="prefab">The visual prefab to clone and set.</param>
+        /// <param name="type">The Type of VisualPrefab you are setting.</param>
+        /// <param name="logging">Whether to log errors or not.</param>
+        /// <returns>The cloned gameobject.</returns>
+        public static GameObject CloneVisualPrefab(Item item, GameObject prefab, VisualPrefabType type, bool logging = false)
+        {
             // Clone the visual prefab 
             var newVisuals = UnityEngine.Object.Instantiate(prefab.gameObject);
             newVisuals.SetActive(false);

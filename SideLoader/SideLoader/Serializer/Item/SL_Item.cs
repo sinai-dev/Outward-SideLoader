@@ -327,17 +327,17 @@ namespace SideLoader
 
             if (item.HasVisualPrefab && ResourcesPrefabManager.Instance.GetItemVisualPrefab(item.VisualPrefabPath).GetComponent<ItemVisual>() is ItemVisual visual)
             {
-                holder.ItemVisuals = SL_ItemVisual.ParseVisualToTemplate(visual);
+                holder.ItemVisuals = SL_ItemVisual.ParseVisualToTemplate(item, VisualPrefabType.VisualPrefab, visual);
                 holder.ItemVisuals.Type = VisualPrefabType.VisualPrefab;
             }
             if (item.HasSpecialVisualDefaultPrefab)
             {
-                holder.SpecialItemVisuals = SL_ItemVisual.ParseVisualToTemplate(ResourcesPrefabManager.Instance.GetItemVisualPrefab(item.SpecialVisualPrefabDefaultPath).GetComponent<ItemVisual>());
+                holder.SpecialItemVisuals = SL_ItemVisual.ParseVisualToTemplate(item, VisualPrefabType.SpecialVisualPrefabDefault, ResourcesPrefabManager.Instance.GetItemVisualPrefab(item.SpecialVisualPrefabDefaultPath).GetComponent<ItemVisual>());
                 holder.SpecialItemVisuals.Type = VisualPrefabType.SpecialVisualPrefabDefault;
             }
             if (item.HasSpecialVisualFemalePrefab)
             {
-                holder.SpecialFemaleItemVisuals = SL_ItemVisual.ParseVisualToTemplate(ResourcesPrefabManager.Instance.GetItemVisualPrefab(item.SpecialVisualPrefabFemalePath).GetComponent<ItemVisual>());
+                holder.SpecialFemaleItemVisuals = SL_ItemVisual.ParseVisualToTemplate(item, VisualPrefabType.SpecialVisualPrefabFemale, ResourcesPrefabManager.Instance.GetItemVisualPrefab(item.SpecialVisualPrefabFemalePath).GetComponent<ItemVisual>());
                 holder.SpecialFemaleItemVisuals.Type = VisualPrefabType.SpecialVisualPrefabFemale;
             }
         }
