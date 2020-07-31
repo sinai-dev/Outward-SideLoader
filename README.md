@@ -14,7 +14,7 @@ Requires [BepInEx](https://github.com/BepInEx/BepInEx).
 * [Latest Release](https://github.com/sinaioutlander/Outward-SideLoader/releases)
 * [How To Install](https://sinaioutlander.github.io/#/GettingStarted/Installation)
 
-## How To Use SideLoader
+## Documentation
 
 See the SideLoader Wiki for documentation and guides:
 

@@ -125,8 +125,10 @@ namespace SideLoader
                     continue;
                 }
 
-                var effectConditionHolder = SL_EffectCondition.ParseCondition(condition);
-                effectTransformHolder.EffectConditions.Add(effectConditionHolder);
+                if (SL_EffectCondition.ParseCondition(condition) is SL_EffectCondition slCondition)
+                {
+                    effectTransformHolder.EffectConditions.Add(slCondition);
+                }
             }
 
             foreach (Transform child in transform)
