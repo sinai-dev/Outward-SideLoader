@@ -189,7 +189,7 @@ namespace SideLoader.UI
 
         private void GenerateItemTemplate()
         {
-            if (ResourcesPrefabManager.Instance.GetItemPrefab(SelectedItemID) is Item item)
+            if (CustomItems.GetOriginalItemPrefab(SelectedItemID) is Item item)
             {
                 var template = SL_Item.ParseItemToTemplate(item);
 
@@ -261,11 +261,11 @@ namespace SideLoader.UI
             GameObject prefab;
             if (fromPresetID)
             {
-                prefab = ResourcesPrefabManager.Instance.GetEffectPreset(TargetStatusID)?.gameObject;
+                prefab = CustomStatusEffects.GetOrigEffectPreset(TargetStatusID).gameObject;
             }
             else
             {
-                prefab = ResourcesPrefabManager.Instance.GetStatusEffectPrefab(TargetStatusIdentifier)?.gameObject;
+                prefab = CustomStatusEffects.GetOrigStatusEffect(TargetStatusIdentifier)?.gameObject;
             }
 
             if (prefab)
