@@ -6,20 +6,19 @@
 
 [![Version](https://img.shields.io/badge/BepInEx-5.2-green.svg)](https://github.com/BepInEx/BepInEx)
 
-SideLoader is an API and a tool for Mod Development in the game Outward. It is designed to simplify the process of creating new content and modifying existing content. SideLoader is capable of loading AssetBundles, Textures, Audio, and XML files, as well as offering a powerful C# API.
+API and Mod Development Toolkit for [Outward](https://outward.gamepedia.com/Outward_Wiki).
 
-Requires [BepInEx](https://github.com/BepInEx/BepInEx).
-
-## Release
-* [Latest Release](https://github.com/sinaioutlander/Outward-SideLoader/releases)
+## Install
+* [Releases](https://github.com/sinaioutlander/Outward-SideLoader/releases)
 * [How To Install](https://sinaioutlander.github.io/#/GettingStarted/Installation)
 
 ## Documentation
 
-See the SideLoader Wiki for documentation and guides:
+* <b>[SideLoader Docs](https://sinaioutlander.github.io/#/)</b>
 
-<big><b>[SideLoader Wiki](https://sinaioutlander.github.io/#/)</b></big>
+## Credits
+Written by Sinai.
 
-## Thanks To
-* Elec0
+Thanks to:
+* Elec0 for the initial idea
 * Everyone who gave feedback, ideas and reported bugs
