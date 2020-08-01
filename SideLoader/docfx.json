@@ -11,7 +11,7 @@
       "dest": "_docs/api",
       "disableGitFeatures": false,
       "disableDefaultFilter": false,
-	  "filter": "filterconfig.yml"
+	  "filter": "_docs/filterconfig.yml"
     }
   ],
   "build": {
