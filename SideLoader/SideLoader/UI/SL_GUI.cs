@@ -30,7 +30,8 @@ namespace SideLoader.UI
         // Items
         private int SelectedItemID = 0;
         private int NewItemID = 0;
-        private EffectBehaviours m_templateBehaviour = EffectBehaviours.DestroyEffects;
+        private EffectBehaviours m_templateBehaviour = EffectBehaviours.OverrideEffects;
+        private bool DumpVisuals = true;
 
         // Status/Imbues
         private string TargetStatusIdentifier = "";
@@ -139,7 +140,7 @@ namespace SideLoader.UI
             GUILayout.Label("Templates are generated to the folder Mods/SideLoader/_GENERATED/Items/.");
             GUILayout.Space(5);
             GUILayout.BeginHorizontal();
-            GUILayout.Label("Item ID:");
+            GUILayout.Label("Target Item ID:");
             string input = GUILayout.TextField(SelectedItemID.ToString(), GUILayout.Width(150));
             if (int.TryParse(input, out int id))
             {
@@ -147,7 +148,7 @@ namespace SideLoader.UI
             }
             GUILayout.EndHorizontal();
             GUILayout.BeginHorizontal();
-            GUILayout.Label("New ID:");
+            GUILayout.Label("New Item ID:");
             string input2 = GUILayout.TextField(NewItemID.ToString(), GUILayout.Width(150));
             if (int.TryParse(input2, out int id2))
             {
@@ -161,6 +162,8 @@ namespace SideLoader.UI
             BehaviourButton(EffectBehaviours.NONE, "None (leave all)");
 
             GUILayout.Space(15);
+
+            DumpVisuals = GUILayout.Toggle(DumpVisuals, "Export Icons/Textures from Item");
 
             if (GUILayout.Button("Generate template"))
             {
@@ -199,7 +202,10 @@ namespace SideLoader.UI
                 var itemfolder = SL.GENERATED_FOLDER + @"\Items\" + item.gameObject.name;
                 Serializer.SaveToXml(itemfolder, item.Name, template);
 
-                CustomItemVisuals.SaveAllItemTextures(item, itemfolder + @"\Textures");
+                if (DumpVisuals)
+                {
+                    CustomItemVisuals.SaveAllItemTextures(item, itemfolder + @"\Textures");
+                }
             }
             else
             {

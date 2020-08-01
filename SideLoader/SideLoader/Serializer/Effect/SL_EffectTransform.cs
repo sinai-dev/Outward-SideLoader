@@ -11,6 +11,10 @@ namespace SideLoader
     {
         public string TransformName = "";
 
+        public Vector3? Position;
+        public Vector3? Rotation;
+        public Vector3? Scale;
+
         public List<SL_Effect> Effects = new List<SL_Effect>();
         public List<SL_EffectCondition> EffectConditions = new List<SL_EffectCondition>();
         public List<SL_EffectTransform> ChildEffects = new List<SL_EffectTransform>();
@@ -35,49 +39,44 @@ namespace SideLoader
 
             foreach (var child in transformsToApply)
             {
-                // The position and rotation of the effect can actually be important in some cases.
-                // Eg for Backstab, its actually used to determine the angle offset.
-                // So in some cases when overriding, we need to keep these values.
-                bool copyTranslation = false;
-                Vector3 pos = Vector3.zero;
-                Quaternion rot = Quaternion.identity;
-
                 if (behaviour == EffectBehaviours.OverrideEffects && parent.Find(child.TransformName) is Transform existing)
                 {
-                    copyTranslation = true;
-                    pos = existing.position;
-                    rot = existing.rotation;
-
                     UnityEngine.Object.DestroyImmediate(existing.gameObject);
                 }
 
                 child.ApplyToTransform(parent, behaviour);
-
-                if (copyTranslation)
-                {
-                    var transform = parent.Find(child.TransformName);
-                    transform.position = pos;
-                    transform.rotation = rot;
-                }
             }
         }
 
         /// <summary>
-        /// Pass the desired parent Transform, this method will create or find the existing 'this.TransformName' on it, then apply the Effects and Conditions.
+        /// Pass the desired parent Transform, this method will create 'this.TransformName' on it, then apply the Effects and Conditions.
         /// </summary>
         /// <param name="parent">The PARENT transform to apply to (the Item, StatusEffect.Signature, Blast/Projectile, etc)</param>
         /// <param name="behaviour">Desired EffectBehaviour</param>
         public Transform ApplyToTransform(Transform parent, EffectBehaviours behaviour)
         {
-            var child = new GameObject(this.TransformName).transform;
-            child.parent = parent;
+            var transform = new GameObject(this.TransformName).transform;
+            transform.parent = parent;
+
+            if (this.Position != null)
+            {
+                transform.position = (Vector3)this.Position;
+            }
+            if (this.Rotation != null)
+            {
+                transform.rotation = Quaternion.Euler((Vector3)this.Rotation);
+            }
+            if (this.Scale != null)
+            {
+                transform.localScale = (Vector3)this.Scale;
+            }
 
             // apply effects
             if (this.Effects != null)
             {
                 foreach (var effect in this.Effects)
                 {
-                    effect.ApplyToTransform(child);
+                    effect.ApplyToTransform(transform);
                 }
             }
 
@@ -86,24 +85,37 @@ namespace SideLoader
             {
                 foreach (var condition in this.EffectConditions)
                 {
-                    condition.ApplyToTransform(child);
+                    condition.ApplyToTransform(transform);
                 }
             }
 
             if (ChildEffects != null && ChildEffects.Count > 0)
             {
-                ApplyTransformList(child, ChildEffects, behaviour);
+                ApplyTransformList(transform, ChildEffects, behaviour);
             }
 
-            return child;
+            return transform;
         }
 
         public static SL_EffectTransform ParseTransform(Transform transform)
         {
-            var effectTransformHolder = new SL_EffectTransform
+            var holder = new SL_EffectTransform
             {
                 TransformName = transform.name
             };
+
+            if (transform.position != Vector3.zero)
+            {
+                holder.Position = transform.position;
+            }
+            if (transform.rotation.eulerAngles != Vector3.zero)
+            {
+                holder.Rotation = transform.rotation.eulerAngles;
+            }
+            if (transform.localScale != Vector3.one)
+            {
+                holder.Scale = transform.localScale;
+            }
 
             foreach (Effect effect in transform.GetComponents<Effect>())
             {
@@ -112,9 +124,9 @@ namespace SideLoader
                     continue;
                 }
 
-                if (SL_Effect.ParseEffect(effect) is SL_Effect holder)
+                if (SL_Effect.ParseEffect(effect) is SL_Effect slEffect)
                 {
-                    effectTransformHolder.Effects.Add(holder);
+                    holder.Effects.Add(slEffect);
                 }
             }
 
@@ -127,7 +139,7 @@ namespace SideLoader
 
                 if (SL_EffectCondition.ParseCondition(condition) is SL_EffectCondition slCondition)
                 {
-                    effectTransformHolder.EffectConditions.Add(slCondition);
+                    holder.EffectConditions.Add(slCondition);
                 }
             }
 
@@ -135,18 +147,15 @@ namespace SideLoader
             {
                 if (child.name == "ExplosionFX" || child.name == "ProjectileFX")
                 {
-                    // visual effects, we dont care about these
+                    // visual effects, we cant serialize these yet.
                     continue;
                 }
 
                 var transformHolder = ParseTransform(child);
-                if (transformHolder.ChildEffects.Count > 0 || transformHolder.Effects.Count > 0 || transformHolder.EffectConditions.Count > 0)
-                {
-                    effectTransformHolder.ChildEffects.Add(transformHolder);
-                }
+                holder.ChildEffects.Add(transformHolder);
             }
 
-            return effectTransformHolder;
+            return holder;
         }
     }
 }

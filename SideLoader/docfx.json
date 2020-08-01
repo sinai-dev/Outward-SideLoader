@@ -8,7 +8,7 @@
           ]
         }
       ],
-      "dest": "api",
+      "dest": "_docs/api",
       "disableGitFeatures": false,
       "disableDefaultFilter": false,
 	  "filter": "filterconfig.yml"
@@ -18,41 +18,43 @@
     "content": [
       {
         "files": [
-          "api/**.yml",
-          "api/index.md"
+          "_docs/api/**.yml",
+          "_docs/api/index.md"
         ]
       },
       {
         "files": [
-          "toc.yml",
-          "*.md"
+          "_docs/articles/**.md",
+          "_docs/articles/**/toc.yml",
+          "_docs/toc.yml",
+          "_docs/*.md"
         ]
       }
     ],
     "resource": [
       {
         "files": [
-          "images/**"
+          "_docs/images/**"
         ]
       }
     ],
     "overwrite": [
       {
         "files": [
-          "apidoc/**.md"
+          "_docs/apidoc/**.md"
         ],
         "exclude": [
-          "obj/**",
-          "_site/**"
+          "_docs/obj/**",
+          "_docs/_site/**"
         ]
       }
     ],
-    "dest": "_site",
+    "dest": "_docs/_site",
     "globalMetadataFiles": [],
     "fileMetadataFiles": [],
     "template": [
         "default",
-        "templates/darkfx"
+        "_docs/templates/darkfx"
     ],
     "postProcessors": [],
     "markdownEngineName": "markdig",
