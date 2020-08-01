@@ -1,0 +1,6 @@
+apiRules:
+- exclude:
+    uidRegex: ^SideLoader.Hooks.*$
+- exclude:
+    hasAttribute:
+      uid: System.ObsoleteAttribute
