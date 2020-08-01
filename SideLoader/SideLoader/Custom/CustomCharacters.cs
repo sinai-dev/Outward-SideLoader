@@ -549,88 +549,81 @@ namespace SideLoader
 
         // ===================== A test I did with cloning enemies. It mostly works. =======================
 
-        ///// <summary>
-        ///// Finds a GameObject with _gameObjectName and clones it into a new Character (if it contains a Character component)
-        ///// </summary>
-        //public static void CloneCharacter(string _gameObjectName)
-        //{
-        //    if (GameObject.Find(_gameObjectName) is GameObject obj && obj.GetComponent<Character>() is Character c)
-        //    {
-        //        CloneCharacter(c);
-        //    }
-        //}
+        /// <summary>
+        /// [BETA] Finds a GameObject with _gameObjectName and clones it into a new Character (if it contains a Character component)
+        /// </summary>
+        public static void CloneCharacter(string _gameObjectName)
+        {
+            if (GameObject.Find(_gameObjectName) is GameObject obj && obj.GetComponent<Character>() is Character c)
+            {
+                CloneCharacter(c);
+            }
+        }
 
-        ///// <summary>
-        ///// Clone a character by providing the component directly
-        ///// </summary>
-        //public static void CloneCharacter(Character _targetCharacter)
-        //{
-        //    try
-        //    {
-        //        var targetObj = _targetCharacter.gameObject;
+        /// <summary>
+        /// [BETA] Clone a character by providing the component directly
+        /// </summary>
+        public static void CloneCharacter(Character _targetCharacter)
+        {
+            try
+            {
+                var targetObj = _targetCharacter.gameObject;
 
-        //        // prepare original for clone
-        //        targetObj.SetActive(false);
-        //        bool disable = _targetCharacter.DisableAfterInit;
-        //        _targetCharacter.DisableAfterInit = false;
+                // prepare original for clone
+                targetObj.SetActive(false);
+                bool disable = _targetCharacter.DisableAfterInit;
+                _targetCharacter.DisableAfterInit = false;
 
-        //        // make clone
-        //        var clone = Instantiate(targetObj);
-        //        clone.SetActive(false);
+                // make clone
+                var clone = GameObject.Instantiate(targetObj);
+                clone.SetActive(false);
 
-        //        // fix original
-        //        _targetCharacter.DisableAfterInit = disable;
-        //        targetObj.SetActive(true);
+                // fix original
+                _targetCharacter.DisableAfterInit = disable;
+                targetObj.SetActive(true);
 
-        //        // fix clone UIDs, etc
-        //        var character = clone.GetComponent<Character>();
-        //        At.SetValue(UID.Generate(), typeof(Character), character, "m_uid");
-        //        clone.name = "[CLONE] " + character.Name + "_" + character.UID;
+                // fix clone UIDs, etc
+                var character = clone.GetComponent<Character>();
+                At.SetValue(UID.Generate(), typeof(Character), character, "m_uid");
+                clone.name = "[CLONE] " + character.Name + "_" + character.UID;
 
-        //        // allocate a scene view ID (will need RPC if to work in multiplayer)
-        //        clone.GetPhotonView().viewID = PhotonNetwork.AllocateSceneViewID();
+                // allocate a scene view ID (will need RPC if to work in multiplayer)
+                clone.GetPhotonView().viewID = PhotonNetwork.AllocateSceneViewID();
 
-        //        var items = character.GetComponentsInChildren<Item>();
-        //        for (int i = 0; i < items.Length; i++)
-        //        {
-        //            var item = items[i];
+                var items = character.GetComponentsInChildren<Item>();
+                for (int i = 0; i < items.Length; i++)
+                {
+                    var item = items[i];
 
-        //            var new_item = ItemManager.Instance.GenerateItemNetwork(item.ItemID);
-        //            new_item.transform.parent = item.transform.parent;
+                    var new_item = ItemManager.Instance.GenerateItemNetwork(item.ItemID);
+                    new_item.transform.parent = item.transform.parent;
 
-        //            DestroyImmediate(item);
-        //        }
+                    GameObject.DestroyImmediate(item);
+                }
 
-        //        //// todo same for droptable components
-        //        //var lootable = clone.GetComponent<LootableOnDeath>();
+                //// todo same for droptable components
+                //var lootable = clone.GetComponent<LootableOnDeath>();
 
-        //        //var oldTables = new List<GameObject>();
+                //var oldTables = new List<GameObject>();
 
-        //        foreach (var component in clone.GetComponentsInChildren<MonoBehaviour>())
-        //        {
-        //            try
-        //            {
-        //                At.Call(typeof(MonoBehaviour), component, "Awake", null, new object[0]);
-        //            }
-        //            catch { }
-        //        }
+                // not sure if needed
+                foreach (var component in clone.GetComponentsInChildren<MonoBehaviour>())
+                {
+                    try
+                    {
+                        At.Call(typeof(MonoBehaviour), component, "Awake", null, new object[0]);
+                    }
+                    catch { }
+                }
 
-        //        //var charAI = clone.GetComponent<CharacterAI>();
+                clone.SetActive(true);
 
-        //        //var navmeshAgent = clone.GetComponent<UnityEngine.AI.NavMeshAgent>();
-        //        //At.SetValue(navmeshAgent, typeof(CharacterAI), charAI, "m_navMeshAgent");
-
-        //        //var airoot = clone.GetComponentInChildren<AIRoot>();
-        //        //At.SetValue(charAI, typeof(AIRoot), airoot, "m_charAI");
-
-        //        clone.SetActive(true);
-
-        //        clone.transform.position = CharacterManager.Instance.GetFirstLocalCharacter().transform.position;
-        //    }
-        //    catch (Exception e)
-        //    {
-        //        SL.Log("Error cloning enemy: " + e.Message + "\r\nStack: " + e.StackTrace, 1);
-        //    }
-        //}
+                clone.transform.position = CharacterManager.Instance.GetFirstLocalCharacter().transform.position;
+            }
+            catch (Exception e)
+            {
+                SL.Log($"Error cloning enemy: {e.GetType()}, {e.Message}\r\nStack trace: {e.StackTrace}", 1);
+            }
+        }
     }
 }

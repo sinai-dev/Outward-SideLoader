@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Xml.Serialization;
 using UnityEngine;
 
 namespace SideLoader
@@ -18,6 +19,35 @@ namespace SideLoader
         public List<SL_Effect> Effects = new List<SL_Effect>();
         public List<SL_EffectCondition> EffectConditions = new List<SL_EffectCondition>();
         public List<SL_EffectTransform> ChildEffects = new List<SL_EffectTransform>();
+
+        /// <summary>
+        /// Returns true if this Transform contains any Effects or Conditions, or has Children which do.
+        /// </summary>
+        [XmlIgnore]
+        public bool HasContent
+        {
+            get
+            {
+                if ((Effects != null && Effects.Count > 0) 
+                    || (EffectConditions != null && EffectConditions.Count > 0))
+                {
+                    return true;
+                }
+
+                if (ChildEffects != null)
+                {
+                    foreach (var child in ChildEffects)
+                    {
+                        if (child.HasContent)
+                        {
+                            return true;
+                        }
+                    }
+                }
+
+                return false;
+            }
+        }
 
         /// <summary>
         /// Applies a list of SL_EffectTransforms to a transform parent, with the provided EffectBehaviour.
@@ -152,7 +182,11 @@ namespace SideLoader
                 }
 
                 var transformHolder = ParseTransform(child);
-                holder.ChildEffects.Add(transformHolder);
+
+                if (transformHolder.HasContent)
+                {
+                    holder.ChildEffects.Add(transformHolder);
+                }
             }
 
             return holder;

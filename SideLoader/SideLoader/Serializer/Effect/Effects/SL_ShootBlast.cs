@@ -109,7 +109,7 @@ namespace SideLoader
                 {
                     var effectsChild = SL_EffectTransform.ParseTransform(child);
 
-                    if (effectsChild.ChildEffects.Count > 0 || effectsChild.Effects.Count > 0 || effectsChild.EffectConditions.Count > 0)
+                    if (effectsChild.HasContent)
                     {
                         template.BlastEffects.Add(effectsChild);
                     }
