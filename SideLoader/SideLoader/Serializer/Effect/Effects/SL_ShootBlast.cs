@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using HarmonyLib;
 using UnityEngine;
 
 namespace SideLoader
@@ -74,6 +75,31 @@ namespace SideLoader
                 }
 
                 SL_EffectTransform.ApplyTransformList(newBlast.transform, BlastEffects, EffectBehaviour);
+
+                if (newBlast is BlastDelayedHits delayedBlast)
+                {
+                    var list = new List<BlastDelayedHits.SplitCondition>();
+                    foreach (var condition in newBlast.GetComponentsInChildren<HasStatusEffectEffectCondition>())
+                    {
+                        var split = new BlastDelayedHits.SplitCondition
+                        {
+                            ConditionHolder = condition.transform
+                        };
+                        split.Init();
+                        list.Add(split);
+                    }
+                    delayedBlast.EffectsPerCondition = list.ToArray();
+
+                    if (delayedBlast.transform.Find("RevealedSoul") is Transform soulTransform)
+                    {
+                        var soulFX = new BlastDelayedHits.SplitCondition
+                        {
+                            ConditionHolder = soulTransform,
+                        };
+                        soulFX.Init();
+                        delayedBlast.RevealSoulEffects = soulFX;
+                    }
+                }
             }
         }
 
