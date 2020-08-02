@@ -78,12 +78,21 @@ namespace SideLoader
 
                 if (newBlast is BlastDelayedHits delayedBlast)
                 {
+                    var conditionChilds = new List<Transform>();
+                    foreach (Transform child in delayedBlast.transform)
+                    {
+                        if (child.GetComponent<EffectCondition>())
+                        {
+                            conditionChilds.Add(child);
+                        }
+                    }
+
                     var list = new List<BlastDelayedHits.SplitCondition>();
-                    foreach (var condition in newBlast.GetComponentsInChildren<HasStatusEffectEffectCondition>())
+                    foreach (var child in conditionChilds)
                     {
                         var split = new BlastDelayedHits.SplitCondition
                         {
-                            ConditionHolder = condition.transform
+                            ConditionHolder = child
                         };
                         split.Init();
                         list.Add(split);
