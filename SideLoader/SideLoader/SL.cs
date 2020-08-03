@@ -191,6 +191,8 @@ namespace SideLoader
             {
                 TryInvoke(OnPacksLoaded);
             }
+
+            SL.Log("SL.OnPacksLoaded finished.");
         }
 
         // =============== Scene Change Events ====================

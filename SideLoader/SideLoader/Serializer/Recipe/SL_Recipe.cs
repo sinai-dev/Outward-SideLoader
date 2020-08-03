@@ -56,7 +56,7 @@ namespace SideLoader
                 var tag = TagSourceManager.GetCraftingIngredient(StationType);
                 if (!ingredientItem.HasTag(tag))
                 {
-                    Debug.Log($"Adding tag {tag.TagName} to " + ingredientItem.name);
+                    //Debug.Log($"Adding tag {tag.TagName} to " + ingredientItem.name);
 
                     ((List<TagSourceSelector>)At.GetValue(
                         typeof(TagListSelectorComponent), 

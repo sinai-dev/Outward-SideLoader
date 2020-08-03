@@ -51,20 +51,19 @@ namespace SideLoader
         public enum VFXPrefabs
         {
             NONE,
-            Blood,
             BloodLeechTriggerVFX,
+            CorruptionSpirit_v_VFXDeathGhost,
             ElemDecayBuffFX,
             ElemEtherealBuffFX,
             ElemFireBuffFX,
             ElemFrostBuffFX,
             ElemLightBuffFX,
-            ExplosionFX,
-            FXCopper,
-            FXDecay,
-            FXEthereal,
-            FXFire,
-            FXIce,
-            FXLightning,
+            Flamethrower_FXCopper,
+            Flamethrower_FXDecay,
+            Flamethrower_FXEthereal,
+            Flamethrower_FXFire,
+            Flamethrower_FXIce,
+            Flamethrower_FXLightning,
             HexBleedingVFX,
             HexBurningVFX,
             HexChillVFX,
@@ -78,12 +77,27 @@ namespace SideLoader
             HexSappedVFX,
             HexScorchVFX,
             HexWeakenVFX,
+            JinxProjectile_VFXChill,
+            JinxProjectile_VFXCurse,
+            JinxProjectile_VFXDoom,
+            JinxProjectile_VFXHaunt,
+            JinxProjectile_VFXScorch,
+            LichRustReanimate_ExplosionFX,
+            NewGhostOneHandedAlly_v_VFXDeathGhost,
+            TormentBlast_NormalChill_VfxChill,
+            TormentBlast_NormalConfusion_VfxConfusion,
+            TormentBlast_NormalCurse_VFXCurse,
+            TormentBlast_NormalDoom_VfxDoom,
+            TormentBlast_NormalHaunt_VfxHaunt,
+            TormentBlast_NormalPain_VfxPain,
+            TormentBlast_NormalScorch_VfxScorch,
             UnerringReadTriggerVFX,
             UnerringReadVFX,
             VFX_RunicHeal,
             VFXAnkleBlow,
             VFXBloodBullet,
             VFXBloodLust,
+            VFXBloodLust_Blood,
             VFXBoonBolt,
             VFXBoonDecay,
             VFXBoonEthereal,
@@ -93,29 +107,22 @@ namespace SideLoader
             VFXCallToElements,
             VFXChakram,
             VFXChakramLong,
-            VfxChill,
             VFXCleanse,
-            VfxConfusion,
             VFXCounter,
-            VFXCurse,
-            VFXDeathGhost,
             VFXDetectSoul,
             VFXDiscipline,
-            VfxDoom,
             VFXEvasionShot,
             VFXFinisherBlow,
             VFXForceBubble,
             VFXForceRaise,
             VFXGiftOfBlood,
             VFXGiftOfBloodAlly,
-            VfxHaunt,
             VFXJuggernaut,
             VFXLeapAttack,
             VFXLifeSyphonHit,
             VFXMaceFillAbsorb,
             VFXMoonSwipe,
             VFXMultiStrikeWind,
-            VfxPain,
             VFXPiercingShot,
             VFXPreciseStrike,
             VFXRage,
@@ -125,7 +132,6 @@ namespace SideLoader
             VFXRuneShim,
             VFXRunicBlade,
             VFXSavageStrikes,
-            VfxScorch,
             VFXShieldAbsorb,
             VFXShieldBrace,
             VFXShieldCharge,
@@ -134,8 +140,6 @@ namespace SideLoader
             VFXTeleport,
             VFXViolentStab
         }
-
-
 
         // ============ VFXSystem Dictionary ============ //
 
@@ -189,18 +193,33 @@ namespace SideLoader
         }
 
         /// <summary>
+        /// Gets the safe name (for serialization / enum).
+        /// </summary>
+        /// <param name="vfx">The VFXSystem to get the name for.</param>
+        /// <returns>The actual, serialization-safe name.</returns>
+        public static string GetSafeVFXName(VFXSystem vfx)
+        {
+            var safeName = vfx.transform.GetGameObjectPath().Trim();
+            safeName = safeName.Replace("(Clone)", "");
+            safeName = safeName.Replace(" (1)", "");
+            safeName = Serializer.ReplaceInvalidChars(safeName);
+            safeName = safeName.Substring(1, safeName.Length - 1);
+            return safeName;
+        }
+
+        /// <summary>
         /// Helper to take a VFXSystem and get the VFXSystemPrefabs enum value for it (if valid).
         /// </summary>
         /// <param name="vfx">The vfx system</param>
         public static VFXPrefabs GetVFXSystemEnum(VFXSystem vfx)
         {
-            var prefabName = vfx.name.Replace("(Clone)", "").Trim();
-            prefabName = prefabName.Replace(" (1)", "");
-
-            if (Enum.TryParse(prefabName, out VFXPrefabs name))
+            if (Enum.TryParse(GetSafeVFXName(vfx), out VFXPrefabs name))
             {
                 return name;
             }
+
+            SL.Log("PlayVFX: could not get name for " + vfx.name);
+
             return VFXPrefabs.NONE;
         }
 
@@ -211,9 +230,10 @@ namespace SideLoader
             var names = new List<string>();
             foreach (var vfx in vfxsystems)
             {
-                if (!names.Contains(vfx.name))
+                var safename = GetSafeVFXName(vfx);
+                if (!names.Contains(safename))
                 {
-                    names.Add(vfx.name);
+                    names.Add(safename);
                 }
             }
             File.WriteAllLines("vfxsystems.txt", names.ToArray());

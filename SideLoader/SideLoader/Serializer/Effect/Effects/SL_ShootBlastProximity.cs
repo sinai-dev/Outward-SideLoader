@@ -5,7 +5,7 @@ using System.Text;
 
 namespace SideLoader
 {
-    public class SL_ShootBlastProximity : SL_ShootBlast
+    public class SL_ShootBlastsProximity : SL_ShootBlast
     {
         // Shell class, doesn't require any custom fields. Works from having a ProximityCondition on the same transform.
     }
