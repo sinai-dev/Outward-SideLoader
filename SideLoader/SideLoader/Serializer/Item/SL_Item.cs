@@ -52,7 +52,7 @@ namespace SideLoader
         public float? OverrideSellModifier;
 
         /// <summary>Item Tags, represented as strings (uses CustomTags.GetTag(string tagName)).</summary>
-        public List<string> Tags;
+        public string[] Tags;
 
         /// <summary>Holder for the ItemStats object</summary>
         public SL_ItemStats StatsHolder;
@@ -60,12 +60,12 @@ namespace SideLoader
         /// <summary>Determines how the ItemExtensions are replaced and edited</summary>
         public EditBehaviours ExtensionsEditBehaviour = EditBehaviours.NONE;
         /// <summary>List of SL_ItemExtensions for this item. Can only have one per item.</summary>
-        public List<SL_ItemExtension> ItemExtensions;
+        public SL_ItemExtension[] ItemExtensions;
 
         ///// <summary>Determines how the EffectTransforms are replaced and edited</summary>
         public EffectBehaviours EffectBehaviour = EffectBehaviours.OverrideEffects;
         /// <summary>Transform heirarchy containing the Effects and EffectConditions</summary>
-        public List<SL_EffectTransform> EffectTransforms = new List<SL_EffectTransform>();
+        public SL_EffectTransform[] EffectTransforms;
 
         // Visual prefab stuff
         public SL_ItemVisual ItemVisuals;
@@ -291,38 +291,40 @@ namespace SideLoader
             }
 
             var extensions = item.gameObject.GetComponentsInChildren<ItemExtension>();
-            if (extensions != null && extensions.Length > 0)
+            var extList = new List<SL_ItemExtension>();
+            if (extensions != null)
             {
-                holder.ItemExtensions = new List<SL_ItemExtension>();
-
                 foreach (var ext in extensions)
                 {
                     var extHolder = SL_ItemExtension.SerializeExtension(ext);
-                    holder.ItemExtensions.Add(extHolder);
+                    extList.Add(extHolder);
                 }
             }
+            holder.ItemExtensions = extList.ToArray();
 
+            var tags = new List<string>();
             if (item.Tags != null)
             {
-                holder.Tags = new List<string>();
-
                 foreach (Tag tag in item.Tags)
                 {
-                    holder.Tags.Add(tag.TagName);
+                    tags.Add(tag.TagName);
                 }
             }
+            holder.Tags = tags.ToArray();
 
             if (item.transform.childCount > 0)
             {
+                var children = new List<SL_EffectTransform>();
                 foreach (Transform child in item.transform)
                 {
                     var effectsChild = SL_EffectTransform.ParseTransform(child);
 
                     if (effectsChild.HasContent)
                     {
-                        holder.EffectTransforms.Add(effectsChild);
+                        children.Add(effectsChild);
                     }
                 }
+                holder.EffectTransforms = children.ToArray();
             }
 
             if (item.HasVisualPrefab && ResourcesPrefabManager.Instance.GetItemVisualPrefab(item.VisualPrefabPath).GetComponent<ItemVisual>() is ItemVisual visual)

@@ -15,7 +15,7 @@ namespace SideLoader
         [XmlIgnore] public virtual bool AddToChild { get => false; }
         [XmlIgnore] public virtual string ChildToAddTo { get => ""; }
 
-        public static void ApplyExtensionList(Item item, List<SL_ItemExtension> list, EditBehaviours editBehaviour = EditBehaviours.Override)
+        public static void ApplyExtensionList(Item item, SL_ItemExtension[] list, EditBehaviours editBehaviour = EditBehaviours.Override)
         {
             var dict = new Dictionary<Type, SL_ItemExtension>(); // Key: Game_type, Value: SL_ItemExtension template.
 

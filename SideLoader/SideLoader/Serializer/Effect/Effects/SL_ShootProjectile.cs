@@ -10,7 +10,7 @@ namespace SideLoader
     public class SL_ShootProjectile : SL_Shooter
     {
         public ProjectilePrefabs BaseProjectile;
-        public List<SL_ProjectileShot> ProjectileShots = new List<SL_ProjectileShot>();
+        public SL_ProjectileShot[] ProjectileShots;
         public int InstantiatedAmount = 1;
 
         public float Lifespan;
@@ -36,9 +36,6 @@ namespace SideLoader
         public float DefenseLength;
         public float DefenseRange;
 
-        //public int PhysicsLayerMask;
-        //public bool OnlyExplodeOnLayerMask;
-
         public EquipmentSoundMaterials ImpactSoundMaterial;
         public Vector2 LightIntensityFade;
         public Vector3 PointOffset;
@@ -46,7 +43,7 @@ namespace SideLoader
         public float TrailTime;
 
         public EffectBehaviours EffectBehaviour = EffectBehaviours.OverrideEffects;
-        public List<SL_EffectTransform> ProjectileEffects = new List<SL_EffectTransform>();
+        public SL_EffectTransform[] ProjectileEffects;
 
         public override void ApplyToComponent<T>(T component)
         {
@@ -68,19 +65,22 @@ namespace SideLoader
             comp.YMagnitudeAffect = this.YMagnitudeAffect;
             comp.YMagnitudeForce = this.YMagnitudeForce;
 
-            var list = new List<ProjectileShot>();
-            foreach (var shot in this.ProjectileShots)
+            if (this.ProjectileShots != null)
             {
-                list.Add(new ProjectileShot()
+                var list = new List<ProjectileShot>();
+                foreach (var shot in this.ProjectileShots)
                 {
-                    RandomLocalDirectionAdd = shot.RandomLocalDirectionAdd,
-                    LocalDirectionOffset = shot.LocalDirectionOffset,
-                    LockDirection = shot.LockDirection,
-                    MustShoot = shot.MustShoot,
-                    NoBaseDir = shot.NoBaseDir
-                });
+                    list.Add(new ProjectileShot()
+                    {
+                        RandomLocalDirectionAdd = shot.RandomLocalDirectionAdd,
+                        LocalDirectionOffset = shot.LocalDirectionOffset,
+                        LockDirection = shot.LockDirection,
+                        MustShoot = shot.MustShoot,
+                        NoBaseDir = shot.NoBaseDir
+                    });
+                }
+                comp.ProjectileShots = list.ToArray();
             }
-            comp.ProjectileShots = list.ToArray();
 
             if (GetProjectilePrefab(this.BaseProjectile) is GameObject projectile)
             {
@@ -156,25 +156,27 @@ namespace SideLoader
                 template.TrailTime = proj.TrailTime;
                 template.Unblockable = proj.Unblockable;
 
-                template.ProjectileEffects = new List<SL_EffectTransform>();
+                var list = new List<SL_EffectTransform>();
                 foreach (Transform child in proj.transform)
                 {
                     var effectsChild = SL_EffectTransform.ParseTransform(child);
 
                     if (effectsChild.HasContent)
                     {
-                        template.ProjectileEffects.Add(effectsChild);
+                        list.Add(effectsChild);
                     }
                 }
+                template.ProjectileEffects = list.ToArray();
             }
             else if (comp.BaseProjectile)
             {
                 SL.Log("Couldn't parse blast prefab to enum: " + comp.BaseProjectile.name);
             }
 
+            var shots = new List<SL_ProjectileShot>();
             foreach (var shot in comp.ProjectileShots)
             {
-                template.ProjectileShots.Add(new SL_ProjectileShot()
+                shots.Add(new SL_ProjectileShot()
                 {
                     RandomLocalDirectionAdd = shot.RandomLocalDirectionAdd,
                     LocalDirectionOffset = shot.LocalDirectionOffset,
@@ -183,6 +185,7 @@ namespace SideLoader
                     NoBaseDir = shot.NoBaseDir
                 });
             }
+            template.ProjectileShots = shots.ToArray();
         }
 
         public class SL_ProjectileShot

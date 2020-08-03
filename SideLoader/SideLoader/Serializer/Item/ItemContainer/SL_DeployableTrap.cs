@@ -10,7 +10,7 @@ namespace SideLoader
         public override bool ShouldApplyLate => true;
 
         public bool? OneTimeUse;
-        public List<SL_TrapEffectRecipe> TrapRecipeEffects;
+        public SL_TrapEffectRecipe[] TrapRecipeEffects;
 
         public override void ApplyToItem(Item item)
         {
@@ -47,14 +47,14 @@ namespace SideLoader
             var recipes = (TrapEffectRecipe[])At.GetValue(typeof(DeployableTrap), trap, "m_trapRecipes");
             if (recipes != null)
             {
-                this.TrapRecipeEffects = new List<SL_TrapEffectRecipe>();
-
+                var list = new List<SL_TrapEffectRecipe>();
                 foreach (var recipe in recipes)
                 {
                     var dmRecipe = new SL_TrapEffectRecipe();
                     dmRecipe.Serialize(recipe);
-                    TrapRecipeEffects.Add(dmRecipe);
+                    list.Add(dmRecipe);
                 }
+                this.TrapRecipeEffects = list.ToArray();
             }
         }
     }

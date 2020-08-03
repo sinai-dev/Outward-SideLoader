@@ -11,8 +11,8 @@ namespace SideLoader
         public float? DamageMult;
         public float? KnockbackMult;
 
-        public List<DamageType.Types> BlockDamageTypes;
-        public List<DamageType.Types> CounterDamageTypes;
+        public DamageType.Types[] BlockDamageTypes;
+        public DamageType.Types[] CounterDamageTypes;
 
         public float? MaxRange;
         public bool? TurnTowardsDealer;
@@ -77,8 +77,8 @@ namespace SideLoader
             template.BlockMult = skill.BlockMult;
             template.DamageMult = skill.DamageMult;
             template.KnockbackMult = skill.KnockbackMult;
-            template.BlockDamageTypes = skill.BlockTypes;
-            template.CounterDamageTypes = skill.CounterTypes;
+            template.BlockDamageTypes = skill.BlockTypes.ToArray();
+            template.CounterDamageTypes = skill.CounterTypes.ToArray();
             template.MaxRange = skill.MaxRange;
             template.TurnTowardsDealer = skill.TurnTowardsDealer;
         }

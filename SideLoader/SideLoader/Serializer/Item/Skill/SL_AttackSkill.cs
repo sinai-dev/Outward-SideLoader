@@ -7,10 +7,10 @@ namespace SideLoader
 {
     public class SL_AttackSkill : SL_Skill
     {
-        public List<Weapon.WeaponType> AmmunitionTypes = new List<Weapon.WeaponType>();
-        public List<Weapon.WeaponType> RequiredOffHandTypes = new List<Weapon.WeaponType>();
-        public List<Weapon.WeaponType> RequiredWeaponTypes = new List<Weapon.WeaponType>();
-        public List<string> RequiredWeaponTags = new List<string>();
+        public Weapon.WeaponType[] AmmunitionTypes;
+        public Weapon.WeaponType[] RequiredOffHandTypes;
+        public Weapon.WeaponType[] RequiredWeaponTypes;
+        public string[] RequiredWeaponTags;
         public bool? RequireImbue;
 
         public override void ApplyToItem(Item item)
@@ -21,15 +21,15 @@ namespace SideLoader
 
             if (this.AmmunitionTypes != null)
             {
-                attackSkill.AmmunitionTypes = this.AmmunitionTypes;
+                attackSkill.AmmunitionTypes = this.AmmunitionTypes.ToList();
             }
             if (this.RequiredOffHandTypes != null)
             {
-                attackSkill.RequiredOffHandTypes = this.RequiredOffHandTypes;
+                attackSkill.RequiredOffHandTypes = this.RequiredOffHandTypes.ToList();
             }
             if (this.RequiredWeaponTypes != null)
             {
-                attackSkill.RequiredWeaponTypes = this.RequiredWeaponTypes;
+                attackSkill.RequiredWeaponTypes = this.RequiredWeaponTypes.ToList();
             }
             if (this.RequireImbue != null)
             {
@@ -57,14 +57,29 @@ namespace SideLoader
             var template = holder as SL_AttackSkill;
             var attackSkill = item as AttackSkill;
 
-            template.AmmunitionTypes = attackSkill.AmmunitionTypes;
-            template.RequiredOffHandTypes = attackSkill.RequiredOffHandTypes;
-            template.RequiredWeaponTypes = attackSkill.RequiredWeaponTypes;
+            if (attackSkill.AmmunitionTypes != null)
+            {
+                template.AmmunitionTypes = attackSkill.AmmunitionTypes.ToArray();
+            }
+            if (attackSkill.RequiredOffHandTypes != null)
+            {
+                template.RequiredOffHandTypes = attackSkill.RequiredOffHandTypes.ToArray();
+            }
+            if (attackSkill.RequiredWeaponTypes != null)
+            {
+                template.RequiredWeaponTypes = attackSkill.RequiredWeaponTypes.ToArray();
+            }
+            
             template.RequireImbue = attackSkill.RequireImbue;
 
-            foreach (var tag in attackSkill.RequiredTags)
+            if (attackSkill.RequiredTags != null)
             {
-                template.RequiredWeaponTags.Add(tag.Tag.TagName);
+                var tagList = new List<string>();
+                foreach (var tag in attackSkill.RequiredTags)
+                {
+                    tagList.Add(tag.Tag.TagName);
+                }
+                template.RequiredWeaponTags = tagList.ToArray();
             }
         }
     }

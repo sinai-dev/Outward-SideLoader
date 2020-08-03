@@ -30,7 +30,7 @@ namespace SideLoader
         {
             base.ApplyToItem(stats);
 
-            if (this.Damage_Resistance != null && this.Damage_Resistance.Length > 0)
+            if (this.Damage_Resistance != null)
             {
                 At.SetValue(this.Damage_Resistance, typeof(EquipmentStats), stats, "m_damageResistance");
             }
@@ -42,7 +42,7 @@ namespace SideLoader
             {
                 At.SetValue(new float[9] { (float)this.Damage_Protection, 0f, 0f, 0f, 0f, 0f, 0f, 0f, 0f }, typeof(EquipmentStats), stats, "m_damageProtection");
             }
-            if (this.Damage_Bonus != null && this.Damage_Bonus.Length > 0)
+            if (this.Damage_Bonus != null)
             {
                 At.SetValue(this.Damage_Bonus, typeof(EquipmentStats), stats, "m_damageAttack");
             }

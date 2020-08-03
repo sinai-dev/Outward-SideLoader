@@ -209,7 +209,6 @@ namespace SideLoader.Hooks
                 // effect is active, but blast has been disabled. stop effect.
                 if (!blast.gameObject.activeSelf)
                 {
-                    Debug.Log($"Stopping effect!");
                     At.Call(typeof(ShootBlastHornetControl), __instance, "Stop", null, new object[0]);
                 }
             }

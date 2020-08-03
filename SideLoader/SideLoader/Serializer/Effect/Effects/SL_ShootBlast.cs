@@ -32,7 +32,7 @@ namespace SideLoader
         public bool FXIsWorld;
 
         public EffectBehaviours EffectBehaviour = EffectBehaviours.OverrideEffects;
-        public List<SL_EffectTransform> BlastEffects = new List<SL_EffectTransform>();
+        public SL_EffectTransform[] BlastEffects;
 
         public override void ApplyToComponent<T>(T component)
         {
@@ -140,14 +140,19 @@ namespace SideLoader
                 template.ParentToShootTransform = comp.ParentToShootTransform;
                 template.UseTargetCharacterPositionType = comp.UseTargetCharacterPositionType;
 
-                foreach (Transform child in blast.transform)
+                if (blast.transform.childCount > 0)
                 {
-                    var effectsChild = SL_EffectTransform.ParseTransform(child);
-
-                    if (effectsChild.HasContent)
+                    var list = new List<SL_EffectTransform>();
+                    foreach (Transform child in blast.transform)
                     {
-                        template.BlastEffects.Add(effectsChild);
+                        var effectsChild = SL_EffectTransform.ParseTransform(child);
+
+                        if (effectsChild.HasContent)
+                        {
+                            list.Add(effectsChild);
+                        }
                     }
+                    template.BlastEffects = list.ToArray();
                 }
             }
             else if (comp.BaseBlast)
@@ -380,7 +385,6 @@ namespace SideLoader
             VendavelWitchElectricBlast,
             VendavelWitchKickIceBlast,
             WendigoSoulSyphon,
-
         }
 
         public static void DebugBlastNames()

@@ -18,12 +18,13 @@ namespace SideLoader
     [BepInPlugin(GUID, MODNAME, VERSION)]
     public class SL : BaseUnityPlugin
     {
+        /// <summary>The current instance of SideLoader.</summary>
         public static SL Instance;
 
         // Mod Info
         public const string GUID = "com.sinai." + MODNAME;
         public const string MODNAME = "SideLoader";
-        public const string VERSION = "2.7.53";
+        public const string VERSION = "2.7.6";
 
         // Folders
         public static string PLUGINS_FOLDER => Paths.PluginPath;

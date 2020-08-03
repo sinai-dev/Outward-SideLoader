@@ -28,7 +28,7 @@ namespace SideLoader
         public string Description;
 
         public EffectBehaviours EffectBehaviour = EffectBehaviours.OverrideEffects;
-        public List<SL_EffectTransform> Effects;
+        public SL_EffectTransform[] Effects;
 
         public void ApplyTemplate()
         {
@@ -69,16 +69,17 @@ namespace SideLoader
 
             //CustomStatusEffects.GetImbueLocalization(imbue, out template.Name, out template.Description);
 
-            template.Effects = new List<SL_EffectTransform>();
+            var list = new List<SL_EffectTransform>();
             foreach (Transform child in imbue.transform)
             {
                 var effectsChild = SL_EffectTransform.ParseTransform(child);
 
                 if (effectsChild.HasContent)
                 {
-                    template.Effects.Add(effectsChild);
+                    list.Add(effectsChild);
                 }
             }
+            template.Effects = list.ToArray();
 
             return template;
         }

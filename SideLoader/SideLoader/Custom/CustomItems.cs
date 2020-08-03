@@ -194,7 +194,7 @@ namespace SideLoader
         }
 
         /// <summary> Adds the range of tags to the Items' TagSource, and optionally destroys the existing tags.</summary>
-        public static void SetItemTags(Item item, List<string> tags, bool destroyExisting)
+        public static void SetItemTags(Item item, string[] tags, bool destroyExisting)
         {
             var tagsource = item.transform.GetOrAddComponent<TagSource>();
 

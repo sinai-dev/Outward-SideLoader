@@ -16,9 +16,9 @@ namespace SideLoader
         public Vector3? Rotation;
         public Vector3? Scale;
 
-        public List<SL_Effect> Effects = new List<SL_Effect>();
-        public List<SL_EffectCondition> EffectConditions = new List<SL_EffectCondition>();
-        public List<SL_EffectTransform> ChildEffects = new List<SL_EffectTransform>();
+        public SL_Effect[] Effects;
+        public SL_EffectCondition[] EffectConditions;
+        public SL_EffectTransform[] ChildEffects;
 
         /// <summary>
         /// Returns true if this Transform contains any Effects or Conditions, or has Children which do.
@@ -28,8 +28,7 @@ namespace SideLoader
         {
             get
             {
-                if ((Effects != null && Effects.Count > 0) 
-                    || (EffectConditions != null && EffectConditions.Count > 0))
+                if ((Effects != null && Effects.Length > 0) || (EffectConditions != null && EffectConditions.Length > 0))
                 {
                     return true;
                 }
@@ -55,7 +54,7 @@ namespace SideLoader
         /// <param name="parent">The parent to apply to, ie. the Item, StatusEffect.Signature, or Blast/Projectile, etc</param>
         /// <param name="transformsToApply">The list of SL_EffectTransforms to apply.</param>
         /// <param name="behaviour">The desired behaviour for these transoforms (remove original, overwrite, or none)</param>
-        public static void ApplyTransformList(Transform parent, List<SL_EffectTransform> transformsToApply, EffectBehaviours behaviour)
+        public static void ApplyTransformList(Transform parent, SL_EffectTransform[] transformsToApply, EffectBehaviours behaviour)
         {
             if (behaviour == EffectBehaviours.DestroyEffects)
             {
@@ -90,11 +89,11 @@ namespace SideLoader
 
             if (this.Position != null)
             {
-                transform.position = (Vector3)this.Position;
+                transform.localPosition = (Vector3)this.Position;
             }
             if (this.Rotation != null)
             {
-                transform.rotation = Quaternion.Euler((Vector3)this.Rotation);
+                transform.localRotation = Quaternion.Euler((Vector3)this.Rotation);
             }
             if (this.Scale != null)
             {
@@ -119,7 +118,7 @@ namespace SideLoader
                 }
             }
 
-            if (ChildEffects != null && ChildEffects.Count > 0)
+            if (ChildEffects != null)
             {
                 ApplyTransformList(transform, ChildEffects, behaviour);
             }
@@ -134,19 +133,20 @@ namespace SideLoader
                 TransformName = transform.name
             };
 
-            if (transform.position != Vector3.zero)
+            if (transform.localPosition != Vector3.zero)
             {
-                holder.Position = transform.position;
+                holder.Position = transform.localPosition;
             }
-            if (transform.rotation.eulerAngles != Vector3.zero)
+            if (transform.localRotation.eulerAngles != Vector3.zero)
             {
-                holder.Rotation = transform.rotation.eulerAngles;
+                holder.Rotation = transform.localRotation.eulerAngles;
             }
             if (transform.localScale != Vector3.one)
             {
                 holder.Scale = transform.localScale;
             }
 
+            var slEffects = new List<SL_Effect>();
             foreach (Effect effect in transform.GetComponents<Effect>())
             {
                 if (!effect.enabled)
@@ -156,10 +156,12 @@ namespace SideLoader
 
                 if (SL_Effect.ParseEffect(effect) is SL_Effect slEffect)
                 {
-                    holder.Effects.Add(slEffect);
+                    slEffects.Add(slEffect);
                 }
             }
+            holder.Effects = slEffects.ToArray();
 
+            var slConditions = new List<SL_EffectCondition>();
             foreach (EffectCondition condition in transform.GetComponents<EffectCondition>())
             {
                 if (!condition.enabled)
@@ -169,10 +171,12 @@ namespace SideLoader
 
                 if (SL_EffectCondition.ParseCondition(condition) is SL_EffectCondition slCondition)
                 {
-                    holder.EffectConditions.Add(slCondition);
+                    slConditions.Add(slCondition);
                 }
             }
+            holder.EffectConditions = slConditions.ToArray();
 
+            var children = new List<SL_EffectTransform>();
             foreach (Transform child in transform)
             {
                 if (child.name == "ExplosionFX" || child.name == "ProjectileFX")
@@ -185,9 +189,10 @@ namespace SideLoader
 
                 if (transformHolder.HasContent)
                 {
-                    holder.ChildEffects.Add(transformHolder);
+                    children.Add(transformHolder);
                 }
             }
+            holder.ChildEffects = children.ToArray();
 
             return holder;
         }

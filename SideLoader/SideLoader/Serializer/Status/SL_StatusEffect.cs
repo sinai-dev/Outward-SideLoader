@@ -47,10 +47,10 @@ namespace SideLoader
         public bool? IsHidden;
         public bool? IsMalusEffect;
 
-        public List<string> Tags;
+        public string[] Tags;
 
         public EffectBehaviours EffectBehaviour = EffectBehaviours.OverrideEffects;
-        public List<SL_EffectTransform> Effects;
+        public SL_EffectTransform[] Effects;
 
         public virtual void ApplyTemplate()
         {
@@ -190,7 +190,7 @@ namespace SideLoader
                 signature = status.transform.GetChild(0);
             }
 
-            if (Effects != null && Effects.Count > 0)
+            if (Effects != null)
             {
                 if (signature)
                 {
@@ -312,13 +312,14 @@ namespace SideLoader
 
             CustomStatusEffects.GetStatusLocalization(status, out template.Name, out template.Description);
 
-            template.Tags = new List<string>();
+            var tagList = new List<string>();
             status.InitTags();
             var tags = (List<Tag>)At.GetValue(typeof(StatusEffect), status, "m_tags");
             foreach (var tag in tags)
             {
-                template.Tags.Add(tag.TagName);
+                tagList.Add(tag.TagName);
             }
+            template.Tags = tagList.ToArray();
 
             // For existing StatusEffects, the StatusData contains the real values, so we need to SetValue to each Effect.
             var statusData = status.StatusData.EffectsData;
@@ -332,7 +333,7 @@ namespace SideLoader
                 }
             }
 
-            template.Effects = new List<SL_EffectTransform>();
+            var effects = new List<SL_EffectTransform>();
             var signature = status.transform.GetChild(0);
             if (signature)
             {
@@ -342,10 +343,11 @@ namespace SideLoader
 
                     if (effectsChild.HasContent)
                     {
-                        template.Effects.Add(effectsChild);
+                        effects.Add(effectsChild);
                     }
                 }
             }
+            template.Effects = effects.ToArray();
 
             return template;
         }

@@ -11,6 +11,16 @@ namespace SideLoader
         public float Damage = 0f;
         public DamageType.Types Type = DamageType.Types.Count;
 
+        public static DamageList GetDamageList(SL_Damage[] array)
+        {
+            if (array == null)
+            {
+                return null;
+            }
+
+            return GetDamageList(array.ToList());
+        }
+
         public static DamageList GetDamageList(List<SL_Damage> list)
         {
             var newlist = new DamageList();

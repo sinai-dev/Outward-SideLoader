@@ -11,7 +11,7 @@ namespace SideLoader
         public override string ChildToAddTo => "Content";
 
         public bool? NullifyPerish;
-        public List<SL_PreservedElement> PreservedElements;
+        public SL_PreservedElement[] PreservedElements;
 
         public override void ApplyToComponent<T>(T component)
         {
@@ -48,15 +48,16 @@ namespace SideLoader
             var list = (List<Preserver.PreservedElement>)At.GetValue(typeof(Preserver), comp, "m_preservedElements");
             if (list != null)
             {
-                this.PreservedElements = new List<SL_PreservedElement>();
+                var slList = new List<SL_PreservedElement>();
                 foreach (var ele in list)
                 {
-                    this.PreservedElements.Add(new SL_PreservedElement
+                    slList.Add(new SL_PreservedElement
                     {
                         Preservation = ele.Preservation,
                         PreservedItemTag = ele.Tag.Tag.TagName
                     });
                 }
+                this.PreservedElements = slList.ToArray();
             }
         }
 

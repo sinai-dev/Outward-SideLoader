@@ -27,12 +27,12 @@ namespace SideLoader
 
         // actual enchantment data
         public float EnchantTime;
-        public List<SL_EffectTransform> Effects;
-        public List<AdditionalDamage> AddedDamages;
-        public List<StatModification> StatModifications;
-        public List<SL_Damage> FlatDamageAdded;
-        public List<SL_Damage> DamageModifierBonus;
-        public List<SL_Damage> DamageResistanceBonus;
+        public SL_EffectTransform[] Effects;
+        public AdditionalDamage[] AddedDamages;
+        public StatModification[] StatModifications;
+        public SL_Damage[] FlatDamageAdded;
+        public SL_Damage[] DamageModifierBonus;
+        public SL_Damage[] DamageResistanceBonus;
         public float HealthAbsorbRatio;
         public float ManaAbsorbRatio;
         public float StaminaAbsorbRatio;
@@ -138,7 +138,7 @@ namespace SideLoader
 
             if (this.Effects != null)
             {
-                SL_EffectTransform.ApplyTransformList(enchantment.transform, this.Effects, EffectBehaviours.OverrideEffects);
+                SL_EffectTransform.ApplyTransformList(enchantment.transform, this.Effects?.ToArray(), EffectBehaviours.OverrideEffects);
             }
 
             if (this.AddedDamages != null)
@@ -308,16 +308,17 @@ namespace SideLoader
 
             if (enchantment.transform.childCount > 0)
             {
-                template.Effects = new List<SL_EffectTransform>();
+                var effects = new List<SL_EffectTransform>();
                 foreach (Transform child in enchantment.transform)
                 {
                     var effectsChild = SL_EffectTransform.ParseTransform(child);
 
                     if (effectsChild.HasContent)
                     {
-                        template.Effects.Add(effectsChild);
+                        effects.Add(effectsChild);
                     }
                 }
+                template.Effects = effects.ToArray();
             }
 
             if (enchantment.AdditionalDamages != null)
@@ -332,7 +333,7 @@ namespace SideLoader
                         SourceDamageType = addedDmg.SourceDamageType
                     });
                 }
-                template.AddedDamages = list;
+                template.AddedDamages = list.ToArray();
             }
             if (enchantment.StatModifications != null)
             {
@@ -346,20 +347,20 @@ namespace SideLoader
                         Value = statMod.Value
                     });
                 }
-                template.StatModifications = list;
+                template.StatModifications = list.ToArray();
             }
 
             if (enchantment.DamageBonus != null)
             {
-                template.FlatDamageAdded = SL_Damage.ParseDamageList(enchantment.DamageBonus);
+                template.FlatDamageAdded = SL_Damage.ParseDamageList(enchantment.DamageBonus).ToArray();
             }
             if (enchantment.DamageModifier != null)
             {
-                template.DamageModifierBonus = SL_Damage.ParseDamageList(enchantment.DamageModifier);
+                template.DamageModifierBonus = SL_Damage.ParseDamageList(enchantment.DamageModifier).ToArray();
             }
             if (enchantment.ElementalResistances != null)
             {
-                template.DamageResistanceBonus = SL_Damage.ParseDamageList(enchantment.ElementalResistances);
+                template.DamageResistanceBonus = SL_Damage.ParseDamageList(enchantment.ElementalResistances).ToArray();
             }
 
             return template;

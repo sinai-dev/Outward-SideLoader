@@ -14,7 +14,7 @@ namespace SideLoader
         public float? DurabilityCost;
         public float? DurabilityCostPercent;
 
-        public List<SkillItemReq> RequiredItems = new List<SkillItemReq>();
+        public SkillItemReq[] RequiredItems;
 
         public override void ApplyToItem(Item item)
         {
@@ -86,13 +86,6 @@ namespace SideLoader
 
                 At.SetValue(activationConditions.ToArray(), typeof(Skill), skill, "m_additionalConditions");
             }
-
-            if (skill.transform.Find("AdditionalActivationConditions") is Transform additionals)
-            {
-                
-                
-                
-            }
         }
 
         public override void SerializeItem(Item item, SL_Item holder)
@@ -110,11 +103,13 @@ namespace SideLoader
 
             if (skill.RequiredItems != null)
             {
+                var list = new List<SkillItemReq>();
+
                 foreach (Skill.ItemRequired itemReq in skill.RequiredItems)
                 {
                     if (itemReq.Item != null)
                     {
-                        skillHolder.RequiredItems.Add(new SkillItemReq
+                        list.Add(new SkillItemReq
                         {
                             ItemID = itemReq.Item.ItemID,
                             Consume = itemReq.Consume,
@@ -122,6 +117,8 @@ namespace SideLoader
                         });
                     }
                 }
+
+                skillHolder.RequiredItems = list.ToArray();
             }
         }
 

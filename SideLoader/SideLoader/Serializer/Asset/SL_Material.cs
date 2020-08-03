@@ -19,11 +19,11 @@ namespace SideLoader
         public string ShaderName;
 
         /// <summary>Shader Keywords to enable.</summary>
-        public List<string> Keywords = new List<string>();
+        public string[] Keywords;
         /// <summary>List of Shader Properties to set.</summary>
-        public List<ShaderProperty> Properties = new List<ShaderProperty>();
+        public ShaderProperty[] Properties;
         /// <summary>List of TextureConfigs to apply.</summary>
-        public List<TextureConfig> TextureConfigs = new List<TextureConfig>(); 
+        public TextureConfig[] TextureConfigs; 
 
         /// <summary>Applies this SL_Material template to the provided Material.</summary>
         /// <param name="mat">The material to apply to.</param>
@@ -37,7 +37,7 @@ namespace SideLoader
                 mat.shader = shader;
             }
 
-            if (Keywords != null && Keywords.Count > 0)
+            if (Keywords != null)
             {
                 mat.shaderKeywords = new string[0];
                 foreach (var keyword in this.Keywords)
@@ -50,39 +50,42 @@ namespace SideLoader
                 }
             }
 
-            foreach (var prop in this.Properties)
+            if (this.Properties != null)
             {
-                if (mat.HasProperty(prop.Name))
+                foreach (var prop in this.Properties)
                 {
-                    try
+                    if (mat.HasProperty(prop.Name))
                     {
-                        if (prop is FloatProp fProp)
+                        try
                         {
-                            mat.SetFloat(prop.Name, fProp.Value);
+                            if (prop is FloatProp fProp)
+                            {
+                                mat.SetFloat(prop.Name, fProp.Value);
+                            }
+                            else if (prop is ColorProp cProp)
+                            {
+                                mat.SetColor(prop.Name, cProp.Value);
+                            }
+                            else if (prop is VectorProp vProp)
+                            {
+                                mat.SetVector(prop.Name, vProp.Value);
+                            }
+                            else
+                            {
+                                SL.Log("Cannot set ShaderProp of type: " + prop.GetType());
+                            }
                         }
-                        else if (prop is ColorProp cProp)
+                        catch (Exception e)
                         {
-                            mat.SetColor(prop.Name, cProp.Value);
-                        }
-                        else if (prop is VectorProp vProp)
-                        {
-                            mat.SetVector(prop.Name, vProp.Value);
-                        }
-                        else
-                        {
-                            SL.Log("Cannot set ShaderProp of type: " + prop.GetType());
+                            SL.Log("Unhandled exception setting shader property " + prop.Name + "\r\n"
+                                + "Message: " + e.Message + "\r\n"
+                                + "Stack: " + e.StackTrace);
                         }
                     }
-                    catch (Exception e)
+                    else
                     {
-                        SL.Log("Unhandled exception setting shader property " + prop.Name + "\r\n"
-                            + "Message: " + e.Message + "\r\n"
-                            + "Stack: " + e.StackTrace);
+                        SL.Log("Trying to set ShaderProperty " + prop.Name + " but this material does not have such a property!");
                     }
-                }
-                else
-                {
-                    SL.Log("Trying to set ShaderProperty " + prop.Name + " but this material does not have such a property!");
                 }
             }
         }
@@ -114,9 +117,12 @@ namespace SideLoader
         {
             var dict = new Dictionary<string, TextureConfig>();
 
-            foreach (var cfg in this.TextureConfigs)
+            if (this.TextureConfigs != null)
             {
-                dict.Add(cfg.TextureName, cfg);
+                foreach (var cfg in this.TextureConfigs)
+                {
+                    dict.Add(cfg.TextureName, cfg);
+                }
             }
 
             return dict;
@@ -133,15 +139,16 @@ namespace SideLoader
             {
                 Name = mat.name,
                 ShaderName = mat.shader.name,
-                Properties = CustomTextures.GetProperties(mat),
-                Keywords = mat.shaderKeywords.ToList(),
+                Properties = CustomTextures.GetProperties(mat).ToArray(),
+                Keywords = mat.shaderKeywords,
             };
 
+            var list = new List<TextureConfig>();
             foreach (var texName in mat.GetTexturePropertyNames())
             {
                 if (mat.GetTexture(texName) is Texture2D tex)
                 {
-                    holder.TextureConfigs.Add(new TextureConfig()
+                    list.Add(new TextureConfig()
                     {
                         TextureName = texName,
                         MipMapBias = tex.mipMapBias,
@@ -149,6 +156,7 @@ namespace SideLoader
                     });
                 }
             }
+            holder.TextureConfigs = list.ToArray();
 
             return holder;
         }

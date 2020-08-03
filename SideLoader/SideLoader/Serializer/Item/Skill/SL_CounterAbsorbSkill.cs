@@ -7,7 +7,7 @@ namespace SideLoader
 {
     public class SL_CounterAbsorbSkill : SL_CounterSkill
     {
-        public List<AbsorbType> Absorbs;
+        public AbsorbType[] Absorbs;
 
         public override void ApplyToItem(Item item)
         {
@@ -41,15 +41,16 @@ namespace SideLoader
             var skill = item as CounterAbsorbSkill;
             var template = holder as SL_CounterAbsorbSkill;
 
-            template.Absorbs = new List<AbsorbType>();
+            var list = new List<AbsorbType>();
             foreach (var absorb in skill.Absorbs)
             {
-                template.Absorbs.Add(new AbsorbType()
+                list.Add(new AbsorbType()
                 {
                     Condition = absorb.Condition != null ? (SL_BooleanCondition)SL_EffectCondition.ParseCondition(absorb.Condition) : null,
                     DamageTypes = absorb.Types
                 });
             }
+            template.Absorbs = list.ToArray();
         }
 
         [SL_Serialized]
