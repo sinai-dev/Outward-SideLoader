@@ -10,11 +10,11 @@ API and Mod Development Toolkit for [Outward](https://outward.gamepedia.com/Outw
 
 ## Install
 * [Releases](https://github.com/sinai-dev/Outward-SideLoader/releases)
-* [How To Install](https://sinai-dev.github.io/#/GettingStarted/Installation)
+* [How To Install](https://sinai-dev.github.io/SideLoader/GettingStarted/Installation)
 
 ## Documentation
 
-* <b>[SideLoader Docs](https://sinai-dev.github.io/#/)</b>
+* <b>[SideLoader Docs](https://sinai-dev.github.io/SideLoader/)</b>
 
 ## Credits
 Written by Sinai.
