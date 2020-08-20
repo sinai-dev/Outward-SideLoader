@@ -25,15 +25,9 @@ namespace SideLoader
         /// <summary>
         /// Returns the folder path for this SL Pack (relative to Outward directory).
         /// </summary>
-        public string FolderPath 
-        { 
-            get 
-            {
-                return InMainSLFolder ?
-                    $@"{SL.SL_FOLDER}\{Name}" :
-                    $@"{SL.PLUGINS_FOLDER}\{Name}\SideLoader";
-            } 
-        }
+        public string FolderPath => InMainSLFolder ?
+            $@"{SL.SL_FOLDER}\{Name}" :
+            $@"{SL.PLUGINS_FOLDER}\{Name}\SideLoader";
 
         /// <summary>AssetBundles loaded from the `AssetBundles\` folder. Dictionary Key is the file name.</summary>
         public Dictionary<string, AssetBundle> AssetBundles = new Dictionary<string, AssetBundle>();

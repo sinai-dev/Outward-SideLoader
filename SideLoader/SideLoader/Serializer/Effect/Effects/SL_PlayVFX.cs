@@ -193,7 +193,7 @@ namespace SideLoader
         }
 
         /// <summary>
-        /// Gets the safe name (for serialization / enum).
+        /// Gets the safe name of a VFXSystem (for serialization / enum).
         /// </summary>
         /// <param name="vfx">The VFXSystem to get the name for.</param>
         /// <returns>The actual, serialization-safe name.</returns>

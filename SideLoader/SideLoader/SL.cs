@@ -29,7 +29,20 @@ namespace SideLoader
         // Folders
         public static string PLUGINS_FOLDER => Paths.PluginPath;
         public const string SL_FOLDER = @"Mods\SideLoader";
-        public static string GENERATED_FOLDER { get => SL_FOLDER + @"\_GENERATED"; }
+        public static string GENERATED_FOLDER => $@"{SL_FOLDER}\{_GENERATED}";
+        public static string INTERNAL_FOLDER => $@"{SL_FOLDER}\{_INTERNAL}";
+
+        public const string _GENERATED = "_GENERATED";
+        public const string _INTERNAL = "_INTERNAL";
+
+        public static SLPack Internal_Pack
+        {
+            get
+            {
+                Packs.TryGetValue(_INTERNAL, out SLPack pack);
+                return pack;
+            }
+        }
 
         /// <summary>All loaded SL Packs. Key: Pack name, Value: SL Pack.</summary>
         public static Dictionary<string, SLPack> Packs = new Dictionary<string, SLPack>();
@@ -53,6 +66,15 @@ namespace SideLoader
         public static event Action INTERNAL_ApplyRecipes;
         /// <summary>Only called once on startup. It is a callback used by SL_RecipeItems and other templates to apply after all other templates are loaded.</summary>
         public static event Action INTERNAL_ApplyLateItems;
+
+        //// ********** DEBUG **********
+
+        //internal void Update()
+        //{
+        //    CustomScenes.Update();
+        //}
+
+        //// ***************************
 
         // ================ Main Setup ====================
 

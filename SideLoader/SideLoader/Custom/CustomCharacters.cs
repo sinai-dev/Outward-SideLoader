@@ -277,12 +277,7 @@ namespace SideLoader
             SetupBasicAIPrefab();
         }
 
-        private static bool IsRealScene(Scene scene)
-        {
-            var name = scene.name.ToLower();
-
-            return !(name.Contains("lowmemory") || name.Contains("mainmenu"));
-        }
+        public static bool IsRealScene(Scene scene) => CustomScenes.IsRealScene(scene);
 
         /// <summary>
         /// Internal. The host calls this on Scene Changes to cleanup non-persistent characters (currently all SL_Character are non-persistent)

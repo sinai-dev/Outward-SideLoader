@@ -6,10 +6,6 @@ using System.Text;
 using UnityEngine;
 using System.IO;
 using UnityEngine.UI;
-using System.Threading;
-using UnityEditor;
-using UnityEngine.Experimental.Rendering;
-using System.Net;
 
 namespace SideLoader
 {
@@ -401,10 +397,6 @@ namespace SideLoader
             }
 
             // ============ UI.Image ============ //
-
-            // note: this works, but im not sure if its desirable right now. maybe we have another folder for Sprite. 
-            // you might accidentally replace menu with generic names.
-            // also, this doesnt work for item icons.
 
             var images = Resources.FindObjectsOfTypeAll<Image>().Where(x => x.sprite != null && x.sprite.texture != null);
 
