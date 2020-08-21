@@ -4,9 +4,14 @@
 <img align="center" src="https://i.imgur.com/DWezCnm.png">
 </p>
 
-API and Mod Development Toolkit for [Outward](https://outward.gamepedia.com/Outward_Wiki).
+<p align="center">
+  API and Mod Development Toolkit for <a href="https://outward.gamepedia.com/Outward_Wiki">Outward</a>.<br><br>
 
-[![Latest Release](https://img.shields.io/github/release/sinai-dev/Outward-SideLoader.svg)](../../releases/latest) [![GitHub Downloads](https://img.shields.io/github/downloads/sinai-dev/Outward-SideLoader/total.svg)]() | [NexusMods Release](https://www.nexusmods.com/outward/mods/96)
+  <a href="../../releases/latest">
+    <img src="https://img.shields.io/github/release/sinai-dev/Outward-SideLoader.svg" />
+  </a> 
+  <img src="https://img.shields.io/github/downloads/sinai-dev/Outward-SideLoader/total.svg" /> <a href="https://www.nexusmods.com/outward/mods/96">NexusMods Release</a>  
+</p>
 
 ## Install
 * [How To Install](https://sinai-dev.github.io/OSLDocs/#/GettingStarted/Installation)
