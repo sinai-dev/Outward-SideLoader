@@ -10,7 +10,10 @@
   <a href="../../releases/latest">
     <img src="https://img.shields.io/github/release/sinai-dev/Outward-SideLoader.svg" />
   </a> 
-  <img src="https://img.shields.io/github/downloads/sinai-dev/Outward-SideLoader/total.svg" /> <a href="https://www.nexusmods.com/outward/mods/96">NexusMods Release</a>  
+  <img src="https://img.shields.io/github/downloads/sinai-dev/Outward-SideLoader/total.svg" /> 
+  <a href="https://www.nexusmods.com/outward/mods/96">
+    <img src="https://img.shields.io/badge/NexusMods-30k+%20downloads-red?link=https://www.nexusmods.com/outward/mods/96" />
+  </a>  
 </p>
 
 ## Install
