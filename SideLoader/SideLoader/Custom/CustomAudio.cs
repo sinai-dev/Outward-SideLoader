@@ -15,22 +15,33 @@ namespace SideLoader
         /// <summary>The GlobalAudioManager Instance reference (since its not public)</summary>
         public static GlobalAudioManager GAMInstance => References.GLOBALAUDIOMANAGER;
 
+        /// <summary>
+        /// List of AudioClips which have been replaced, acting as a blacklist.
+        /// </summary>
+        public static readonly List<GlobalAudioManager.Sounds> ReplacedClips = new List<GlobalAudioManager.Sounds>();
+
         /// <summary>Replace a global sound with the provided AudioClip.</summary>
         public static void ReplaceAudio(GlobalAudioManager.Sounds sound, AudioClip clip)
         {
             if (!GAMInstance)
             {
-                Debug.LogWarning("Cannot find GlobalAudioManager Instance!");
+                SL.Log("Cannot find GlobalAudioManager Instance!", 0);
                 return;
+            }
+            
+            if (ReplacedClips.Contains(sound))
+            {
+                SL.Log("The Sound clip '" + sound + "' has already been replaced!");
             }
 
             try
             {
                 GAM_ReplaceClip(sound, clip);
+                ReplacedClips.Add(sound);
             }
             catch (Exception e)
             {
-                Debug.Log("Exception replacing clip " + sound + ".\r\nMessage: " + e.Message + "\r\nStack: " + e.StackTrace);
+                SL.Log("Exception replacing clip " + sound + ".\r\nMessage: " + e.Message + "\r\nStack: " + e.StackTrace, 1);
             }
         }
 

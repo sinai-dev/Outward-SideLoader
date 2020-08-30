@@ -256,6 +256,40 @@ namespace SideLoader.Hooks
 
     #endregion
 
+    #region AUDIO PATCHES
+
+    [HarmonyPatch(typeof(GlobalAudioManager), "CleanUpMusic")]
+    public class GAM_CleanupMusic
+    {
+        [HarmonyPrefix]
+        public static bool Prefix(ref DictionaryExt<GlobalAudioManager.Sounds, GlobalAudioManager.MusicSource> ___s_musicSources,
+            ref GlobalAudioManager.Sounds ___s_currentMusic)
+        {
+            string name = SceneManager.GetActiveScene().name;
+            for (int i = 0; i < ___s_musicSources.Values.Count; i++)
+            {
+                if (CustomAudio.ReplacedClips.Contains(___s_musicSources.Keys[i]))
+                {
+                    SL.Log("Game tried to clean up " + ___s_musicSources.Keys[i] + ", but we skipped it!");
+                    continue;
+                }
+
+                if (___s_musicSources.Keys[i] != ___s_currentMusic && ___s_musicSources.Values[i].SceneName != name)
+                {
+                    UnityEngine.Object.Destroy(___s_musicSources.Values[i].Source.gameObject);
+                    ___s_musicSources.Remove(___s_musicSources.Keys[i]);
+                    i--;
+                }
+            }
+
+            return false;
+        }
+    }
+
+    [HarmonyPatch(typeof(GlobalAudioManager), "")]
+
+    #endregion
+
     #region SL_SCENE PATCHES
 
     // This is to fix some things when loading custom scenes.
