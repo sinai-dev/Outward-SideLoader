@@ -32,12 +32,12 @@ namespace SideLoader
             if (ReplacedClips.Contains(sound))
             {
                 SL.Log("The Sound clip '" + sound + "' has already been replaced!");
+                return;
             }
 
             try
             {
                 GAM_ReplaceClip(sound, clip);
-                ReplacedClips.Add(sound);
             }
             catch (Exception e)
             {
@@ -56,6 +56,10 @@ namespace SideLoader
             var resource = Resources.Load("_Sounds/" + path) as GameObject;
             var component = resource.GetComponent<AudioSource>();
             component.clip = _newClip;
+
+            resource.hideFlags |= HideFlags.DontUnloadUnusedAsset;
+
+            ReplacedClips.Add(_sound);
 
             Debug.Log("Replaced " + _sound + " AudioSource with new clip!");
         }

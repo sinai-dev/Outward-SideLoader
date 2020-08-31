@@ -268,16 +268,19 @@ namespace SideLoader.Hooks
             string name = SceneManager.GetActiveScene().name;
             for (int i = 0; i < ___s_musicSources.Values.Count; i++)
             {
-                if (CustomAudio.ReplacedClips.Contains(___s_musicSources.Keys[i]))
-                {
-                    SL.Log("Game tried to clean up " + ___s_musicSources.Keys[i] + ", but we skipped it!");
-                    continue;
-                }
+                var key = ___s_musicSources.Keys[i];
+                var value = ___s_musicSources.Values[i];                
 
-                if (___s_musicSources.Keys[i] != ___s_currentMusic && ___s_musicSources.Values[i].SceneName != name)
+                if (key != ___s_currentMusic && value.SceneName != name)
                 {
-                    UnityEngine.Object.Destroy(___s_musicSources.Values[i].Source.gameObject);
-                    ___s_musicSources.Remove(___s_musicSources.Keys[i]);
+                    if (CustomAudio.ReplacedClips.Contains(key))
+                    {
+                        SL.Log("Game tried to clean up " + key + ", but we skipped it!");
+                        continue;
+                    }
+
+                    UnityEngine.Object.Destroy(value.Source.gameObject);
+                    ___s_musicSources.Remove(key);
                     i--;
                 }
             }
@@ -286,7 +289,21 @@ namespace SideLoader.Hooks
         }
     }
 
-    [HarmonyPatch(typeof(GlobalAudioManager), "")]
+    [HarmonyPatch(typeof(GlobalAudioManager), "ReplaceClip")]
+    public class GAM_ReplaceClip
+    {
+        [HarmonyPrefix]
+        public static bool Prefix(GlobalAudioManager.Sounds _sound, AudioClip _newCLip)
+        {
+            if (CustomAudio.ReplacedClips.Contains(_sound))
+            {
+                SL.Log("Game tried to replace " + _sound + ", but it is already replaced with a custom sound! Skipping...");
+                return false;
+            }
+
+            return true;
+        }
+    }
 
     #endregion
 
