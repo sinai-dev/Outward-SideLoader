@@ -321,7 +321,7 @@ namespace SideLoader
                     }
                     catch (Exception e)
                     {
-                        SL.Log("LoadFromFolder: Error creating custom item! \r\nMessage: " + e.Message + "\r\nStack: " + e.StackTrace);
+                        SL.Log("LoadFromFolder: Error creating custom item! " + e.GetType() + ", " + e.Message);
                     }
                 }
             }

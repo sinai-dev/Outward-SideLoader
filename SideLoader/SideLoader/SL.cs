@@ -24,7 +24,7 @@ namespace SideLoader
         // Mod Info
         public const string GUID = "com.sinai." + MODNAME;
         public const string MODNAME = "SideLoader";
-        public const string VERSION = "2.8.0";
+        public const string VERSION = "2.8.1";
 
         // Folders
         public static string PLUGINS_FOLDER => Paths.PluginPath;
@@ -121,7 +121,7 @@ namespace SideLoader
 
                 //SL_ShootBlast.DebugBlastNames();
                 //SL_ShootProjectile.DebugProjectileNames();
-                //SL_PlayVFX.DebugVfxNames();
+                SL_PlayVFX.DebugVfxNames();
 
                 SL_ShootBlast.BuildBlastsDictionary();
                 SL_ShootProjectile.BuildProjectileDictionary();
@@ -214,7 +214,7 @@ namespace SideLoader
                 TryInvoke(OnPacksLoaded);
             }
 
-            SL.Log("SL.OnPacksLoaded finished.");
+            Log("SL.OnPacksLoaded finished.");
         }
 
         // =============== Scene Change Events ====================

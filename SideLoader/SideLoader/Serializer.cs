@@ -232,39 +232,53 @@ namespace SideLoader
                 return null;
             }
 
-            // First we have to find out what kind of Type this xml was serialized as.
-            string typeName = "";
-            using (XmlReader reader = XmlReader.Create(path))
+            try
             {
-                while (reader.Read()) // just get the first element (root) then break.
+                // First we have to find out what kind of Type this xml was serialized as.
+                string typeName = "";
+                using (XmlReader reader = XmlReader.Create(path))
                 {
-                    if (reader.NodeType == XmlNodeType.Element)
+                    while (reader.Read()) // just get the first element (root) then break.
                     {
-                        // the real type might be saved as an attribute
-                        if (!string.IsNullOrEmpty(reader.GetAttribute("type")))
+                        if (reader.NodeType == XmlNodeType.Element)
                         {
-                            typeName = reader.GetAttribute("type");
+                            // the real type might be saved as an attribute
+                            if (!string.IsNullOrEmpty(reader.GetAttribute("type")))
+                            {
+                                typeName = reader.GetAttribute("type");
+                            }
+                            else
+                            {
+                                typeName = reader.Name;
+                            }
+                            break;
                         }
-                        else
-                        {
-                            typeName = reader.Name;
-                        }
-                        break;
                     }
                 }
-            }
 
-            if (!string.IsNullOrEmpty(typeName) && SL_Assembly.GetType($"SideLoader.{typeName}") is Type type)
-            {
-                var xml = GetXmlSerializer(type);
-                FileStream file = File.OpenRead(path);
-                var obj = xml.Deserialize(file);
-                file.Close();
-                return obj;
+                if (!string.IsNullOrEmpty(typeName) && SL_Assembly.GetType($"SideLoader.{typeName}") is Type type)
+                {
+                    var xml = GetXmlSerializer(type);
+                    FileStream file = File.OpenRead(path);
+                    var obj = xml.Deserialize(file);
+                    file.Close();
+                    return obj;
+                }
+                else
+                {
+                    SL.Log("LoadFromXml Error, could not serialize the Type of document! typeName: " + typeName, 1);
+                    return null;
+                }
             }
-            else
+            catch (Exception e)
             {
-                SL.Log("LoadFromXml Error, could not serialize the Type of document! typeName: " + typeName, 1);
+                SL.Log("Exception reading the XML file, logging exceptions...");
+                while (e != null)
+                {
+                    SL.Log($" - {e.GetType()}, {e.Message}");
+                    e = e.InnerException;
+                }
+
                 return null;
             }
         }
