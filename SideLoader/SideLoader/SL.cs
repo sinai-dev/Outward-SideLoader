@@ -121,7 +121,7 @@ namespace SideLoader
 
                 //SL_ShootBlast.DebugBlastNames();
                 //SL_ShootProjectile.DebugProjectileNames();
-                SL_PlayVFX.DebugVfxNames();
+                //SL_PlayVFX.DebugVfxNames();
 
                 SL_ShootBlast.BuildBlastsDictionary();
                 SL_ShootProjectile.BuildProjectileDictionary();
