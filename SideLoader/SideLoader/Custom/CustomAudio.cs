@@ -50,6 +50,7 @@ namespace SideLoader
             if (!_newClip)
             {
                 Debug.LogWarning("The replacement clip for " + _sound.ToString() + " is null");
+                return;
             }
 
             var path = (string)At.Call(typeof(GlobalAudioManager), GAMInstance, "GetPrefabPath", null, new object[] { _sound });
@@ -83,24 +84,23 @@ namespace SideLoader
                 if (www.error != null)
                 {
                     Debug.Log(www.error);
+                    yield break;
                 }
-                else
+
+                var name = Path.GetFileNameWithoutExtension(path);
+                var clip = DownloadHandlerAudioClip.GetContent(www);
+                GameObject.DontDestroyOnLoad(clip);
+
+                SL.Log("Loaded audio clip " + name);
+
+                if (pack != null)
                 {
-                    var name = Path.GetFileNameWithoutExtension(path);
-                    var clip = DownloadHandlerAudioClip.GetContent(www);
-                    GameObject.DontDestroyOnLoad(clip);
+                    pack.AudioClips.Add(name, clip);
+                }
 
-                    SL.Log("Loaded audio clip " + name);
-
-                    if (pack != null)
-                    {
-                        pack.AudioClips.Add(name, clip);
-                    }
-
-                    if (Enum.TryParse(name, out GlobalAudioManager.Sounds sound))
-                    {
-                        ReplaceAudio(sound, clip);
-                    }
+                if (Enum.TryParse(name, out GlobalAudioManager.Sounds sound))
+                {
+                    ReplaceAudio(sound, clip);
                 }
             }
         }

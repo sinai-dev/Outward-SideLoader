@@ -613,6 +613,9 @@ namespace SideLoader
 
                 clone.SetActive(true);
 
+                // heal reset
+                character.Stats.Reset();
+
                 clone.transform.position = CharacterManager.Instance.GetFirstLocalCharacter().transform.position;
             }
             catch (Exception e)
