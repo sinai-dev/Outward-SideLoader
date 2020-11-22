@@ -14,6 +14,10 @@ namespace SideLoader
         public float? DurabilityCost;
         public float? DurabilityCostPercent;
 
+        public bool? VFXOnStart;
+        public bool? StopStartVFXOnEnd;
+        public SL_PlayVFX.VFXPrefabs? StartVFX;
+
         public SkillItemReq[] RequiredItems;
 
         public override void ApplyToItem(Item item)
@@ -23,24 +27,33 @@ namespace SideLoader
             var skill = item as Skill;
 
             if (this.Cooldown != null)
-            {
                 skill.Cooldown = (float)this.Cooldown;
-            }
+
             if (this.ManaCost != null)
-            {
                 skill.ManaCost = (float)this.ManaCost;
-            }
+
             if (this.StaminaCost != null)
-            {
                 skill.StaminaCost = (float)this.StaminaCost;
-            }
+
             if (this.DurabilityCost != null)
-            {
                 skill.DurabilityCost = (float)this.DurabilityCost;
-            }
+
             if (this.DurabilityCostPercent != null)
-            {
                 skill.DurabilityCostPercent = (float)this.DurabilityCostPercent;
+
+            if (this.VFXOnStart != null)
+                skill.VFXOnStart = (bool)this.VFXOnStart;
+
+            if (this.StopStartVFXOnEnd != null)
+                skill.StopVFX = (bool)this.StopStartVFXOnEnd;
+
+            if (this.StartVFX != null)
+            {
+                var prefab = SL_PlayVFX.GetVfxSystem((SL_PlayVFX.VFXPrefabs)this.StartVFX);
+                var copy = GameObject.Instantiate(prefab);
+                GameObject.DontDestroyOnLoad(copy);
+                copy.SetActive(false);
+                skill.StartVFX = copy.GetComponent<VFXSystem>();
             }
 
             if (this.RequiredItems != null)
@@ -100,6 +113,12 @@ namespace SideLoader
             skillHolder.ManaCost = skill.ManaCost;
             skillHolder.DurabilityCost = skill.DurabilityCost;
             skillHolder.DurabilityCostPercent = skill.DurabilityCostPercent;
+
+            skillHolder.VFXOnStart = skill.VFXOnStart;
+            skillHolder.StopStartVFXOnEnd = skill.StopVFX;
+
+            if (skill.StartVFX)
+                skillHolder.StartVFX = SL_PlayVFX.GetVFXSystemEnum(skill.StartVFX);
 
             if (skill.RequiredItems != null)
             {

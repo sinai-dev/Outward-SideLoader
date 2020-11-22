@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using UnityEngine;
 
 namespace SideLoader
 {
@@ -47,6 +48,14 @@ namespace SideLoader
                     }
                 }
                 attackSkill.RequiredTags = list.ToArray();
+            }
+
+            if (item is PistolSkill pistolSkill && pistolSkill.transform.Find("NormalReload") is Transform reload)
+            {
+                At.SetValue(reload.gameObject, typeof(PistolSkill), pistolSkill, "m_alternateAnimConditionsHolder");
+
+                foreach (var icon in pistolSkill.m_alternateIcons)
+                    At.SetValue(reload.gameObject, typeof(PistolSkill.AlternateIcon), icon, "m_conditionHolder");
             }
         }
 

@@ -75,6 +75,7 @@
     <Compile Include="Serializer\Item\ItemVisual\SL_ItemVisual.cs" />
     <Compile Include="Serializer\Recipe\SL_EnchantmentRecipe.cs" />
     <Compile Include="Serializer\Scene\SL_Scene.cs" />
+    <Compile Include="TempTes.cs" />
     <Compile Include="UI\UIStyles.cs" />
     <Compile Include="RPCManager.cs" />
     <Compile Include="Serializer\Effect\Conditions\SL_ShooterPosStatusEffect.cs" />
