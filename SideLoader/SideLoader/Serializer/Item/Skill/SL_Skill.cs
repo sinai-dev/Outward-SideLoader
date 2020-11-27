@@ -49,11 +49,16 @@ namespace SideLoader
 
             if (this.StartVFX != null)
             {
-                var prefab = SL_PlayVFX.GetVfxSystem((SL_PlayVFX.VFXPrefabs)this.StartVFX);
-                var copy = GameObject.Instantiate(prefab);
-                GameObject.DontDestroyOnLoad(copy);
-                copy.SetActive(false);
-                skill.StartVFX = copy.GetComponent<VFXSystem>();
+                if (this.StartVFX == SL_PlayVFX.VFXPrefabs.NONE)
+                    skill.StartVFX = null;
+                else
+                {
+                    var prefab = SL_PlayVFX.GetVfxSystem((SL_PlayVFX.VFXPrefabs)this.StartVFX);
+                    var copy = GameObject.Instantiate(prefab);
+                    GameObject.DontDestroyOnLoad(copy);
+                    copy.SetActive(false);
+                    skill.StartVFX = copy.GetComponent<VFXSystem>();
+                }
             }
 
             if (this.RequiredItems != null)
