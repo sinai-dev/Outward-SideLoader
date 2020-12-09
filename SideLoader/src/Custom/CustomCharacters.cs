@@ -244,9 +244,6 @@ namespace SideLoader
 
         internal static void RequestSpawnedCharacters()
         {
-            var view = SLRPCManager.Instance.photonView;
-            var ID = view.owner.ID;
-
             SLRPCManager.Instance.photonView.RPC(nameof(SLRPCManager.RPC_RequestCharacters), PhotonTargets.MasterClient);
         }
 
