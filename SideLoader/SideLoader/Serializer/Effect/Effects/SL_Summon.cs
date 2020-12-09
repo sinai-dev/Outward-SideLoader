@@ -42,7 +42,7 @@ namespace SideLoader
                 }
                 else
                 {
-                    SL.Log("Could not find Resources asset: " + this.Prefab + "!", 1);
+                    SL.Log("Could not find Resources asset: " + this.Prefab + "!");
                     return;
                 }
             }
@@ -54,7 +54,7 @@ namespace SideLoader
                 }
                 else
                 {
-                    SL.Log("Could not find an Item with the ID " + this.Prefab + ", or that is not a valid ID!", 0);
+                    SL.Log("Could not find an Item with the ID " + this.Prefab + ", or that is not a valid ID!");
                     return;
                 }
             }

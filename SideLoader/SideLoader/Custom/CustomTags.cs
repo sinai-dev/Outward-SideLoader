@@ -18,12 +18,12 @@ namespace SideLoader
         /// <returns></returns>
         public static Tag GetTag(string TagName, bool logging = true)
         {
-            var tags = (Tag[])At.GetValue(typeof(TagSourceManager), TagSourceManager.Instance, "m_tags");
+            var tags = (Tag[])At.GetValue("m_tags", TagSourceManager.Instance);
+
             var tag = tags.FirstOrDefault(x => x.TagName == TagName);
+
             if (tag.TagName == TagName)
-            {
                 return tag;
-            }
             else
             {
                 if (logging)

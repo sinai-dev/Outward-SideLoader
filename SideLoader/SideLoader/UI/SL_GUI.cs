@@ -30,7 +30,7 @@ namespace SideLoader.UI
         // Items
         private int SelectedItemID = 0;
         private int NewItemID = 0;
-        private EffectBehaviours m_templateBehaviour = EffectBehaviours.OverrideEffects;
+        private EditBehaviours m_templateBehaviour = EditBehaviours.Override;
         private bool DumpVisuals = true;
 
         // Status/Imbues
@@ -48,7 +48,7 @@ namespace SideLoader.UI
 
         internal void Update()
         {
-            if ((Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl)) 
+            if ((Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl))
                 && (Input.GetKey(KeyCode.LeftAlt) || Input.GetKey(KeyCode.RightAlt)))
             {
                 if (Input.GetKeyDown(KeyCode.F6))
@@ -69,7 +69,7 @@ namespace SideLoader.UI
             {
                 var orig = GUI.skin;
                 GUI.skin = UI.UIStyles.WindowSkin;
-                m_rect = GUI.Window(29, m_rect, WindowFunction, "SideLoader Menu (Ctrl+Alt+F6 Toggle)");
+                m_rect = GUI.Window(29, m_rect, (GUI.WindowFunction)WindowFunction, "SideLoader Menu (Ctrl+Alt+F6 Toggle)");
                 GUI.skin = orig;
             }
         }
@@ -96,7 +96,7 @@ namespace SideLoader.UI
                 case Pages.StatusEffects: EffectsPage(); break;
                 case Pages.Enchantments: EnchantmentsPage(); break;
                 case Pages.HotReload: HotReloadPage(); break;
-                //case 3: ItemVisualsPage(); break;
+                    //case 3: ItemVisualsPage(); break;
             }
 
             GUILayout.EndArea();
@@ -141,7 +141,7 @@ namespace SideLoader.UI
             GUILayout.Space(5);
             GUILayout.BeginHorizontal();
             GUILayout.Label("Target Item ID:");
-            string input = GUILayout.TextField(SelectedItemID.ToString(), GUILayout.Width(150));
+            string input = GUILayout.TextField(SelectedItemID.ToString(), new GUILayoutOption[] { GUILayout.Width(150) });
             if (int.TryParse(input, out int id))
             {
                 SelectedItemID = id;
@@ -149,7 +149,7 @@ namespace SideLoader.UI
             GUILayout.EndHorizontal();
             GUILayout.BeginHorizontal();
             GUILayout.Label("New Item ID:");
-            string input2 = GUILayout.TextField(NewItemID.ToString(), GUILayout.Width(150));
+            string input2 = GUILayout.TextField(NewItemID.ToString(), new GUILayoutOption[] { GUILayout.Width(150) });
             if (int.TryParse(input2, out int id2))
             {
                 NewItemID = id2;
@@ -157,9 +157,9 @@ namespace SideLoader.UI
             GUILayout.EndHorizontal();
 
             GUILayout.Label("Effects Behaviour:");
-            BehaviourButton(EffectBehaviours.DestroyEffects, "Destroy Effects");
-            BehaviourButton(EffectBehaviours.OverrideEffects, "Override Effects");
-            BehaviourButton(EffectBehaviours.NONE, "None (leave all)");
+            BehaviourButton(EditBehaviours.Destroy, "Destroy Effects");
+            BehaviourButton(EditBehaviours.Override, "Override Effects");
+            BehaviourButton(EditBehaviours.NONE, "None (leave all)");
 
             GUILayout.Space(15);
 
@@ -171,7 +171,7 @@ namespace SideLoader.UI
             }
         }
 
-        private void BehaviourButton(EffectBehaviours _behaviour, string _label)
+        private void BehaviourButton(EditBehaviours _behaviour, string _label)
         {
             string label = "<color=";
             if (m_templateBehaviour == _behaviour)
@@ -224,11 +224,11 @@ namespace SideLoader.UI
 
             GUILayout.BeginHorizontal();
             GUILayout.Label("Target Status Identifier Name:");
-            TargetStatusIdentifier = GUILayout.TextField(TargetStatusIdentifier.ToString(), GUILayout.Width(150));
+            TargetStatusIdentifier = GUILayout.TextField(TargetStatusIdentifier.ToString(), new GUILayoutOption[] { GUILayout.Width(150) });
             GUILayout.EndHorizontal();
             GUILayout.BeginHorizontal();
             GUILayout.Label("New Status Identifier:");
-            NewStatusIdentifier = GUILayout.TextField(NewStatusIdentifier, GUILayout.Width(150));
+            NewStatusIdentifier = GUILayout.TextField(NewStatusIdentifier, new GUILayoutOption[] { GUILayout.Width(150) });
             GUILayout.EndHorizontal();
             if (GUILayout.Button("Generate from Identifier Name"))
             {
@@ -242,7 +242,7 @@ namespace SideLoader.UI
 
             GUILayout.BeginHorizontal();
             GUILayout.Label("Target Preset ID:");
-            var targetIDString = GUILayout.TextField(TargetStatusID.ToString(), GUILayout.Width(150));
+            var targetIDString = GUILayout.TextField(TargetStatusID.ToString(), new GUILayoutOption[] { GUILayout.Width(150) });
             if (int.TryParse(targetIDString, out int targetID))
             {
                 TargetStatusID = targetID;
@@ -250,7 +250,7 @@ namespace SideLoader.UI
             GUILayout.EndHorizontal();
             GUILayout.BeginHorizontal();
             GUILayout.Label("New Preset ID:");
-            var newIDString = GUILayout.TextField(NewStatusID.ToString(), GUILayout.Width(150));
+            var newIDString = GUILayout.TextField(NewStatusID.ToString(), new GUILayoutOption[] { GUILayout.Width(150) });
             if (int.TryParse(newIDString, out int newID))
             {
                 NewStatusID = newID;
@@ -322,7 +322,7 @@ namespace SideLoader.UI
 
             GUILayout.BeginHorizontal();
             GUILayout.Label("Target Enchantment ID:");
-            var selectedID = GUILayout.TextField(SelectedEnchantmentID.ToString(), GUILayout.Width(150));
+            var selectedID = GUILayout.TextField(SelectedEnchantmentID.ToString(), new GUILayoutOption[] { GUILayout.Width(150) });
             if (int.TryParse(selectedID, out int id))
             {
                 SelectedEnchantmentID = id;
@@ -330,7 +330,7 @@ namespace SideLoader.UI
             GUILayout.EndHorizontal();
             GUILayout.BeginHorizontal();
             GUILayout.Label("New Enchantment ID:");
-            var newID = GUILayout.TextField(NewEnchantmentID.ToString(), GUILayout.Width(150));
+            var newID = GUILayout.TextField(NewEnchantmentID.ToString(), new GUILayoutOption[] { GUILayout.Width(150) });
             if (int.TryParse(newID, out int id2))
             {
                 NewEnchantmentID = id2;
@@ -359,7 +359,7 @@ namespace SideLoader.UI
             }
             else
             {
-                SL.Log($"Error: Could not find any Enchantment with the ID {SelectedEnchantmentID}", 0);
+                SL.Log($"Error: Could not find any Enchantment with the ID {SelectedEnchantmentID}");
             }
         }
 
@@ -381,152 +381,152 @@ namespace SideLoader.UI
         #endregion
 
         #region ITEM VISUALS HELPER (Page ?)
-        private bool m_aligning = false;
+        //private bool m_aligning = false;
 
-        // desired item visuals and hot transform
-        private int m_currentVisualsID = 5500999;
-        private Transform m_currentVisuals;
+        //// desired item visuals and hot transform
+        //private int m_currentVisualsID = 5500999;
+        //private Transform m_currentVisuals;
 
-        // translate amounts
-        private float m_posAmount = 1f;
-        private float m_rotAmount = 30f;
+        //// translate amounts
+        //private float m_posAmount = 1f;
+        //private float m_rotAmount = 30f;
 
-        // user input values
-        private Vector3 m_currentPos;
-        private Quaternion m_currentRot;
+        //// user input values
+        //private Vector3 m_currentPos;
+        //private Quaternion m_currentRot;
 
-        private Vector3 m_cachedPos;
-        private Vector3 m_cachedRot;
+        //private Vector3 m_cachedPos;
+        //private Vector3 m_cachedRot;
 
-        private void ItemVisualsPage()
-        {
-            if (m_aligning)
-            {
-                var pos = m_currentVisuals.transform.localPosition;
-                var rot = m_currentVisuals.transform.localRotation.eulerAngles;
+        //private void ItemVisualsPage()
+        //{
+        //    if (m_aligning)
+        //    {
+        //        var pos = m_currentVisuals.transform.localPosition;
+        //        var rot = m_currentVisuals.transform.localRotation.eulerAngles;
 
-                m_currentVisuals.transform.localPosition = UIStyles.Translate("Pos", pos, ref m_posAmount, true);
-                m_currentVisuals.transform.localRotation = Quaternion.Euler(UIStyles.Translate("Rot", rot, ref m_rotAmount, true));
+        //        m_currentVisuals.transform.localPosition = UIStyles.Translate("Pos", pos, ref m_posAmount, true);
+        //        m_currentVisuals.transform.localRotation = Quaternion.Euler(UIStyles.Translate("Rot", rot, ref m_rotAmount, true));
 
-                //var pos = m_currentPos;
-                //var rot = m_currentRot.eulerAngles;
+        //        //var pos = m_currentPos;
+        //        //var rot = m_currentRot.eulerAngles;
 
-                //m_currentPos = UIStyles.Translate("Pos", m_currentPos, ref m_posAmount, true);
-                //m_currentRot = Quaternion.Euler(UIStyles.Translate("Rot", m_currentRot.eulerAngles, ref m_rotAmount, true));
+        //        //m_currentPos = UIStyles.Translate("Pos", m_currentPos, ref m_posAmount, true);
+        //        //m_currentRot = Quaternion.Euler(UIStyles.Translate("Rot", m_currentRot.eulerAngles, ref m_rotAmount, true));
 
-                //var posChange = m_currentPos - pos;
-                //var rotChange = m_currentRot.eulerAngles - rot;
+        //        //var posChange = m_currentPos - pos;
+        //        //var rotChange = m_currentRot.eulerAngles - rot;
 
-                //if (posChange != Vector3.zero)
-                //{
-                //    m_currentVisuals.localPosition += posChange;
-                //}
-                //if (rotChange != Vector3.zero)
-                //{
-                //    var localRot = m_currentVisuals.localRotation.eulerAngles;
-                //    localRot += rotChange;
-                //    m_currentVisuals.localRotation = Quaternion.Euler(localRot);
-                //}
-            }
-            else
-            {
-                // set ID
-                GUILayout.BeginHorizontal();
-                GUILayout.Label("Item ID:", GUILayout.Width(60));
-                var idString = m_currentVisualsID.ToString();
-                idString = GUILayout.TextField(idString, GUILayout.Width(100));
-                if (int.TryParse(idString, out int id))
-                {
-                    m_currentVisualsID = id;
-                }
-                GUILayout.EndHorizontal();
+        //        //if (posChange != Vector3.zero)
+        //        //{
+        //        //    m_currentVisuals.localPosition += posChange;
+        //        //}
+        //        //if (rotChange != Vector3.zero)
+        //        //{
+        //        //    var localRot = m_currentVisuals.localRotation.eulerAngles;
+        //        //    localRot += rotChange;
+        //        //    m_currentVisuals.localRotation = Quaternion.Euler(localRot);
+        //        //}
+        //    }
+        //    else
+        //    {
+        //        // set ID
+        //        GUILayout.BeginHorizontal(null);
+        //        GUILayout.Label("Item ID:", new GUILayoutOption[] { GUILayout.Width(60) });
+        //        var idString = m_currentVisualsID.ToString();
+        //        idString = GUILayout.TextField(idString, new GUILayoutOption[] { GUILayout.Width(100) });
+        //        if (int.TryParse(idString, out int id))
+        //        {
+        //            m_currentVisualsID = id;
+        //        }
+        //        GUILayout.EndHorizontal();
 
-                // enter current position/rotation
-                GUILayout.Label("Enter current pos/rot offsets here:");
-                m_currentPos = UIStyles.Translate("Pos", m_currentPos, ref m_posAmount, true);
-                var rotEuler = m_currentRot.eulerAngles;
-                rotEuler = UIStyles.Translate("Rot", rotEuler, ref m_rotAmount, true);
-                m_currentRot = Quaternion.Euler(rotEuler);
-                GUILayout.Label("After aligning, replace your template values with these values.");
-            }
+        //        // enter current position/rotation
+        //        GUILayout.Label("Enter current pos/rot offsets here:", null);
+        //        m_currentPos = UIStyles.Translate("Pos", m_currentPos, ref m_posAmount, true);
+        //        var rotEuler = m_currentRot.eulerAngles;
+        //        rotEuler = UIStyles.Translate("Rot", rotEuler, ref m_rotAmount, true);
+        //        m_currentRot = Quaternion.Euler(rotEuler);
+        //        GUILayout.Label("After aligning, replace your template values with these values.", null);
+        //    }
 
-            GUI.color = m_aligning ? Color.green : Color.red;
-            if (GUILayout.Button((m_aligning ? "Stop" : "Start") + " Aligning"))
-            {
-                if (!CharacterManager.Instance.GetFirstLocalCharacter())
-                {
-                    SL.Log("You need to load up a character first!");
-                }
-                else
-                {
-                    StartStopAligning(!m_aligning);
-                }
-            }
-            GUI.color = Color.white;
-        }
+        //    GUI.color = m_aligning ? Color.green : Color.red;
+        //    if (GUILayout.Button((m_aligning ? "Stop" : "Start") + " Aligning", null))
+        //    {
+        //        if (!CharacterManager.Instance.GetFirstLocalCharacter())
+        //        {
+        //            SL.SL_Log("You need to load up a character first!");
+        //        }
+        //        else
+        //        {
+        //            StartStopAligning(!m_aligning);
+        //        }
+        //    }
+        //    GUI.color = Color.white;
+        //}
 
-        private void StartStopAligning(bool start)
-        {
-            if (start)
-            {
-                var character = CharacterManager.Instance.GetFirstLocalCharacter();
+        //private void StartStopAligning(bool start)
+        //{
+        //    if (start)
+        //    {
+        //        var character = CharacterManager.Instance.GetFirstLocalCharacter();
 
-                if (ResourcesPrefabManager.Instance.GetItemPrefab(m_currentVisualsID) is Equipment equipment)
-                {
-                    character.transform.rotation = Quaternion.identity;
+        //        if (ResourcesPrefabManager.Instance.GetItemPrefab(m_currentVisualsID) is Equipment equipment)
+        //        {
+        //            character.transform.rotation = Quaternion.identity;
 
-                    SL_Character.TryEquipItem(character, m_currentVisualsID);
+        //            SL_Character.TryEquipItem(character, m_currentVisualsID);
 
-                    if (character.Inventory.Equipment.GetEquippedItem(equipment.EquipSlot) is Equipment equippedItem)
-                    {
-                        var visualTrans = ((ItemVisual)At.GetValue(typeof(Item), equippedItem, "m_loadedVisual")).transform;
+        //            if (character.Inventory.Equipment.GetEquippedItem(equipment.EquipSlot) is Equipment equippedItem)
+        //            {
+        //                var visualTrans = ((ItemVisual)At.GetValue(typeof(Item), equippedItem, "m_loadedVisual")).transform;
 
-                        foreach (Transform child in visualTrans)
-                        {
-                            if (!child.gameObject.activeSelf)
-                            {
-                                continue;
-                            }
+        //                foreach (Transform child in visualTrans)
+        //                {
+        //                    if (!child.gameObject.activeSelf)
+        //                    {
+        //                        continue;
+        //                    }
 
-                            if (child.GetComponent<BoxCollider>() && child.GetComponent<MeshRenderer>())
-                            {
-                                Debug.Log("Found visuals, ready to align!");
+        //                    if (child.GetComponent<BoxCollider>() && child.GetComponent<MeshRenderer>())
+        //                    {
+        //                        SL.Log("Found visuals, ready to align!");
 
-                                m_currentVisuals = child;
-                                m_aligning = true;
+        //                        m_currentVisuals = child;
+        //                        m_aligning = true;
 
-                                m_cachedPos = m_currentVisuals.transform.localPosition;
-                                m_cachedRot = m_currentVisuals.transform.localRotation.eulerAngles;
+        //                        m_cachedPos = m_currentVisuals.transform.localPosition;
+        //                        m_cachedRot = m_currentVisuals.transform.localRotation.eulerAngles;
 
-                                break;
-                            }
-                        }
-                    }
-                }
-                
-                if (!m_aligning)
-                {
-                    SL.Log("Couldn't start aligning!");
-                }                
-            }
-            else
-            {
-                var pos = m_currentVisuals.transform.localPosition;
-                var rot = m_currentVisuals.transform.localRotation.eulerAngles;
+        //                        break;
+        //                    }
+        //                }
+        //            }
+        //        }
 
-                var posChange = pos - m_cachedPos;
-                var rotChange = rot - m_cachedRot;
+        //        if (!m_aligning)
+        //        {
+        //            SL.Log("Couldn't start aligning!");
+        //        }
+        //    }
+        //    else
+        //    {
+        //        var pos = m_currentVisuals.transform.localPosition;
+        //        var rot = m_currentVisuals.transform.localRotation.eulerAngles;
 
-                m_currentPos += posChange;
-                m_currentRot = Quaternion.Euler(m_currentRot.eulerAngles + rotChange);
+        //        var posChange = pos - m_cachedPos;
+        //        var rotChange = rot - m_cachedRot;
 
-                m_currentVisuals = null;
-                m_cachedPos = Vector3.zero;
-                m_cachedRot = Vector3.zero;
+        //        m_currentPos += posChange;
+        //        m_currentRot = Quaternion.Euler(m_currentRot.eulerAngles + rotChange);
 
-                m_aligning = false;
-            }
-        }
+        //        m_currentVisuals = null;
+        //        m_cachedPos = Vector3.zero;
+        //        m_cachedRot = Vector3.zero;
+
+        //        m_aligning = false;
+        //    }
+        //}
         #endregion
 
         #region HELPERS

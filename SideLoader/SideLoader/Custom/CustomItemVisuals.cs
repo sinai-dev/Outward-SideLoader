@@ -82,11 +82,11 @@ namespace SideLoader
             }
             else
             {
-                At.SetValue(sprite, typeof(Item), item, "m_itemIcon");
+                At.SetValue(sprite, "m_itemIcon", item);
+
                 if (item.HasDefaultIcon)
-                {
-                    At.SetValue("not null", typeof(Item), item, "m_itemIconPath");
-                }
+                    At.SetValue("notnull", "m_itemIconPath", item);
+
                 link.ItemIcon = sprite;
             }
         }
@@ -201,7 +201,7 @@ namespace SideLoader
         {
             if (string.IsNullOrEmpty(template.SLPackName) || !SL.Packs.ContainsKey(template.SLPackName) || string.IsNullOrEmpty(template.SubfolderName))
             {
-                SL.Log("Trying to CheckCustomTextures for " + newItem.Name + " but either SLPackName or SubfolderName is not set!", 0);
+                SL.Log("Trying to CheckCustomTextures for " + newItem.Name + " but either SLPackName or SubfolderName is not set!");
                 return;
             }
 
@@ -299,9 +299,9 @@ namespace SideLoader
             {
                 try
                 {
-                    Debug.Log("Loading texture from AssetBundle, path: " + name);
+                    SL.Log("Loading texture from AssetBundle, path: " + name);
 
-                    Texture2D tex = (Texture2D)bundle.LoadAsset(name);
+                    Texture2D tex = bundle.LoadAsset<Texture2D>(name);
 
                     // cleanup the name (remove ".png")
                     tex.name = tex.name.Replace(".png", "");
@@ -361,9 +361,9 @@ namespace SideLoader
                 }
                 catch (Exception ex)
                 {
-                    Debug.Log("Exception loading textures from asset bundle!");
-                    Debug.Log(ex.Message);
-                    Debug.Log(ex.StackTrace);
+                    SL.Log("Exception loading textures from asset bundle!");
+                    SL.Log(ex.Message);
+                    SL.Log(ex.StackTrace);
                 }
             }
 
@@ -607,23 +607,34 @@ namespace SideLoader
         /// <param name="dir">Full path, relative to Outward folder</param>
         public static void SaveAllItemTextures(Item item, string dir)
         {
-            if (!Directory.Exists(dir))
-            {
-                Directory.CreateDirectory(dir);
-            }
+            SL.Log("Saving item textures...");
 
-            if (item.ItemIcon)
+            if (!Directory.Exists(dir))
+                Directory.CreateDirectory(dir);
+
+            try
             {
-                CustomTextures.SaveIconAsPNG(item.ItemIcon, dir, "icon");
+                Sprite icon = At.GetValue("m_itemIcon", item) as Sprite;
+                if (!icon)
+                    icon = ResourcesPrefabManager.Instance.GetItemIcon(item);
+                if (!icon)
+                    icon = (Sprite)At.GetValue("DefaultIcon", item);
+
+                CustomTextures.SaveIconAsPNG(icon, dir, "icon");
+
+            }
+            catch (Exception e)
+            {
+                SL.Log(e.ToString());
             }
 
             if (item is Skill skill && skill.SkillTreeIcon)
-            {
                 CustomTextures.SaveIconAsPNG(skill.SkillTreeIcon, dir, "skillicon");
-            }
 
             for (int i = 0; i < 3; i++)
             {
+                SL.Log("Checking materials (" + ((VisualPrefabType)i) + ")");
+
                 if (GetMaterials(item, (VisualPrefabType)i) is Material[] mats)
                 {
                     foreach (var mat in mats)
@@ -643,9 +654,7 @@ namespace SideLoader
         private static void SaveMaterialTextures(Material mat, string dir)
         {
             if (!Directory.Exists(dir))
-            {
                 Directory.CreateDirectory(dir);
-            }
 
             foreach (var texName in mat.GetTexturePropertyNames())
             {

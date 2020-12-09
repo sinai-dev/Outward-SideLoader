@@ -5,6 +5,7 @@ using System.Text;
 using UnityEngine;
 using System.IO;
 using HarmonyLib;
+using SideLoader.Helpers;
 
 namespace SideLoader
 {
@@ -29,13 +30,9 @@ namespace SideLoader
         public static EffectPreset GetOrigEffectPreset(int presetID)
         {
             if (OrigEffectPresets.ContainsKey(presetID))
-            {
                 return OrigEffectPresets[presetID];
-            }
             else
-            {
                 return ResourcesPrefabManager.Instance.GetEffectPreset(presetID);
-            }
         }
 
         /// <summary>
@@ -46,13 +43,9 @@ namespace SideLoader
         public static StatusEffect GetOrigStatusEffect(string identifier)
         {
             if (OrigStatusEffects.ContainsKey(identifier))
-            {
                 return OrigStatusEffects[identifier];
-            }
             else
-            {
                 return ResourcesPrefabManager.Instance.GetStatusEffectPrefab(identifier);
-            }
         }
 
         /// <summary>
@@ -62,53 +55,19 @@ namespace SideLoader
         /// <returns>The new or existing StatusEffect.</returns>
         public static StatusEffect CreateCustomStatus(SL_StatusEffect template)
         {
-            StatusEffect original;
-            EffectPreset preset;
-
-            if (string.IsNullOrEmpty(template.TargetStatusIdentifier))
-            {
-                preset = ResourcesPrefabManager.Instance.GetEffectPreset(template.TargetStatusID);
-                if (preset)
-                {
-                    original = preset.GetComponent<StatusEffect>();
-                    if (original)
-                    {
-                        template.TargetStatusIdentifier = original.IdentifierName;
-                    }
-                    else
-                    {
-                        SL.Log("Could not find a StatusEffect on provided EffectPreset ID " + template.TargetStatusID);
-                        return null;
-                    }
-                }
-                else
-                {
-                    SL.Log("Could not find a StatusEffect with the TargetStatusID " + template.TargetStatusID);
-                    return null;
-                }
-            }
-            else
-            {
-                original = ResourcesPrefabManager.Instance.GetStatusEffectPrefab(template.TargetStatusIdentifier);
-                if (original)
-                {
-                    preset = original.GetComponent<EffectPreset>();
-                    if (!preset && template.NewStatusID > 0)
-                    {
-                        preset = original.gameObject.AddComponent<EffectPreset>();
-                        At.SetValue(template.NewStatusID, typeof(EffectPreset), preset, "m_StatusEffectID");
-                    }
-                }
-                else
-                {
-                    SL.Log("Could not find a StatusEffect with the TargetIdentifier " + template.TargetStatusIdentifier);
-                    return null;
-                }
-            }
+            var original = ResourcesPrefabManager.Instance.GetStatusEffectPrefab(template.TargetStatusIdentifier);
 
             if (!original)
             {
+                SL.Log($"CreateCustomStatus - Could not find any status with the Identifier '{template.TargetStatusIdentifier}' (or none was set).");
                 return null;
+            }
+
+            var preset = original.GetComponent<EffectPreset>();
+            if (!preset && template.NewStatusID > 0)
+            {
+                preset = original.gameObject.AddComponent<EffectPreset>();
+                At.SetValue(template.NewStatusID, "m_StatusEffectID", preset);
             }
 
             StatusEffect newEffect;
@@ -134,56 +93,41 @@ namespace SideLoader
                 newEffect.gameObject.SetActive(false);
 
                 // Set Status identifier
-                At.SetValue(template.StatusIdentifier, typeof(StatusEffect), newEffect, "m_identifierName");
+                At.SetValue(template.StatusIdentifier, "m_identifierName", newEffect);
+
 
                 if (preset)
-                {
-                    // Set Preset ID
-                    At.SetValue(template.NewStatusID, typeof(EffectPreset), preset, "m_StatusEffectID");
-                }
+                    At.SetValue(template.NewStatusID, "m_StatusEffectID", preset);
 
                 // Fix localization
                 GetStatusLocalization(original, out string name, out string desc);
                 SetStatusLocalization(newEffect, name, desc);
 
                 // Fix status data and stack
-                At.SetValue<List<StatusData>>(null, typeof(StatusEffect), newEffect, "m_statusStack");
-
-                // fix for Amplified Boons
-                At.SetValue<StatusEffect>(null, typeof(StatusEffect), newEffect, "m_amplifiedStatus");
+                At.SetValue(null, "m_statusStack", newEffect);
+                At.SetValue(null, "m_amplifiedStatus", newEffect);
             }
 
             int presetID = newEffect.GetComponent<EffectPreset>()?.PresetID ?? -1;
 
             var id = "";
             if (presetID > 0)
-            {
                 id += presetID + "_";
-            }
             newEffect.gameObject.name = id + newEffect.IdentifierName;
 
             // fix RPM_STATUS_EFFECTS dictionary
             if (!References.RPM_STATUS_EFFECTS.ContainsKey(newEffect.IdentifierName))
-            {
                 References.RPM_STATUS_EFFECTS.Add(newEffect.IdentifierName, newEffect);
-            }
             else
-            {
                 References.RPM_STATUS_EFFECTS[newEffect.IdentifierName] = newEffect;
-            }
 
             // fix RPM_Presets dictionary
             if (template.NewStatusID > 0)
             {
                 if (!References.RPM_EFFECT_PRESETS.ContainsKey(template.NewStatusID))
-                {
                     References.RPM_EFFECT_PRESETS.Add(template.NewStatusID, newEffect.GetComponent<EffectPreset>());
-                }
                 else
-                {
-                    //SL.Log("A Status Effect already exists with the Identifier " + template.StatusIdentifier + ", replacing with " + template.Name);
                     References.RPM_EFFECT_PRESETS[template.NewStatusID] = newEffect.GetComponent<EffectPreset>();
-                }
             }
 
             // Always do this
@@ -191,13 +135,9 @@ namespace SideLoader
 
             // Apply template
             if (SL.PacksLoaded)
-            {
                 template.ApplyTemplate();
-            }
             else
-            {
                 SL.INTERNAL_ApplyStatuses += template.ApplyTemplate;
-            }
 
             return newEffect;
         }
@@ -210,10 +150,8 @@ namespace SideLoader
         /// <param name="desc">The output description.</param>
         public static void GetStatusLocalization(StatusEffect effect, out string name, out string desc)
         {
-            var namekey = (string)At.GetValue(typeof(StatusEffect), effect, "m_nameLocKey");
-            name = LocalizationManager.Instance.GetLoc(namekey);
-            var desckey = (string)At.GetValue(typeof(StatusEffect), effect, "m_descriptionLocKey");
-            desc = LocalizationManager.Instance.GetLoc(desckey);
+            name = LocalizationManager.Instance.GetLoc((string)At.GetValue("m_nameLocKey", effect));
+            desc = LocalizationManager.Instance.GetLoc((string)At.GetValue("m_descriptionLocKey", effect));
         }
 
         /// <summary>
@@ -224,37 +162,25 @@ namespace SideLoader
             GetStatusLocalization(effect, out string oldName, out string oldDesc);
 
             if (string.IsNullOrEmpty(name))
-            {
                 name = oldName;
-            }
             if (string.IsNullOrEmpty(description))
-            {
                 description = oldDesc;
-            }
 
             var nameKey = $"NAME_{effect.IdentifierName}";
-            At.SetValue(nameKey, typeof(StatusEffect), effect, "m_nameLocKey");
+            At.SetValue(nameKey, "m_nameLocKey", effect);
 
             if (References.GENERAL_LOCALIZATION.ContainsKey(nameKey))
-            {
                 References.GENERAL_LOCALIZATION[nameKey] = name;
-            }
             else
-            {
                 References.GENERAL_LOCALIZATION.Add(nameKey, name);
-            }
 
             var descKey = $"DESC_{effect.IdentifierName}";
-            At.SetValue(descKey, typeof(StatusEffect), effect, "m_descriptionLocKey");
+            At.SetValue(descKey, "m_descriptionLocKey", effect);
 
             if (References.GENERAL_LOCALIZATION.ContainsKey(descKey))
-            {
                 References.GENERAL_LOCALIZATION[descKey] = description;
-            }
             else
-            {
                 References.GENERAL_LOCALIZATION.Add(descKey, description);
-            }
         }
 
         /// <summary>
@@ -267,7 +193,7 @@ namespace SideLoader
 
             if (!original)
             {
-                SL.Log("Could not find an ImbueEffectPreset with the Preset ID " + template.TargetStatusID, 1);
+                SL.LogError("Could not find an ImbueEffectPreset with the Preset ID " + template.TargetStatusID);
                 return null;
             }
 
@@ -293,7 +219,7 @@ namespace SideLoader
                 newEffect.gameObject.SetActive(false);
 
                 // Set Preset ID
-                At.SetValue(template.NewStatusID, typeof(EffectPreset), newEffect, "m_StatusEffectID");
+                At.SetValue<EffectPreset>(template.NewStatusID, "m_StatusEffectID", newEffect);
 
                 // Fix localization
                 GetImbueLocalization(original, out string name, out string desc);
@@ -304,27 +230,18 @@ namespace SideLoader
 
             // fix RPM_Presets dictionary
             if (!References.RPM_EFFECT_PRESETS.ContainsKey(template.NewStatusID))
-            {
                 References.RPM_EFFECT_PRESETS.Add(template.NewStatusID, newEffect.GetComponent<EffectPreset>());
-            }
             else
-            {
-                //SL.Log("An imbue already exists with the ID " + template.NewStatusID + ", replacing...");
                 References.RPM_EFFECT_PRESETS[template.NewStatusID] = newEffect;
-            }
 
             // Always do this
             GameObject.DontDestroyOnLoad(newEffect.gameObject);
 
             // Apply template
             if (SL.PacksLoaded)
-            {
                 template.ApplyTemplate();
-            }
             else
-            {
                 SL.INTERNAL_ApplyStatuses += template.ApplyTemplate;
-            }
 
             return newEffect;
         }
@@ -347,43 +264,31 @@ namespace SideLoader
         public static void SetImbueLocalization(ImbueEffectPreset preset, string name, string description)
         {
             GetImbueLocalization(preset, out string oldName, out string oldDesc);
+
             if (string.IsNullOrEmpty(name))
-            {
                 name = oldName;
-            }
+
             if (string.IsNullOrEmpty(description))
-            {
                 description = oldDesc;
-            }
 
             var nameKey = $"NAME_{preset.PresetID}_{preset.Name.Trim()}";
-            At.SetValue(nameKey, typeof(ImbueEffectPreset), preset, "m_imbueNameKey");
+            At.SetValue(nameKey, "m_imbueNameKey", preset);
 
             if (References.GENERAL_LOCALIZATION.ContainsKey(nameKey))
-            {
                 References.GENERAL_LOCALIZATION[nameKey] = name;
-            }
             else
-            {
                 References.GENERAL_LOCALIZATION.Add(nameKey, name);
-            }
 
             var descKey = $"DESC_{preset.PresetID}_{preset.Name.Trim()}";
-            At.SetValue(descKey, typeof(ImbueEffectPreset), preset, "m_imbueDescKey");
+            At.SetValue(descKey, "m_imbueDescKey", preset);
 
             if (References.GENERAL_LOCALIZATION.ContainsKey(descKey))
-            {
                 References.GENERAL_LOCALIZATION[descKey] = description;
-            }
             else
-            {
                 References.GENERAL_LOCALIZATION.Add(descKey, description);
-            }
 
             if (preset.GetComponent<StatusEffect>() is StatusEffect status)
-            {
                 SetStatusLocalization(status, name, description);
-            }
         }
     }
 }

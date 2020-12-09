@@ -27,7 +27,7 @@ namespace SideLoader
             }
             else
             {
-                SL.Log("SL_RunicBlade: Could not get an Item with ID '" + WeaponID + "'!", 0);
+                SL.Log("SL_RunicBlade: Could not get an Item with ID '" + WeaponID + "'!");
                 return;
             }
 
@@ -37,7 +37,7 @@ namespace SideLoader
             }
             else
             {
-                SL.Log("SL_RunicBlade: Could not get an Item with ID '" + GreaterWeaponID + "'!", 0);
+                SL.Log("SL_RunicBlade: Could not get an Item with ID '" + GreaterWeaponID + "'!");
                 return;
             }
 
@@ -47,7 +47,7 @@ namespace SideLoader
             }
             else
             {
-                SL.Log("SL_RunicBlade: Could not get an imbue with the ID '" + PrefixImbueID + "'!", 0);
+                SL.Log("SL_RunicBlade: Could not get an imbue with the ID '" + PrefixImbueID + "'!");
                 return;
             }
 
@@ -57,7 +57,7 @@ namespace SideLoader
             }
             else
             {
-                SL.Log("SL_RunicBlade: Could not get an imbue with the ID '" + PrefixGreaterImbueID + "'!", 0);
+                SL.Log("SL_RunicBlade: Could not get an imbue with the ID '" + PrefixGreaterImbueID + "'!");
                 return;
             }
         }

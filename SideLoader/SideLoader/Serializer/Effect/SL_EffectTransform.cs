@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Xml.Serialization;
+using SideLoader.Helpers;
 using UnityEngine;
 
 namespace SideLoader
@@ -54,11 +55,11 @@ namespace SideLoader
         /// <param name="parent">The parent to apply to, ie. the Item, StatusEffect.Signature, or Blast/Projectile, etc</param>
         /// <param name="transformsToApply">The list of SL_EffectTransforms to apply.</param>
         /// <param name="behaviour">The desired behaviour for these transoforms (remove original, overwrite, or none)</param>
-        public static void ApplyTransformList(Transform parent, SL_EffectTransform[] transformsToApply, EffectBehaviours behaviour)
+        public static void ApplyTransformList(Transform parent, SL_EffectTransform[] transformsToApply, EditBehaviours behaviour)
         {
-            if (behaviour == EffectBehaviours.DestroyEffects)
+            if (behaviour == EditBehaviours.Destroy)
             {
-                SL.DestroyChildren(parent);
+                UnityHelpers.DestroyChildren(parent);
             }
 
             if (transformsToApply == null)
@@ -68,7 +69,7 @@ namespace SideLoader
 
             foreach (var child in transformsToApply)
             {
-                if (behaviour == EffectBehaviours.OverrideEffects && parent.Find(child.TransformName) is Transform existing)
+                if (behaviour == EditBehaviours.Override && parent.Find(child.TransformName) is Transform existing)
                 {
                     UnityEngine.Object.DestroyImmediate(existing.gameObject);
                 }
@@ -82,7 +83,7 @@ namespace SideLoader
         /// </summary>
         /// <param name="parent">The PARENT transform to apply to (the Item, StatusEffect.Signature, Blast/Projectile, etc)</param>
         /// <param name="behaviour">Desired EffectBehaviour</param>
-        public Transform ApplyToTransform(Transform parent, EffectBehaviours behaviour)
+        public Transform ApplyToTransform(Transform parent, EditBehaviours behaviour)
         {
             var transform = new GameObject(this.TransformName).transform;
             transform.parent = parent;

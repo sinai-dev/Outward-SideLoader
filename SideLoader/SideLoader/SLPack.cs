@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using UnityEngine;
 using System.IO;
+using SideLoader.Helpers;
 
 namespace SideLoader
 {
@@ -35,6 +36,7 @@ namespace SideLoader
         public Dictionary<string, Texture2D> Texture2D = new Dictionary<string, Texture2D>();
         /// <summary>AudioClips loaded from the WAV files in the `AudioClip\` folder. Dictionary Key is the file name (without ".wav")</summary>
         public Dictionary<string, AudioClip> AudioClips = new Dictionary<string, AudioClip>();
+        
         /// <summary>SL_Characters loaded from the `Characters\` folder. Dictionary Key is the SL_Character.UID value.</summary>
         public Dictionary<string, SL_Character> CharacterTemplates = new Dictionary<string, SL_Character>();
 
@@ -73,7 +75,7 @@ namespace SideLoader
             {
                 if (SL.Packs.ContainsKey(name))
                 {
-                    SL.Log($"ERROR: An SLPack already exists with the name '{name}'! Please use a unique name.", 1);
+                    SL.LogError($"ERROR: An SLPack already exists with the name '{name}'! Please use a unique name.");
                     return;
                 }
 
@@ -82,7 +84,7 @@ namespace SideLoader
             }
             catch (Exception e)
             {
-                SL.Log("Error loading SLPack from folder: " + name + "\r\nMessage: " + e.Message + "\r\nStackTrace: " + e.StackTrace, 1);
+                SL.LogError("Error loading SLPack from folder: " + name + "\r\nMessage: " + e.Message + "\r\nStackTrace: " + e.StackTrace);
             }
         }
 
@@ -101,28 +103,13 @@ namespace SideLoader
 
             SL.Log("Reading SLPack " + pack.Name);
 
-            // AssetBundles
             pack.LoadAssetBundles();
-
-            // Audio Clips
             pack.LoadAudioClips();
-
-            // Texture2D (Just for replacements)
             pack.LoadTexture2D();
-
-            // Status Effect and Imbue Presets
             pack.LoadCustomStatuses();
-
-            // Custom Items
             pack.LoadCustomItems();
-
-            // Custom Recipes
             pack.LoadRecipes();
-
-            // Character spawn callbacks
             pack.LoadCharacters();
-
-            // Custom Enchantments
             pack.LoadEnchantments();
 
             return pack;
@@ -142,7 +129,7 @@ namespace SideLoader
             {
                 try
                 {
-                    var bundle = SL.LoadAssetBundle(bundlePath);
+                    var bundle = AssetBundle.LoadFromFile(bundlePath);
                     if (bundle is AssetBundle)
                     {
                         string name = Path.GetFileName(bundlePath);
@@ -150,13 +137,11 @@ namespace SideLoader
                         SL.Log("Loaded assetbundle " + name);
                     }
                     else
-                    {
-                        throw new Exception(string.Format("Unknown error (Bundle '{0}' was null)", Path.GetFileName(bundlePath)));
-                    }
+                        throw new Exception($"Unknown error (Bundle '{Path.GetFileName(bundlePath)}' was null)");
                 }
                 catch (Exception e)
                 {
-                    SL.Log("Error loading asset bundle! Message: " + e.Message + "\r\nStack: " + e.StackTrace, 1);
+                    SL.LogError("Error loading asset bundle! Message: " + e.Message + "\r\nStack: " + e.StackTrace);
                 }
             }
         }
@@ -165,13 +150,11 @@ namespace SideLoader
         {
             var dir = GetSubfolderPath(SubFolders.AudioClip);
             if (!Directory.Exists(dir))
-            {
                 return;
-            }
 
             foreach (var clipPath in Directory.GetFiles(dir, "*.wav"))
             {
-                SL.Instance.StartCoroutine(CustomAudio.LoadClip(clipPath, this));
+                SLPlugin.Instance.StartCoroutine(CustomAudio.LoadClip(clipPath, this));
             }
         }
 
@@ -180,9 +163,7 @@ namespace SideLoader
         private void LoadTexture2D()
         {
             if (!Directory.Exists(GetSubfolderPath(SubFolders.Texture2D)))
-            {
                 return;
-            }
 
             foreach (var texPath in Directory.GetFiles(GetSubfolderPath(SubFolders.Texture2D)))
             {
@@ -199,9 +180,7 @@ namespace SideLoader
                     CustomTextures.Textures[name] = texture;
                 }
                 else
-                {
                     CustomTextures.Textures.Add(name, texture);
-                }
             }
         }
 
@@ -209,27 +188,21 @@ namespace SideLoader
         {
             var dir = GetSubfolderPath(SubFolders.StatusEffects);
             if (!Directory.Exists(dir))
-            {
                 return;
-            }
 
             // Key: Filepath, Value: Subfolder name (if any)
             var dict = new Dictionary<string, string>();
 
             // get basic template xmls
             foreach (var path in Directory.GetFiles(dir, "*.xml"))
-            {
                 dict.Add(path, "");
-            }
 
             // get subfolder-per-status
             foreach (var folder in Directory.GetDirectories(dir))
             {
                 // get the xml inside this folder
                 foreach (string path in Directory.GetFiles(folder, "*.xml"))
-                {
                     dict.Add(path, Path.GetFileName(folder));
-                }
             }
 
             // apply templates
@@ -251,7 +224,7 @@ namespace SideLoader
                 }
                 else
                 {
-                    SL.Log("Unrecognized status effect template: " + entry.Key, 1);
+                    SL.LogError("Unrecognized status effect template: " + entry.Key);
                 }
             }
         }
@@ -269,9 +242,7 @@ namespace SideLoader
 
                 // get basic xml templates in the Items folder
                 foreach (var path in Directory.GetFiles(itemsfolder, "*.xml"))
-                {
                     templates.Add(path, "");
-                }
 
                 // check for subfolders (items which are using custom texture pngs)
                 foreach (var folder in Directory.GetDirectories(itemsfolder))
@@ -285,9 +256,7 @@ namespace SideLoader
                     //SL.Log("Parsing CustomItem subfolder: " + Path.GetFileName(folder));
 
                     foreach (string path in Directory.GetFiles(folder, "*.xml"))
-                    {
                         templates.Add(path, Path.GetFileName(folder));
-                    }
                 }
 
                 // ******** Serialize and prepare each template (does not apply the template, but does clone the base prefab) ******** //
@@ -302,13 +271,9 @@ namespace SideLoader
                         var list = new List<SL_Item>();
 
                         if (holder is SL_Item)
-                        {
                             list.Add(holder as SL_Item);
-                        }
                         else
-                        {
                             list.AddRange((holder as SL_MultiItem).Items);
-                        }
 
                         foreach (var itemHolder in list)
                         {
@@ -322,6 +287,11 @@ namespace SideLoader
                     catch (Exception e)
                     {
                         SL.Log("LoadFromFolder: Error creating custom item! " + e.GetType() + ", " + e.Message);
+                        while (e != null)
+                        {
+                            SL.Log(e.ToString());
+                            e = e.InnerException;
+                        }
                     }
                 }
             }
@@ -335,7 +305,7 @@ namespace SideLoader
             {
                 foreach (var file in Directory.GetFiles(bundlesFolder))
                 {
-                    if (SL.LoadAssetBundle(file) is AssetBundle bundle)
+                    if (AssetBundle.LoadFromFile(file) is AssetBundle bundle)
                     {
                         CustomItemVisuals.ApplyTexturesFromAssetBundle(bundle);
                     }
@@ -374,6 +344,8 @@ namespace SideLoader
             {
                 if (Serializer.LoadFromXml(filePath) is SL_Character template)
                 {
+                    SL.Log("Serialized SL_Character '" + template.Name + "'");
+
                     CharacterTemplates.Add(template.UID, template);
 
                     template.Prepare();

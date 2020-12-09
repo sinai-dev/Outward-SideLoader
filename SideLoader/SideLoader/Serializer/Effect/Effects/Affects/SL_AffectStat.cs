@@ -18,7 +18,7 @@ namespace SideLoader
 
             if (tag == Tag.None)
             {
-                SL.Log("AffectStat: could not find tag of ID " + (this.Stat_Tag ?? ""), 0);
+                SL.Log("AffectStat: could not find tag of ID " + (this.Stat_Tag ?? ""));
                 return;
             }
 

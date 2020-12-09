@@ -27,7 +27,7 @@ namespace SideLoader
         public string Name;
         public string Description;
 
-        public EffectBehaviours EffectBehaviour = EffectBehaviours.OverrideEffects;
+        public EditBehaviours EffectBehaviour = EditBehaviours.Override;
         public SL_EffectTransform[] Effects;
 
         public void ApplyTemplate()
@@ -35,7 +35,7 @@ namespace SideLoader
             var preset = (ImbueEffectPreset)ResourcesPrefabManager.Instance.GetEffectPreset(this.NewStatusID);
             if (!preset)
             {
-                SL.Log($"Could not find an Imbue Effect with the ID {NewStatusID}! Make sure you've called CustomStatusEffects.CreateCustomImbue first!", 1);
+                SL.Log($"Could not find an Imbue Effect with the ID {NewStatusID}! Make sure you've called CustomStatusEffects.CreateCustomImbue first!");
                 return;
             }
 

@@ -6,6 +6,7 @@ using System.Text;
 using UnityEngine;
 using System.IO;
 using UnityEngine.Networking;
+using SideLoader.Helpers;
 
 namespace SideLoader
 {
@@ -25,7 +26,7 @@ namespace SideLoader
         {
             if (!GAMInstance)
             {
-                SL.Log("Cannot find GlobalAudioManager Instance!", 0);
+                SL.LogWarning("Cannot find GlobalAudioManager Instance!");
                 return;
             }
             
@@ -37,24 +38,25 @@ namespace SideLoader
 
             try
             {
-                GAM_ReplaceClip(sound, clip);
+                DoReplaceClip(sound, clip);
             }
             catch (Exception e)
             {
-                SL.Log("Exception replacing clip " + sound + ".\r\nMessage: " + e.Message + "\r\nStack: " + e.StackTrace, 1);
+                SL.LogError("Exception replacing clip " + sound + ".\r\nMessage: " + e.Message + "\r\nStack: " + e.StackTrace);
             }
         }
 
-        private static void GAM_ReplaceClip(GlobalAudioManager.Sounds _sound, AudioClip _newClip)
+        private static void DoReplaceClip(GlobalAudioManager.Sounds _sound, AudioClip _newClip)
         {
             if (!_newClip)
             {
-                Debug.LogWarning("The replacement clip for " + _sound.ToString() + " is null");
+                SL.LogWarning("The replacement clip for " + _sound.ToString() + " is null");
                 return;
             }
 
-            var path = (string)At.Call(typeof(GlobalAudioManager), GAMInstance, "GetPrefabPath", null, new object[] { _sound });
-            var resource = Resources.Load("_Sounds/" + path) as GameObject;
+            //var path = GAMInstance.GetPrefabPath(_sound);
+            var path = (string)At.Call<GlobalAudioManager>(GAMInstance, "GetPrefabPath", null, _sound);
+            var resource = Resources.Load<GameObject>("_Sounds/" + path);
             var component = resource.GetComponent<AudioSource>();
             component.clip = _newClip;
 
@@ -62,7 +64,7 @@ namespace SideLoader
 
             ReplacedClips.Add(_sound);
 
-            Debug.Log("Replaced " + _sound + " AudioSource with new clip!");
+            SL.Log("Replaced " + _sound + " AudioSource with new clip!");
         }
 
         /// <summary>Coroutine used to load an AudioClip.</summary>

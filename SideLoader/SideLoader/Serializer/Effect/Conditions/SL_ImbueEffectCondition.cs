@@ -17,7 +17,7 @@ namespace SideLoader
 
             if (!preset && !this.AnyImbue)
             {
-                SL.Log("SL_ImbueEffectCondition: Could not get an Imbue Preset with the ID '" + this.ImbuePresetID + "'!", 0);
+                SL.Log("SL_ImbueEffectCondition: Could not get an Imbue Preset with the ID '" + this.ImbuePresetID + "'!");
                 return;
             }
 

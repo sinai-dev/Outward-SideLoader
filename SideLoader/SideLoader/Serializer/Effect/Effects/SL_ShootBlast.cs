@@ -31,7 +31,7 @@ namespace SideLoader
         public bool DontPlayHitSound;
         public bool FXIsWorld;
 
-        public EffectBehaviours EffectBehaviour = EffectBehaviours.OverrideEffects;
+        public EditBehaviours EffectBehaviour = EditBehaviours.Override;
         public SL_EffectTransform[] BlastEffects;
 
         public override void ApplyToComponent<T>(T component)

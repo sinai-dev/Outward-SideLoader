@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Xml.Serialization;
+using SideLoader.Helpers;
 using UnityEngine;
 
 namespace SideLoader
@@ -176,7 +177,7 @@ namespace SideLoader
             {
                 if (!visualModel.GetComponent<ItemVisual>() && basePrefab.GetComponent<ItemVisual>() is ItemVisual itemVisual)
                 {
-                    SL.GetCopyOf(itemVisual, visualModel.transform);
+                    UnityHelpers.GetCopyOf(itemVisual, visualModel.transform);
                 }
 
                 visualModel.transform.position = basePrefab.transform.position;

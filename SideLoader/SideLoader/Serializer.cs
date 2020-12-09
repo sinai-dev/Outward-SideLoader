@@ -9,6 +9,7 @@ using System.Xml;
 using System.Xml.Serialization;
 using System.Reflection;
 using UnityEngine.SceneManagement;
+using SideLoader.Helpers;
 
 namespace SideLoader
 {
@@ -69,20 +70,12 @@ namespace SideLoader
             {
                 if (m_slTypes == null || m_slTypes.Length < 1)
                 {
-                    var list = new List<Type>
-                    {
-                        // Serializable game classes (currently only use 1)
-                        typeof(WeaponStats.AttackData),
-                    };
+                    var list = new List<Type>();
 
-                    // add SL_Serialized types (custom types)
                     foreach (var type in SL_Assembly.GetTypes())
                     {
-                        // check if marked as SL_Serialized
                         if (type.GetCustomAttributes(typeof(SL_Serialized), true).Length > 0)
-                        {
                             list.Add(type);
-                        }
                     }
 
                     m_slTypes = list.ToArray();
@@ -130,9 +123,9 @@ namespace SideLoader
             {
                 if (logging)
                 {
-                    SL.Log($"Could not get Game_Assembly Type '{name}'", 0);
-                    SL.Log(e.Message, 0);
-                    SL.Log(e.StackTrace, 0);
+                    SL.Log($"Could not get Game_Assembly Type '{name}'");
+                    SL.Log(e.Message);
+                    SL.Log(e.StackTrace);
                 }
             }
 
@@ -158,9 +151,9 @@ namespace SideLoader
             {
                 if (logging)
                 {
-                    SL.Log($"Could not get SL_Assembly Type '{name}'", 0);
-                    SL.Log(e.Message, 0);
-                    SL.Log(e.StackTrace, 0);
+                    SL.Log($"Could not get SL_Assembly Type '{name}'");
+                    SL.Log(e.Message);
+                    SL.Log(e.StackTrace);
                 }
             }
 
@@ -210,7 +203,7 @@ namespace SideLoader
             string path = dir + saveName + ".xml";
             if (File.Exists(path))
             {
-                //Debug.LogWarning("SaveToXml: A file already exists at " + path + "! Deleting...");
+                //SL.LogWarning("SaveToXml: A file already exists at " + path + "! Deleting...");
                 File.Delete(path);
             }
 
@@ -258,26 +251,24 @@ namespace SideLoader
 
                 if (!string.IsNullOrEmpty(typeName) && SL_Assembly.GetType($"SideLoader.{typeName}") is Type type)
                 {
-                    var xml = GetXmlSerializer(type);
-                    FileStream file = File.OpenRead(path);
-                    var obj = xml.Deserialize(file);
-                    file.Close();
-                    return obj;
+                    using (var file = File.OpenRead(path))
+                    {
+                        var xml = GetXmlSerializer(type);
+                        var obj = xml.Deserialize(file);
+                        file.Dispose();
+                        return obj;
+                    }
                 }
                 else
                 {
-                    SL.Log("LoadFromXml Error, could not serialize the Type of document! typeName: " + typeName, 1);
+                    SL.LogError("LoadFromXml Error, could not serialize the Type of document! typeName: " + typeName);
                     return null;
                 }
             }
             catch (Exception e)
             {
-                SL.Log("Exception reading the XML file, logging exceptions...");
-                while (e != null)
-                {
-                    SL.Log($" - {e.GetType()}, {e.Message}");
-                    e = e.InnerException;
-                }
+                SL.LogError("Exception reading the XML file, logging exceptions...");
+                SL.LogInnerException(e);
 
                 return null;
             }

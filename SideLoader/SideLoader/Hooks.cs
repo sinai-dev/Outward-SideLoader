@@ -1,14 +1,30 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using HarmonyLib;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using Hashtable = ExitGames.Client.Photon.Hashtable;
+using SideLoader.Helpers;
 
 namespace SideLoader.Hooks
 {
     // All HarmonyPatches used by SideLoader are in this file.
+
+    #region Item name bugfix
+
+    [HarmonyPatch(typeof(Item), "Start")]
+    public class Item_Start
+    {
+        public static void Postfix(ref string ___m_toLogString)
+        {
+            ___m_toLogString = Serializer.ReplaceInvalidChars(___m_toLogString);
+        }
+    }
+
+    #endregion
 
     #region CORE SETUP PATCH
 
@@ -23,9 +39,9 @@ namespace SideLoader.Hooks
         {
             if (__exception != null)
             {
-                SL.Log("Exception on ResourcesPrefabManager.Load!", 0);
-                SL.Log(__exception.Message, 0);
-                SL.Log(__exception.StackTrace, 0);
+                SL.Log("Exception on ResourcesPrefabManager.Load!");
+                SL.Log(__exception.Message);
+                SL.Log(__exception.StackTrace);
             }
 
             SL.Setup();
@@ -220,6 +236,17 @@ namespace SideLoader.Hooks
 
     #region SL_CHARACTER PATCHES
 
+    // Save custom characters when game does a save
+    [HarmonyPatch(typeof(SaveInstance), nameof(SaveInstance.Save))]
+    public class SaveInstance_Save
+    {
+        [HarmonyPostfix]
+        public static void Postfix()
+        {
+            CustomCharacters.SaveCharacters();
+        }
+    }
+
     // Just catches a harmless null ref exception, hiding it until I figure out a cleaner fix
     [HarmonyPatch(typeof(Character), "ProcessOnEnable")]
     public class Character_ProcessOnEnable
@@ -240,6 +267,17 @@ namespace SideLoader.Hooks
         public static void Postfix()
         {
             CustomCharacters.InvokeSpawnCharacters();
+        }
+    }
+
+    [HarmonyPatch(typeof(NetworkLevelLoader), nameof(NetworkLevelLoader.JoinSequenceDone))]
+    public class NetworkLevelLoader_JoinSequenceDone
+    {
+        [HarmonyPostfix]
+        public static void Postfix()
+        {
+            if (PhotonNetwork.isNonMasterClientInRoom)
+                CustomCharacters.RequestSpawnedCharacters();
         }
     }
 
@@ -269,7 +307,7 @@ namespace SideLoader.Hooks
             for (int i = 0; i < ___s_musicSources.Values.Count; i++)
             {
                 var key = ___s_musicSources.Keys[i];
-                var value = ___s_musicSources.Values[i];                
+                var value = ___s_musicSources.Values[i];
 
                 if (key != ___s_currentMusic && value.SceneName != name)
                 {
@@ -307,22 +345,22 @@ namespace SideLoader.Hooks
 
     #endregion
 
-    #region SL_SCENE PATCHES
+    //#region SL_SCENE PATCHES
 
-    // This is to fix some things when loading custom scenes.
-    // Note: There is another patch on this method for SL_Characters which is a Postfix, this one is a Prefix.
-    [HarmonyPatch(typeof(NetworkLevelLoader), "MidLoadLevel")]
-    public class NetworkLevelLoader_MidLoadLevel_2
-    {
-        [HarmonyPostfix]
-        public static void Prefix()
-        {
-            if (CustomScenes.IsLoadingCustomScene && CustomScenes.IsRealScene(SceneManager.GetActiveScene()))
-            {
-                CustomScenes.PopulateNecessarySceneContents();
-            }
-        }
-    }
+    //// This is to fix some things when loading custom scenes.
+    //// Note: There is another patch on this method for SL_Characters which is a Postfix, this one is a Prefix.
+    //[HarmonyPatch(typeof(NetworkLevelLoader), "MidLoadLevel")]
+    //public class NetworkLevelLoader_MidLoadLevel_2
+    //{
+    //    [HarmonyPostfix]
+    //    public static void Prefix()
+    //    {
+    //        if (CustomScenes.IsLoadingCustomScene && CustomScenes.IsRealScene(SceneManager.GetActiveScene()))
+    //        {
+    //            CustomScenes.PopulateNecessarySceneContents();
+    //        }
+    //    }
+    //}
 
-    #endregion
+    //#endregion
 }

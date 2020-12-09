@@ -15,7 +15,7 @@ namespace SideLoader
 
             if (!status)
             {
-                SL.Log("", 0);
+                SL.Log("");
                 return;
             }
 

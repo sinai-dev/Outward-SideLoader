@@ -14,22 +14,33 @@ namespace SideLoader
     {
         /// <summary> This event will be executed locally by ALL clients via RPC. Use this for any custom local setup that you need.
         /// <list type="bullet">The character is the Character your template was applied to.</list>
-        /// <list type="bullet">The string is the optional extraRpcData provided to the CustomCharacters.CreateCharacter() method.</list>
+        /// <list type="bullet">The string is the optional extraRpcData provided when you spawned the character.</list>
         /// </summary>
-        public event Action<Character, string> OnSpawn;
+        public event System.Action<Character, string> OnSpawn;
 
-        /// <summary>The Unique ID for this character.</summary>
+        /// <summary>
+        /// This event is invoked locally when save data is loaded and applied to a character using this template. 
+        /// Use this to do any custom setup you might need there.
+        /// <list type="bullet">The character is the Character your template was applied to.</list>
+        /// <list type="bullet">The string is the optional extraRpcData provided when you spawned the character.</list>
+        /// </summary>
+        public event System.Action<Character, string> OnSaveApplied;
+
+        /// <summary>Determines how this character will be saved.</summary>
+        public CharSaveType SaveType;
+
+        /// <summary>The Unique ID for this character template.</summary>
         public string UID;
         /// <summary>The display name for this character.</summary>
         public string Name;
 
-        /// <summary>The Scene Name to spawn in (referring to scene build names).</summary>
+        /// <summary>For Scene-type characters, the Scene Name to spawn in (referring to scene build names).</summary>
         public string SceneToSpawn;
-        /// <summary>The Vector3 position to spawn at.</summary>
+        /// <summary>For Scene-type characters, the Vector3 position to spawn at.</summary>
         public Vector3 SpawnPosition;
 
         /// <summary>Whether or not to add basic Combat AI to the character.</summary>
-        public bool AddCombatAI = false;
+        public bool AddCombatAI;
         /// <summary>If combat AI enabled, can the character dodge?</summary>
         public bool? CanDodge;
         /// <summary>If combat AI enabled, can the character block?</summary>
@@ -54,8 +65,13 @@ namespace SideLoader
         /// <summary>Item ID for Backpack</summary>
         public int? Backpack_ID;
 
+        // TODO pouch items (loot)
+
+        // TODO lootableondeath (and maybe SL_DropTable eventually)
+
         // stats
-        [XmlIgnore] private const string StatSourceID = "SL_Stat";
+        [XmlIgnore] private const string SL_STAT_ID = "SL_Stat";
+
         /// <summary>Base max health stat, default 100.</summary>
         public float? Health = 100;
         /// <summary>Base health regen stat, default 0.</summary>
@@ -83,15 +99,13 @@ namespace SideLoader
             // add uid to CustomCharacters callback dictionary
             if (!string.IsNullOrEmpty(this.UID))
             {
-                if (CustomCharacters.OnSpawnCallbacks.ContainsKey(this.UID))
+                if (CustomCharacters.Templates.ContainsKey(this.UID))
                 {
-                    SL.Log("Trying to register an OnSpawn callback, but one is already registered with this UID: " + UID, 1);
+                    SL.LogError("Trying to register an SL_Character Template, but one is already registered with this UID: " + UID);
                     return;
                 }
-                else
-                {
-                    CustomCharacters.OnSpawnCallbacks.Add(this.UID, this);
-                }
+
+                CustomCharacters.Templates.Add(this.UID, this);
             }
 
             if (!string.IsNullOrEmpty(this.SceneToSpawn))
@@ -100,10 +114,7 @@ namespace SideLoader
             }
         }
 
-        /// <summary>
-        /// Internal method used to invoke the OnSpawn callback.
-        /// </summary>
-        public void INTERNAL_OnSpawn(Character character, string extraRpcData)
+        internal void INTERNAL_OnSpawn(Character character, string extraRpcData)
         {
             character.gameObject.SetActive(false);
 
@@ -114,38 +125,36 @@ namespace SideLoader
             character.gameObject.SetActive(true);
         }
 
-        /// <summary>
-        /// Used internally for automatic spawner, use CreateCharacter to manually spawn. 
-        /// This will spawn only if host, and we are in the SceneToSpawn.
-        /// This uses the default template.UID.
-        /// </summary>
-        public void SafeSpawn()
+        internal void INTERNAL_OnSaveApplied(Character character, string extraRpcData)
+        {
+            SL.TryInvoke(OnSaveApplied, character, extraRpcData);
+        }
+
+        internal void SafeSpawn()
         {
             if (PhotonNetwork.isNonMasterClientInRoom || SceneManagerHelper.ActiveSceneName != this.SceneToSpawn)
-            {
                 return;
-            }
 
-            CreateCharacter(this.SpawnPosition);
+            Spawn(this.SpawnPosition);
         }
 
         /// <summary>
-        /// Calls CustomCharacters.CreateCharacter with this template.
+        /// Calls CustomCharacters.SpawnCharacter with this template.
         /// </summary>
         /// <param name="position">Spawn position for character. eg, template.SpawnPosition.</param>
         /// <param name="characterUID">Optional custom character UID for dynamic spawns</param>
         /// <param name="extraRpcData">Optional extra RPC data to send.</param>
-        public Character CreateCharacter(Vector3 position, string characterUID = null, string extraRpcData = null)
+        public Character Spawn(Vector3 position, string characterUID = null, string extraRpcData = null)
         {
             characterUID = characterUID ?? this.UID;
 
             if (CharacterManager.Instance.GetCharacter(characterUID) is Character existing)
             {
-                SL.Log("Trying to spawn a character UID " + characterUID + " but one already exists with that UID!", 0);
+                SL.Log("Trying to spawn a character UID " + characterUID + " but one already exists with that UID!");
                 return existing;
             }
 
-            return CustomCharacters.CreateCharacter(this, position, characterUID, extraRpcData);
+            return CustomCharacters.SpawnCharacter(this, position, characterUID, extraRpcData).GetComponent<Character>();
         }
 
         /// <summary>
@@ -157,8 +166,8 @@ namespace SideLoader
             // set name
             if (Name != null)
             {
-                At.SetValue("", typeof(Character), character, "m_nameLocKey");
-                At.SetValue(Name, typeof(Character), character, "m_name");
+                At.SetValue("", "m_nameLocKey", character);
+                At.SetValue(Name, "m_name", character);
             }
 
             // host stuff
@@ -173,14 +182,19 @@ namespace SideLoader
                 // gear
                 if (Weapon_ID != null)
                     TryEquipItem(character, (int)Weapon_ID);
+
                 if (Shield_ID != null)
                     TryEquipItem(character, (int)Shield_ID);
+
                 if (Helmet_ID != null)
                     TryEquipItem(character, (int)Helmet_ID);
+
                 if (Chest_ID != null)
                     TryEquipItem(character, (int)Chest_ID);
+
                 if (Boots_ID != null)
                     TryEquipItem(character, (int)Boots_ID);
+
                 if (Backpack_ID != null)
                     TryEquipItem(character, (int)Backpack_ID);
             }
@@ -193,13 +207,9 @@ namespace SideLoader
                     if (state is AISCombat aisCombat)
                     {
                         if (CanDodge != null)
-                        {
                             aisCombat.CanDodge = (bool)CanDodge;
-                        }
                         if (CanBlock != null)
-                        {
                             aisCombat.CanBlock = (bool)CanBlock;
-                        }
                     }
                 }
             }
@@ -213,51 +223,49 @@ namespace SideLoader
         public void SetStats(Character character)
         {
             if (character.GetComponent<PlayerCharacterStats>())
-            {
                 CustomCharacters.FixStats(character);
-            }
 
             var stats = character.GetComponent<CharacterStats>();
 
             if (Health != null)
             {
-                var m_maxHealthStat = (Stat)At.GetValue(typeof(CharacterStats), stats, "m_maxHealthStat");
-                m_maxHealthStat.AddStack(new StatStack(StatSourceID, (float)Health - 100), false);
+                var m_maxHealthStat = (Stat)At.GetValue("m_maxHealthStat", stats);
+                m_maxHealthStat.AddStack(new StatStack(SL_STAT_ID, (float)Health - 100), false);
             }
 
             if (HealthRegen != null)
             {
-                var m_healthRegenStat = (Stat)At.GetValue(typeof(CharacterStats), stats, "m_healthRegen");
-                m_healthRegenStat.AddStack(new StatStack(StatSourceID, (float)HealthRegen), false);
+                var m_healthRegenStat = (Stat)At.GetValue("m_healthRegen", stats);
+                m_healthRegenStat.AddStack(new StatStack(SL_STAT_ID, (float)HealthRegen), false);
             }
 
             if (ImpactResist != null)
             {
-                var m_impactResistance = (Stat)At.GetValue(typeof(CharacterStats), stats, "m_impactResistance");
-                m_impactResistance.AddStack(new StatStack(StatSourceID, (float)ImpactResist), false);
+                var m_impactResistance = (Stat)At.GetValue("m_impactResistance", stats);
+                m_impactResistance.AddStack(new StatStack(SL_STAT_ID, (float)ImpactResist), false);
             }
 
             if (Protection != null)
             {
-                var m_damageProtection = (Stat[])At.GetValue(typeof(CharacterStats), stats, "m_damageProtection");
-                m_damageProtection[0].AddStack(new StatStack(StatSourceID, (float)Protection), false);
+                var m_damageProtection = (Stat[])At.GetValue("m_damageProtection", stats);
+                m_damageProtection[0].AddStack(new StatStack(SL_STAT_ID, (float)Protection), false);
             }
 
             if (Damage_Resists != null)
             {
-                var m_damageResistance = (Stat[])At.GetValue(typeof(CharacterStats), stats, "m_damageResistance");
+                var m_damageResistance = (Stat[])At.GetValue("m_damageResistance", stats);
                 for (int i = 0; i < 6; i++)
                 {
-                    m_damageResistance[i].AddStack(new StatStack(StatSourceID, Damage_Resists[i]), false);
+                    m_damageResistance[i].AddStack(new StatStack(SL_STAT_ID, Damage_Resists[i]), false);
                 }
             }
 
             if (Damage_Bonus != null)
             {
-                var m_damageTypesModifier = (Stat[])At.GetValue(typeof(CharacterStats), stats, "m_damageTypesModifier");
+                var m_damageTypesModifier = (Stat[])At.GetValue("m_damageTypesModifier", stats);
                 for (int i = 0; i < 6; i++)
                 {
-                    m_damageTypesModifier[i].AddStack(new StatStack(StatSourceID, Damage_Bonus[i]), false);
+                    m_damageTypesModifier[i].AddStack(new StatStack(SL_STAT_ID, Damage_Bonus[i]), false);
                 }
             }
 
@@ -272,7 +280,8 @@ namespace SideLoader
                         immunities.Add(new TagSourceSelector(tag));
                     }
                 }
-                At.SetValue(immunities.ToArray(), typeof(CharacterStats), stats, "m_statusEffectsNaturalImmunity");
+
+                At.SetValue(immunities.ToArray(), "m_statusEffectsNaturalImmunity", stats);
             }
         }
 
@@ -282,36 +291,24 @@ namespace SideLoader
         public static void TryEquipItem(Character character, int id)
         {
             if (id <= 0)
-            {
                 return;
-            }
 
             if (ResourcesPrefabManager.Instance.GetItemPrefab(id) is Equipment item)
             {
                 if (character.Inventory.Equipment.GetEquippedItem(item.EquipSlot) is Equipment existing)
                 {
                     if (existing.ItemID == id)
-                    {
-                        // already equipped
                         return;
-                    }
                     else
-                    {
-                        // unequip this item
                         existing.ChangeParent(character.Inventory.Pouch.transform);
-                    }
                 }
 
                 Item itemToEquip;
 
                 if (character.Inventory.OwnsItem(id, 1))
-                {
                     itemToEquip = character.Inventory.GetOwnedItems(id)[0];
-                }
                 else
-                {
                     itemToEquip = ItemManager.Instance.GenerateItemNetwork(id);
-                }
 
                 itemToEquip.ChangeParent(character.Inventory.Equipment.GetMatchingEquipmentSlotTransform(item.EquipSlot));
             }
@@ -355,28 +352,22 @@ namespace SideLoader
 
                 // get the skin material
                 var mat = (data.Gender == 0) ? presets.MSkins[data.SkinIndex] : presets.FSkins[data.SkinIndex];
-                At.SetValue(mat, typeof(CharacterVisuals), visuals, "m_skinMat");
+                At.SetValue(mat, "m_skinMat", visuals);
 
                 // apply the visuals
-                var equipped = (ArmorVisuals[])At.GetValue(typeof(CharacterVisuals), visuals, "m_editorEquippedVisuals");
+                var equipped = (ArmorVisuals[])At.GetValue("m_editorEquippedVisuals", visuals);
 
                 if ((!equipped[0] || !equipped[0].HideFace) && (!equipped[1] || !equipped[1].HideFace))
-                {
                     visuals.LoadCharacterCreationHead(data.SkinIndex, (int)data.Gender, data.HeadVariationIndex);
-                }
+
                 if ((!equipped[0] || !equipped[0].HideHair) && (!equipped[1] || !equipped[1].HideHair))
-                {
-                    // have to use a custom method to apply hair, original one fails for some reason
                     ApplyHairVisuals(visuals, data.HairStyleIndex, data.HairColorIndex);
-                }
+
                 if (!equipped[1])
-                {
                     visuals.LoadCharacterCreationBody((int)data.Gender, data.SkinIndex);
-                }
+
                 if (!equipped[2])
-                {
                     visuals.LoadCharacterCreationBoots((int)data.Gender, data.SkinIndex);
-                }
             }
             else
             {
@@ -388,7 +379,7 @@ namespace SideLoader
         {
             var presets = CharacterManager.CharacterVisualsPresets;
             var key = $"Hair{_hairStyleIndex}";
-            var dict = (Dictionary<string, ArmorVisuals>)At.GetValue(typeof(CharacterVisuals), visuals, "m_armorVisualPreview");
+            var dict = At.GetValue("m_armorVisualPreview", visuals) as Dictionary<string, ArmorVisuals>;
 
             Material material = presets.HairMaterials[_hairColorIndex];
             ArmorVisuals hairVisuals;
@@ -408,7 +399,7 @@ namespace SideLoader
 
                 hairVisuals = visuals.InstantiateVisuals(presets.Hairs[_hairStyleIndex].transform, visuals.transform).GetComponent<ArmorVisuals>();
 
-                At.SetProp(hairVisuals, typeof(CharacterVisuals), visuals, "DefaultHairVisuals");
+                At.SetProp(hairVisuals, "DefaultHairVisuals", visuals);
 
                 if (!hairVisuals.gameObject.activeSelf)
                 {
@@ -424,12 +415,11 @@ namespace SideLoader
                 if (!hairVisuals.Renderer)
                 {
                     var renderer = hairVisuals.GetComponent<SkinnedMeshRenderer>();
-                    At.SetValue(renderer, typeof(ArmorVisuals), hairVisuals, "m_skinnedMeshRenderer");
+                    At.SetValue(renderer, "m_skinnedMeshRenderer", hairVisuals);
                 }
 
                 hairVisuals.Renderer.material = material;
-
-                At.Call(typeof(CharacterVisuals), visuals, "FinalizeSkinnedRenderer", null, new object[] { hairVisuals.Renderer });
+                At.Call(visuals, "FinalizeSkinnedRenderer", null, hairVisuals.Renderer);
             }
 
             hairVisuals.ApplyToCharacterVisuals(visuals);
@@ -456,8 +446,8 @@ namespace SideLoader
             // get the field name (eg. MHeadsWhite, FHeadsBlack, etc)
             string fieldName = sex + "Heads" + ethnicity;
 
-            // reflection get that field, and then find the limit index
-            var array = (GameObject[])At.GetValue(typeof(CharacterVisualsPresets), CharacterManager.CharacterVisualsPresets, fieldName);
+            var array = (GameObject[])At.GetValue(fieldName, CharacterManager.CharacterVisualsPresets);
+
             int limit = array.Length - 1;
 
             // clamp desired head inside 0 and limit

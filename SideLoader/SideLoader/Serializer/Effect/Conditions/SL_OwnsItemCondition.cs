@@ -16,7 +16,7 @@ namespace SideLoader
 
             if (!item)
             {
-                SL.Log("SL_OwnsItemCondition: Could not find an Item with the ID " + this.ReqItemID + "!", 0);
+                SL.Log("SL_OwnsItemCondition: Could not find an Item with the ID " + this.ReqItemID + "!");
                 return;
             }
 

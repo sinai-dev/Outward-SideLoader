@@ -39,7 +39,7 @@ namespace SideLoader
             }
             else
             {
-                SL.Log("Could not get Game type for SL_type: " + type, 1);
+                SL.Log("Could not get Game type for SL_type: " + type);
                 return null;
             }
         }

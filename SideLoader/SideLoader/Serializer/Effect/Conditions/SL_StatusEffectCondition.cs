@@ -17,7 +17,7 @@ namespace SideLoader
 
             if (!status)
             {
-                SL.Log("SL_StatusEffectCondition: Could not get a status effect with the Identifier '" + StatusIdentifier + "'!", 0);
+                SL.Log("SL_StatusEffectCondition: Could not get a status effect with the Identifier '" + StatusIdentifier + "'!");
                 return;
             }
 

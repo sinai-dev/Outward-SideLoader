@@ -86,7 +86,7 @@ namespace SideLoader
             }
             else
             {
-                SL.Log("Could not find " + filePath, 1);
+                SL.LogError("Could not find " + filePath);
                 return null;
             }
         }
@@ -138,95 +138,110 @@ namespace SideLoader
             SaveTextureAsPNG(icon.texture, dir, name, false);
         }
 
-        /// <summary>
-        /// Save a Texture2D as a png file.
-        /// </summary>
-        /// <param name="_tex">The texture to save.</param>
-        /// <param name="dir">The directory to save at.</param>
-        /// <param name="name">The filename to save as.</param>
-        /// <param name="normal">Is this a Normal map (bump map)?</param>
-        public static void SaveTextureAsPNG(Texture2D _tex, string dir, string name, bool normal)
+        public static Texture2D Copy(Texture2D orig, Rect rect)
         {
-            if (!Directory.Exists(dir))
-            {
-                Directory.CreateDirectory(dir);
-            }
+            Color[] pixels;
 
-            byte[] data;
-            var savepath = dir + @"\" + name + ".png";
+            if (!orig.isReadable)
+                orig = ForceReadTexture(orig);
 
+            pixels = orig.GetPixels((int)rect.x, (int)rect.y, (int)rect.width, (int)rect.height);
+
+            var _newTex = new Texture2D((int)rect.width, (int)rect.height);
+            _newTex.SetPixels(pixels);
+
+            return _newTex;
+        }
+
+        internal delegate void d_Blit2(IntPtr source, IntPtr dest);
+        public static Texture2D ForceReadTexture(Texture2D tex)
+        {
             try
             {
-                if (normal)
-                {
-                    _tex = DTXnmToRGBA(_tex);
-                    _tex.Apply(false, false);
-                }
+                FilterMode origFilter = tex.filterMode;
+                tex.filterMode = FilterMode.Point;
 
-                data = _tex.EncodeToPNG();
-
-                if (data == null)
-                {
-                    throw new Exception();
-                }
-            }
-            catch
-            {
-                var origFilter = _tex.filterMode;
-                _tex.filterMode = FilterMode.Point;
-
-                RenderTexture rt = RenderTexture.GetTemporary(_tex.width, _tex.height);
+                var rt = RenderTexture.GetTemporary(tex.width, tex.height, 0, RenderTextureFormat.ARGB32);
                 rt.filterMode = FilterMode.Point;
                 RenderTexture.active = rt;
-                Graphics.Blit(_tex, rt);
 
-                Texture2D _newTex = new Texture2D(_tex.width, _tex.height, TextureFormat.RGBA32, false);
-                _newTex.ReadPixels(new Rect(0, 0, _tex.width, _tex.height), 0, 0);
+                Graphics.Blit(tex, rt);
 
-                if (normal)
-                {
-                    _newTex = DTXnmToRGBA(_newTex);
-                }
+                var _newTex = new Texture2D(tex.width, tex.height, TextureFormat.ARGB32, false);
 
+                _newTex.ReadPixels(new Rect(0, 0, tex.width, tex.height), 0, 0);
                 _newTex.Apply(false, false);
 
                 RenderTexture.active = null;
-                _tex.filterMode = origFilter;
+                tex.filterMode = origFilter;
 
-                data = _newTex.EncodeToPNG();
+                return _newTex;
+            }
+            catch (Exception e)
+            {
+                SL.Log("Exception on ForceReadTexture: " + e.ToString());
+                return default;
+            }
+        }
+
+        public static void SaveTextureAsPNG(Texture2D tex, string dir, string name, bool isDTXnmNormal = false)
+        {
+            if (!tex)
+                return;
+
+            if (!Directory.Exists(dir))
+                Directory.CreateDirectory(dir);
+
+            byte[] data;
+            string savepath = dir + @"\" + name + ".png";
+
+            // Make sure we can EncodeToPNG it.
+            if (tex.format != TextureFormat.ARGB32 || !tex.isReadable)
+            {
+                tex = ForceReadTexture(tex);
             }
 
-            File.WriteAllBytes(savepath, data);
+            if (isDTXnmNormal)
+            {
+                tex = DTXnmToRGBA(tex);
+                tex.Apply(false, false);
+            }
+
+            data = tex.EncodeToPNG();
+
+            if (data == null || data.Length < 1)
+                SL.Log("Couldn't get any data for the texture!");
+            else
+                File.WriteAllBytes(savepath, data);
         }
 
         // Converts DTXnm-format Normal Map to RGBA-format Normal Map.
-        private static Texture2D DTXnmToRGBA(Texture2D tex)
+        public static Texture2D DTXnmToRGBA(Texture2D tex)
         {
             Color[] colors = tex.GetPixels();
 
             for (int i = 0; i < colors.Length; i++)
-            { 
-                Color c = colors[i];
+            {
+                var c = colors[i];
 
-                c.r = c.a * 2 - 1;  // red <- alpha (x <- w)
-                c.g = c.g * 2 - 1;  // green is always the same (y)
+                c.r = c.a * 2 - 1;  // red <- alpha
+                c.g = c.g * 2 - 1;  // green is always the same
 
-                Vector2 rg = new Vector2(c.r, c.g); //this is the xy vector
-                c.b = Mathf.Sqrt(1 - Mathf.Clamp01(Vector2.Dot(rg, rg))); //recalculate the blue channel (z)
+                var rg = new Vector2(c.r, c.g); //this is the red-green vector
+                c.b = Mathf.Sqrt(1 - Mathf.Clamp01(Vector2.Dot(rg, rg))); //recalculate the blue channel
 
                 colors[i] = new Color(
                     (c.r * 0.5f) + 0.5f,
-                    (c.g * 0.5f) + 0.25f, 
+                    (c.g * 0.5f) + 0.25f,
                     (c.b * 0.5f) + 0.5f
                 );
             }
 
-            var newtex = new Texture2D(tex.width, tex.height, TextureFormat.RGBA32, false);
-            newtex.SetPixels(colors); //apply pixels to the texture
+            var newtex = new Texture2D(tex.width, tex.height, TextureFormat.ARGB32, false);
+            newtex.SetPixels(colors);
 
             return newtex;
         }
-
 
         // =========== Shader Properties Helpers ===========
 
@@ -254,7 +269,7 @@ namespace SideLoader
 
             if (ShaderPropertyDicts == null)
             {
-                Debug.Log("Dict is null");
+                SL.Log("Dict is null");
                 return list;
             }
 
@@ -264,7 +279,7 @@ namespace SideLoader
 
                 if (dict == null)
                 {
-                    Debug.Log("ShaderProperties for material " + m.shader.name + " is in main dict, but Property Dict is null");
+                    SL.Log("ShaderProperties for material " + m.shader.name + " is in main dict, but Property Dict is null");
                     return list;
                 }
                 else
@@ -300,7 +315,7 @@ namespace SideLoader
             }
             else
             {
-                SL.Log("Shader GetProperties not supported: " + m.shader.name, 0);
+                SL.Log("Shader GetProperties not supported: " + m.shader.name);
             }
 
             return list;
@@ -381,33 +396,32 @@ namespace SideLoader
             // ============ Materials ============
 
             var list = Resources.FindObjectsOfTypeAll<Material>();
-
-            foreach (Material m in list)
+            foreach (var mat in list)
             {
-                var texNames = m.GetTexturePropertyNames();
+                var texNames = mat.GetTexturePropertyNames();
 
                 foreach (var layer in texNames)
                 {
-                    if (m.GetTexture(layer) is Texture tex && Textures.ContainsKey(tex.name))
+                    if (mat.GetTexture(layer) is Texture tex && Textures.ContainsKey(tex.name))
                     {
-                        SL.Log("Replacing layer " + layer + " on material " + m.name);
-                        m.SetTexture(layer, Textures[tex.name]);
+                        SL.Log("Replacing layer " + layer + " on material " + mat.name);
+                        mat.SetTexture(layer, Textures[tex.name]);
                     }
                 }
             }
 
             // ============ UI.Image ============ //
 
-            var images = Resources.FindObjectsOfTypeAll<Image>().Where(x => x.sprite != null && x.sprite.texture != null);
+            //var images = Resources.FindObjectsOfTypeAll<Image>().Where(x => x.sprite != null && x.sprite.texture != null);
 
-            foreach (Image i in images)
-            {
-                if (Textures.ContainsKey(i.sprite.texture.name))
-                {
-                    SL.Log("Replacing sprite for " + i.name);
-                    i.sprite = CreateSprite(Textures[i.sprite.texture.name]);
-                }
-            }
+            //foreach (Image i in images)
+            //{
+            //    if (Textures.ContainsKey(i.sprite.texture.name))
+            //    {
+            //        SL.Log("Replacing sprite for " + i.name);
+            //        i.sprite = CreateSprite(Textures[i.sprite.texture.name]);
+            //    }
+            //}
 
             var time = Math.Round(1000f * (Time.realtimeSinceStartup - start), 2);
 

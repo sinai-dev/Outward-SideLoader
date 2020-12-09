@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Xml.Serialization;
+using SideLoader.Helpers;
 using UnityEngine;
 
 namespace SideLoader
@@ -20,11 +21,6 @@ namespace SideLoader
 
         /// <summary> The StatusEffect you would like to clone from. Can also use TargetStatusID (checks for a Preset ID), but this takes priority.</summary>
         public string TargetStatusIdentifier;
-        /// <summary>[Optional] Used if SideLoader could not find anything with your TargetStatusIdentifier.</summary>
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public int TargetStatusID;
-        /// <summary>Internal C# override, so that TargetStatusID is not included in generated XML templates.</summary>
-        public bool ShouldSerializeTargetStatusID() { return false; }
 
         /// <summary>The new Preset ID for your Status Effect.</summary>
         public int NewStatusID;
@@ -49,7 +45,7 @@ namespace SideLoader
 
         public string[] Tags;
 
-        public EffectBehaviours EffectBehaviour = EffectBehaviours.OverrideEffects;
+        public EditBehaviours EffectBehaviour = EditBehaviours.Override;
         public SL_EffectTransform[] Effects;
 
         public virtual void ApplyTemplate()
@@ -57,7 +53,7 @@ namespace SideLoader
             StatusEffect status = ResourcesPrefabManager.Instance.GetStatusEffectPrefab(this.StatusIdentifier);
             if (!status)
             {
-                SL.Log("Could not find a StatusEffect with the Identifier: " + StatusIdentifier, 1);
+                SL.Log("Could not find a StatusEffect with the Identifier: " + StatusIdentifier);
                 return;
             }
 
@@ -141,9 +137,9 @@ namespace SideLoader
                 }
             }
 
-            if (EffectBehaviour == EffectBehaviours.DestroyEffects)
+            if (EffectBehaviour == EditBehaviours.Destroy)
             {
-                SL.DestroyChildren(status.transform);
+                UnityHelpers.DestroyChildren(status.transform);
             }
 
             // setup family and length type
@@ -198,7 +194,7 @@ namespace SideLoader
                 }
                 else
                 {
-                    SL.Log("Could not get effect signature!", 1);
+                    SL.Log("Could not get effect signature!");
                 }
             }
 
@@ -297,7 +293,7 @@ namespace SideLoader
 
             var template = new SL_StatusEffect()
             {
-                TargetStatusID = preset?.PresetID ?? -1,
+                NewStatusID = preset?.PresetID ?? -1,
                 TargetStatusIdentifier = status.IdentifierName,
                 StatusIdentifier = status.IdentifierName,
                 IgnoreBuildupIfApplied = status.IgnoreBuildUpIfApplied,

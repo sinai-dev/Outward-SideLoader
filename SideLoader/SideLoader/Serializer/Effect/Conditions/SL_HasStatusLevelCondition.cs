@@ -20,7 +20,7 @@ namespace SideLoader
 
             if (!status)
             {
-                SL.Log("SL_HasStatusEffectLevelCondition: Could not find a Status Effect with the identifier '" + this.StatusIdentifier + "'!", 0);
+                SL.Log("SL_HasStatusEffectLevelCondition: Could not find a Status Effect with the identifier '" + this.StatusIdentifier + "'!");
                 return;
             }
 

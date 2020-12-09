@@ -26,7 +26,7 @@ namespace SideLoader
         {
             if (m_applied)
             {
-                SL.Log("Trying to apply an SL_Recipe that is already applied! This is not allowed.", 0);
+                SL.Log("Trying to apply an SL_Recipe that is already applied! This is not allowed.");
                 return;
             }
 

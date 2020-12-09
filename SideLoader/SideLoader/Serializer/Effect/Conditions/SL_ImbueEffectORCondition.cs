@@ -29,7 +29,7 @@ namespace SideLoader
 
             if (!anyValid && !AnyImbue)
             {
-                SL.Log("SL_ImbueEffectORCondition : Could not find any valid Imbue Preset ID!", 0);
+                SL.Log("SL_ImbueEffectORCondition : Could not find any valid Imbue Preset ID!");
                 return;
             }
 

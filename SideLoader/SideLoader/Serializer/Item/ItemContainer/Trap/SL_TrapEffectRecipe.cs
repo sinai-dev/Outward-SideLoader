@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using SideLoader.Helpers;
 using UnityEngine;
 
 namespace SideLoader
@@ -87,7 +88,7 @@ namespace SideLoader
                     GameObject.DontDestroyOnLoad(prefab.gameObject);
                     recipe.TrapEffectsPrefab = prefab;
                 }
-                SL.DestroyChildren(prefab);
+                UnityHelpers.DestroyChildren(prefab);
 
                 foreach (var effect in this.TrapEffects)
                 {
@@ -104,7 +105,7 @@ namespace SideLoader
                     GameObject.DontDestroyOnLoad(prefab.gameObject);
                     recipe.HiddenTrapEffectsPrefab = prefab;
                 }
-                SL.DestroyChildren(prefab);
+                UnityHelpers.DestroyChildren(prefab);
 
                 foreach (var effect in this.HiddenEffects)
                 {

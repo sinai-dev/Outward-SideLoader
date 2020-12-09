@@ -42,7 +42,7 @@ namespace SideLoader
         public bool TrailEnabled;
         public float TrailTime;
 
-        public EffectBehaviours EffectBehaviour = EffectBehaviours.OverrideEffects;
+        public EditBehaviours EffectBehaviour = EditBehaviours.Override;
         public SL_EffectTransform[] ProjectileEffects;
 
         public override void ApplyToComponent<T>(T component)
@@ -230,7 +230,7 @@ namespace SideLoader
 
                 if (name == ProjectilePrefabs.NONE)
                 {
-                    SL.Log("Couldn't parse projectile prefab: " + projectile.name, 0);
+                    SL.Log("Couldn't parse projectile prefab: " + projectile.name);
                 }
                 else if (!ProjectilePrefabCache.ContainsKey(name))
                 {

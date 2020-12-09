@@ -5,6 +5,7 @@ using System.Text;
 using UnityEngine;
 using System.IO;
 using System.Xml.Serialization;
+using SideLoader.Helpers;
 
 namespace SideLoader
 {
@@ -63,7 +64,7 @@ namespace SideLoader
         public SL_ItemExtension[] ItemExtensions;
 
         ///// <summary>Determines how the EffectTransforms are replaced and edited</summary>
-        public EffectBehaviours EffectBehaviour = EffectBehaviours.OverrideEffects;
+        public EditBehaviours EffectBehaviour = EditBehaviours.Override;
         /// <summary>Transform heirarchy containing the Effects and EffectConditions</summary>
         public SL_EffectTransform[] EffectTransforms;
 
@@ -107,7 +108,7 @@ namespace SideLoader
             var item = ResourcesPrefabManager.Instance.GetItemPrefab(New_ItemID);
             if (!item)
             {
-                SL.Log($"Could not find an item with the ID {New_ItemID}! Maybe you are trying to apply before calling CustomItems.CreateCustomItem?", 1);
+                SL.LogError($"Could not find an item with the ID {New_ItemID}! Maybe you are trying to apply before calling CustomItems.CreateCustomItem?");
                 return;
             }
 
@@ -193,7 +194,7 @@ namespace SideLoader
                 }
                 else
                 {
-                    stats = (ItemStats)SL.FixComponentType(desiredType, stats);
+                    stats = (ItemStats)UnityHelpers.FixComponentType(desiredType, stats);
                 }
 
                 StatsHolder.ApplyToItem(stats);

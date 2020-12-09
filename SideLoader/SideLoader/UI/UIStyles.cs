@@ -33,7 +33,7 @@ namespace SideLoader.UI
         {
             var c = GUI.color;
             GUI.color = color;
-            GUILayout.Box(GUIContent.none, HorizontalBar);
+            GUILayout.Box(GUIContent.none, HorizontalBar, null);
             GUI.color = c;
         }
 
@@ -91,21 +91,21 @@ namespace SideLoader.UI
         public static Vector3 Translate(string label, Vector3 vector, ref float amount, bool multByTime)
         {
             GUILayout.BeginHorizontal();
-            GUILayout.Label(label, GUILayout.Width(50));
+            GUILayout.Label(label, new GUILayoutOption[] { GUILayout.Width(50) });
             GUI.skin.label.alignment = TextAnchor.MiddleRight;
 
-            GUILayout.Label("<color=cyan>X:</color>", GUILayout.Width(20));
+            GUILayout.Label("<color=cyan>X:</color>", new GUILayoutOption[] { GUILayout.Width(20) });
             PlusMinusFloat(ref vector.x, amount, multByTime);
 
-            GUILayout.Label("<color=cyan>Y:</color>", GUILayout.Width(20));
+            GUILayout.Label("<color=cyan>Y:</color>", new GUILayoutOption[] { GUILayout.Width(20) });
             PlusMinusFloat(ref vector.y, amount, multByTime);
 
-            GUILayout.Label("<color=cyan>Z:</color>", GUILayout.Width(20));
+            GUILayout.Label("<color=cyan>Z:</color>", new GUILayoutOption[] {GUILayout.Width(20) });
             PlusMinusFloat(ref vector.z, amount, multByTime);
 
-            GUILayout.Label("+/-:", GUILayout.Width(30));
+            GUILayout.Label("+/-:", new GUILayoutOption[] {GUILayout.Width(30) });
             var input = amount.ToString("F2");
-            input = GUILayout.TextField(input, GUILayout.Width(60));
+            input = GUILayout.TextField(input, new GUILayoutOption[] {GUILayout.Width(60) });
             if (float.TryParse(input, out float f))
             {
                 amount = f;
@@ -120,16 +120,16 @@ namespace SideLoader.UI
         private static void PlusMinusFloat(ref float f, float amount, bool multByTime)
         {
             string s = f.ToString("F3");
-            s = GUILayout.TextField(s, GUILayout.Width(60));
+            s = GUILayout.TextField(s, new GUILayoutOption[] { GUILayout.Width(60) });
             if (float.TryParse(s, out float f2))
             {
                 f = f2;
             }
-            if (GUILayout.RepeatButton("-", GUILayout.Width(20)))
+            if (GUILayout.RepeatButton("-", new GUILayoutOption[] {GUILayout.Width(20) }))
             {
                 f -= multByTime ? amount * Time.deltaTime : amount;
             }
-            if (GUILayout.RepeatButton("+", GUILayout.Width(20)))
+            if (GUILayout.RepeatButton("+", new GUILayoutOption[] {GUILayout.Width(20) }))
             {
                 f += multByTime ? amount * Time.deltaTime : amount;
             }

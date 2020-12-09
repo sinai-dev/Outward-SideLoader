@@ -74,7 +74,7 @@ namespace SideLoader
         {
             if (!this.m_object)
             {
-                SL.Log("Trying to apply SL_SkillSchool but it is not created yet! Call CreateBaseSchool first!", 1);
+                SL.Log("Trying to apply SL_SkillSchool but it is not created yet! Call CreateBaseSchool first!");
                 return;
             }
 
@@ -104,7 +104,7 @@ namespace SideLoader
         {
             if (scene.name.ToLower().Contains("mainmenu"))
             {
-                SL.Instance.StartCoroutine(FixOnMenuCoroutine());
+                SLPlugin.Instance.StartCoroutine(FixOnMenuCoroutine());
             }
         }
 
@@ -182,7 +182,7 @@ namespace SideLoader
 
             if (!success)
             {
-                SL.Log("Could not set required slot. Maybe it's not set yet?", 1);
+                SL.Log("Could not set required slot. Maybe it's not set yet?");
             }
         }
     }

@@ -19,7 +19,6 @@ namespace SideLoader
                 var _event = QuestEventManager.Instance.GetQuestEvent(uid);
                 if (_event == null)
                 {
-                    SL.Log("", 0);
                     continue;
                 }
                 list.Add(new QuestEventReference()

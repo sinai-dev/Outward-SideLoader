@@ -16,7 +16,7 @@ namespace SideLoader
 
             if (!status)
             {
-                SL.Log("SL_ReduceStatusLevel: Could not find a status with the identifier '" + StatusIdentifierToReduce + "'!", 0);
+                SL.Log("SL_ReduceStatusLevel: Could not find a status with the identifier '" + StatusIdentifierToReduce + "'!");
                 return;
             }
 

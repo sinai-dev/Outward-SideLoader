@@ -138,7 +138,7 @@ namespace SideLoader
 
             if (this.Effects != null)
             {
-                SL_EffectTransform.ApplyTransformList(enchantment.transform, this.Effects?.ToArray(), EffectBehaviours.OverrideEffects);
+                SL_EffectTransform.ApplyTransformList(enchantment.transform, this.Effects?.ToArray(), EditBehaviours.Override);
             }
 
             if (this.AddedDamages != null)

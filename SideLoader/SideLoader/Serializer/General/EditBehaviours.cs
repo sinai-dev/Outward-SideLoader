@@ -12,7 +12,11 @@ namespace SideLoader
         NONE,
         /// <summary>Will override the existing objects if you have defined an equivalent (for SL_EffectTransform, this means the SL_EffectTransform itself)</summary>
         Override,
+        [Obsolete("Use 'Override'")]
+        OverrideEffects = 1,
         /// <summary>Destroys all existing objects before adding yours (if any).</summary>
         Destroy,
+        [Obsolete("Use 'Destroy'")]
+        DestroyEffects = 2,
     }
 }

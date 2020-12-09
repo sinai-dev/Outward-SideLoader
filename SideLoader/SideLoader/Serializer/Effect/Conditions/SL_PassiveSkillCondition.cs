@@ -15,7 +15,7 @@ namespace SideLoader
 
             if (!skill)
             {
-                SL.Log("SL_PassiveSkillCondition: Could not find a Passive Skill with the ID " + this.ReqSkillID, 0);
+                SL.Log("SL_PassiveSkillCondition: Could not find a Passive Skill with the ID " + this.ReqSkillID);
                 return;
             }
 

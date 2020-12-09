@@ -15,7 +15,7 @@ namespace SideLoader
             
             if (!skill)
             {
-                SL.Log("Trying to apply a CounterSuccessCondition on a skill which is not a Counter Skill! Error!", 0);
+                SL.Log("Trying to apply a CounterSuccessCondition on a skill which is not a Counter Skill! Error!");
                 return;
             }
 

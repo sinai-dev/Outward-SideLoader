@@ -7,6 +7,7 @@ using System.IO;
 using Localizer;
 using System.Reflection;
 using HarmonyLib;
+using SideLoader.Helpers;
 
 namespace SideLoader
 {
@@ -17,11 +18,6 @@ namespace SideLoader
     {
         /// <summary>Cached ORIGINAL Item Prefabs (not modified)</summary>
         private static readonly Dictionary<int, Item> OrigItemPrefabs = new Dictionary<int, Item>();
-
-        /// <summary>For legacy support. Use the SideLoader.References class for these sorts of references.</summary>
-        public static Dictionary<string, Item> RPM_ITEM_PREFABS => References.RPM_ITEM_PREFABS;
-        /// <summary>For legacy support. Use the SideLoader.References class for these sorts of references.</summary>
-        public static Dictionary<int, ItemLocalization> ITEM_LOCALIZATION => References.ITEM_LOCALIZATION;
 
         // ================================================================================ //
         /*                                  Public Helpers                                  */
@@ -66,7 +62,7 @@ namespace SideLoader
 
             if (!original)
             {
-                SL.Log("CustomItems::CreateCustomItem - Error! Could not find the clone target Item ID: " + cloneTargetID, 1);
+                SL.LogError("CustomItems.CreateCustomItem - Error! Could not find the clone target Item ID: " + cloneTargetID);
                 return null;
             }
 
@@ -102,7 +98,7 @@ namespace SideLoader
                 var gameType = Serializer.GetGameType(template.GetType());
                 if (gameType != item.GetType())
                 {
-                    item = (Item)SL.FixComponentType(gameType, item);
+                    item = UnityHelpers.FixComponentType(gameType, item) as Item;
                 }
             }
 
@@ -160,8 +156,9 @@ namespace SideLoader
             var name = _name ?? "";
             var desc = _description ?? "";
 
-            At.SetValue(name, typeof(Item), _item, "m_name");
-            At.SetValue(desc, typeof(Item), _item, "m_description");
+            At.SetValue(name, "m_name", _item);
+            At.SetValue(LocalizationManager.Instance.CurrentLanguage, "m_lastDescLang", _item);
+            At.SetValue(desc, "m_localizedDescription", _item);
 
             if (References.ITEM_LOCALIZATION.ContainsKey(_item.ItemID))
             {
@@ -196,34 +193,35 @@ namespace SideLoader
         /// <summary> Adds the range of tags to the Items' TagSource, and optionally destroys the existing tags.</summary>
         public static void SetItemTags(Item item, string[] tags, bool destroyExisting)
         {
-            var tagsource = item.transform.GetOrAddComponent<TagSource>();
+            var tagsource = item.transform.GetComponent<TagSource>();
+            if (!tagsource)
+                tagsource = item.gameObject.AddComponent<TagSource>();
 
             if (destroyExisting)
             {
-                At.SetValue(new List<Tag>(), typeof(TagListSelectorComponent), tagsource, "m_tags");
-                At.SetValue(new List<TagSourceSelector>(), typeof(TagListSelectorComponent), tagsource, "m_tagSelectors");
+                At.SetValue(new List<Tag>(), "m_tags", tagsource);
+                At.SetValue(new List<TagSourceSelector>(), "m_tagSelectors", tagsource);
             }
 
             var list = new List<TagSourceSelector>();
+
             foreach (var tag in tags)
             {
                 if (GetTag(tag) is Tag _tag && _tag != Tag.None)
-                {
                     list.Add(new TagSourceSelector(_tag));
-                }
             }
 
-            At.SetValue(list, typeof(TagListSelectorComponent), tagsource as TagListSelectorComponent, "m_tagSelectors");
+            At.SetValue(list, "m_tagSelectors", tagsource);
 
             tagsource.RefreshTags();
 
-            At.SetValue(tagsource, typeof(Item), item, "m_tagSource");
+            At.SetValue(tagsource, "m_tagSource", item);
         }
 
         [Obsolete("Use SL.DestroyChildren instead! (Moved)")]
         public static void DestroyChildren(Transform t, bool destroyContent = false)
         {
-            SL.DestroyChildren(t, destroyContent);
+            UnityHelpers.DestroyChildren(t, destroyContent);
         }
     }
 }
