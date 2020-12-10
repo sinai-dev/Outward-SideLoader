@@ -16,6 +16,10 @@
   </a>  
 </p>
 
+## Beta Preview [![Beta Preview](https://img.shields.io/badge/version-3.0.0b-green.svg)](https://github.com/sinai-dev/Outward-SideLoader/releases/tag/3.0.0b)
+
+SideLoader's 3.0 version is ready for beta testing. See [here](https://github.com/sinai-dev/Outward-SideLoader/releases/tag/3.0.0b) for more information.
+
 ## Install
 * [How To Install](https://sinai-dev.github.io/OSLDocs/#/GettingStarted/Installation)
 
