@@ -244,6 +244,7 @@ namespace SideLoader.Hooks
         public static void Postfix()
         {
             CustomCharacters.SaveCharacters();
+
         }
     }
 
@@ -283,7 +284,9 @@ namespace SideLoader.Hooks
 
     // Like the last patch, we sneak into when the game should have destroyed previous scene characters to cleanup there.
     [HarmonyPatch(typeof(CharacterManager), "ClearNonPersitentCharacters")]
-    public class CharacterManager_ClearNonPersitentCharacters
+    [HarmonyPatch(typeof(NetworkLevelLoader), "StartConnectionCoroutine")]
+    [HarmonyPatch(typeof(NetworkLevelLoader), "HostLost")]
+    public class MultiPatch_CleanupCharacters
     {
         [HarmonyPrefix]
         public static void Prefix()

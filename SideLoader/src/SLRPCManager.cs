@@ -86,56 +86,16 @@ namespace SideLoader
 
         // Received by MasterClient, sent from guests when they join the world
         [PunRPC]
-        public void RPC_RequestCharacters(PhotonMessageInfo info)
+        public void RPC_RequestCharacters()
         {
-            if (info.sender == null)
-            {
-                SL.LogWarning("Received RPC_RequestCharacters, but the PhotonMessageInfo.sender was null!");
-                return;
-            }
+            // use the local save to capture the current spawned characters info
+            CustomCharacters.SaveCharacters();
 
-            string charDataList = "";
+            // destroy current spawns
+            CustomCharacters.CleanupCharacters();
 
-            foreach (var charInfo in CustomCharacters.ActiveCharacters)
-            {
-                if (charInfo.Template == null || !charInfo.ActiveCharacter)
-                    continue;
-
-                if (charDataList != "")
-                    charDataList += "\n";
-
-                charDataList += $"{charInfo.ActiveCharacter.UID.ToString()}|{charInfo.Template.UID}|{Encryptor.EncodeString(charInfo.ExtraRPCData)}";
-            }
-
-            this.photonView.RPC(nameof(RPC_SendCharacters), info.sender, charDataList);
-        }
-
-        // Received by Sender of RequestCharacters, send by master client
-        [PunRPC]
-        public void RPC_SendCharacters(string characterList)
-        {
-            var datas = characterList.Split('\n');
-
-            foreach (var charData in datas)
-            {
-                var data = charData.Split('|');
-
-                string charUID = data[0];
-                string templateUID = data[1];
-                string extraRpcData = Encryptor.DecodeString(data[2]);
-
-                CustomCharacters.Templates.TryGetValue(templateUID, out SL_Character template);
-
-                if (template == null)
-                {
-                    SL.LogWarning("SLRPC_SendCharacters: Could not find a template with the UID " + templateUID);
-                    continue;
-                }
-
-                // call SpawnCharacter with onlySpawnLocally = true.
-                CustomCharacters.SpawnCharacter(template.SpawnPosition, charUID, template.Name, 
-                    template.CharacterVisualsData.ToString(), template.AddCombatAI, templateUID, extraRpcData, true);
-            }
+            // respawn for all new clients from save data
+            CustomCharacters.InvokeSpawnCharacters();
         }
     }
 }

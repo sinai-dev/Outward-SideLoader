@@ -160,7 +160,7 @@ namespace SideLoader
 
         /// <summary>
         /// Applies this template to a character. Some parts of the template are only applied by the host, while others are applied by any client.
-        /// Ideally this method should be called by all clients via RPC (which is the case if you just use CreateCharacter).
+        /// Ideally this method should be called by all clients via RPC (which is the case if you just use the Spawn() method).
         /// </summary>
         public void ApplyToCharacter(Character character)
         {
@@ -176,9 +176,7 @@ namespace SideLoader
             {
                 // set faction
                 if (Faction != null)
-                {
                     character.ChangeFaction((Character.Factions)Faction);
-                }
 
                 // gear
                 if (Weapon_ID != null)

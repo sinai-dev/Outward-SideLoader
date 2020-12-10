@@ -106,10 +106,8 @@ namespace SideLoader
         /// <param name="addCombatAI">Whether to add basic combat AI to the character</param>
         /// <param name="visualData">Optional visual data (network data). Use SL_Character.VisualData.ToString().</param>
         /// <param name="extraRpcData">Optional extra RPC data to send with the spawn</param>
-        /// <param name="onlySpawnLocally">Used internally</param>
-        /// <param name="sceneView">Used internally</param>
         /// <returns>The custom character (instantly for executing client)</returns>
-        public static GameObject SpawnCharacter(Vector3 _position, string _UID, string _name, string visualData = null, bool addCombatAI = false, string spawnCallbackUID = null, string extraRpcData = null, bool onlySpawnLocally = false, int sceneView = -1)
+        public static GameObject SpawnCharacter(Vector3 _position, string _UID, string _name, string visualData = null, bool addCombatAI = false, string spawnCallbackUID = null, string extraRpcData = null)
         {
             SL.Log($"Spawning character '{_name}', _UID: {_UID}, spawnCallbackUID: {spawnCallbackUID}");
 
@@ -117,9 +115,8 @@ namespace SideLoader
             {
                 GameObject prefab;
                 Character character;
-                if (!onlySpawnLocally)
-                {
-                    var args = new object[]
+
+                var args = new object[]
                     {
                         (int)CharacterManager.CharacterInstantiationTypes.Temporary,
                         "NewPlayerPrefab",
@@ -127,32 +124,17 @@ namespace SideLoader
                         string.Empty // dont send a creator UID, otherwise it links the current summon (used by Conjure Ghost)
                     };
 
-                    prefab = PhotonNetwork.InstantiateSceneObject("_characters/NewPlayerPrefab", _position, Quaternion.identity, 0, args);
-                    prefab.SetActive(false);
+                prefab = PhotonNetwork.InstantiateSceneObject("_characters/NewPlayerPrefab", _position, Quaternion.identity, 0, args);
+                prefab.SetActive(false);
 
-                    character = prefab.GetComponent<Character>();
-                }
-                else // local spawn
-                {
-                    prefab = null;
-
-                    prefab = GameObject.Instantiate(Resources.Load<GameObject>("_characters/NewPlayerPrefab"));
-                    prefab.SetActive(false);
-
-                    prefab.transform.position = _position;
-
-                    character = prefab.GetComponent<Character>();
-
-                    At.SetField("NewPlayerPrefab", "m_prefabPath", character);
-                    At.SetField(CharacterManager.CharacterInstantiationTypes.Temporary, "m_instantiationType", character);
-                    At.SetField(string.Empty, "m_intantiationExtraData", character);
-                }
+                character = prefab.GetComponent<Character>();
 
                 character.SetUID(_UID);
 
                 //FixStats(prefab.GetComponent<Character>());
 
-                var view = sceneView > 0 ? sceneView : PhotonNetwork.AllocateSceneViewID();
+                //var viewID = sceneView > 0 ? sceneView : PhotonNetwork.AllocateSceneViewID();
+                var viewID = PhotonNetwork.AllocateSceneViewID();
 
                 if (string.IsNullOrEmpty(spawnCallbackUID))
                 {
@@ -161,10 +143,7 @@ namespace SideLoader
 
                 prefab.SetActive(true);
 
-                if (!onlySpawnLocally)
-                    SLRPCManager.Instance.SpawnCharacter(_UID, view, _name, visualData, addCombatAI, spawnCallbackUID, extraRpcData);
-                else
-                    SLPlugin.Instance.StartCoroutine(SpawnCharacterCoroutine(_UID, view, _name, visualData, addCombatAI, spawnCallbackUID, extraRpcData));
+                SLRPCManager.Instance.SpawnCharacter(_UID, viewID, _name, visualData, addCombatAI, spawnCallbackUID, extraRpcData);
 
                 return prefab;
             }
@@ -203,6 +182,93 @@ namespace SideLoader
         }
 
         // ======================== INTERNAL ======================== //
+
+        internal static IEnumerator SpawnCharacterCoroutine(string charUID, int viewID, string name, string visualData, bool addCombatAI, string spawnCallbackUID, string extraRpcData)
+        {
+            // get character from manager
+            Character character = CharacterManager.Instance.GetCharacter(charUID);
+            float start = 0f;
+            while (!character && start < 15f)
+            {
+                yield return null;
+                start += Time.deltaTime;
+                character = CharacterManager.Instance.GetCharacter(charUID);
+            }
+
+            if (!character)
+                yield break;
+
+            // add to cache list
+            AddActiveCharacter(new CustomSpawnInfo(character, spawnCallbackUID, extraRpcData));
+
+            if (string.IsNullOrEmpty(name))
+            {
+                name = "SL_Character";
+            }
+
+            // set name
+            character.name = $"{name}_{charUID}";
+
+            if (!string.IsNullOrEmpty(visualData))
+            {
+                //SL.Instance.StartCoroutine(SL_Character.SetVisuals(character, visualData));
+                SLPlugin.Instance.StartCoroutine(SL_Character.SetVisuals(character, visualData));
+            }
+
+            if (addCombatAI) // && !localSpawn)
+            {
+                SetupBasicAI(character);
+            }
+
+            // invoke OnSpawn callback
+            if (Templates.ContainsKey(spawnCallbackUID))
+            {
+                var template = Templates[spawnCallbackUID];
+
+                template.INTERNAL_OnSpawn(character, extraRpcData);
+            }
+
+            character.gameObject.SetActive(true);
+
+            // fix Photon View component
+            if (character.gameObject.GetComponent<PhotonView>() is PhotonView view)
+            {
+                int id = view.viewID;
+                GameObject.DestroyImmediate(view);
+
+                if (!PhotonNetwork.isNonMasterClientInRoom && id > 0)
+                {
+                    PhotonNetwork.UnAllocateViewID(view.viewID);
+                }
+            }
+
+            // setup new view
+            var pView = character.gameObject.AddComponent<PhotonView>();
+            pView.viewID = viewID;
+            pView.onSerializeTransformOption = OnSerializeTransform.PositionAndRotation;
+            pView.onSerializeRigidBodyOption = OnSerializeRigidBody.All;
+            pView.synchronization = ViewSynchronization.Unreliable;
+
+            // fix photonview serialization components
+            if (pView.ObservedComponents == null || pView.ObservedComponents.Count < 1)
+            {
+                pView.ObservedComponents = new List<Component>()
+                {
+                    character
+                };
+            }
+
+            float t = 0f;
+            while (t < 0.5f)
+            {
+                yield return null;
+                t += Time.deltaTime;
+            }
+
+            character.gameObject.SetActive(false);
+            character.gameObject.SetActive(true);
+        }
+
 
         internal void Awake()
         {
@@ -244,8 +310,11 @@ namespace SideLoader
         // called from a patch on SaveManager.Save
         internal static void SaveCharacters()
         {
-            if (PhotonNetwork.isNonMasterClientInRoom)
+            if (PhotonNetwork.isNonMasterClientInRoom || (bool)At.GetField("m_saveOnHostLost", NetworkLevelLoader.Instance))
                 return;
+
+            SL.LogWarning("~~~~~~~~~~ Saving Characters ~~~~~~~~~~");
+            SL.Log(SceneManager.GetActiveScene().name);
 
             var sceneSaveDataList = new List<SL_CharacterSaveData>();
             var followerDataList = new List<SL_CharacterSaveData>();
@@ -269,13 +338,10 @@ namespace SideLoader
                 }
             }
 
-            // SL.Log("Saving " + (sceneSaveDataList.Count + followerDataList.Count) + " characters");
+            SL.Log("Saving " + (sceneSaveDataList.Count + followerDataList.Count) + " characters");
 
-            if (sceneSaveDataList.Count > 0)
-                SaveListOfData(sceneSaveDataList.ToArray(), CharSaveType.Scene);
-
-            if (followerDataList.Count > 0)
-                SaveListOfData(followerDataList.ToArray(), CharSaveType.Follower);
+            SaveListOfData(sceneSaveDataList.ToArray(), CharSaveType.Scene);
+            SaveListOfData(followerDataList.ToArray(), CharSaveType.Follower);
         }
 
         internal static void SaveListOfData(SL_CharacterSaveData[] list, CharSaveType type)
@@ -284,6 +350,9 @@ namespace SideLoader
 
             if (File.Exists(savePath))
                 File.Delete(savePath);
+
+            if (list == null || list.Length < 1)
+                return;
 
             using (var file = File.Create(savePath))
             {
@@ -324,129 +393,43 @@ namespace SideLoader
         {
             var savePath = GetCurrentSavePath(type);
 
-            if (File.Exists(savePath))
+            if (!File.Exists(savePath))
+                return;
+
+            using (var file = File.OpenRead(savePath))
             {
-                using (var file = File.OpenRead(savePath))
+                var serializer = Serializer.GetXmlSerializer(typeof(SL_CharacterSaveData[]));
+                var list = serializer.Deserialize(file) as SL_CharacterSaveData[];
+
+                var playerPos = CharacterManager.Instance.GetFirstLocalCharacter().transform.position;
+
+                foreach (var saveData in list)
                 {
-                    var serializer = Serializer.GetXmlSerializer(typeof(SL_CharacterSaveData[]));
-                    var list = serializer.Deserialize(file) as SL_CharacterSaveData[];
-
-                    var playerPos = CharacterManager.Instance.GetFirstLocalCharacter().transform.position;
-
-                    foreach (var saveData in list)
+                    if (type == CharSaveType.Scene)
                     {
-                        if (type == CharSaveType.Scene)
+                        var character = CharacterManager.Instance.GetCharacter(saveData.CharacterUID);
+                        if (!character)
                         {
-                            var character = CharacterManager.Instance.GetCharacter(saveData.CharacterUID);
-                            if (!character)
-                            {
-                                SL.LogWarning($"Trying to apply a Scene-type SL_CharacterSaveData but could not find character with UID '{saveData.CharacterUID}'");
-                                continue;
-                            }
-
-                            saveData.ApplyToCharacter(character);
+                            SL.LogWarning($"Trying to apply a Scene-type SL_CharacterSaveData but could not find character with UID '{saveData.CharacterUID}'");
+                            continue;
                         }
-                        else
+
+                        saveData.ApplyToCharacter(character);
+                    }
+                    else
+                    {
+                        // Followers loaded from a save should be re-spawned.
+                        if (!Templates.TryGetValue(saveData.TemplateUID, out SL_Character template))
                         {
-                            // Followers loaded from a save should be re-spawned.
-                            if (!Templates.TryGetValue(saveData.TemplateUID, out SL_Character template))
-                            {
-                                SL.LogWarning($"Loading a follower save data, but cannot find any SL_Character template with the UID '{saveData.TemplateUID}'");
-                                continue;
-                            }
-
-                            var character = template.Spawn(playerPos, saveData.CharacterUID, saveData.ExtraRPCData);
-                            saveData.ApplyToCharacter(character);
+                            SL.LogWarning($"Loading a follower save data, but cannot find any SL_Character template with the UID '{saveData.TemplateUID}'");
+                            continue;
                         }
+
+                        var character = template.Spawn(playerPos, saveData.CharacterUID, saveData.ExtraRPCData);
+                        saveData.ApplyToCharacter(character);
                     }
                 }
             }
-        }
-
-        internal static IEnumerator SpawnCharacterCoroutine(string charUID, int viewID, string name, string visualData, bool addCombatAI, string spawnCallbackUID, string extraRpcData)
-        {
-            // get character from manager
-            Character character = CharacterManager.Instance.GetCharacter(charUID); 
-            float start = 0f;
-            while (!character && start < 15f)
-            {
-                yield return null;
-                start += Time.deltaTime;
-                character = CharacterManager.Instance.GetCharacter(charUID);
-            }
-
-            if (!character)
-                yield break;
-
-            // add to cache list
-            AddActiveCharacter(new CustomSpawnInfo(character, spawnCallbackUID, extraRpcData));
-
-            if (string.IsNullOrEmpty(name))
-            {
-                name = "SL_Character";
-            }
-
-            // set name
-            character.name = $"{name}_{charUID}";
-
-            if (!string.IsNullOrEmpty(visualData))
-            {
-                //SL.Instance.StartCoroutine(SL_Character.SetVisuals(character, visualData));
-                SLPlugin.Instance.StartCoroutine(SL_Character.SetVisuals(character, visualData));
-            }
-
-            if (addCombatAI)
-            {
-                SetupBasicAI(character);
-            }
-
-            // invoke OnSpawn callback
-            if (Templates.ContainsKey(spawnCallbackUID))
-            {
-                var template = Templates[spawnCallbackUID];
-
-                template.INTERNAL_OnSpawn(character, extraRpcData);
-            }
-
-            character.gameObject.SetActive(true);
-
-            // fix Photon View component
-            if (character.gameObject.GetComponent<PhotonView>() is PhotonView view)
-            {
-                int id = view.viewID;
-                GameObject.DestroyImmediate(view);
-
-                if (id > 0)
-                {
-                    PhotonNetwork.UnAllocateViewID(view.viewID);
-                }
-            }
-
-            // setup new view
-            var pView = character.gameObject.AddComponent<PhotonView>();
-            pView.viewID = viewID;
-            pView.onSerializeTransformOption = OnSerializeTransform.PositionAndRotation;
-            pView.onSerializeRigidBodyOption = OnSerializeRigidBody.All;
-            pView.synchronization = ViewSynchronization.Unreliable;
-
-            // fix photonview serialization components
-            if (pView.ObservedComponents == null || pView.ObservedComponents.Count < 1)
-            {
-                pView.ObservedComponents = new List<Component>()
-                {
-                    character
-                };
-            }
-
-            float t = 0f;
-            while (t < 0.5f)
-            {
-                yield return null;
-                t += Time.deltaTime;
-            }
-
-            character.gameObject.SetActive(false);
-            character.gameObject.SetActive(true);
         }
 
         internal static void DestroyCharacterLocal(Character character)
@@ -462,8 +445,8 @@ namespace SideLoader
             var query = ActiveCharacters.Where(it => it.ActiveCharacter?.UID == character.UID);
             if (query.Any())
             {
-                ActiveCharacters.Remove(query.First());
-
+                var info = query.First();
+                ActiveCharacters.Remove(info);
             }
 
             var m_characters = At.GetField("m_characters", CharacterManager.Instance) as DictionaryExt<string, Character>;

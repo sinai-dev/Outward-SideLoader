@@ -73,8 +73,6 @@ namespace SideLoader
                 ApplyRows();
             }
 
-            GameObject.DontDestroyOnLoad(template.gameObject);
-
             return school;
         }
 
