@@ -5,6 +5,7 @@ using System.Text;
 using UnityEngine;
 using System.IO;
 using System.Xml.Serialization;
+using SideLoader.Helpers;
 
 namespace SideLoader
 {
@@ -58,11 +59,8 @@ namespace SideLoader
                 {
                     //Debug.Log($"Adding tag {tag.TagName} to " + ingredientItem.name);
 
-                    ((List<TagSourceSelector>)At.GetValue(
-                        typeof(TagListSelectorComponent), 
-                        ingredientItem.GetComponent<TagSource>(), 
-                        "m_tagSelectors")
-                    ).Add(new TagSourceSelector(tag));
+                    ((List<TagSourceSelector>)At.GetField("m_tagSelectors", ingredientItem.GetComponent<TagSource>()))
+                        .Add(new TagSourceSelector(tag));
                 }
 
                 ingredients.Add(new RecipeIngredient()
@@ -77,7 +75,7 @@ namespace SideLoader
 
             recipe.SetCraftingType(this.StationType);
 
-            At.SetValue(results.ToArray(), typeof(Recipe), recipe, "m_results");
+            At.SetField(results.ToArray(), "m_results", recipe);
             recipe.SetRecipeIngredients(ingredients.ToArray());            
 
             // set or generate UID
@@ -96,11 +94,11 @@ namespace SideLoader
                     }
                 }
                 this.UID = uid;
-                At.SetValue(new UID(uid), typeof(Recipe), recipe, "m_uid");
+                At.SetField(new UID(uid), "m_uid", recipe);
             }
             else
             {
-                At.SetValue(new UID(this.UID), typeof(Recipe), recipe, "m_uid");
+                At.SetField(new UID(this.UID), "m_uid", recipe);
             }
 
             recipe.Init();

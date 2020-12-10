@@ -46,21 +46,20 @@ namespace SideLoader.UI
         //// temp debug
         //private string m_enemyName = "";
 
-        internal void Update()
-        {
-            if ((Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl))
-                && (Input.GetKey(KeyCode.LeftAlt) || Input.GetKey(KeyCode.RightAlt)))
-            {
-                if (Input.GetKeyDown(KeyCode.F6))
-                {
-                    ShowMenu = !ShowMenu;
-                }
-            }
-        }
+        internal const string MENU_TOGGLE_KEY = "SideLoader Menu";
 
         internal void Awake()
         {
             Instance = this;
+            CustomKeybindings.AddAction(MENU_TOGGLE_KEY, KeybindingsCategory.CustomKeybindings);
+        }
+
+        internal void Update()
+        {
+            if (CustomKeybindings.GetKeyDown(MENU_TOGGLE_KEY))
+            {
+                ShowMenu = !ShowMenu;
+            }
         }
 
         internal void OnGUI()
@@ -69,7 +68,7 @@ namespace SideLoader.UI
             {
                 var orig = GUI.skin;
                 GUI.skin = UI.UIStyles.WindowSkin;
-                m_rect = GUI.Window(29, m_rect, (GUI.WindowFunction)WindowFunction, "SideLoader Menu (Ctrl+Alt+F6 Toggle)");
+                m_rect = GUI.Window(29, m_rect, (GUI.WindowFunction)WindowFunction, "SideLoader Menu");
                 GUI.skin = orig;
             }
         }

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using SideLoader.Helpers;
 using UnityEngine;
 
 namespace SideLoader
@@ -38,8 +39,8 @@ namespace SideLoader
 
                 // fix for m_activeBaseDamage
                 var weapon = wStats.GetComponent<Weapon>();
-                At.SetValue(wStats.BaseDamage.Clone(), typeof(Weapon), weapon, "m_activeBaseDamage");
-                At.SetValue(wStats.BaseDamage.Clone(), typeof(Weapon), weapon, "m_baseDamage");
+                At.SetField(wStats.BaseDamage.Clone(), "m_activeBaseDamage", weapon);
+                At.SetField(wStats.BaseDamage.Clone(), "m_baseDamage", weapon);
             }
 
             if (this.StamCost != null)

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using SideLoader.Helpers;
 
 namespace SideLoader
 {
@@ -19,12 +20,12 @@ namespace SideLoader
                 return;
             }
 
-            At.SetValue(new TagSourceSelector(tag), typeof(AddStatusImmunity), component, "m_statusImmunity");
+            At.SetField(new TagSourceSelector(tag), "m_statusImmunity", component as AddStatusImmunity);
         }
 
         public override void SerializeEffect<T>(T effect, SL_Effect holder)
         {
-            var selector = (TagSourceSelector)At.GetValue(typeof(AddStatusImmunity), effect, "m_statusImmunity");
+            var selector = (TagSourceSelector)At.GetField("m_statusImmunity", effect as AffectNeed);
             (holder as SL_AddStatusImmunity).ImmunityTag = selector.Tag.TagName;
         }
     }

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using SideLoader.Helpers;
 using UnityEngine;
 
 namespace SideLoader
@@ -52,10 +53,10 @@ namespace SideLoader
 
             if (item is PistolSkill pistolSkill && pistolSkill.transform.Find("NormalReload") is Transform reload)
             {
-                At.SetValue(reload.gameObject, typeof(PistolSkill), pistolSkill, "m_alternateAnimConditionsHolder");
+                At.SetField(reload.gameObject, "m_alternateAnimConditionsHolder", pistolSkill);
 
                 foreach (var icon in pistolSkill.m_alternateIcons)
-                    At.SetValue(reload.gameObject, typeof(PistolSkill.AlternateIcon), icon, "m_conditionHolder");
+                    At.SetField(reload.gameObject, "m_conditionHolder", icon);
             }
         }
 

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using SideLoader.Helpers;
 
 namespace SideLoader
 {
@@ -20,7 +21,7 @@ namespace SideLoader
 
             if (this.OneTimeUse != null)
             {
-                At.SetValue((bool)this.OneTimeUse, typeof(DeployableTrap), trap, "m_oneTimeUse");
+                At.SetField((bool)this.OneTimeUse, "m_oneTimeUse", trap);
             }
 
             if (this.TrapRecipeEffects != null)
@@ -30,7 +31,7 @@ namespace SideLoader
                 {
                     list.Add(holder.Apply());
                 }
-                At.SetValue(list.ToArray(), typeof(DeployableTrap), trap, "m_trapRecipes");
+                At.SetField(list.ToArray(), "m_trapRecipes", trap);
             }
         }
 
@@ -42,9 +43,9 @@ namespace SideLoader
 
             var template = holder as SL_DeployableTrap;
 
-            template.OneTimeUse = (bool)At.GetValue(typeof(DeployableTrap), trap, "m_oneTimeUse");
+            template.OneTimeUse = (bool)At.GetField("m_oneTimeUse", trap);
 
-            var recipes = (TrapEffectRecipe[])At.GetValue(typeof(DeployableTrap), trap, "m_trapRecipes");
+            var recipes = (TrapEffectRecipe[])At.GetField("m_trapRecipes", trap);
             if (recipes != null)
             {
                 var list = new List<SL_TrapEffectRecipe>();

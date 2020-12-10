@@ -173,10 +173,10 @@ namespace SideLoader
                 item.CastModifier = (Character.SpellCastModifier)this.CastModifier;
 
             if (this.CastType != null)
-                At.SetValue((Character.SpellCastType)this.CastType, typeof(Item), item, "m_activateEffectAnimType");
+                At.SetField((Character.SpellCastType)this.CastType, "m_activateEffectAnimType", item);
 
             if (this.OverrideSellModifier != null)
-                At.SetValue((float)this.OverrideSellModifier, typeof(Item), item, "m_overrideSellModifier");
+                At.SetField((float)this.OverrideSellModifier, "m_overrideSellModifier", item);
 
             if (this.Tags != null)
             {
@@ -286,9 +286,9 @@ namespace SideLoader
             holder.RepairedInRest = item.RepairedInRest;
             holder.BehaviorOnNoDurability = item.BehaviorOnNoDurability;
 
-            holder.CastType = (Character.SpellCastType)At.GetValue(typeof(Item), item, "m_activateEffectAnimType");
+            holder.CastType = (Character.SpellCastType)At.GetField("m_activateEffectAnimType", item);
 
-            this.OverrideSellModifier = (float)At.GetValue(typeof(Item), item, "m_overrideSellModifier");
+            this.OverrideSellModifier = (float)At.GetField("m_overrideSellModifier", item);
 
             if (item.GetComponent<ItemStats>() is ItemStats stats)
             {

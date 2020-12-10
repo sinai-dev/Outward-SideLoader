@@ -4,6 +4,8 @@ using System.Text;
 using UnityEngine;
 using System.Xml.Serialization;
 using System.IO;
+using SideLoader.Helpers;
+using System.Collections;
 
 namespace SideLoader
 {
@@ -30,6 +32,13 @@ namespace SideLoader
                 return;
             }
 
+            SLPlugin.Instance.StartCoroutine(ApplyCoroutine(character, template));
+        }
+
+        internal IEnumerator ApplyCoroutine(Character character, SL_Character template)
+        {
+            yield return new WaitForSeconds(0.5f);
+
             if (this.SaveType == CharSaveType.Follower)
                 character.transform.position = CharacterManager.Instance.GetFirstLocalCharacter().transform.position;
             else
@@ -37,27 +46,33 @@ namespace SideLoader
 
             character.transform.forward = this.Forward;
 
-            character.GetComponent<CharacterStats>().SetHealth(this.Health);
+            var stats = character.GetComponent<CharacterStats>();
+            if (stats)
+            {
+                stats.SetHealth(this.Health);
+            }
 
             if (this.StatusData != null)
             {
                 var statusMgr = character.GetComponentInChildren<StatusEffectManager>(true);
-
-                foreach (var statusData in this.StatusData)
+                if (statusMgr)
                 {
-                    var data = statusData.Split('|');
+                    foreach (var statusData in this.StatusData)
+                    {
+                        var data = statusData.Split('|');
 
-                    var status = ResourcesPrefabManager.Instance.GetStatusEffectPrefab(data[0]);
-                    if (!status)
-                        continue;
+                        var status = ResourcesPrefabManager.Instance.GetStatusEffectPrefab(data[0]);
+                        if (!status)
+                            continue;
 
-                    var dealer = CharacterManager.Instance.GetCharacter(data[1]);
-                    var effect = statusMgr.AddStatusEffect(status, dealer);
+                        var dealer = CharacterManager.Instance.GetCharacter(data[1]);
+                        var effect = statusMgr.AddStatusEffect(status, dealer);
 
-                    var remaining = float.Parse(data[2]);
-                    At.SetValue(remaining, "m_remainingTime", effect);
-                    if (effect.StatusData != null)
-                        At.SetValue(remaining, "m_remainingLifespan", effect.StatusData);
+                        var remaining = float.Parse(data[2]);
+                        At.SetField(remaining, "m_remainingTime", effect);
+                        if (effect.StatusData != null)
+                            At.SetField(remaining, "m_remainingLifespan", effect.StatusData);
+                    }
                 }
             }
 

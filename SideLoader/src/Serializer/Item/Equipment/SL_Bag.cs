@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Xml.Serialization;
+using SideLoader.Helpers;
 using UnityEngine;
 
 namespace SideLoader
@@ -21,19 +22,19 @@ namespace SideLoader
             {
                 // set container capacity
                 var container = item.transform.Find("Content").GetComponent<ItemContainerStatic>();
-                At.SetValue((float)this.Capacity, typeof(ItemContainer), container, "m_baseContainerCapacity");
+                At.SetField((float)this.Capacity, "m_baseContainerCapacity", container);
             }
 
             // set restrict dodge 
             if (this.Restrict_Dodge != null)
             {
-                At.SetValue((bool)this.Restrict_Dodge, typeof(Bag), item, "m_restrictDodge");
+                At.SetField((bool)this.Restrict_Dodge, "m_restrictDodge", item as Bag);
             }
 
             if (this.InventoryProtection != null)
             {
                 // set invent prot
-                At.SetValue(this.InventoryProtection, typeof(Bag), item, "m_inventoryProtection");
+                At.SetField(this.InventoryProtection, "m_inventoryProtection", item as Bag);
             }
         }
 

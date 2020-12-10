@@ -67,7 +67,7 @@ namespace SideLoader
             if (!preset && template.NewStatusID > 0)
             {
                 preset = original.gameObject.AddComponent<EffectPreset>();
-                At.SetValue(template.NewStatusID, "m_StatusEffectID", preset);
+                At.SetField(template.NewStatusID, "m_StatusEffectID", preset);
             }
 
             StatusEffect newEffect;
@@ -93,19 +93,19 @@ namespace SideLoader
                 newEffect.gameObject.SetActive(false);
 
                 // Set Status identifier
-                At.SetValue(template.StatusIdentifier, "m_identifierName", newEffect);
+                At.SetField(template.StatusIdentifier, "m_identifierName", newEffect);
 
 
                 if (preset)
-                    At.SetValue(template.NewStatusID, "m_StatusEffectID", preset);
+                    At.SetField(template.NewStatusID, "m_StatusEffectID", preset);
 
                 // Fix localization
                 GetStatusLocalization(original, out string name, out string desc);
                 SetStatusLocalization(newEffect, name, desc);
 
                 // Fix status data and stack
-                At.SetValue(null, "m_statusStack", newEffect);
-                At.SetValue(null, "m_amplifiedStatus", newEffect);
+                At.SetField(null, "m_statusStack", newEffect);
+                At.SetField(null, "m_amplifiedStatus", newEffect);
             }
 
             int presetID = newEffect.GetComponent<EffectPreset>()?.PresetID ?? -1;
@@ -150,8 +150,8 @@ namespace SideLoader
         /// <param name="desc">The output description.</param>
         public static void GetStatusLocalization(StatusEffect effect, out string name, out string desc)
         {
-            name = LocalizationManager.Instance.GetLoc((string)At.GetValue("m_nameLocKey", effect));
-            desc = LocalizationManager.Instance.GetLoc((string)At.GetValue("m_descriptionLocKey", effect));
+            name = LocalizationManager.Instance.GetLoc((string)At.GetField("m_nameLocKey", effect));
+            desc = LocalizationManager.Instance.GetLoc((string)At.GetField("m_descriptionLocKey", effect));
         }
 
         /// <summary>
@@ -167,7 +167,7 @@ namespace SideLoader
                 description = oldDesc;
 
             var nameKey = $"NAME_{effect.IdentifierName}";
-            At.SetValue(nameKey, "m_nameLocKey", effect);
+            At.SetField(nameKey, "m_nameLocKey", effect);
 
             if (References.GENERAL_LOCALIZATION.ContainsKey(nameKey))
                 References.GENERAL_LOCALIZATION[nameKey] = name;
@@ -175,7 +175,7 @@ namespace SideLoader
                 References.GENERAL_LOCALIZATION.Add(nameKey, name);
 
             var descKey = $"DESC_{effect.IdentifierName}";
-            At.SetValue(descKey, "m_descriptionLocKey", effect);
+            At.SetField(descKey, "m_descriptionLocKey", effect);
 
             if (References.GENERAL_LOCALIZATION.ContainsKey(descKey))
                 References.GENERAL_LOCALIZATION[descKey] = description;
@@ -219,7 +219,7 @@ namespace SideLoader
                 newEffect.gameObject.SetActive(false);
 
                 // Set Preset ID
-                At.SetValue<EffectPreset>(template.NewStatusID, "m_StatusEffectID", newEffect);
+                At.SetField<EffectPreset>(template.NewStatusID, "m_StatusEffectID", newEffect);
 
                 // Fix localization
                 GetImbueLocalization(original, out string name, out string desc);
@@ -272,7 +272,7 @@ namespace SideLoader
                 description = oldDesc;
 
             var nameKey = $"NAME_{preset.PresetID}_{preset.Name.Trim()}";
-            At.SetValue(nameKey, "m_imbueNameKey", preset);
+            At.SetField(nameKey, "m_imbueNameKey", preset);
 
             if (References.GENERAL_LOCALIZATION.ContainsKey(nameKey))
                 References.GENERAL_LOCALIZATION[nameKey] = name;
@@ -280,7 +280,7 @@ namespace SideLoader
                 References.GENERAL_LOCALIZATION.Add(nameKey, name);
 
             var descKey = $"DESC_{preset.PresetID}_{preset.Name.Trim()}";
-            At.SetValue(descKey, "m_imbueDescKey", preset);
+            At.SetField(descKey, "m_imbueDescKey", preset);
 
             if (References.GENERAL_LOCALIZATION.ContainsKey(descKey))
                 References.GENERAL_LOCALIZATION[descKey] = description;

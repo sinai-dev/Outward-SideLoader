@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using SideLoader.Helpers;
 
 namespace SideLoader
 {
@@ -16,7 +17,7 @@ namespace SideLoader
 
         public override void SerializeEffect<T>(T effect, SL_Effect holder)
         {
-            (holder as SL_AffectFatigue).AffectQuantity = (float)At.GetValue(typeof(AffectNeed), effect, "m_affectQuantity");
+            (holder as SL_AffectFatigue).AffectQuantity = (float)At.GetField("m_affectQuantity", effect as AffectNeed);
         }
     }
 }

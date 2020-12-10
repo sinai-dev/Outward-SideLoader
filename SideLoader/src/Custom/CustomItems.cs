@@ -156,9 +156,9 @@ namespace SideLoader
             var name = _name ?? "";
             var desc = _description ?? "";
 
-            At.SetValue(name, "m_name", _item);
-            At.SetValue(LocalizationManager.Instance.CurrentLanguage, "m_lastDescLang", _item);
-            At.SetValue(desc, "m_localizedDescription", _item);
+            At.SetField(name, "m_name", _item);
+            At.SetField(LocalizationManager.Instance.CurrentLanguage, "m_lastDescLang", _item);
+            At.SetField(desc, "m_localizedDescription", _item);
 
             if (References.ITEM_LOCALIZATION.ContainsKey(_item.ItemID))
             {
@@ -199,8 +199,8 @@ namespace SideLoader
 
             if (destroyExisting)
             {
-                At.SetValue(new List<Tag>(), "m_tags", tagsource);
-                At.SetValue(new List<TagSourceSelector>(), "m_tagSelectors", tagsource);
+                At.SetField(new List<Tag>(), "m_tags", tagsource);
+                At.SetField(new List<TagSourceSelector>(), "m_tagSelectors", tagsource);
             }
 
             var list = new List<TagSourceSelector>();
@@ -211,11 +211,11 @@ namespace SideLoader
                     list.Add(new TagSourceSelector(_tag));
             }
 
-            At.SetValue(list, "m_tagSelectors", tagsource);
+            At.SetField(list, "m_tagSelectors", tagsource);
 
             tagsource.RefreshTags();
 
-            At.SetValue(tagsource, "m_tagSource", item);
+            At.SetField(tagsource, "m_tagSource", item);
         }
 
         [Obsolete("Use SL.DestroyChildren instead! (Moved)")]

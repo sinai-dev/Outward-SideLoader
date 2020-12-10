@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using SideLoader.Helpers;
 
 namespace SideLoader
 {
@@ -38,25 +39,30 @@ namespace SideLoader
                 SaveType = template.SaveType,
                 CharacterUID = character.UID,
                 TemplateUID = template.UID,
-                Health = character.Health,
                 Forward = character.transform.forward,
                 Position = character.transform.position,
                 ExtraRPCData = this.ExtraRPCData,
             };
 
-            if (character.StatusEffectMngr)
+            try 
             {
-                var statuses = character.StatusEffectMngr.Statuses.ToArray().Where(it => !string.IsNullOrEmpty(it.IdentifierName));
-                data.StatusData = new string[statuses.Count()];
+                data.Health = character.Health;
 
-                int i = 0;
-                foreach (var status in statuses)
+                if (character.StatusEffectMngr)
                 {
-                    var sourceChar = (UID)At.GetValue("m_sourceCharacterUID", status)?.ToString();
-                    data.StatusData[i] = $"{status.IdentifierName}|{sourceChar}|{status.RemainingLifespan}";
-                    i++;
+                    var statuses = character.StatusEffectMngr.Statuses.ToArray().Where(it => !string.IsNullOrEmpty(it.IdentifierName));
+                    data.StatusData = new string[statuses.Count()];
+
+                    int i = 0;
+                    foreach (var status in statuses)
+                    {
+                        var sourceChar = (UID)At.GetField("m_sourceCharacterUID", status)?.ToString();
+                        data.StatusData[i] = $"{status.IdentifierName}|{sourceChar}|{status.RemainingLifespan}";
+                        i++;
+                    }
                 }
-            }
+
+            } catch { }
 
             return data;
         }

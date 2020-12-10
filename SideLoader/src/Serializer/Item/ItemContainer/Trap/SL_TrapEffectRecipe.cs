@@ -49,7 +49,7 @@ namespace SideLoader
         {
             var recipe = new TrapEffectRecipe();
 
-            At.SetValue(this.Name, typeof(TrapEffectRecipe), recipe, "m_name");
+            At.SetField(this.Name, "m_name", recipe);
 
             SetLocalization();
 
@@ -63,7 +63,7 @@ namespace SideLoader
                         list.Add(new TagSourceSelector(tag));
                     }
                 }
-                At.SetValue(list.ToArray(), typeof(TrapEffectRecipe), recipe, "m_compatibleTags");
+                At.SetField(list.ToArray(), "m_compatibleTags", recipe);
             }
 
             if (this.CompatibleItemIDs != null)
@@ -76,7 +76,7 @@ namespace SideLoader
                         list.Add(item);
                     }
                 }
-                At.SetValue(list.ToArray(), typeof(TrapEffectRecipe), recipe, "m_compatibleItems");
+                At.SetField(list.ToArray(), "m_compatibleItems", recipe);
             }
 
             if (this.TrapEffects != null && this.TrapEffects.Count > 0)
@@ -121,7 +121,7 @@ namespace SideLoader
             this.Name = recipe.Name;
             this.Description = recipe.Description;
 
-            var items = (Item[])At.GetValue(typeof(TrapEffectRecipe), recipe, "m_compatibleItems");
+            var items = (Item[])At.GetField("m_compatibleItems", recipe);
             if (items != null)
             {
                 this.CompatibleItemIDs = new List<int>();
@@ -132,7 +132,7 @@ namespace SideLoader
                 }
             }
 
-            var tags = (TagSourceSelector[])At.GetValue(typeof(TrapEffectRecipe), recipe, "m_compatibleTags");
+            var tags = (TagSourceSelector[])At.GetField("m_compatibleTags", recipe);
             if (tags != null)
             {
                 this.CompatibleItemTags = new List<string>();

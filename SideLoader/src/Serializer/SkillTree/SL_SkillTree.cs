@@ -6,6 +6,7 @@ using System.Text;
 using UnityEngine;
 using System.Xml.Serialization;
 using UnityEngine.SceneManagement;
+using SideLoader.Helpers;
 
 namespace SideLoader
 {
@@ -24,8 +25,13 @@ namespace SideLoader
         public SkillSchool CreateBaseSchool()
         {
             SceneManager.sceneLoaded += FixOnMainMenu;
+            return CreateSchool(false);
+        }
 
-            return CreateSchool();
+        public SkillSchool CreateBaseSchool(bool applyRowsInstantly)
+        {
+            SceneManager.sceneLoaded += FixOnMainMenu;
+            return CreateSchool(applyRowsInstantly);
         }
 
         private SkillSchool CreateSchool(bool applyRowsInstantly = false)
@@ -39,17 +45,17 @@ namespace SideLoader
 
             // set the name to the gameobject and the skill tree name/uid
             m_object.name = this.Name;
-            At.SetValue(this.Name, typeof(SkillSchool), school, "m_defaultName");
-            At.SetValue("", typeof(SkillSchool), school, "m_nameLocKey");
+            At.SetField(this.Name, "m_defaultName", school);
+            At.SetField("", "m_nameLocKey", school);
 
             if (string.IsNullOrEmpty(this.UID))
             {
                 this.UID = this.Name;
             }
-            At.SetValue(new UID(this.UID), typeof(SkillSchool), school, "m_uid");
+            At.SetField(new UID(this.UID), "m_uid", school);
 
             // fix the breakthrough int
-            At.SetValue(-1, typeof(SkillSchool), school, "m_breakthroughSkillIndex");
+            At.SetField(-1, "m_breakthroughSkillIndex", school);
 
             // set the sprite
             if (this.Sigil)
@@ -58,14 +64,16 @@ namespace SideLoader
             }
 
             // add it to the game's skill tree holder.
-            var list = (At.GetValue(typeof(SkillTreeHolder), SkillTreeHolder.Instance, "m_skillTrees") as SkillSchool[]).ToList();
+            var list = (At.GetField("m_skillTrees", SkillTreeHolder.Instance) as SkillSchool[]).ToList();
             list.Add(school);
-            At.SetValue(list.ToArray(), typeof(SkillTreeHolder), SkillTreeHolder.Instance, "m_skillTrees");
+            At.SetField(list.ToArray(), "m_skillTrees", SkillTreeHolder.Instance);
 
             if (applyRowsInstantly)
             {
                 ApplyRows();
             }
+
+            GameObject.DontDestroyOnLoad(template.gameObject);
 
             return school;
         }
@@ -80,8 +88,8 @@ namespace SideLoader
 
             var school = m_object.GetComponent<SkillSchool>();
 
-            At.SetValue(new List<SkillBranch>(), typeof(SkillSchool), school, "m_branches");
-            At.SetValue(new List<BaseSkillSlot>(), typeof(SkillSchool), school, "m_skillSlots");
+            At.SetField(new List<SkillBranch>(), "m_branches", school);
+            At.SetField(new List<BaseSkillSlot>(), "m_skillSlots", school);
 
             for (int i = 0; i < 6; i++)
             {
@@ -175,7 +183,7 @@ namespace SideLoader
                 var reqslot = reqcolTrans.GetComponent<BaseSkillSlot>();
                 if (reqslot)
                 {
-                    At.SetValue(reqslot, typeof(BaseSkillSlot), comp as BaseSkillSlot, "m_requiredSkillSlot");
+                    At.SetField(reqslot, "m_requiredSkillSlot", comp);
                     success = true;
                 }
             }
@@ -198,7 +206,7 @@ namespace SideLoader
             col.transform.parent = row;
 
             var comp = col.AddComponent<SkillSlotFork>();
-            At.SetValue(this.ColumnIndex, typeof(BaseSkillSlot), comp as BaseSkillSlot, "m_columnIndex");
+            At.SetField(this.ColumnIndex, "m_columnIndex", comp as BaseSkillSlot);
 
             if (this.RequiredSkillSlot != Vector2.zero)
             {
@@ -223,9 +231,9 @@ namespace SideLoader
 
             var comp = col.AddComponent<SkillSlot>();
             comp.IsBreakthrough = Breakthrough;
-            At.SetValue(ResourcesPrefabManager.Instance.GetItemPrefab(SkillID) as Skill, typeof(SkillSlot), comp, "m_skill");
-            At.SetValue(SilverCost, typeof(SkillSlot), comp, "m_requiredMoney");
-            At.SetValue(ColumnIndex, typeof(BaseSkillSlot), comp as BaseSkillSlot, "m_columnIndex");
+            At.SetField(ResourcesPrefabManager.Instance.GetItemPrefab(SkillID) as Skill, "m_skill", comp);
+            At.SetField(SilverCost, "m_requiredMoney", comp);
+            At.SetField(ColumnIndex, "m_columnIndex", comp as BaseSkillSlot);
 
             if (this.RequiredSkillSlot != Vector2.zero)
             {

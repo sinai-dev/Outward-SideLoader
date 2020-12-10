@@ -187,14 +187,14 @@ namespace SideLoader.Hooks
         {
             if (__instance is ShootProjectile shootProjectile && shootProjectile.BaseProjectile is Projectile projectile && !projectile.gameObject.activeSelf)
             {
-                At.SetValue(__instance, typeof(SubEffect), projectile, "m_parentEffect");
+                At.SetField(__instance, "m_parentEffect", projectile as SubEffect);
 
                 projectile.gameObject.SetActive(true);
 
             }
             else if (__instance is ShootBlast shootBlast && shootBlast.BaseBlast is Blast blast && !blast.gameObject.activeSelf)
             {
-                At.SetValue(__instance, typeof(SubEffect), blast, "m_parentEffect");
+                At.SetField(__instance, "m_parentEffect", blast as SubEffect);
 
                 blast.gameObject.SetActive(true);
             }
@@ -218,7 +218,7 @@ namespace SideLoader.Hooks
                 return;
             }
 
-            var subs = (SubEffect[])At.GetValue(typeof(Effect), __instance, "m_subEffects");
+            var subs = (SubEffect[])At.GetField("m_subEffects", __instance as Effect);
             if (subs != null && subs.Length > 0)
             {
                 var blast = subs[0] as Blast;
@@ -226,7 +226,7 @@ namespace SideLoader.Hooks
                 // effect is active, but blast has been disabled. stop effect.
                 if (!blast.gameObject.activeSelf)
                 {
-                    At.Call(typeof(ShootBlastHornetControl), __instance, "Stop", null, new object[0]);
+                    At.Call("Stop", __instance, null, new object[0]);
                 }
             }
         }

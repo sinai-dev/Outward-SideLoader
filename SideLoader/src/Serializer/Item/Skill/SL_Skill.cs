@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using SideLoader.Helpers;
 using UnityEngine;
 
 namespace SideLoader
@@ -93,16 +94,16 @@ namespace SideLoader
                             {
                                 Condition = condition
                             };
-                            if (string.IsNullOrEmpty((string)At.GetValue(typeof(Skill.ActivationCondition), skillCondition, "m_messageLocKey")))
+                            if (string.IsNullOrEmpty((string)At.GetField("m_messageLocKey", skillCondition)))
                             {
-                                At.SetValue("Notification_Action_Invalid", typeof(Skill.ActivationCondition), skillCondition, "m_messageLocKey");
+                                At.SetField("Notification_Action_Invalid", "m_messageLocKey", skillCondition);
                             }
                             activationConditions.Add(skillCondition);
                         }
                     }
                 }
 
-                At.SetValue(activationConditions.ToArray(), typeof(Skill), skill, "m_additionalConditions");
+                At.SetField(activationConditions.ToArray(), "m_additionalConditions", skill);
             }
         }
 

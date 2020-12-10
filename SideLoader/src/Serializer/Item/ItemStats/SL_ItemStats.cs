@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using SideLoader.Helpers;
 using UnityEngine;
 
 namespace SideLoader
@@ -18,19 +19,19 @@ namespace SideLoader
             //set base value
             if (this.BaseValue != null)
             {
-                At.SetValue((int)this.BaseValue, typeof(ItemStats), stats, "m_baseValue");
+                At.SetField((int)this.BaseValue, "m_baseValue", stats);
             }
 
             //set raw weight
             if (this.RawWeight != null)
             {
-                At.SetValue((float)this.RawWeight, typeof(ItemStats), stats, "m_rawWeight");
+                At.SetField((float)this.RawWeight, "m_rawWeight", stats);
             }
 
             //max durability
             if (this.MaxDurability != null)
             {
-                At.SetValue((int)this.MaxDurability, typeof(ItemStats), stats, "m_baseMaxDurability");
+                At.SetField((int)this.MaxDurability, "m_baseMaxDurability", stats);
                 stats.StartingDurability = (int)this.MaxDurability;
             }
         }

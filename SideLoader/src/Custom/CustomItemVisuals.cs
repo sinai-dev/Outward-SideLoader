@@ -7,6 +7,7 @@ using System.IO;
 using System.Text.RegularExpressions;
 using HarmonyLib;
 using Steamworks;
+using SideLoader.Helpers;
 
 namespace SideLoader
 {
@@ -82,10 +83,10 @@ namespace SideLoader
             }
             else
             {
-                At.SetValue(sprite, "m_itemIcon", item);
+                At.SetField(sprite, "m_itemIcon", item);
 
                 if (item.HasDefaultIcon)
-                    At.SetValue("notnull", "m_itemIconPath", item);
+                    At.SetField("notnull", "m_itemIconPath", item);
 
                 link.ItemIcon = sprite;
             }
@@ -614,11 +615,11 @@ namespace SideLoader
 
             try
             {
-                Sprite icon = At.GetValue("m_itemIcon", item) as Sprite;
+                Sprite icon = At.GetField("m_itemIcon", item) as Sprite;
                 if (!icon)
                     icon = ResourcesPrefabManager.Instance.GetItemIcon(item);
                 if (!icon)
-                    icon = (Sprite)At.GetValue("DefaultIcon", item);
+                    icon = (Sprite)At.GetField("DefaultIcon", item);
 
                 CustomTextures.SaveIconAsPNG(icon, dir, "icon");
 

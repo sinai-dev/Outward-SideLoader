@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using SideLoader.Helpers;
 
 namespace SideLoader
 {
@@ -18,7 +19,7 @@ namespace SideLoader
         /// <returns></returns>
         public static Tag GetTag(string TagName, bool logging = true)
         {
-            var tags = (Tag[])At.GetValue("m_tags", TagSourceManager.Instance);
+            var tags = (Tag[])At.GetField("m_tags", TagSourceManager.Instance);
 
             var tag = tags.FirstOrDefault(x => x.TagName == TagName);
 

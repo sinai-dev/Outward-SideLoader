@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using SideLoader.Helpers;
 
 namespace SideLoader
 {
@@ -35,7 +36,7 @@ namespace SideLoader
                     });
                 }
 
-                At.SetValue(list, typeof(Preserver), comp, "m_preservedElements");
+                At.SetField(list, "m_preservedElements", comp);
             }
         }
 
@@ -45,7 +46,7 @@ namespace SideLoader
 
             this.NullifyPerish = comp.NullifyPerishing;
 
-            var list = (List<Preserver.PreservedElement>)At.GetValue(typeof(Preserver), comp, "m_preservedElements");
+            var list = (List<Preserver.PreservedElement>)At.GetField("m_preservedElements", comp);
             if (list != null)
             {
                 var slList = new List<SL_PreservedElement>();

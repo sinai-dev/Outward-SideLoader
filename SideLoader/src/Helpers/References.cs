@@ -5,6 +5,7 @@ using System.Text;
 using Localizer;
 using UnityEngine;
 using System.Collections;
+using SideLoader.Helpers;
 
 namespace SideLoader
 {
@@ -22,7 +23,7 @@ namespace SideLoader
                 {
                     try
                     {
-                        m_generalLocalization = (Dictionary<string, string>)At.GetValue(typeof(LocalizationManager), LocalizationManager.Instance, "m_generalLocalization");
+                        m_generalLocalization = (Dictionary<string, string>)At.GetField("m_generalLocalization", LocalizationManager.Instance);
                     }
                     catch { }
                 }
@@ -40,7 +41,7 @@ namespace SideLoader
                 {
                     try
                     {
-                        m_itemLocalization = At.GetValue(typeof(LocalizationManager), LocalizationManager.Instance, "m_itemLocalization") as Dictionary<int, ItemLocalization>;
+                        m_itemLocalization = At.GetField("m_itemLocalization", LocalizationManager.Instance) as Dictionary<int, ItemLocalization>;
                     }
                     catch { }
                 }
@@ -58,7 +59,7 @@ namespace SideLoader
             {
                 if (m_itemPrefabs == null)
                 {
-                    m_itemPrefabs = At.GetValue(typeof(ResourcesPrefabManager), null, "ITEM_PREFABS") as Dictionary<string, Item>;
+                    m_itemPrefabs = At.GetField<ResourcesPrefabManager>("ITEM_PREFABS", null) as Dictionary<string, Item>;
                 }
                 return m_itemPrefabs;
             }
@@ -72,7 +73,7 @@ namespace SideLoader
             {
                 if (m_effectPresets == null)
                 {
-                    m_effectPresets = (Dictionary<int, EffectPreset>)At.GetValue(typeof(ResourcesPrefabManager), null, "EFFECTPRESET_PREFABS");
+                    m_effectPresets = (Dictionary<int, EffectPreset>)At.GetField<ResourcesPrefabManager>("EFFECTPRESET_PREFABS", null);
                 }
                 return m_effectPresets;
             }
@@ -86,7 +87,7 @@ namespace SideLoader
             {
                 if (m_statusEffects == null)
                 {
-                    m_statusEffects = (Dictionary<string, StatusEffect>)At.GetValue(typeof(ResourcesPrefabManager), null, "STATUSEFFECT_PREFABS");
+                    m_statusEffects = (Dictionary<string, StatusEffect>)At.GetField<ResourcesPrefabManager>("STATUSEFFECT_PREFABS", null);
                 }
                 return m_statusEffects;
             }
@@ -100,7 +101,7 @@ namespace SideLoader
             {
                 if (m_enchantmentPrefabs == null)
                 {
-                    m_enchantmentPrefabs = At.GetValue(typeof(ResourcesPrefabManager), ResourcesPrefabManager.Instance, "ENCHANTMENT_PREFABS") as Dictionary<int, Enchantment>;
+                    m_enchantmentPrefabs = At.GetField<ResourcesPrefabManager>("ENCHANTMENT_PREFABS", null) as Dictionary<int, Enchantment>;
                 }
                 return m_enchantmentPrefabs;
             }
@@ -116,7 +117,7 @@ namespace SideLoader
             {
                 if (m_recipes == null)
                 {
-                    m_recipes = At.GetValue(typeof(RecipeManager), RecipeManager.Instance, "m_recipes") as Dictionary<string, Recipe>;
+                    m_recipes = At.GetField("m_recipes", RecipeManager.Instance) as Dictionary<string, Recipe>;
                 }
                 return m_recipes;
             }
@@ -130,7 +131,7 @@ namespace SideLoader
             {
                 if (m_recipesPerUtensil == null)
                 {
-                    m_recipesPerUtensil = At.GetValue(typeof(RecipeManager), RecipeManager.Instance, "m_recipeUIDsPerUstensils") as Dictionary<Recipe.CraftingType, List<UID>>;
+                    m_recipesPerUtensil = At.GetField("m_recipeUIDsPerUstensils", RecipeManager.Instance) as Dictionary<Recipe.CraftingType, List<UID>>;
                 }
                 return m_recipesPerUtensil;
             }
@@ -144,7 +145,7 @@ namespace SideLoader
             {
                 if (m_enchantmentRecipes == null)
                 {
-                    m_enchantmentRecipes = At.GetValue(typeof(RecipeManager), RecipeManager.Instance, "m_enchantmentRecipes") as Dictionary<int, EnchantmentRecipe>;
+                    m_enchantmentRecipes = At.GetField("m_enchantmentRecipes", RecipeManager.Instance) as Dictionary<int, EnchantmentRecipe>;
                 }
                 return m_enchantmentRecipes;
             }

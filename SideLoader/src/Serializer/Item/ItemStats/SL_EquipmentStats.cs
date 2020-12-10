@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using SideLoader.Helpers;
 using UnityEngine;
 
 namespace SideLoader
@@ -30,58 +31,46 @@ namespace SideLoader
         {
             base.ApplyToItem(stats);
 
+            var eStats = stats as EquipmentStats;
+
             if (this.Damage_Resistance != null)
-            {
-                At.SetValue(this.Damage_Resistance, typeof(EquipmentStats), stats, "m_damageResistance");
-            }
+                At.SetField(this.Damage_Resistance, "m_damageResistance", eStats);
+           
             if (this.Impact_Resistance != null)
-            {
-                At.SetValue((float)this.Impact_Resistance, typeof(EquipmentStats), stats, "m_impactResistance");
-            }
+                At.SetField((float)this.Impact_Resistance, "m_impactResistance", eStats);
+            
             if (this.Damage_Protection != null)
-            {
-                At.SetValue(new float[9] { (float)this.Damage_Protection, 0f, 0f, 0f, 0f, 0f, 0f, 0f, 0f }, typeof(EquipmentStats), stats, "m_damageProtection");
-            }
+                At.SetField(new float[9] { (float)this.Damage_Protection, 0f, 0f, 0f, 0f, 0f, 0f, 0f, 0f }, "m_damageProtection", eStats);
+            
             if (this.Damage_Bonus != null)
-            {
-                At.SetValue(this.Damage_Bonus, typeof(EquipmentStats), stats, "m_damageAttack");
-            }
+                At.SetField(this.Damage_Bonus, "m_damageAttack", eStats);
+            
             if (this.Stamina_Use_Penalty != null)
-            {
-                At.SetValue((float)this.Stamina_Use_Penalty, typeof(EquipmentStats), stats, "m_staminaUsePenalty");
-            }
+                At.SetField((float)this.Stamina_Use_Penalty, "m_staminaUsePenalty", eStats);
+            
             if (this.Mana_Use_Modifier != null)
-            {
-                At.SetValue((float)this.Mana_Use_Modifier, typeof(EquipmentStats), stats, "m_manaUseModifier");
-            }
+                At.SetField((float)this.Mana_Use_Modifier, "m_manaUseModifier", eStats);
+            
             if (this.Movement_Penalty != null)
-            {
-                At.SetValue((float)this.Movement_Penalty, typeof(EquipmentStats), stats, "m_movementPenalty");
-            }
+                At.SetField((float)this.Movement_Penalty, "m_movementPenalty", eStats);
+            
             if (this.Pouch_Bonus != null)
-            {
-                At.SetValue((float)this.Pouch_Bonus, typeof(EquipmentStats), stats, "m_pouchCapacityBonus");
-            }
+                At.SetField((float)this.Pouch_Bonus, "m_pouchCapacityBonus", eStats);
+            
             if (this.Heat_Protection != null)
-            {
-                At.SetValue((float)this.Heat_Protection, typeof(EquipmentStats), stats, "m_heatProtection");
-            }
+                At.SetField((float)this.Heat_Protection, "m_heatProtection", eStats);
+            
             if (this.Cold_Protection != null)
-            {
-                At.SetValue((float)this.Cold_Protection, typeof(EquipmentStats), stats, "m_coldProtection");
-            }
+                At.SetField((float)this.Cold_Protection, "m_coldProtection", eStats);
+            
             if (this.Corruption_Protection != null)
-            {
-                At.SetValue((float)this.Corruption_Protection, typeof(EquipmentStats), stats, "m_corruptionProtection");
-            }
+                At.SetField((float)this.Corruption_Protection, "m_corruptionProtection", eStats);
+            
             if (this.Cooldown_Reduction != null)
-            {
-                At.SetValue((float)this.Cooldown_Reduction, typeof(EquipmentStats), stats, "m_baseCooldownReductionBonus");
-            }
+                At.SetField((float)this.Cooldown_Reduction, "m_baseCooldownReductionBonus", eStats);
+            
             if (this.Health_Regen != null)
-            {
-                At.SetValue((float)this.Health_Regen, typeof(EquipmentStats), stats, "m_baseHealthRegenBonus");
-            }
+                At.SetField((float)this.Health_Regen, "m_baseHealthRegenBonus", eStats);
         }
 
         public override void SerializeStats(ItemStats stats, SL_ItemStats holder)
@@ -97,15 +86,15 @@ namespace SideLoader
                 equipmentStatsHolder.Impact_Resistance = eStats.ImpactResistance;
                 equipmentStatsHolder.Damage_Protection = eStats.GetDamageProtection(DamageType.Types.Physical);
                 equipmentStatsHolder.Stamina_Use_Penalty = eStats.StaminaUsePenalty;
-                equipmentStatsHolder.Mana_Use_Modifier = (float)At.GetValue(typeof(EquipmentStats), stats, "m_manaUseModifier");
+                equipmentStatsHolder.Mana_Use_Modifier = (float)At.GetField("m_manaUseModifier", stats);
                 equipmentStatsHolder.Movement_Penalty = eStats.MovementPenalty;
                 equipmentStatsHolder.Pouch_Bonus = eStats.PouchCapacityBonus;
                 equipmentStatsHolder.Heat_Protection = eStats.HeatProtection;
                 equipmentStatsHolder.Cold_Protection = eStats.ColdProtection;
                 equipmentStatsHolder.Corruption_Protection = eStats.CorruptionResistance;
 
-                equipmentStatsHolder.Damage_Bonus = At.GetValue(typeof(EquipmentStats), stats, "m_damageAttack") as float[];
-                equipmentStatsHolder.Damage_Resistance = At.GetValue(typeof(EquipmentStats), stats, "m_damageResistance") as float[];
+                equipmentStatsHolder.Damage_Bonus = At.GetField("m_damageAttack", stats as EquipmentStats) as float[];
+                equipmentStatsHolder.Damage_Resistance = At.GetField("m_damageResistance", stats as EquipmentStats) as float[];
             }
             catch (Exception e)
             {
