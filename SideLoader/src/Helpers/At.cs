@@ -25,9 +25,8 @@ namespace SideLoader
         /// <param name="value">The value you want to set.</param>
         /// <param name="type">The declaring class with the field in it.</param>
         /// <param name="fieldName">The name of the field you want to set.</param>
-        /// <param name="instance">The instance to use, or null for static members.</param>
-        public static void SetFieldStatic(object value, Type type, string fieldName, object instance)
-            => Internal_SetField(GetFieldInfo(type, fieldName), instance, value);
+        public static void SetFieldStatic(object value, Type type, string fieldName)
+            => Internal_SetField(GetFieldInfo(type, fieldName), null, value);
 
         internal static void Internal_SetField(FieldInfo fi, object instance, object value)
         {
@@ -45,16 +44,15 @@ namespace SideLoader
         /// <param name="fieldName">The name of the field you want to get.</param>
         /// <param name="instance">The instance to use, or null for static members. Can be used to implicitly declare T if not null.</param>
         public static object GetField<T>(string fieldName, T instance)
-            => GetValueInternal(GetFieldInfo(typeof(T), fieldName), instance);
+            => Internal_GetField(GetFieldInfo(typeof(T), fieldName), instance);
 
         /// <summary>Helper to get a value on a Static Class (not just a static member of a class, use GetField&lt;T&gt; for that).</summary>
         /// <param name="type">The declaring class with the field in it.</param>
         /// <param name="fieldName">The name of the field you want to get.</param>
-        /// <param name="instance">The instance to use, or null for static members.</param>
-        public static object GetFieldStatic(Type type, string fieldName, object instance)
-            => GetValueInternal(GetFieldInfo(type, fieldName), instance);
+        public static object GetFieldStatic(Type type, string fieldName)
+            => Internal_GetField(GetFieldInfo(type, fieldName), null);
 
-        internal static object GetValueInternal(FieldInfo fi, object instance)
+        internal static object Internal_GetField(FieldInfo fi, object instance)
         {
             if (fi == null)
                 return null;
@@ -76,9 +74,8 @@ namespace SideLoader
         /// <param name="value">The value you want to set.</param>
         /// <param name="type">The declaring class with the property in it.</param>
         /// <param name="propertyName">The name of the property you want to set.</param>
-        /// <param name="instance">The instance to use, or null for static members.</param>
-        public static void SetPropertyStatic(object value, Type type, string propertyName, object instance)
-            => Internal_SetProperty(GetPropertyInfo(type, propertyName), value, instance);
+        public static void SetPropertyStatic(object value, Type type, string propertyName)
+            => Internal_SetProperty(GetPropertyInfo(type, propertyName), value, null);
 
         internal static void Internal_SetProperty(PropertyInfo pi, object value, object instance)
         {
@@ -130,12 +127,11 @@ namespace SideLoader
         /// <summary>Helper to call a method on a Static Class (not just a static member of a class, use Call&lt;T&gt; for that).</summary>
         /// <param name="type">The declaring class with the method in it.</param>
         /// <param name="methodName">The name of the method to invoke</param>
-        /// <param name="instance">The instance to invoke on, or null for static methods.</param>
         /// <param name="argumentTypes">Optional, for ambiguous methods you can provide an array corresponding to the Types of the arguments.</param>
         /// <param name="args">The arguments you want to provide for invocation.</param>
         /// <returns>The return value of the method.</returns>
-        public static object CallStatic(Type type, string methodName, object instance, Type[] argumentTypes, params object[] args)
-            => Internal_Call(GetMethodInfo(type, methodName, argumentTypes), instance, args);
+        public static object CallStatic(Type type, string methodName, Type[] argumentTypes, params object[] args)
+            => Internal_Call(GetMethodInfo(type, methodName, argumentTypes), null, args);
 
         internal static object Internal_Call(MethodInfo mi, object instance, params object[] args)
         {
@@ -297,5 +293,27 @@ namespace SideLoader
                 }
             }
         }
+
+        // ~~~~~~~~~~~~~~~~~ Deprecated ~~~~~~~~~~~~~~~~~ //
+
+        [Obsolete("Use SetField<T> or SetFieldStatic.")]
+        public static void SetValue<T>(T value, Type type, object obj, string field)
+            => throw new MissingMethodException("Deprecated API");
+
+        [Obsolete("Use GetField<T> or GetFieldStatic.")]
+        public static object GetValue(Type type, object obj, string field)
+            => throw new MissingMethodException("Deprecated API");
+
+        [Obsolete("Use Call<T> or CallStatic.")]
+        public static object Call(Type type, object obj, string method, Type[] argumentTypes, params object[] args)
+            => throw new MissingMethodException("Deprecated API");
+
+        [Obsolete("Use SetProperty<T> or SetPropertyStatic.")]
+        public static void SetProp<T>(T value, Type type, object obj, string property)
+            => throw new MissingMethodException("Deprecated API");
+
+        [Obsolete("Use GetProperty<T> or GetPropertyStatic.")]
+        public static object GetProp(Type type, object obj, string property)
+            => throw new MissingMethodException("Deprecated API");
     }
 }
