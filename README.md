@@ -1,4 +1,4 @@
-# Outward SideLoader [![Version](https://img.shields.io/badge/BepInEx-5.2-green.svg)](https://github.com/BepInEx/BepInEx)
+# Outward SideLoader [![Version](https://img.shields.io/badge/BepInEx-5.4.1-green.svg)](https://github.com/BepInEx/BepInEx)
 
 <p align="center">
 <img align="center" src="https://i.imgur.com/DWezCnm.png">
@@ -20,7 +20,6 @@
 * [How To Install](https://sinai-dev.github.io/OSLDocs/#/GettingStarted/Installation)
 
 ## Documentation
-
 * <b>[SideLoader Docs](https://sinai-dev.github.io/OSLDocs/#/)</b>
 
 ## Credits
