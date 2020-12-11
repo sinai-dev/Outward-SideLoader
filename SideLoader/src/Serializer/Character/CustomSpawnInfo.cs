@@ -56,7 +56,7 @@ namespace SideLoader
                     int i = 0;
                     foreach (var status in statuses)
                     {
-                        var sourceChar = (UID)At.GetField("m_sourceCharacterUID", status)?.ToString();
+                        var sourceChar = (UID)At.GetField(status, "m_sourceCharacterUID")?.ToString();
                         data.StatusData[i] = $"{status.IdentifierName}|{sourceChar}|{status.RemainingLifespan}";
                         i++;
                     }

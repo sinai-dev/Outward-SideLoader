@@ -167,8 +167,8 @@ namespace SideLoader
             // set name
             if (Name != null)
             {
-                At.SetField("", "m_nameLocKey", character);
-                At.SetField(Name, "m_name", character);
+                At.SetField(character, "m_nameLocKey", "");
+                At.SetField(character, "m_name", Name);
             }
 
             // host stuff
@@ -226,33 +226,36 @@ namespace SideLoader
 
             var stats = character.GetComponent<CharacterStats>();
 
+            if (!stats)
+                return;
+
             if (Health != null)
             {
-                var m_maxHealthStat = (Stat)At.GetField("m_maxHealthStat", stats);
+                var m_maxHealthStat = (Stat)At.GetField(stats, "m_maxHealthStat");
                 m_maxHealthStat.AddStack(new StatStack(SL_STAT_ID, (float)Health - 100), false);
             }
 
             if (HealthRegen != null)
             {
-                var m_healthRegenStat = (Stat)At.GetField("m_healthRegen", stats);
+                var m_healthRegenStat = (Stat)At.GetField(stats, "m_healthRegen");
                 m_healthRegenStat.AddStack(new StatStack(SL_STAT_ID, (float)HealthRegen), false);
             }
 
             if (ImpactResist != null)
             {
-                var m_impactResistance = (Stat)At.GetField("m_impactResistance", stats);
+                var m_impactResistance = (Stat)At.GetField(stats, "m_impactResistance");
                 m_impactResistance.AddStack(new StatStack(SL_STAT_ID, (float)ImpactResist), false);
             }
 
             if (Protection != null)
             {
-                var m_damageProtection = (Stat[])At.GetField("m_damageProtection", stats);
+                var m_damageProtection = (Stat[])At.GetField(stats, "m_damageProtection");
                 m_damageProtection[0].AddStack(new StatStack(SL_STAT_ID, (float)Protection), false);
             }
 
             if (Damage_Resists != null)
             {
-                var m_damageResistance = (Stat[])At.GetField("m_damageResistance", stats);
+                var m_damageResistance = (Stat[])At.GetField(stats, "m_damageResistance");
                 for (int i = 0; i < 6; i++)
                 {
                     m_damageResistance[i].AddStack(new StatStack(SL_STAT_ID, Damage_Resists[i]), false);
@@ -261,7 +264,7 @@ namespace SideLoader
 
             if (Damage_Bonus != null)
             {
-                var m_damageTypesModifier = (Stat[])At.GetField("m_damageTypesModifier", stats);
+                var m_damageTypesModifier = (Stat[])At.GetField(stats, "m_damageTypesModifier");
                 for (int i = 0; i < 6; i++)
                 {
                     m_damageTypesModifier[i].AddStack(new StatStack(SL_STAT_ID, Damage_Bonus[i]), false);
@@ -280,7 +283,7 @@ namespace SideLoader
                     }
                 }
 
-                At.SetField(immunities.ToArray(), "m_statusEffectsNaturalImmunity", stats);
+                At.SetField(stats, "m_statusEffectsNaturalImmunity", immunities.ToArray());
             }
         }
 
@@ -351,10 +354,10 @@ namespace SideLoader
 
                 // get the skin material
                 var mat = (data.Gender == 0) ? presets.MSkins[data.SkinIndex] : presets.FSkins[data.SkinIndex];
-                At.SetField(mat, "m_skinMat", visuals);
+                At.SetField(visuals, "m_skinMat", mat);
 
                 // apply the visuals
-                var equipped = (ArmorVisuals[])At.GetField("m_editorEquippedVisuals", visuals);
+                var equipped = (ArmorVisuals[])At.GetField(visuals, "m_editorEquippedVisuals");
 
                 if ((!equipped[0] || !equipped[0].HideFace) && (!equipped[1] || !equipped[1].HideFace))
                     visuals.LoadCharacterCreationHead(data.SkinIndex, (int)data.Gender, data.HeadVariationIndex);
@@ -378,7 +381,7 @@ namespace SideLoader
         {
             var presets = CharacterManager.CharacterVisualsPresets;
             var key = $"Hair{_hairStyleIndex}";
-            var dict = At.GetField("m_armorVisualPreview", visuals) as Dictionary<string, ArmorVisuals>;
+            var dict = At.GetField(visuals, "m_armorVisualPreview") as Dictionary<string, ArmorVisuals>;
 
             Material material = presets.HairMaterials[_hairColorIndex];
             ArmorVisuals hairVisuals;
@@ -414,11 +417,11 @@ namespace SideLoader
                 if (!hairVisuals.Renderer)
                 {
                     var renderer = hairVisuals.GetComponent<SkinnedMeshRenderer>();
-                    At.SetField(renderer, "m_skinnedMeshRenderer", hairVisuals);
+                    At.SetField(hairVisuals, "m_skinnedMeshRenderer", renderer);
                 }
 
                 hairVisuals.Renderer.material = material;
-                At.Call("FinalizeSkinnedRenderer", visuals, null, hairVisuals.Renderer);
+                At.Invoke(visuals, "FinalizeSkinnedRenderer", hairVisuals.Renderer);
             }
 
             hairVisuals.ApplyToCharacterVisuals(visuals);
@@ -445,7 +448,7 @@ namespace SideLoader
             // get the field name (eg. MHeadsWhite, FHeadsBlack, etc)
             string fieldName = sex + "Heads" + ethnicity;
 
-            var array = (GameObject[])At.GetField(fieldName, CharacterManager.CharacterVisualsPresets);
+            var array = (GameObject[])At.GetField(CharacterManager.CharacterVisualsPresets, fieldName);
 
             int limit = array.Length - 1;
 

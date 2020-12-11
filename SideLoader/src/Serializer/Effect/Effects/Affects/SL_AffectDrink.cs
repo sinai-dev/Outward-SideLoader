@@ -17,7 +17,7 @@ namespace SideLoader
 
         public override void SerializeEffect<T>(T effect, SL_Effect holder)
         {
-            (holder as SL_AffectDrink).AffectQuantity = (float)At.GetField("m_affectQuantity", effect as AffectNeed);
+            (holder as SL_AffectDrink).AffectQuantity = (float)At.GetField(effect as AffectNeed, "m_affectQuantity");
         }
     }
 }

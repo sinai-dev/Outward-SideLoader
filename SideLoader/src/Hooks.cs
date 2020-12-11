@@ -187,14 +187,14 @@ namespace SideLoader.Hooks
         {
             if (__instance is ShootProjectile shootProjectile && shootProjectile.BaseProjectile is Projectile projectile && !projectile.gameObject.activeSelf)
             {
-                At.SetField(__instance, "m_parentEffect", projectile as SubEffect);
+                At.SetField(projectile as SubEffect, "m_parentEffect", __instance);
 
                 projectile.gameObject.SetActive(true);
 
             }
             else if (__instance is ShootBlast shootBlast && shootBlast.BaseBlast is Blast blast && !blast.gameObject.activeSelf)
             {
-                At.SetField(__instance, "m_parentEffect", blast as SubEffect);
+                At.SetField(blast as SubEffect, "m_parentEffect", __instance);
 
                 blast.gameObject.SetActive(true);
             }
@@ -218,7 +218,7 @@ namespace SideLoader.Hooks
                 return;
             }
 
-            var subs = (SubEffect[])At.GetField("m_subEffects", __instance as Effect);
+            var subs = (SubEffect[])At.GetField(__instance as Effect, "m_subEffects");
             if (subs != null && subs.Length > 0)
             {
                 var blast = subs[0] as Blast;
@@ -226,7 +226,7 @@ namespace SideLoader.Hooks
                 // effect is active, but blast has been disabled. stop effect.
                 if (!blast.gameObject.activeSelf)
                 {
-                    At.Call("Stop", __instance, null, new object[0]);
+                    At.Invoke(__instance, "Stop");
                 }
             }
         }

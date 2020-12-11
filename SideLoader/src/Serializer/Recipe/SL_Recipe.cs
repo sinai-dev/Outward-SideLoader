@@ -59,7 +59,7 @@ namespace SideLoader
                 {
                     //Debug.Log($"Adding tag {tag.TagName} to " + ingredientItem.name);
 
-                    ((List<TagSourceSelector>)At.GetField("m_tagSelectors", ingredientItem.GetComponent<TagSource>()))
+                    ((List<TagSourceSelector>)At.GetField<TagListSelectorComponent>(ingredientItem.GetComponent<TagSource>(), "m_tagSelectors"))
                         .Add(new TagSourceSelector(tag));
                 }
 
@@ -75,7 +75,7 @@ namespace SideLoader
 
             recipe.SetCraftingType(this.StationType);
 
-            At.SetField(results.ToArray(), "m_results", recipe);
+            At.SetField(recipe, "m_results", results.ToArray());
             recipe.SetRecipeIngredients(ingredients.ToArray());            
 
             // set or generate UID
@@ -94,11 +94,11 @@ namespace SideLoader
                     }
                 }
                 this.UID = uid;
-                At.SetField(new UID(uid), "m_uid", recipe);
+                At.SetField(recipe, "m_uid", new UID(uid));
             }
             else
             {
-                At.SetField(new UID(this.UID), "m_uid", recipe);
+                At.SetField(recipe, "m_uid",new UID(this.UID));
             }
 
             recipe.Init();

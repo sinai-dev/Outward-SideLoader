@@ -36,7 +36,7 @@ namespace SideLoader
                     });
                 }
 
-                At.SetField(list, "m_preservedElements", comp);
+                At.SetField(comp, "m_preservedElements", list);
             }
         }
 
@@ -46,7 +46,7 @@ namespace SideLoader
 
             this.NullifyPerish = comp.NullifyPerishing;
 
-            var list = (List<Preserver.PreservedElement>)At.GetField("m_preservedElements", comp);
+            var list = (List<Preserver.PreservedElement>)At.GetField(comp, "m_preservedElements");
             if (list != null)
             {
                 var slList = new List<SL_PreservedElement>();

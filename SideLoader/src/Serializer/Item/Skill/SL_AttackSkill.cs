@@ -53,10 +53,10 @@ namespace SideLoader
 
             if (item is PistolSkill pistolSkill && pistolSkill.transform.Find("NormalReload") is Transform reload)
             {
-                At.SetField(reload.gameObject, "m_alternateAnimConditionsHolder", pistolSkill);
+                At.SetField(pistolSkill, "m_alternateAnimConditionsHolder", reload.gameObject);
 
                 foreach (var icon in pistolSkill.m_alternateIcons)
-                    At.SetField(reload.gameObject, "m_conditionHolder", icon);
+                    At.SetField(icon, "m_conditionHolder", reload.gameObject);
             }
         }
 

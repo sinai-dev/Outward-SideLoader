@@ -102,7 +102,7 @@ namespace SideLoader
                 var amp = ResourcesPrefabManager.Instance.GetStatusEffectPrefab(AmplifiedStatusIdentifier);
                 if (amp)
                 {
-                    At.SetField(amp, "m_amplifiedStatus", status);
+                    At.SetField(status, "m_amplifiedStatus", amp);
                 }
                 else
                 {
@@ -112,14 +112,12 @@ namespace SideLoader
 
             if (Tags != null)
             {
-                var tagList = (List<Tag>)At.GetField("m_tags", status);
+                var tagList = (List<Tag>)At.GetField(status, "m_tags");
                 tagList.Clear();
                 foreach (var tagName in Tags)
                 {
                     if (CustomItems.GetTag(tagName) is Tag tag && tag != Tag.None)
-                    {
                         tagList.Add(tag);
-                    }
                 }
             }
 
@@ -160,8 +158,8 @@ namespace SideLoader
                     StackBehavior = StatusEffectFamily.StackBehaviors.IndependantUnique
                 };
 
-                At.SetField(StatusEffect.FamilyModes.Bind, "m_familyMode", status);
-                At.SetField(family, "m_bindFamily", status);
+                At.SetField(status, "m_familyMode", StatusEffect.FamilyModes.Bind);
+                At.SetField(status, "m_bindFamily", family);
             }
             else
             {
@@ -284,7 +282,7 @@ namespace SideLoader
             status.StatusData.EffectsData = list.ToArray();
 
             // Not sure if this is needed or not, but I'm doing it to be extra safe.
-            At.SetField(status.StatusData.EffectsData, "m_totalData", status);
+            At.SetField(status, "m_totalData", status.StatusData.EffectsData);
         }
 
         public static SL_StatusEffect ParseStatusEffect(StatusEffect status)
@@ -310,7 +308,7 @@ namespace SideLoader
 
             var tagList = new List<string>();
             status.InitTags();
-            var tags = (List<Tag>)At.GetField("m_tags", status);
+            var tags = (List<Tag>)At.GetField(status, "m_tags");
             foreach (var tag in tags)
             {
                 tagList.Add(tag.TagName);

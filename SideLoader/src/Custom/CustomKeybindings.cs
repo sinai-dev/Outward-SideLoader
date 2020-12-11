@@ -120,7 +120,7 @@ namespace SideLoader
 
         public static RewiredDict PlayerInputManager
             => m_playerInputManager
-            ?? (m_playerInputManager = (RewiredDict)At.GetField<ControlsInput>("m_playerInputManager", null));
+            ?? (m_playerInputManager = (RewiredDict)At.GetField<ControlsInput>(null, "m_playerInputManager"));
 
         internal static RewiredDict m_playerInputManager;
 
@@ -238,11 +238,11 @@ namespace SideLoader
             var inputAction = userData.GetActionById(actionID);
 
             // Configure our action according to args
-            At.SetField(name, "_name", inputAction);
-            At.SetField(name, "_descriptiveName", inputAction);
-            At.SetField((InputActionType)type, "_type", inputAction);
-            At.SetField(true, "_userAssignable", inputAction);
-            At.SetField((int)category, "_categoryId", inputAction);
+            At.SetField(inputAction, "_name", name);
+            At.SetField(inputAction, "_descriptiveName", name);
+            At.SetField(inputAction, "_type", (InputActionType)type);
+            At.SetField(inputAction, "_userAssignable", true);
+            At.SetField(inputAction, "_categoryId", (int)category);
 
             return inputAction;
         }
@@ -337,7 +337,7 @@ namespace SideLoader
                     // add the actual keybind mapping to this controller in Rewired
                     _controllerMap.CreateElementMap(customKey.actionID, Pole.Positive, KeyCode.None, ModifierKeyFlags.None);
 
-                    var alreadyKnown = At.GetField("m_actionAlreadyKnown", mapSection) as List<int>;
+                    var alreadyKnown = At.GetField(mapSection, "m_actionAlreadyKnown") as List<int>;
 
                     // see if the UI has already been set up for this keybind
                     if (alreadyKnown.Contains(customKey.actionID))
@@ -349,23 +349,23 @@ namespace SideLoader
 
                     var action = ReInput.mapping.GetAction(customKey.actionID);
 
-                    var actTemplate = At.GetField("m_actionTemplate", mapSection) as ControlMappingAction;
+                    var actTemplate = At.GetField(mapSection, "m_actionTemplate") as ControlMappingAction;
 
                     actTemplate.gameObject.SetActive(true);
                     if (action.type == InputActionType.Button)
                     {
-                        At.Call("CreateActionRow", mapSection, null, CUSTOM_CATEGORY, action, AxisRange.Positive);
+                        At.Invoke(mapSection, "CreateActionRow", CUSTOM_CATEGORY, action, AxisRange.Positive);
                     }
                     else
                     {
                         if (mapSection.ControllerType == ControlMappingPanel.ControlType.Keyboard)
                         {
-                            At.Call("CreateActionRow", mapSection, null, CUSTOM_CATEGORY, action, AxisRange.Positive);
-                            At.Call("CreateActionRow", mapSection, null, CUSTOM_CATEGORY, action, AxisRange.Negative);
+                            At.Invoke(mapSection, "CreateActionRow", CUSTOM_CATEGORY, action, AxisRange.Positive);
+                            At.Invoke(mapSection, "CreateActionRow", CUSTOM_CATEGORY, action, AxisRange.Negative);
                         }
                         else
                         {
-                            At.Call("CreateActionRow", mapSection, null, CUSTOM_CATEGORY, action, AxisRange.Full);
+                            At.Invoke(mapSection, "CreateActionRow", CUSTOM_CATEGORY, action, AxisRange.Full);
                         }
                     }
                     actTemplate.gameObject.SetActive(false);
@@ -427,7 +427,7 @@ namespace SideLoader
             var category = ReInput.mapping.GetActionCategory(CUSTOM_CATEGORY);
 
             // override the internal name
-            At.SetField("CustomKeybindings", "_name", category);
+            At.SetField(category, "_name", "CustomKeybindings");
 
             // add localization for this name, in the format the game will expect to find it
             genLoc.Add("ActionCategory_CustomKeybindings", "Custom Keybindings");

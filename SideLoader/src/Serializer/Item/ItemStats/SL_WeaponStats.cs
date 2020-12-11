@@ -39,8 +39,8 @@ namespace SideLoader
 
                 // fix for m_activeBaseDamage
                 var weapon = wStats.GetComponent<Weapon>();
-                At.SetField(wStats.BaseDamage.Clone(), "m_activeBaseDamage", weapon);
-                At.SetField(wStats.BaseDamage.Clone(), "m_baseDamage", weapon);
+                At.SetField(weapon, "m_activeBaseDamage", wStats.BaseDamage.Clone());
+                At.SetField(weapon, "m_baseDamage", wStats.BaseDamage.Clone());
             }
 
             if (this.StamCost != null)

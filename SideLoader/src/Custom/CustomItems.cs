@@ -156,9 +156,9 @@ namespace SideLoader
             var name = _name ?? "";
             var desc = _description ?? "";
 
-            At.SetField(name, "m_name", _item);
-            At.SetField(LocalizationManager.Instance.CurrentLanguage, "m_lastDescLang", _item);
-            At.SetField(desc, "m_localizedDescription", _item);
+            At.SetField(_item, "m_name", name);
+            At.SetField(_item, "m_lastDescLang", LocalizationManager.Instance.CurrentLanguage);
+            At.SetField(_item, "m_localizedDescription", desc);
 
             if (References.ITEM_LOCALIZATION.ContainsKey(_item.ItemID))
             {
@@ -193,14 +193,14 @@ namespace SideLoader
         /// <summary> Adds the range of tags to the Items' TagSource, and optionally destroys the existing tags.</summary>
         public static void SetItemTags(Item item, string[] tags, bool destroyExisting)
         {
-            var tagsource = item.transform.GetComponent<TagSource>();
+            var tagsource = item.transform.GetComponent<TagListSelectorComponent>();
             if (!tagsource)
                 tagsource = item.gameObject.AddComponent<TagSource>();
 
             if (destroyExisting)
             {
-                At.SetField(new List<Tag>(), "m_tags", tagsource);
-                At.SetField(new List<TagSourceSelector>(), "m_tagSelectors", tagsource);
+                At.SetField(tagsource, "m_tags", new List<Tag>());
+                At.SetField(tagsource, "m_tagSelectors", new List<TagSourceSelector>());
             }
 
             var list = new List<TagSourceSelector>();
@@ -211,11 +211,11 @@ namespace SideLoader
                     list.Add(new TagSourceSelector(_tag));
             }
 
-            At.SetField(list, "m_tagSelectors", tagsource);
+            At.SetField(tagsource, "m_tagSelectors", list);
 
             tagsource.RefreshTags();
 
-            At.SetField(tagsource, "m_tagSource", item);
+            At.SetField(item, "m_tagSource", tagsource);
         }
 
         [Obsolete("Use SL.DestroyChildren instead! (Moved)")]

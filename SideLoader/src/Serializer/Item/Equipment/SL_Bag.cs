@@ -22,19 +22,19 @@ namespace SideLoader
             {
                 // set container capacity
                 var container = item.transform.Find("Content").GetComponent<ItemContainerStatic>();
-                At.SetField((float)this.Capacity, "m_baseContainerCapacity", container);
+                At.SetField(container, "m_baseContainerCapacity", (float)this.Capacity);
             }
 
             // set restrict dodge 
             if (this.Restrict_Dodge != null)
             {
-                At.SetField((bool)this.Restrict_Dodge, "m_restrictDodge", item as Bag);
+                At.SetField(item as Bag, "m_restrictDodge", (bool)this.Restrict_Dodge);
             }
 
             if (this.InventoryProtection != null)
             {
                 // set invent prot
-                At.SetField(this.InventoryProtection, "m_inventoryProtection", item as Bag);
+                At.SetField(item as Bag, "m_inventoryProtection", this.InventoryProtection);
             }
         }
 

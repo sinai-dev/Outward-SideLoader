@@ -69,9 +69,9 @@ namespace SideLoader
                         var effect = statusMgr.AddStatusEffect(status, dealer);
 
                         var remaining = float.Parse(data[2]);
-                        At.SetField(remaining, "m_remainingTime", effect);
+                        At.SetField(effect, "m_remainingTime", remaining);
                         if (effect.StatusData != null)
-                            At.SetField(remaining, "m_remainingLifespan", effect.StatusData);
+                            At.SetField(effect.StatusData, "m_remainingLifespan", remaining);
                     }
                 }
             }

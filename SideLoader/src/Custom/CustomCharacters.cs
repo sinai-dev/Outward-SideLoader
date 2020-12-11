@@ -172,11 +172,11 @@ namespace SideLoader
 
             // add our basic AIStatesPrefab to a CharacterAI component. This is the prefab set up by SetupBasicAIPrefab(), below.
             CharacterAI charAI = _char.gameObject.AddComponent<CharacterAI>();
-            At.SetField(_char, "m_character", charAI);
+            At.SetField(charAI, "m_character", _char);
             charAI.AIStatesPrefab = BasicAIPrefab.GetComponent<AIRoot>();
 
             // initialize the AI States (not entirely necessary, but helpful if we want to do something with the AI immediately after)
-            At.Call("GetAIStates", charAI, null);
+            At.Invoke(charAI, "GetAIStates", null);
 
             return charAI;
         }
@@ -310,7 +310,7 @@ namespace SideLoader
         // called from a patch on SaveManager.Save
         internal static void SaveCharacters()
         {
-            if (PhotonNetwork.isNonMasterClientInRoom || (bool)At.GetField("m_saveOnHostLost", NetworkLevelLoader.Instance))
+            if (PhotonNetwork.isNonMasterClientInRoom || (bool)At.GetField(NetworkLevelLoader.Instance, "m_saveOnHostLost"))
                 return;
 
             SL.LogWarning("~~~~~~~~~~ Saving Characters ~~~~~~~~~~");
@@ -449,7 +449,7 @@ namespace SideLoader
                 ActiveCharacters.Remove(info);
             }
 
-            var m_characters = At.GetField("m_characters", CharacterManager.Instance) as DictionaryExt<string, Character>;
+            var m_characters = At.GetField(CharacterManager.Instance, "m_characters") as DictionaryExt<string, Character>;
             if (m_characters.ContainsKey(character.UID))
                 m_characters.Remove(character.UID);
 
@@ -492,7 +492,7 @@ namespace SideLoader
             }
             // add new CharacterStats
             var newStats = character.gameObject.AddComponent<CharacterStats>();
-            At.SetField(newStats, "m_characterStats", character);
+            At.SetField(character, "m_characterStats", newStats);
             SetupBlankCharacterStats(newStats);
         }
 
@@ -504,22 +504,22 @@ namespace SideLoader
         /// <param name="stats"></param>
         public static void SetupBlankCharacterStats(CharacterStats stats)
         {
-            At.SetField(new Stat[] { new Stat(0f), new Stat(0f), new Stat(0f), new Stat(0f), new Stat(0f), new Stat(0f), new Stat(0f), new Stat(0f), new Stat(0f) },
-                "m_damageResistance", stats);
-            At.SetField(new Stat[] { new Stat(0f), new Stat(0f), new Stat(0f), new Stat(0f), new Stat(0f), new Stat(0f), new Stat(0f), new Stat(0f), new Stat(0f) },
-                "m_damageProtection", stats);
-            At.SetField(new Stat[] { new Stat(1f), new Stat(1f), new Stat(1f), new Stat(1f), new Stat(1f), new Stat(1f), new Stat(1f), new Stat(1f), new Stat(1f) },
-                "m_damageTypesModifier", stats);
+            At.SetField(stats, "m_damageResistance",
+                new Stat[] { new Stat(0f), new Stat(0f), new Stat(0f), new Stat(0f), new Stat(0f), new Stat(0f), new Stat(0f), new Stat(0f), new Stat(0f) });
+            At.SetField(stats, "m_damageProtection",
+                new Stat[] { new Stat(0f), new Stat(0f), new Stat(0f), new Stat(0f), new Stat(0f), new Stat(0f), new Stat(0f), new Stat(0f), new Stat(0f) });
+            At.SetField(stats, "m_damageTypesModifier", 
+                new Stat[] { new Stat(1f), new Stat(1f), new Stat(1f), new Stat(1f), new Stat(1f), new Stat(1f), new Stat(1f), new Stat(1f), new Stat(1f) });
 
-            At.SetField(new Stat(0f), "m_heatRegenRate", stats);
-            At.SetField(new Stat(0f), "m_coldRegenRate", stats);
-            At.SetField(new Stat(0f), "m_heatProtection", stats);
-            At.SetField(new Stat(0f), "m_coldProtection", stats);
-            At.SetField(new Stat(0f), "m_corruptionResistance", stats);
-            At.SetField(new Stat(0f), "m_waterproof", stats);
-            At.SetField(new Stat(0f), "m_healthRegen", stats);
-            At.SetField(new Stat(0f), "m_manaRegen", stats);
-            At.SetField(new TagSourceSelector[0], "m_statusEffectsNaturalImmunity", stats);
+            At.SetField(stats, "m_heatRegenRate", new Stat(0f));
+            At.SetField(stats, "m_coldRegenRate", new Stat(0f));
+            At.SetField(stats, "m_heatProtection", new Stat(0f));
+            At.SetField(stats, "m_coldProtection", new Stat(0f));
+            At.SetField(stats, "m_corruptionResistance", new Stat(0f));
+            At.SetField(stats, "m_waterproof", new Stat(0f));
+            At.SetField(stats, "m_healthRegen", new Stat(0f));
+            At.SetField(stats, "m_manaRegen", new Stat(0f));
+            At.SetField(stats, "m_statusEffectsNaturalImmunity", new TagSourceSelector[0]);
         }
 
         /// <summary>
@@ -690,7 +690,7 @@ namespace SideLoader
 
                 // fix clone UIDs, etc
                 var character = clone.GetComponent<Character>();
-                At.SetField(UID.Generate(), "m_uid", character);
+                At.SetField(character, "m_uid", UID.Generate());
                 clone.name = "[CLONE] " + character.Name + "_" + character.UID;
 
                 // allocate a scene view ID (will need RPC if to work in multiplayer)

@@ -19,7 +19,7 @@ namespace SideLoader
         /// <returns></returns>
         public static Tag GetTag(string TagName, bool logging = true)
         {
-            var tags = (Tag[])At.GetField("m_tags", TagSourceManager.Instance);
+            var tags = (Tag[])At.GetField(TagSourceManager.Instance, "m_tags");
 
             var tag = tags.FirstOrDefault(x => x.TagName == TagName);
 

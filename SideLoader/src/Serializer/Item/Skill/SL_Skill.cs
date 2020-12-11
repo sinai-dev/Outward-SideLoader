@@ -94,16 +94,16 @@ namespace SideLoader
                             {
                                 Condition = condition
                             };
-                            if (string.IsNullOrEmpty((string)At.GetField("m_messageLocKey", skillCondition)))
+                            if (string.IsNullOrEmpty((string)At.GetField(skillCondition, "m_messageLocKey")))
                             {
-                                At.SetField("Notification_Action_Invalid", "m_messageLocKey", skillCondition);
+                                At.SetField(skillCondition, "m_messageLocKey", "Notification_Action_Invalid");
                             }
                             activationConditions.Add(skillCondition);
                         }
                     }
                 }
 
-                At.SetField(activationConditions.ToArray(), "m_additionalConditions", skill);
+                At.SetField(skill, "m_additionalConditions", activationConditions.ToArray());
             }
         }
 

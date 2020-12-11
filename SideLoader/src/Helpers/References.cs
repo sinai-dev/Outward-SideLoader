@@ -23,7 +23,7 @@ namespace SideLoader
                 {
                     try
                     {
-                        m_generalLocalization = (Dictionary<string, string>)At.GetField("m_generalLocalization", LocalizationManager.Instance);
+                        m_generalLocalization = (Dictionary<string, string>)At.GetField(LocalizationManager.Instance, "m_generalLocalization");
                     }
                     catch { }
                 }
@@ -41,7 +41,7 @@ namespace SideLoader
                 {
                     try
                     {
-                        m_itemLocalization = At.GetField("m_itemLocalization", LocalizationManager.Instance) as Dictionary<int, ItemLocalization>;
+                        m_itemLocalization = At.GetField(LocalizationManager.Instance, "m_itemLocalization") as Dictionary<int, ItemLocalization>;
                     }
                     catch { }
                 }
@@ -59,7 +59,7 @@ namespace SideLoader
             {
                 if (m_itemPrefabs == null)
                 {
-                    m_itemPrefabs = At.GetField<ResourcesPrefabManager>("ITEM_PREFABS", null) as Dictionary<string, Item>;
+                    m_itemPrefabs = At.GetField<ResourcesPrefabManager>("ITEM_PREFABS") as Dictionary<string, Item>;
                 }
                 return m_itemPrefabs;
             }
@@ -73,7 +73,7 @@ namespace SideLoader
             {
                 if (m_effectPresets == null)
                 {
-                    m_effectPresets = (Dictionary<int, EffectPreset>)At.GetField<ResourcesPrefabManager>("EFFECTPRESET_PREFABS", null);
+                    m_effectPresets = (Dictionary<int, EffectPreset>)At.GetField<ResourcesPrefabManager>("EFFECTPRESET_PREFABS");
                 }
                 return m_effectPresets;
             }
@@ -87,7 +87,7 @@ namespace SideLoader
             {
                 if (m_statusEffects == null)
                 {
-                    m_statusEffects = (Dictionary<string, StatusEffect>)At.GetField<ResourcesPrefabManager>("STATUSEFFECT_PREFABS", null);
+                    m_statusEffects = (Dictionary<string, StatusEffect>)At.GetField<ResourcesPrefabManager>("STATUSEFFECT_PREFABS");
                 }
                 return m_statusEffects;
             }
@@ -101,7 +101,7 @@ namespace SideLoader
             {
                 if (m_enchantmentPrefabs == null)
                 {
-                    m_enchantmentPrefabs = At.GetField<ResourcesPrefabManager>("ENCHANTMENT_PREFABS", null) as Dictionary<int, Enchantment>;
+                    m_enchantmentPrefabs = At.GetField<ResourcesPrefabManager>(null, "ENCHANTMENT_PREFABS") as Dictionary<int, Enchantment>;
                 }
                 return m_enchantmentPrefabs;
             }
@@ -117,7 +117,7 @@ namespace SideLoader
             {
                 if (m_recipes == null)
                 {
-                    m_recipes = At.GetField("m_recipes", RecipeManager.Instance) as Dictionary<string, Recipe>;
+                    m_recipes = At.GetField(RecipeManager.Instance, "m_recipes") as Dictionary<string, Recipe>;
                 }
                 return m_recipes;
             }
@@ -131,7 +131,7 @@ namespace SideLoader
             {
                 if (m_recipesPerUtensil == null)
                 {
-                    m_recipesPerUtensil = At.GetField("m_recipeUIDsPerUstensils", RecipeManager.Instance) as Dictionary<Recipe.CraftingType, List<UID>>;
+                    m_recipesPerUtensil = At.GetField(RecipeManager.Instance, "m_recipeUIDsPerUstensils") as Dictionary<Recipe.CraftingType, List<UID>>;
                 }
                 return m_recipesPerUtensil;
             }
@@ -145,7 +145,7 @@ namespace SideLoader
             {
                 if (m_enchantmentRecipes == null)
                 {
-                    m_enchantmentRecipes = At.GetField("m_enchantmentRecipes", RecipeManager.Instance) as Dictionary<int, EnchantmentRecipe>;
+                    m_enchantmentRecipes = At.GetField(RecipeManager.Instance, "m_enchantmentRecipes") as Dictionary<int, EnchantmentRecipe>;
                 }
                 return m_enchantmentRecipes;
             }

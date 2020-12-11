@@ -34,43 +34,43 @@ namespace SideLoader
             var eStats = stats as EquipmentStats;
 
             if (this.Damage_Resistance != null)
-                At.SetField(this.Damage_Resistance, "m_damageResistance", eStats);
+                At.SetField(eStats, "m_damageResistance", this.Damage_Resistance);
            
             if (this.Impact_Resistance != null)
-                At.SetField((float)this.Impact_Resistance, "m_impactResistance", eStats);
+                At.SetField(eStats, "m_impactResistance", (float)this.Impact_Resistance);
             
             if (this.Damage_Protection != null)
-                At.SetField(new float[9] { (float)this.Damage_Protection, 0f, 0f, 0f, 0f, 0f, 0f, 0f, 0f }, "m_damageProtection", eStats);
+                At.SetField(eStats, "m_damageProtection", new float[9] { (float)this.Damage_Protection, 0f, 0f, 0f, 0f, 0f, 0f, 0f, 0f });
             
             if (this.Damage_Bonus != null)
-                At.SetField(this.Damage_Bonus, "m_damageAttack", eStats);
+                At.SetField(eStats, "m_damageAttack", this.Damage_Bonus);
             
             if (this.Stamina_Use_Penalty != null)
-                At.SetField((float)this.Stamina_Use_Penalty, "m_staminaUsePenalty", eStats);
+                At.SetField(eStats, "m_staminaUsePenalty", (float)this.Stamina_Use_Penalty);
             
             if (this.Mana_Use_Modifier != null)
-                At.SetField((float)this.Mana_Use_Modifier, "m_manaUseModifier", eStats);
+                At.SetField(eStats, "m_manaUseModifier", (float)this.Mana_Use_Modifier);
             
             if (this.Movement_Penalty != null)
-                At.SetField((float)this.Movement_Penalty, "m_movementPenalty", eStats);
+                At.SetField(eStats, "m_movementPenalty", (float)this.Movement_Penalty);
             
             if (this.Pouch_Bonus != null)
-                At.SetField((float)this.Pouch_Bonus, "m_pouchCapacityBonus", eStats);
+                At.SetField(eStats, "m_pouchCapacityBonus", (float)this.Pouch_Bonus);
             
             if (this.Heat_Protection != null)
-                At.SetField((float)this.Heat_Protection, "m_heatProtection", eStats);
+                At.SetField(eStats, "m_heatProtection", (float)this.Heat_Protection);
             
             if (this.Cold_Protection != null)
-                At.SetField((float)this.Cold_Protection, "m_coldProtection", eStats);
+                At.SetField(eStats, "m_coldProtection", (float)this.Cold_Protection);
             
             if (this.Corruption_Protection != null)
-                At.SetField((float)this.Corruption_Protection, "m_corruptionProtection", eStats);
+                At.SetField(eStats, "m_corruptionProtection", (float)this.Corruption_Protection);
             
             if (this.Cooldown_Reduction != null)
-                At.SetField((float)this.Cooldown_Reduction, "m_baseCooldownReductionBonus", eStats);
+                At.SetField(eStats, "m_baseCooldownReductionBonus", (float)this.Cooldown_Reduction);
             
             if (this.Health_Regen != null)
-                At.SetField((float)this.Health_Regen, "m_baseHealthRegenBonus", eStats);
+                At.SetField(eStats, "m_baseHealthRegenBonus", (float)this.Health_Regen);
         }
 
         public override void SerializeStats(ItemStats stats, SL_ItemStats holder)
@@ -86,15 +86,15 @@ namespace SideLoader
                 equipmentStatsHolder.Impact_Resistance = eStats.ImpactResistance;
                 equipmentStatsHolder.Damage_Protection = eStats.GetDamageProtection(DamageType.Types.Physical);
                 equipmentStatsHolder.Stamina_Use_Penalty = eStats.StaminaUsePenalty;
-                equipmentStatsHolder.Mana_Use_Modifier = (float)At.GetField("m_manaUseModifier", stats);
+                equipmentStatsHolder.Mana_Use_Modifier = (float)At.GetField(stats, "m_manaUseModifier");
                 equipmentStatsHolder.Movement_Penalty = eStats.MovementPenalty;
                 equipmentStatsHolder.Pouch_Bonus = eStats.PouchCapacityBonus;
                 equipmentStatsHolder.Heat_Protection = eStats.HeatProtection;
                 equipmentStatsHolder.Cold_Protection = eStats.ColdProtection;
                 equipmentStatsHolder.Corruption_Protection = eStats.CorruptionResistance;
 
-                equipmentStatsHolder.Damage_Bonus = At.GetField("m_damageAttack", stats as EquipmentStats) as float[];
-                equipmentStatsHolder.Damage_Resistance = At.GetField("m_damageResistance", stats as EquipmentStats) as float[];
+                equipmentStatsHolder.Damage_Bonus = At.GetField(stats as EquipmentStats, "m_damageAttack") as float[];
+                equipmentStatsHolder.Damage_Resistance = At.GetField(stats as EquipmentStats, "m_damageResistance") as float[];
             }
             catch (Exception e)
             {

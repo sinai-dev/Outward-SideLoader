@@ -94,11 +94,11 @@ namespace SideLoader
                             switch (Type)
                             {
                                 case VisualPrefabType.VisualPrefab:
-                                    At.SetField(ResourcesPrefabPath, "m_visualPrefabPath", item); break;
+                                    At.SetField(item, "m_visualPrefabPath", ResourcesPrefabPath); break;
                                 case VisualPrefabType.SpecialVisualPrefabDefault:
-                                    At.SetField(ResourcesPrefabPath, "m_specialVisualPrefabDefaultPath", item); break;
+                                    At.SetField(item, "m_specialVisualPrefabDefaultPath", ResourcesPrefabPath); break;
                                 case VisualPrefabType.SpecialVisualPrefabFemale:
-                                    At.SetField(ResourcesPrefabPath, "m_specialVisualPrefabFemalePath", item); break;
+                                    At.SetField(item, "m_specialVisualPrefabFemalePath", ResourcesPrefabPath); break;
                             }
 
                             setPrefab = true;

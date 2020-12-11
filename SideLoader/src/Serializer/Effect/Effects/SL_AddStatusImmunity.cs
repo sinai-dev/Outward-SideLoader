@@ -20,12 +20,12 @@ namespace SideLoader
                 return;
             }
 
-            At.SetField(new TagSourceSelector(tag), "m_statusImmunity", component as AddStatusImmunity);
+            At.SetField(component as AddStatusImmunity, "m_statusImmunity", new TagSourceSelector(tag));
         }
 
         public override void SerializeEffect<T>(T effect, SL_Effect holder)
         {
-            var selector = (TagSourceSelector)At.GetField("m_statusImmunity", effect as AffectNeed);
+            var selector = (TagSourceSelector)At.GetField(effect as AffectNeed, "m_statusImmunity");
             (holder as SL_AddStatusImmunity).ImmunityTag = selector.Tag.TagName;
         }
     }

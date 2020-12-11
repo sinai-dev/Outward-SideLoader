@@ -83,10 +83,10 @@ namespace SideLoader
             }
             else
             {
-                At.SetField(sprite, "m_itemIcon", item);
+                At.SetField(item, "m_itemIcon", sprite);
 
                 if (item.HasDefaultIcon)
-                    At.SetField("notnull", "m_itemIconPath", item);
+                    At.SetField(item, "m_itemIconPath", "notnull");
 
                 link.ItemIcon = sprite;
             }
@@ -615,11 +615,11 @@ namespace SideLoader
 
             try
             {
-                Sprite icon = At.GetField("m_itemIcon", item) as Sprite;
+                Sprite icon = At.GetField(item, "m_itemIcon") as Sprite;
                 if (!icon)
                     icon = ResourcesPrefabManager.Instance.GetItemIcon(item);
                 if (!icon)
-                    icon = (Sprite)At.GetField("DefaultIcon", item);
+                    icon = (Sprite)At.GetField(item, "DefaultIcon");
 
                 CustomTextures.SaveIconAsPNG(icon, dir, "icon");
 
