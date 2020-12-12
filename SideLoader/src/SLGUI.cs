@@ -106,6 +106,8 @@ namespace SideLoader.GUI
             openFolderBtn.onClick.AddListener(() => 
             {
                 var path = Path.GetFullPath(SL.SL_FOLDER + @"\_GENERATED");
+                if (!Directory.Exists(path))
+                    Directory.CreateDirectory(path);
                 Process.Start(path);
             });
 
