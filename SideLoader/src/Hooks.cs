@@ -316,7 +316,7 @@ namespace SideLoader.Hooks
                 {
                     if (CustomAudio.ReplacedClips.Contains(key))
                     {
-                        SL.Log("Game tried to clean up " + key + ", but we skipped it!");
+                        //SL.Log("Game tried to clean up " + key + ", but we skipped it!");
                         continue;
                     }
 

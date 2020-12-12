@@ -397,24 +397,24 @@ namespace SideLoader
 
         // ~~~~~~~~~~~~~~~~~ Deprecated ~~~~~~~~~~~~~~~~~ //
 
-        [Obsolete("Use SetField<T> or SetFieldStatic.", true)]
+        [Obsolete("Use SetField<T> or SetFieldStatic.")]
         public static void SetValue<T>(T value, Type type, object obj, string field)
-            => throw new MissingMethodException("Deprecated API");
+            => Internal_SetField(type, field, obj, value);
 
-        [Obsolete("Use GetField<T> or GetFieldStatic.", true)]
+        [Obsolete("Use GetField<T> or GetFieldStatic.")]
         public static object GetValue(Type type, object obj, string field)
-            => throw new MissingMethodException("Deprecated API");
+            => Internal_GetField(type, field, obj);
 
-        [Obsolete("Use Invoke<T> or InvokeStatic.", true)]
+        [Obsolete("Use Invoke<T> or InvokeStatic.")]
         public static object Call(Type type, object obj, string method, Type[] argumentTypes, params object[] args)
-            => throw new MissingMethodException("Deprecated API");
+            => Internal_Invoke(type, method, argumentTypes, obj, args);
 
-        [Obsolete("Use SetProperty<T> or SetPropertyStatic.", true)]
+        [Obsolete("Use SetProperty<T> or SetPropertyStatic.")]
         public static void SetProp<T>(T value, Type type, object obj, string property)
-            => throw new MissingMethodException("Deprecated API");
+            => Internal_SetProperty(type, property, value, obj);
 
-        [Obsolete("Use GetProperty<T> or GetPropertyStatic.", true)]
+        [Obsolete("Use GetProperty<T> or GetPropertyStatic.")]
         public static object GetProp(Type type, object obj, string property)
-            => throw new MissingMethodException("Deprecated API");
+            => Internal_GetProperty(type, property, obj);
     }
 }

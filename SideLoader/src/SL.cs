@@ -97,7 +97,7 @@ namespace SideLoader
                 var slFolder = dir + @"\SideLoader";
                 if (Directory.Exists(slFolder))
                 {
-                    SLPack.TryLoadPack(name, false);
+                    SLPack.TryLoadPack(name, false, !firstSetup);
                 }
             }
 
@@ -111,7 +111,7 @@ namespace SideLoader
                 }
 
                 var name = Path.GetFileName(dir);
-                SLPack.TryLoadPack(name, true);
+                SLPack.TryLoadPack(name, true, !firstSetup);
             }
 
             // ====== Invoke Callbacks ======

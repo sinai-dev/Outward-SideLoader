@@ -13,6 +13,9 @@ namespace SideLoader
     /// </summary>
     public class SLPack
     {
+        // used internally to manage assetbundles
+        internal static Dictionary<string, AssetBundle> s_allLoadedAssetBundles = new Dictionary<string, AssetBundle>();
+
         /// <summary>The FolderName of this SLPack</summary>
         public string Name { get; private set; }
 
@@ -69,7 +72,8 @@ namespace SideLoader
         /// </summary>
         /// <param name="name">The name of the SLPack folder.</param>
         /// <param name="inMainFolder">Is it in the Mods\SideLoader\ directory? (If not, it should be in BepInEx\plugins\)</param>
-        public static void TryLoadPack(string name, bool inMainFolder)
+        /// <param name="hotReload">Is this a hot reload?</param>
+        public static void TryLoadPack(string name, bool inMainFolder, bool hotReload)
         {
             try
             {
@@ -79,7 +83,7 @@ namespace SideLoader
                     return;
                 }
 
-                var pack = LoadFromFolder(name, inMainFolder);
+                var pack = LoadFromFolder(name, inMainFolder, hotReload);
                 SL.Packs.Add(pack.Name, pack);
             }
             catch (Exception e)
@@ -93,7 +97,8 @@ namespace SideLoader
         /// </summary>
         /// <param name="name">The name of the SideLoader pack (ie. the name of the folder inside Mods/SideLoader/)</param>
         /// <param name="inMainSLFolder">Is the SLPack in Mods\SideLoader? If not, it should be Mods\ModName\SideLoader\ structure.</param>
-        private static SLPack LoadFromFolder(string name, bool inMainSLFolder = true)
+        /// <param name="hotReload">Is this a hot reload?</param>
+        private static SLPack LoadFromFolder(string name, bool inMainSLFolder, bool hotReload)
         {
             var pack = new SLPack()
             {
@@ -103,14 +108,22 @@ namespace SideLoader
 
             SL.Log("Reading SLPack " + pack.Name);
 
+            // order is somewhat important.
             pack.LoadAssetBundles();
             pack.LoadAudioClips();
             pack.LoadTexture2D();
+
             pack.LoadCustomStatuses();
+
             pack.LoadCustomItems();
+
             pack.LoadRecipes();
-            pack.LoadCharacters();
-            pack.LoadEnchantments();
+
+            if (!hotReload)
+            {
+                pack.LoadCharacters();
+                pack.LoadEnchantments();
+            }
 
             return pack;
         }
@@ -124,16 +137,25 @@ namespace SideLoader
             }
 
             foreach (var bundlePath in Directory.GetFiles(GetSubfolderPath(SubFolders.AssetBundles))
-                .Where(x => !x.EndsWith(".meta") 
-                    && !x.EndsWith(".manifest")))
+                                                .Where(x => !x.EndsWith(".meta") 
+                                                         && !x.EndsWith(".manifest")))
             {
                 try
                 {
+                    if (s_allLoadedAssetBundles.ContainsKey(bundlePath))
+                    {
+                        if (s_allLoadedAssetBundles[bundlePath])
+                            s_allLoadedAssetBundles[bundlePath].Unload(true);
+
+                        s_allLoadedAssetBundles.Remove(bundlePath);
+                    }
+
                     var bundle = AssetBundle.LoadFromFile(bundlePath);
                     if (bundle is AssetBundle)
                     {
                         string name = Path.GetFileName(bundlePath);
                         AssetBundles.Add(name, bundle);
+                        s_allLoadedAssetBundles.Add(bundlePath, bundle);
                         SL.Log("Loaded assetbundle " + name);
                     }
                     else

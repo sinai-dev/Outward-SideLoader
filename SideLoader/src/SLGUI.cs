@@ -7,6 +7,7 @@ using System.IO;
 using UnityEngine.UI;
 using System.Diagnostics;
 using SideLoader.Helpers;
+using UnityEngine.SceneManagement;
 
 namespace SideLoader.GUI
 {
@@ -26,6 +27,7 @@ namespace SideLoader.GUI
         internal GameObject s_slPacksPage;
 
         internal InputField s_playerPosInput;
+        internal InputField s_sceneInput;
 
         internal void Awake()
         {
@@ -138,8 +140,8 @@ namespace SideLoader.GUI
             });
 
             // Enchantment generator
-            var enchSection = s_generatorsPage.transform.Find("ImbuePresetGenerator");
-            var enchInput = enchSection.Find("ImbueInput").GetComponent<InputField>();
+            var enchSection = s_generatorsPage.transform.Find("EnchantmentGenerator");
+            var enchInput = enchSection.Find("EnchantInput").GetComponent<InputField>();
             var enchBtn = enchSection.Find("GenerateBtn").GetComponent<Button>();
             enchBtn.onClick.AddListener(() =>
             {
@@ -151,19 +153,29 @@ namespace SideLoader.GUI
 
             s_toolsPage = pageHolder.GetChild(1).gameObject;
 
-            var hotReloadBtn = s_toolsPage.transform.Find("HotReloadBtn").GetComponent<Button>();
-            hotReloadBtn.onClick.AddListener(() =>
-            {
-                SL.Setup(false);
-            });
-
             s_playerPosInput = s_toolsPage.transform.Find("PositionDebug/PositionInput").GetComponent<InputField>();
+
+            s_sceneInput = s_toolsPage.transform.Find("Scene Debug/SceneInput").GetComponent<InputField>();
+            SceneManager.activeSceneChanged += OnSceneChange;
+            s_sceneInput.text = SceneManager.GetActiveScene().name;
 
             // =========== SL_PACKS PAGE ===========
 
             s_slPacksPage = pageHolder.GetChild(2).gameObject;
 
+            var hotReloadBtn = s_slPacksPage.transform.Find("HotReloadBtn").GetComponent<Button>();
+            hotReloadBtn.onClick.AddListener(() =>
+            {
+                SL.Setup(false);
+            });
+
             // wip
+        }
+
+        private void OnSceneChange(Scene prev, Scene next)
+        {
+            if (s_sceneInput)
+                s_sceneInput.text = next.name;
         }
 
         // =========== GENERATOR METHODS ===========

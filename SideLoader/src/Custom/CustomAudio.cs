@@ -32,8 +32,7 @@ namespace SideLoader
             
             if (ReplacedClips.Contains(sound))
             {
-                SL.Log("The Sound clip '" + sound + "' has already been replaced!");
-                return;
+                SL.Log("The Sound clip '" + sound + "' has already been replaced, replacing again...");
             }
 
             try
@@ -62,7 +61,8 @@ namespace SideLoader
 
             resource.hideFlags |= HideFlags.DontUnloadUnusedAsset;
 
-            ReplacedClips.Add(_sound);
+            if (!ReplacedClips.Contains(_sound))
+                ReplacedClips.Add(_sound);
 
             SL.Log("Replaced " + _sound + " AudioSource with new clip!");
         }
@@ -97,6 +97,16 @@ namespace SideLoader
 
                 if (pack != null)
                 {
+                    if (pack.AudioClips.ContainsKey(name))
+                    {
+                        SL.LogWarning("Replacing clip '" + name + "' in pack '" + pack.Name + "'");
+
+                        if (pack.AudioClips[name])
+                            GameObject.Destroy(pack.AudioClips[name]);
+
+                        pack.AudioClips.Remove(name);
+                    }
+
                     pack.AudioClips.Add(name, clip);
                 }
 
