@@ -111,6 +111,20 @@ namespace SideLoader.GUI
                 Process.Start(path);
             });
 
+            // link buttons
+
+            var docsBtn = s_generatorsPage.transform.Find("OpenDocsBtn").GetComponent<Button>();
+            docsBtn.onClick.AddListener(() =>
+            {
+                Application.OpenURL(@"https://sinai-dev.github.io/OSLDocs/#/");
+            });
+
+            var toolsBtn = s_generatorsPage.transform.Find("OpenToolsBtn").GetComponent<Button>();
+            toolsBtn.onClick.AddListener(() =>
+            {
+                Application.OpenURL(@"https://docs.google.com/spreadsheets/d/1btxPTmgeRqjhqC5dwpPXWd49-_tX_OVLN1Uvwv525K4");
+            });
+
             // Item generator
             var itemSection = s_generatorsPage.transform.Find("ItemGenerator");
             var itemInput = itemSection.Find("ItemIDInput").GetComponent<InputField>();
