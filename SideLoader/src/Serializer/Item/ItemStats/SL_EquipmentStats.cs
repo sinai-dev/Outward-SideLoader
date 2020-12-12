@@ -86,7 +86,7 @@ namespace SideLoader
                 equipmentStatsHolder.Impact_Resistance = eStats.ImpactResistance;
                 equipmentStatsHolder.Damage_Protection = eStats.GetDamageProtection(DamageType.Types.Physical);
                 equipmentStatsHolder.Stamina_Use_Penalty = eStats.StaminaUsePenalty;
-                equipmentStatsHolder.Mana_Use_Modifier = (float)At.GetField(stats, "m_manaUseModifier");
+                equipmentStatsHolder.Mana_Use_Modifier = (float)At.GetField(stats as EquipmentStats, "m_manaUseModifier");
                 equipmentStatsHolder.Movement_Penalty = eStats.MovementPenalty;
                 equipmentStatsHolder.Pouch_Bonus = eStats.PouchCapacityBonus;
                 equipmentStatsHolder.Heat_Protection = eStats.HeatProtection;
@@ -98,7 +98,7 @@ namespace SideLoader
             }
             catch (Exception e)
             {
-                Debug.Log("Exception getting stats of " + stats.name + "\r\n" + e.Message + "\r\n" + e.StackTrace);
+                Debug.Log("Exception getting EquipmentStats of " + stats.name + "\r\n" + e.Message + "\r\n" + e.StackTrace);
             }
         }
     }

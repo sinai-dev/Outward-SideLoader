@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using HarmonyLib;
 using BepInEx;
-using SideLoader.UI;
+using SideLoader.GUI;
 using BepInEx.Logging;
 
 namespace SideLoader
@@ -54,7 +54,7 @@ namespace SideLoader
             obj.hideFlags = HideFlags.HideAndDontSave;
 
             /* Add Behaviour Components */
-            obj.AddComponent<SL_GUI>();
+            obj.AddComponent<SLGUI>();
         }
 
         // ========== Update ==========

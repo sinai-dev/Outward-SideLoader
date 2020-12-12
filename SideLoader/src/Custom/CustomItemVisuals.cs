@@ -634,7 +634,7 @@ namespace SideLoader
 
             for (int i = 0; i < 3; i++)
             {
-                SL.Log("Checking materials (" + ((VisualPrefabType)i) + ")");
+                //SL.Log("Checking materials (" + ((VisualPrefabType)i) + ")");
 
                 if (GetMaterials(item, (VisualPrefabType)i) is Material[] mats)
                 {
