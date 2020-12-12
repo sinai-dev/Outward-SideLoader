@@ -28,63 +28,19 @@ namespace SideLoader
         /// <summary>
         /// SideLoader.dll AppDomain reference.
         /// </summary>
-        public static Assembly SL_Assembly
-        {
-            get
-            {
-                if (m_slAssembly == null)
-                {
-                    m_slAssembly = Assembly.GetExecutingAssembly();
-                }
-                return m_slAssembly;
-            }
-        }
-
+        public static Assembly SL_Assembly => m_slAssembly ?? (m_slAssembly = Assembly.GetExecutingAssembly());
         private static Assembly m_slAssembly;
 
         /// <summary>
         /// The Assembly-Csharp.dll AppDomain reference.
         /// </summary>
-        public static Assembly Game_Assembly
-        {
-            get
-            {
-                if (m_gameAssembly == null)
-                {
-                    // Any game-class would work, I just picked Item.
-                    m_gameAssembly = typeof(Item).Assembly;
-                }
-
-                return m_gameAssembly;
-            }
-        }
-
+        public static Assembly Game_Assembly => m_gameAssembly ?? (m_gameAssembly = typeof(Item).Assembly);
         private static Assembly m_gameAssembly;
 
         /// <summary>
         /// List of SL_Type classes (types marked as SL_Serialized).
         /// </summary>
-        public static Type[] SLTypes
-        {
-            get
-            {
-                if (m_slTypes == null || m_slTypes.Length < 1)
-                {
-                    var list = new List<Type>();
-
-                    foreach (var type in SL_Assembly.GetTypes())
-                    {
-                        if (type.GetCustomAttributes(typeof(SL_Serialized), true).Length > 0)
-                            list.Add(type);
-                    }
-
-                    m_slTypes = list.ToArray();
-                }
-
-                return m_slTypes;
-            }
-        }
-
+        public static Type[] SLTypes => m_slTypes ?? GetSLTypes();
         private static Type[] m_slTypes;
 
         private static readonly Dictionary<Type, XmlSerializer> m_xmlCache = new Dictionary<Type, XmlSerializer>();
@@ -104,6 +60,9 @@ namespace SideLoader
             return m_xmlCache[type];
         }
 
+        // Cached results from GetGameType or GetSLType. Can use same dictionary for both.
+        internal static readonly Dictionary<Type, Type> s_typeConversions = new Dictionary<Type, Type>();
+
         /// <summary>
         /// Pass a SideLoader class type (eg, SL_Item) and get the corresponding Game class (eg, Item).
         /// </summary>
@@ -111,25 +70,28 @@ namespace SideLoader
         /// <param name="logging">If you want to log debug messages.</param>
         public static Type GetGameType(Type _slType, bool logging = true)
         {
+            if (s_typeConversions.ContainsKey(_slType))
+                return s_typeConversions[_slType];
+
             var name = _slType.Name.Substring(3, _slType.Name.Length - 3);
 
-            Type t = null;
+            Type ret = null;
             try
             {
-                t = Game_Assembly.GetType(name);
-                if (t == null) throw new Exception("Null");
+                ret = Game_Assembly.GetType(name);
+                if (ret == null) throw new Exception("Null");
             }
-            catch (Exception e)
+            catch
             {
                 if (logging)
                 {
                     SL.Log($"Could not get Game_Assembly Type '{name}'");
-                    SL.Log(e.Message);
-                    SL.Log(e.StackTrace);
                 }
             }
 
-            return t;
+            s_typeConversions.Add(_slType, ret);
+
+            return ret;
         }
 
         /// <summary>
@@ -139,13 +101,16 @@ namespace SideLoader
         /// <param name="logging">If you want to log debug messages.</param>
         public static Type GetSLType(Type _gameType, bool logging = true)
         {
+            if (s_typeConversions.ContainsKey(_gameType))
+                return s_typeConversions[_gameType];
+
             var name = $"SideLoader.SL_{_gameType.Name}";
 
-            Type t = null;
+            Type ret = null;
             try
             {
-                t = SL_Assembly.GetType(name);
-                if (t == null) throw new Exception("Null");
+                ret = SL_Assembly.GetType(name);
+                if (ret == null) throw new Exception("Null");
             }
             catch (Exception e)
             {
@@ -157,7 +122,9 @@ namespace SideLoader
                 }
             }
 
-            return t;
+            s_typeConversions.Add(_gameType, ret);
+
+            return ret;
         }
 
         /// <summary>
@@ -169,19 +136,13 @@ namespace SideLoader
         public static Type GetBestSLType(Type type)
         {
             if (GetSLType(type, false) is Type slType && !slType.IsAbstract)
-            {
                 return slType;
-            }
             else
             {
                 if (type.BaseType != null)
-                {
                     return GetBestSLType(type.BaseType);
-                }
                 else
-                {
                     return null;
-                }
             }
         }
 
@@ -237,13 +198,9 @@ namespace SideLoader
                         {
                             // the real type might be saved as an attribute
                             if (!string.IsNullOrEmpty(reader.GetAttribute("type")))
-                            {
                                 typeName = reader.GetAttribute("type");
-                            }
                             else
-                            {
                                 typeName = reader.Name;
-                            }
                             break;
                         }
                     }
@@ -272,6 +229,19 @@ namespace SideLoader
 
                 return null;
             }
+        }
+
+        internal static Type[] GetSLTypes()
+        {
+            var list = new List<Type>();
+
+            foreach (var type in SL_Assembly.GetTypes())
+            {
+                if (type.GetCustomAttributes(typeof(SL_Serialized), true).Length > 0)
+                    list.Add(type);
+            }
+
+            return m_slTypes = list.ToArray();
         }
 
         /// <summary>Remove invalid filename characters from a string</summary>
