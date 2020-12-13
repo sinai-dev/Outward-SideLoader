@@ -22,21 +22,16 @@ namespace SideLoader
             var attackSkill = item as AttackSkill;
 
             if (this.AmmunitionTypes != null)
-            {
                 attackSkill.AmmunitionTypes = this.AmmunitionTypes.ToList();
-            }
+
             if (this.RequiredOffHandTypes != null)
-            {
                 attackSkill.RequiredOffHandTypes = this.RequiredOffHandTypes.ToList();
-            }
+
             if (this.RequiredWeaponTypes != null)
-            {
                 attackSkill.RequiredWeaponTypes = this.RequiredWeaponTypes.ToList();
-            }
+
             if (this.RequireImbue != null)
-            {
                 attackSkill.RequireImbue = (bool)this.RequireImbue;
-            }
 
             if (this.RequiredWeaponTags != null)
             {
@@ -49,14 +44,6 @@ namespace SideLoader
                     }
                 }
                 attackSkill.RequiredTags = list.ToArray();
-            }
-
-            if (item is PistolSkill pistolSkill && pistolSkill.transform.Find("NormalReload") is Transform reload)
-            {
-                At.SetField(pistolSkill, "m_alternateAnimConditionsHolder", reload.gameObject);
-
-                foreach (var icon in pistolSkill.m_alternateIcons)
-                    At.SetField(icon, "m_conditionHolder", reload.gameObject);
             }
         }
 

@@ -23,33 +23,25 @@ namespace SideLoader
             var weapon = item as ProjectileWeapon;
 
             if (this.AutoLoad != null)
-            {
                 weapon.AutoLoad = (bool)this.AutoLoad;
-            }
+
             if (this.UnloadOnSheathe != null)
-            {
                 weapon.UnloadOnSheathe = (bool)this.UnloadOnSheathe;
-            }
+
             if (this.UnloadOnEquip != null)
-            {
                 weapon.UnloadOnUnequip = (bool)this.UnloadOnEquip;
-            }
+
             if (this.UnloadOnIncompleteShot != null)
-            {
                 weapon.UnloadOnIncompleteShot = (bool)this.UnloadOnIncompleteShot;
-            }
+
             if (this.LocomotionEnabledOnReload != null)
-            {
                 weapon.LocomotionEnableOnReload = (bool)this.LocomotionEnabledOnReload;
-            }
+
             if (this.LoadAnim != null)
-            {
                 weapon.LoadAnim = (Character.SpellCastType)this.LoadAnim;
-            }
+
             if (this.FullyBentSound != null)
-            {
                 weapon.FullyBentSound = (GlobalAudioManager.Sounds)this.FullyBentSound;
-            }
         }
 
         public override void SerializeItem(Item item, SL_Item holder)

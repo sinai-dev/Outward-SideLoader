@@ -282,7 +282,7 @@ namespace SideLoader
         {
             if (ActiveCharacters.Count > 0 && !PhotonNetwork.isNonMasterClientInRoom)
             {
-                //SL.Log("Cleaning up " + ActiveCharacters.Count + " characters.");
+                // SL.Log("Cleaning up " + ActiveCharacters.Count + " characters.");
 
                 for (int i = ActiveCharacters.Count - 1; i >= 0; i--)
                 {
@@ -313,27 +313,42 @@ namespace SideLoader
             if (PhotonNetwork.isNonMasterClientInRoom || (bool)At.GetField(NetworkLevelLoader.Instance, "m_saveOnHostLost"))
                 return;
 
-            SL.LogWarning("~~~~~~~~~~ Saving Characters ~~~~~~~~~~");
-            SL.Log(SceneManager.GetActiveScene().name);
+            //SL.LogWarning("~~~~~~~~~~ Saving Characters ~~~~~~~~~~");
+            //SL.Log(SceneManager.GetActiveScene().name);
+
+            var savedUIDs = new HashSet<string>();
+            var activeScene = SceneManager.GetActiveScene().name;
 
             var sceneSaveDataList = new List<SL_CharacterSaveData>();
             var followerDataList = new List<SL_CharacterSaveData>();
 
             foreach (var info in ActiveCharacters)
             {
-                if (info.Template != null)
+                if (info.Template != null && info.ActiveCharacter)
                 {
+                    if (savedUIDs.Contains(info.ActiveCharacter.UID))
+                        continue;
+
                     if (info.Template.SaveType == CharSaveType.Scene)
                     {
+                        if (activeScene != info.Template.SceneToSpawn)
+                            continue;
+
                         var data = info.ToSaveData();
                         if (data != null)
+                        {
                             sceneSaveDataList.Add(data);
+                            savedUIDs.Add(info.ActiveCharacter.UID);
+                        }
                     }
                     else if (info.Template.SaveType == CharSaveType.Follower)
                     {
                         var data = info.ToSaveData();
                         if (data != null)
+                        { 
                             followerDataList.Add(data);
+                            savedUIDs.Add(info.ActiveCharacter.UID);
+                        }
                     }
                 }
             }

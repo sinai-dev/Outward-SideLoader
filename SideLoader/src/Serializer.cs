@@ -131,16 +131,24 @@ namespace SideLoader
         /// Get the "best-match" for the provided game class.
         /// Will get the highest-level base class of the provided game class with a matching SL class.
         /// </summary>
-        /// <param name="type">The game class you want a match for.</param>
+        /// <param name="gameType">The game class you want a match for.</param>
         /// <returns>Best-match SL Type, if any, otherwise null.</returns>
-        public static Type GetBestSLType(Type type)
+        public static Type GetBestSLType(Type gameType)
         {
-            if (GetSLType(type, false) is Type slType && !slType.IsAbstract)
+            if (s_typeConversions.ContainsKey(gameType))
+                return s_typeConversions[gameType];
+
+            if (GetSLType(gameType, false) is Type slType && !slType.IsAbstract)
+            {
+                if (!s_typeConversions.ContainsKey(gameType))
+                    s_typeConversions.Add(gameType, slType);
+
                 return slType;
+            }
             else
             {
-                if (type.BaseType != null)
-                    return GetBestSLType(type.BaseType);
+                if (gameType.BaseType != null)
+                    return GetBestSLType(gameType.BaseType);
                 else
                     return null;
             }

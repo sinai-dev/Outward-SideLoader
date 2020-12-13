@@ -47,6 +47,7 @@
     <Compile Include="Helpers\References.cs" />
     <Compile Include="Helpers\UnityHelpers.cs" />
     <Compile Include="Hooks.cs" />
+    <Compile Include="Serializer\Item\Skill\SL_PistolSkill.cs" />
     <Compile Include="SLSaveManager.cs" />
     <Compile Include="Serializer\Character\CustomSpawnInfo.cs" />
     <Compile Include="Serializer\Character\CharSaveType.cs" />
@@ -150,7 +151,7 @@
     <Compile Include="Serializer\Effect\Effects\SL_Teleport.cs" />
     <Compile Include="Serializer\Effect\Effects\SL_ThrowItem.cs" />
     <Compile Include="Serializer\Effect\Effects\SL_UnloadWeapon.cs" />
-    <Compile Include="Serializer\Effect\Effects\SL_UseLoadoutAmmunition.cs" />
+    <Compile Include="Serializer\Effect\Effects\SL_UseLoadoutAmunition.cs" />
     <Compile Include="Serializer\Effect\Effects\SL_VitalityDamage.cs" />
     <Compile Include="Serializer\Effect\SL_EffectCondition.cs" />
     <Compile Include="Serializer\Item\Equipment\SL_Armor.cs" />

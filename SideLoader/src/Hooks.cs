@@ -286,6 +286,7 @@ namespace SideLoader.Hooks
     [HarmonyPatch(typeof(CharacterManager), "ClearNonPersitentCharacters")]
     [HarmonyPatch(typeof(NetworkLevelLoader), "StartConnectionCoroutine")]
     [HarmonyPatch(typeof(NetworkLevelLoader), "HostLost")]
+    [HarmonyPatch(typeof(NetworkLevelLoader), "StartLoadLevel")]
     public class MultiPatch_CleanupCharacters
     {
         [HarmonyPrefix]
