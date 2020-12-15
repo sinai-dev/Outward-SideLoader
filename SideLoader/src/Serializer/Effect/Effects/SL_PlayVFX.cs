@@ -33,18 +33,17 @@ namespace SideLoader
             }
         }
 
-        public override void SerializeEffect<T>(T effect, SL_Effect holder)
+        public override void SerializeEffect<T>(T effect)
         {
             var comp = effect as PlayVFX;
-            var template = holder as SL_PlayVFX;
 
-            template.HitPos = comp.HitPos;
-            template.ParentMode = comp.ParentMode;
-            template.DontInstantiateNew = comp.VfxAlreadyInst;
+            HitPos = comp.HitPos;
+            ParentMode = comp.ParentMode;
+            DontInstantiateNew = comp.VfxAlreadyInst;
 
             if (comp.VFX is VFXSystem vfx && GetVFXSystemEnum(vfx) != VFXPrefabs.NONE)
             {
-                template.VFXPrefab = GetVFXSystemEnum(vfx);
+                VFXPrefab = GetVFXSystemEnum(vfx);
             }
         }
 
@@ -225,7 +224,7 @@ namespace SideLoader
 
         public static void DebugVfxNames()
         {
-            Debug.Log("----------- VFXSystems ------------ ");
+            SL.Log("----------- VFXSystems ------------ ");
             var vfxsystems = Resources.FindObjectsOfTypeAll<VFXSystem>();
             var names = new List<string>();
             foreach (var vfx in vfxsystems)

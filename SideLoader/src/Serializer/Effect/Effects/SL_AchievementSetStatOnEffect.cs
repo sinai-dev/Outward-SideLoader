@@ -18,13 +18,12 @@ namespace SideLoader
             comp.IncreaseAmount = this.IncreaseAmount;
         }
 
-        public override void SerializeEffect<T>(T effect, SL_Effect holder)
+        public override void SerializeEffect<T>(T effect)
         {
-            var template = holder as SL_AchievementSetStatOnEffect;
             var comp = effect as AchievementSetStatOnEffect;
 
-            template.StatToChange = comp.StatToChange;
-            template.IncreaseAmount = comp.IncreaseAmount;
+            StatToChange = comp.StatToChange;
+            IncreaseAmount = comp.IncreaseAmount;
         }
     }
 }

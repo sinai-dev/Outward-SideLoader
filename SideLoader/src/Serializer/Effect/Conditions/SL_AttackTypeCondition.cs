@@ -14,9 +14,9 @@ namespace SideLoader
             (component as AttackTypeCondition).AffectOnAttacks = this.AffectOnAttackIDs.ToArray();
         }
 
-        public override void SerializeEffect<T>(EffectCondition component, T template)
+        public override void SerializeEffect<T>(T component)
         {
-            (template as SL_AttackTypeCondition).AffectOnAttackIDs = (component as AttackTypeCondition).AffectOnAttacks.ToList();
+            AffectOnAttackIDs = (component as AttackTypeCondition).AffectOnAttacks.ToList();
         }
     }
 }

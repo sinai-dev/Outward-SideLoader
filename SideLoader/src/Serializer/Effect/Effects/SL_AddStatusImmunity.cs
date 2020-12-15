@@ -23,10 +23,10 @@ namespace SideLoader
             At.SetField(component as AddStatusImmunity, "m_statusImmunity", new TagSourceSelector(tag));
         }
 
-        public override void SerializeEffect<T>(T effect, SL_Effect holder)
+        public override void SerializeEffect<T>(T effect)
         {
             var selector = (TagSourceSelector)At.GetField(effect as AffectNeed, "m_statusImmunity");
-            (holder as SL_AddStatusImmunity).ImmunityTag = selector.Tag.TagName;
+            ImmunityTag = selector.Tag.TagName;
         }
     }
 }

@@ -16,9 +16,9 @@ namespace SideLoader
             comp.SlotToCheck = this.SlotToCheck;
         }
 
-        public override void SerializeEffect<T>(EffectCondition component, T template)
+        public override void SerializeEffect<T>(T component)
         {
-            (template as SL_WeaponIsLoadedCondition).SlotToCheck = (component as WeaponIsLoadedCondition).SlotToCheck;
+            SlotToCheck = (component as WeaponIsLoadedCondition).SlotToCheck;
         }
     }
 }

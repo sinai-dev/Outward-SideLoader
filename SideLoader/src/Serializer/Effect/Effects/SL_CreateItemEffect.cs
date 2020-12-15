@@ -21,13 +21,12 @@ namespace SideLoader
             }
         }
 
-        public override void SerializeEffect<T>(T effect, SL_Effect holder)
+        public override void SerializeEffect<T>(T effect)
         {
-            var template = holder as SL_CreateItemEffect;
             var comp = effect as CreateItemEffect;
 
-            template.ItemToCreate = comp.ItemToCreate?.ItemID ?? -1;
-            template.Quantity = comp.Quantity;
+            ItemToCreate = comp.ItemToCreate?.ItemID ?? -1;
+            Quantity = comp.Quantity;
         }
     }
 }

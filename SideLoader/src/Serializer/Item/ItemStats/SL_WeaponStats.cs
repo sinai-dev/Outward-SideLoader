@@ -59,20 +59,18 @@ namespace SideLoader
             }
         }
 
-        public override void SerializeStats(ItemStats stats, SL_ItemStats holder)
+        public override void SerializeStats(ItemStats stats)
         {
-            base.SerializeStats(stats, holder);
-
-            var template = holder as SL_WeaponStats;
+            base.SerializeStats(stats);
 
             var wStats = stats as WeaponStats;
 
-            template.Attacks = wStats.Attacks;
-            template.AttackSpeed = wStats.AttackSpeed;
-            template.Impact = wStats.Impact;
-            template.StamCost = wStats.StamCost;
+            Attacks = wStats.Attacks;
+            AttackSpeed = wStats.AttackSpeed;
+            Impact = wStats.Impact;
+            StamCost = wStats.StamCost;
 
-            template.BaseDamage = SL_Damage.ParseDamageList(wStats.BaseDamage);
+            BaseDamage = SL_Damage.ParseDamageList(wStats.BaseDamage);
         }
 
         public static WeaponStats.AttackData[] GetScaledAttackData(Weapon weapon)

@@ -26,15 +26,14 @@ namespace SideLoader
             }
         }
 
-        public override void SerializeItem(Item item, SL_Item holder)
+        public override void SerializeItem(Item item)
         {
-            base.SerializeItem(item, holder);
+            base.SerializeItem(item);
 
-            var template = holder as SL_MeleeWeapon;
             var weapon = item as MeleeWeapon;
 
-            template.LinecastCount = weapon.LinecastCount;
-            template.Radius = weapon.Radius;
+            LinecastCount = weapon.LinecastCount;
+            Radius = weapon.Radius;
         }
     }
 }

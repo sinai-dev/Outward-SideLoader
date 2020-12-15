@@ -14,9 +14,9 @@ namespace SideLoader
             (component as ProbabilityCondition).ProbabilityChances = ChancePercent;
         }
 
-        public override void SerializeEffect<T>(EffectCondition component, T template)
+        public override void SerializeEffect<T>(T component)
         {
-            (template as SL_ProbabilityCondition).ChancePercent = (component as ProbabilityCondition).ProbabilityChances;
+            ChancePercent = (component as ProbabilityCondition).ProbabilityChances;
         }
     }
 }

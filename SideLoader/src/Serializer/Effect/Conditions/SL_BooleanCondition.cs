@@ -14,9 +14,9 @@ namespace SideLoader
             (component as BooleanCondition).Valid = this.Valid;
         }
 
-        public override void SerializeEffect<T>(EffectCondition component, T template)
+        public override void SerializeEffect<T>(T component)
         {
-            (template as SL_BooleanCondition).Valid = (component as BooleanCondition).Valid;   
+            Valid = (component as BooleanCondition).Valid;   
         }
     }
 }

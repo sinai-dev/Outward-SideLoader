@@ -47,6 +47,8 @@
     <Compile Include="Helpers\References.cs" />
     <Compile Include="Helpers\UnityHelpers.cs" />
     <Compile Include="Hooks.cs" />
+    <Compile Include="Serializer\Effect\Effects\SL_ImbueObject.cs" />
+    <Compile Include="Serializer\Effect\Effects\SL_ImbueProjectile.cs" />
     <Compile Include="Serializer\Item\Skill\SL_PistolSkill.cs" />
     <Compile Include="SLSaveManager.cs" />
     <Compile Include="Serializer\Character\CustomSpawnInfo.cs" />

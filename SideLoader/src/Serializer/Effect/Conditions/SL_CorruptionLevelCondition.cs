@@ -18,13 +18,12 @@ namespace SideLoader
             comp.CompareType = this.CompareType;
         }
 
-        public override void SerializeEffect<T>(EffectCondition component, T template)
+        public override void SerializeEffect<T>(T component)
         {
-            var holder = template as SL_CorruptionLevelCondition;
             var comp = component as CorruptionLevelCondition;
 
-            holder.Value = comp.Value;
-            holder.CompareType = comp.CompareType;
+            Value = comp.Value;
+            CompareType = comp.CompareType;
         }
     }
 }

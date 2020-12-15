@@ -70,14 +70,13 @@ namespace SideLoader
             comp.IgnoreOnDestroy = this.IgnoreOnDestroy;
         }
 
-        public override void SerializeEffect<T>(T effect, SL_Effect holder)
+        public override void SerializeEffect<T>(T effect)
         {
-            var template = holder as SL_Summon;
             var comp = effect as Summon;
 
             if (effect is SummonAI)
             {
-                template.SummonPrefabType = PrefabTypes.Resource;
+                SummonPrefabType = PrefabTypes.Resource;
 
                 var name = comp.SummonedPrefab.name;
                 if (name.EndsWith("(Clone)"))
@@ -85,24 +84,24 @@ namespace SideLoader
                     name = name.Substring(0, name.Length - 7);
                 }
 
-                template.Prefab = name;
+                Prefab = name;
             }
             else
             {
-                template.SummonPrefabType = PrefabTypes.Item;
+                SummonPrefabType = PrefabTypes.Item;
 
-                template.Prefab = comp.SummonedPrefab.gameObject.GetComponent<Item>().ItemID.ToString();
+                Prefab = comp.SummonedPrefab.gameObject.GetComponent<Item>().ItemID.ToString();
             }
 
-            template.BufferSize = comp.BufferSize;
-            template.LimitOfOne = comp.LimitOfOne;
-            template.SummonMode = comp.InstantiationMode;
-            template.PositionType = comp.PositionType;
-            template.MinDistance = comp.MinDistance;
-            template.MaxDistance = comp.MaxDistance;
-            template.SameDirectionAsSummoner = comp.SameDirAsSummoner;
-            template.SummonLocalForward = comp.SummonLocalForward;
-            template.IgnoreOnDestroy = comp.IgnoreOnDestroy;
+            BufferSize = comp.BufferSize;
+            LimitOfOne = comp.LimitOfOne;
+            SummonMode = comp.InstantiationMode;
+            PositionType = comp.PositionType;
+            MinDistance = comp.MinDistance;
+            MaxDistance = comp.MaxDistance;
+            SameDirectionAsSummoner = comp.SameDirAsSummoner;
+            SummonLocalForward = comp.SummonLocalForward;
+            IgnoreOnDestroy = comp.IgnoreOnDestroy;
         }
     }
 }

@@ -20,11 +20,11 @@ namespace SideLoader
             }
         }
 
-        public override void SerializeItem(Item item, SL_Item holder)
+        public override void SerializeItem(Item item)
         {
-            base.SerializeItem(item, holder);
+            base.SerializeItem(item);
 
-            (holder as SL_Ammunition).PoolCapacity = (item as Ammunition).PoolCapacity;
+            PoolCapacity = (item as Ammunition).PoolCapacity;
         }
     }
 }

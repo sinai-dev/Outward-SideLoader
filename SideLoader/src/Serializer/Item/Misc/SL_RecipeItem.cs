@@ -25,14 +25,13 @@ namespace SideLoader
             }
         }
 
-        public override void SerializeItem(Item item, SL_Item holder)
+        public override void SerializeItem(Item item)
         {
-            base.SerializeItem(item, holder);
+            base.SerializeItem(item);
 
-            var template = holder as SL_RecipeItem;
             var recipeItem = item as RecipeItem;
 
-            template.RecipeUID = recipeItem.Recipe.UID;
+            RecipeUID = recipeItem.Recipe.UID;
         }
     }
 }

@@ -40,20 +40,19 @@ namespace SideLoader
             comp.WeaponToCheck = this.WeaponToCheck;
         }
 
-        public override void SerializeEffect<T>(EffectCondition component, T template)
+        public override void SerializeEffect<T>(T component)
         {
             var comp = component as ImbueEffectORCondition;
-            var holder = template as SL_ImbueEffectORCondition;
 
-            holder.AnyImbue = comp.AnyImbue;
-            holder.WeaponToCheck = comp.WeaponToCheck;
+            AnyImbue = comp.AnyImbue;
+            WeaponToCheck = comp.WeaponToCheck;
 
             if (comp.ImbueEffectPresets != null)
             {
-                holder.ImbuePresetIDs = new List<int>();
+                ImbuePresetIDs = new List<int>();
                 foreach (var imbue in comp.ImbueEffectPresets)
                 {
-                    holder.ImbuePresetIDs.Add(imbue.PresetID);
+                    ImbuePresetIDs.Add(imbue.PresetID);
                 }
             }
         }

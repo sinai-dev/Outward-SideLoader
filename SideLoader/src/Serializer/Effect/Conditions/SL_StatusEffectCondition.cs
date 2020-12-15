@@ -27,13 +27,12 @@ namespace SideLoader
             comp.StatusEffectPrefab = status;
         }
 
-        public override void SerializeEffect<T>(EffectCondition component, T template)
+        public override void SerializeEffect<T>(T component)
         {
-            var holder = template as SL_StatusEffectCondition;
             var comp = component as StatusEffectCondition;
 
-            holder.StatusIdentifier = comp.StatusEffectPrefab.IdentifierName;
-            holder.Invert = comp.Inverse;
+            StatusIdentifier = comp.StatusEffectPrefab.IdentifierName;
+            Invert = comp.Inverse;
         }
     }
 }

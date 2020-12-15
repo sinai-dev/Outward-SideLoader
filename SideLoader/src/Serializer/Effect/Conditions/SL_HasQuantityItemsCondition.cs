@@ -14,9 +14,9 @@ namespace SideLoader
             (component as HasQuantityItemsCondition).ItemQuantityRequired = TotalItemsRequired;
         }
 
-        public override void SerializeEffect<T>(EffectCondition component, T template)
+        public override void SerializeEffect<T>(T component)
         {
-            (template as SL_HasQuantityItemsCondition).TotalItemsRequired = (component as HasQuantityItemsCondition).ItemQuantityRequired;
+            TotalItemsRequired = (component as HasQuantityItemsCondition).ItemQuantityRequired;
         }
     }
 }

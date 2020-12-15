@@ -16,10 +16,10 @@ namespace SideLoader
             (component as AffectCorruption).IsRaw = this.IsRaw;
         }
 
-        public override void SerializeEffect<T>(T effect, SL_Effect holder)
+        public override void SerializeEffect<T>(T effect)
         {
-            (holder as SL_AffectCorruption).AffectQuantity = (effect as AffectCorruption).AffectQuantity;
-            (holder as SL_AffectCorruption).IsRaw = (effect as AffectCorruption).IsRaw;
+            AffectQuantity = (effect as AffectCorruption).AffectQuantity;
+            IsRaw = (effect as AffectCorruption).IsRaw;
         }
     }
 }

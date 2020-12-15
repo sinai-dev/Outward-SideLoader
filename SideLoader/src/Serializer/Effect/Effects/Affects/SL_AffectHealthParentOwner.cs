@@ -19,11 +19,11 @@ namespace SideLoader
             (component as AffectHealthParentOwner).IsModifier = this.IsModifier;
         }
 
-        public override void SerializeEffect<T>(T effect, SL_Effect holder)
+        public override void SerializeEffect<T>(T effect)
         {
-            (holder as SL_AffectHealthParentOwner).AffectQuantity = (effect as AffectHealthParentOwner).AffectQuantity;
-            (holder as SL_AffectHealthParentOwner).Requires_AffectedChar = (effect as AffectHealthParentOwner).OnlyIfHasAffectedChar;
-            (holder as SL_AffectHealthParentOwner).IsModifier = (effect as AffectHealthParentOwner).IsModifier;
+            AffectQuantity = (effect as AffectHealthParentOwner).AffectQuantity;
+            Requires_AffectedChar = (effect as AffectHealthParentOwner).OnlyIfHasAffectedChar;
+            IsModifier = (effect as AffectHealthParentOwner).IsModifier;
         }
     }
 }

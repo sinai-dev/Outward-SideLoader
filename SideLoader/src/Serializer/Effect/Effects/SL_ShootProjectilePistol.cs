@@ -16,11 +16,11 @@ namespace SideLoader
             (component as ShootProjectilePistol).UseShot = this.UseShot;
         }
 
-        public override void SerializeEffect<T>(T effect, SL_Effect holder)
+        public override void SerializeEffect<T>(T effect)
         {
-            base.SerializeEffect(effect, holder);
+            base.SerializeEffect(effect);
 
-            (holder as SL_ShootProjectilePistol).UseShot = (effect as ShootProjectilePistol).UseShot;
+            UseShot = (effect as ShootProjectilePistol).UseShot;
         }
     }
 }

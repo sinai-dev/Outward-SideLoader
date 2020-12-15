@@ -14,9 +14,9 @@ namespace SideLoader
             (component as AchievementOnEffect).UnlockedAchievement = this.UnlockedAchievement;
         }
 
-        public override void SerializeEffect<T>(T effect, SL_Effect holder)
+        public override void SerializeEffect<T>(T effect)
         {
-            (holder as SL_AchievementOnEffect).UnlockedAchievement = (effect as AchievementOnEffect).UnlockedAchievement;
+            UnlockedAchievement = (effect as AchievementOnEffect).UnlockedAchievement;
         }
     }
 }

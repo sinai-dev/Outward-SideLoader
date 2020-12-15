@@ -36,19 +36,18 @@ namespace SideLoader
             comp.VfxSystems = comp.transform.root.GetComponentsInChildren<VFXSystem>();
         }
 
-        public override void SerializeEffect<T>(T effect, SL_Effect holder)
+        public override void SerializeEffect<T>(T effect)
         {
-            base.SerializeEffect(effect, holder);
+            base.SerializeEffect(effect);
 
-            var template = holder as SL_AddStatusEffectRandom;
             var comp = effect as AddStatusEffectRandom;
 
-            template.StatusIdentifiers = new List<string>();
+            StatusIdentifiers = new List<string>();
             foreach (var status in comp.Statuses)
             {
-                template.StatusIdentifiers.Add(status.IdentifierName);
+                StatusIdentifiers.Add(status.IdentifierName);
             }
-            template.ForceID = comp.ForceID;
+            ForceID = comp.ForceID;
         }
     }
 }

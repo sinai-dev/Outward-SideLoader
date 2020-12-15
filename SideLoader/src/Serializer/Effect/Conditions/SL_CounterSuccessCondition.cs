@@ -22,7 +22,7 @@ namespace SideLoader
             (component as CounterSuccessCondition).Skill = skill;
         }
 
-        public override void SerializeEffect<T>(EffectCondition component, T template)
+        public override void SerializeEffect<T>(T component)
         {
             // Don't actually need to do anything for this effect. Simply adding the component is the entirety of the effect.
         }

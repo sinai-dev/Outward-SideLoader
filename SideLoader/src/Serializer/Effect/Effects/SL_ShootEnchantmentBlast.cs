@@ -16,11 +16,11 @@ namespace SideLoader
             (component as ShootEnchantmentBlast).DamageMultiplier = this.DamageMultiplier;
         }
 
-        public override void SerializeEffect<T>(T effect, SL_Effect holder)
+        public override void SerializeEffect<T>(T effect)
         {
-            base.SerializeEffect(effect, holder);
+            base.SerializeEffect(effect);
 
-            (holder as SL_ShootEnchantmentBlast).DamageMultiplier = (effect as ShootEnchantmentBlast).DamageMultiplier;
+            DamageMultiplier = (effect as ShootEnchantmentBlast).DamageMultiplier;
         }
     }
 }

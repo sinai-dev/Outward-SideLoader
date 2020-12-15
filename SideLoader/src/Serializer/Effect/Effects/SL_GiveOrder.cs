@@ -14,9 +14,9 @@ namespace SideLoader
             (component as GiveOrder).OrderID = this.OrderID;
         }
 
-        public override void SerializeEffect<T>(T effect, SL_Effect holder)
+        public override void SerializeEffect<T>(T effect)
         {
-            (holder as SL_GiveOrder).OrderID = (effect as GiveOrder).OrderID;
+            OrderID = (effect as GiveOrder).OrderID;
         }
     }
 }

@@ -14,9 +14,9 @@ namespace SideLoader
             (component as UnloadWeapon).WeaponSlot = this.WeaponSlot;
         }
 
-        public override void SerializeEffect<T>(T effect, SL_Effect holder)
+        public override void SerializeEffect<T>(T effect)
         {
-            (holder as SL_UnloadWeapon).WeaponSlot = (effect as UnloadWeapon).WeaponSlot;
+            WeaponSlot = (effect as UnloadWeapon).WeaponSlot;
         }
     }
 }

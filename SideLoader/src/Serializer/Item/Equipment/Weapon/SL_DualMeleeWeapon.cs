@@ -14,9 +14,9 @@ namespace SideLoader
             base.ApplyToItem(item);
         }
 
-        public override void SerializeItem(Item item, SL_Item holder)
+        public override void SerializeItem(Item item)
         {
-            base.SerializeItem(item, holder);
+            base.SerializeItem(item);
         }
     }
 }

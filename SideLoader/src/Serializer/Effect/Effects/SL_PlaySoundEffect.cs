@@ -22,15 +22,14 @@ namespace SideLoader
             comp.MaxPitch = this.MaxPitch;
         }
 
-        public override void SerializeEffect<T>(T effect, SL_Effect holder)
+        public override void SerializeEffect<T>(T effect)
         {
-            var template = holder as SL_PlaySoundEffect;
             var comp = effect as PlaySoundEffect;
 
-            template.Follow = comp.Follow;
-            template.MaxPitch = comp.MaxPitch;
-            template.MinPitch = comp.MinPitch;
-            template.Sounds = comp.Sounds.ToList();
+            Follow = comp.Follow;
+            MaxPitch = comp.MaxPitch;
+            MinPitch = comp.MinPitch;
+            Sounds = comp.Sounds.ToList();
         }
     }
 }

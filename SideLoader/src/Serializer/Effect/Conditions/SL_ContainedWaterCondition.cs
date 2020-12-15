@@ -14,9 +14,9 @@ namespace SideLoader
             (component as ContainedWaterCondition).ValidWaterType = this.ValidWaterType;
         }
 
-        public override void SerializeEffect<T>(EffectCondition component, T template)
+        public override void SerializeEffect<T>(T component)
         {
-            (template as SL_ContainedWaterCondition).ValidWaterType = (component as ContainedWaterCondition).ValidWaterType;
+            ValidWaterType = (component as ContainedWaterCondition).ValidWaterType;
         }
     }
 }

@@ -74,7 +74,7 @@ namespace SideLoader
 
             using (UnityWebRequest www = UnityWebRequestMultimedia.GetAudioClip(fullPath, AudioType.WAV))
             {
-                Debug.Log("Loading audio clip " + path);
+                SL.Log("Loading audio clip " + path);
 
                 www.SendWebRequest();
 
@@ -85,7 +85,7 @@ namespace SideLoader
 
                 if (www.error != null)
                 {
-                    Debug.Log(www.error);
+                    SL.Log(www.error);
                     yield break;
                 }
 

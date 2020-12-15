@@ -20,14 +20,13 @@ namespace SideLoader
             comp.HeightThreshold = this.HeightThreshold;
         }
 
-        public override void SerializeEffect<T>(EffectCondition component, T template)
+        public override void SerializeEffect<T>(T component)
         {
             var comp = component as HeightCondition;
-            var holder = template as SL_HeightCondition;
 
-            holder.CompareType = comp.CompareType;
-            holder.AllowEqual = comp.AllowEqual;
-            holder.HeightThreshold = comp.HeightThreshold;
+            CompareType = comp.CompareType;
+            AllowEqual = comp.AllowEqual;
+            HeightThreshold = comp.HeightThreshold;
         }
     }
 }

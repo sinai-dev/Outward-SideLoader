@@ -14,9 +14,9 @@ namespace SideLoader
             (component as InZoneCondition).Radius = this.Radius;
         }
 
-        public override void SerializeEffect<T>(EffectCondition component, T template)
+        public override void SerializeEffect<T>(T component)
         {
-            (template as SL_InZoneCondition).Radius = (component as InZoneCondition).Radius;
+            Radius = (component as InZoneCondition).Radius;
         }
     }
 }

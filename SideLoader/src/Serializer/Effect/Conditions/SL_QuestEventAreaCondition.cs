@@ -31,14 +31,14 @@ namespace SideLoader
             comp.EventToCheck = list.ToArray();
         }
 
-        public override void SerializeEffect<T>(EffectCondition component, T template)
+        public override void SerializeEffect<T>(T component)
         {
-            var holder = template as SL_QuestEventAreaCondition;
             var comp = component as QuestEventAreaCondition;
 
+            EventUIDs = new List<string>();
             foreach (var _event in comp.EventToCheck)
             {
-                holder.EventUIDs.Add(_event.EventUID);
+                EventUIDs.Add(_event.EventUID);
             }
         }
     }

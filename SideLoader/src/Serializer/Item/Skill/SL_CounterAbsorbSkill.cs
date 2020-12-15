@@ -34,12 +34,11 @@ namespace SideLoader
             }
         }
 
-        public override void SerializeItem(Item item, SL_Item holder)
+        public override void SerializeItem(Item item)
         {
-            base.SerializeItem(item, holder);
+            base.SerializeItem(item);
 
             var skill = item as CounterAbsorbSkill;
-            var template = holder as SL_CounterAbsorbSkill;
 
             var list = new List<AbsorbType>();
             foreach (var absorb in skill.Absorbs)
@@ -50,7 +49,7 @@ namespace SideLoader
                     DamageTypes = absorb.Types
                 });
             }
-            template.Absorbs = list.ToArray();
+            Absorbs = list.ToArray();
         }
 
         [SL_Serialized]

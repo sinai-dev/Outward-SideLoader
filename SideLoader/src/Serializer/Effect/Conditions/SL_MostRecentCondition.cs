@@ -25,13 +25,12 @@ namespace SideLoader
             (component as MostRecentCondition).StatusEffectToCompare = status2;
         }
 
-        public override void SerializeEffect<T>(EffectCondition component, T template)
+        public override void SerializeEffect<T>(T component)
         {
-            var holder = template as SL_MostRecentCondition;
             var comp = component as MostRecentCondition;
 
-            holder.StatusIdentifierToCheck = comp.StatusEffectPrefab?.IdentifierName;
-            holder.StatusIdentifierToCompareTo = comp.StatusEffectToCompare?.IdentifierName;
+            StatusIdentifierToCheck = comp.StatusEffectPrefab?.IdentifierName;
+            StatusIdentifierToCompareTo = comp.StatusEffectToCompare?.IdentifierName;
         }
     }
 }

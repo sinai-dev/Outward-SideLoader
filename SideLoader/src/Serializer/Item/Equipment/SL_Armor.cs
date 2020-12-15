@@ -31,16 +31,15 @@ namespace SideLoader
             }
         }
 
-        public override void SerializeItem(Item item, SL_Item holder)
+        public override void SerializeItem(Item item)
         {
-            base.SerializeItem(item, holder);
+            base.SerializeItem(item);
 
-            var template = holder as SL_Armor;
             var armor = item as Armor;
 
-            template.Class = armor.Class;
-            template.GearSoundMaterial = armor.GearSoundMaterial;
-            template.ImpactSoundMaterial = armor.ImpactSoundMaterial;
+            Class = armor.Class;
+            GearSoundMaterial = armor.GearSoundMaterial;
+            ImpactSoundMaterial = armor.ImpactSoundMaterial;
         }
     }
 }

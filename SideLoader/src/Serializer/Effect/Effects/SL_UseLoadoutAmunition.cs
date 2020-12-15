@@ -14,9 +14,9 @@ namespace SideLoader
             (component as UseLoadoutAmunition).MainHand = this.MainHand;
         }
 
-        public override void SerializeEffect<T>(T effect, SL_Effect holder)
+        public override void SerializeEffect<T>(T effect)
         {
-            (holder as SL_UseLoadoutAmunition).MainHand = (effect as UseLoadoutAmunition).MainHand;
+            MainHand = (effect as UseLoadoutAmunition).MainHand;
         }
     }
 }

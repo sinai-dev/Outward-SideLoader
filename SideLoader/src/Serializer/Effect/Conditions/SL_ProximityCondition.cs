@@ -40,17 +40,17 @@ namespace SideLoader
             comp.ProximityItemReq = list.ToArray();
         }
 
-        public override void SerializeEffect<T>(EffectCondition component, T template)
+        public override void SerializeEffect<T>(T component)
         {
-            var holder = template as SL_ProximityCondition;
             var comp = component as ProximityCondition;
 
-            holder.MaxDistance = comp.ProximityDist;
-            holder.Offset = comp.Offset;
+            MaxDistance = comp.ProximityDist;
+            Offset = comp.Offset;
 
+            RequiredItems = new List<SL_Skill.SkillItemReq>();
             foreach (var req in comp.ProximityItemReq)
             {
-                holder.RequiredItems.Add(new SL_Skill.SkillItemReq()
+                RequiredItems.Add(new SL_Skill.SkillItemReq()
                 {
                     Consume = req.Consume,
                     Quantity = req.Quantity,

@@ -167,7 +167,7 @@ namespace SideLoader
                     }
                     else
                     {
-                        Debug.LogWarning("Cannot find GlobalAudioManager Instance!");
+                        SL.LogWarning("Cannot find GlobalAudioManager Instance!");
                     }
                 }
                 return m_GlobalAudioManager;

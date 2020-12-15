@@ -263,36 +263,36 @@ namespace SideLoader
 
             var holder = (SL_Item)Activator.CreateInstance(type);
 
-            holder.SerializeItem(item, holder);
+            holder.SerializeItem(item);
 
             return holder;
         }
 
-        public virtual void SerializeItem(Item item, SL_Item holder)
+        public virtual void SerializeItem(Item item)
         {
-            holder.Name = item.Name;
-            holder.Description = item.Description;
-            holder.Target_ItemID = item.ItemID;
-            holder.LegacyItemID = item.LegacyItemID;
-            holder.CastLocomotionEnabled = item.CastLocomotionEnabled;
-            holder.CastModifier = item.CastModifier;
-            holder.CastSheatheRequired = item.CastSheathRequired;
-            holder.GroupItemInDisplay = item.GroupItemInDisplay;
-            holder.HasPhysicsWhenWorld = item.HasPhysicsWhenWorld;
-            holder.IsPickable = item.IsPickable;
-            holder.IsUsable = item.IsUsable;
-            holder.QtyRemovedOnUse = item.QtyRemovedOnUse;
-            holder.MobileCastMovementMult = item.MobileCastMovementMult;
-            holder.RepairedInRest = item.RepairedInRest;
-            holder.BehaviorOnNoDurability = item.BehaviorOnNoDurability;
+            Name = item.Name;
+            Description = item.Description;
+            Target_ItemID = item.ItemID;
+            LegacyItemID = item.LegacyItemID;
+            CastLocomotionEnabled = item.CastLocomotionEnabled;
+            CastModifier = item.CastModifier;
+            CastSheatheRequired = item.CastSheathRequired;
+            GroupItemInDisplay = item.GroupItemInDisplay;
+            HasPhysicsWhenWorld = item.HasPhysicsWhenWorld;
+            IsPickable = item.IsPickable;
+            IsUsable = item.IsUsable;
+            QtyRemovedOnUse = item.QtyRemovedOnUse;
+            MobileCastMovementMult = item.MobileCastMovementMult;
+            RepairedInRest = item.RepairedInRest;
+            BehaviorOnNoDurability = item.BehaviorOnNoDurability;
 
-            holder.CastType = (Character.SpellCastType)At.GetField(item, "m_activateEffectAnimType");
+            CastType = (Character.SpellCastType)At.GetField(item, "m_activateEffectAnimType");
 
             this.OverrideSellModifier = (float)At.GetField(item, "m_overrideSellModifier");
 
             if (item.GetComponent<ItemStats>() is ItemStats stats)
             {
-                holder.StatsHolder = SL_ItemStats.ParseItemStats(stats);
+                StatsHolder = SL_ItemStats.ParseItemStats(stats);
             }
 
             var extensions = item.gameObject.GetComponentsInChildren<ItemExtension>();
@@ -305,7 +305,7 @@ namespace SideLoader
                     extList.Add(extHolder);
                 }
             }
-            holder.ItemExtensions = extList.ToArray();
+            ItemExtensions = extList.ToArray();
 
             var tags = new List<string>();
             if (item.Tags != null)
@@ -315,7 +315,7 @@ namespace SideLoader
                     tags.Add(tag.TagName);
                 }
             }
-            holder.Tags = tags.ToArray();
+            Tags = tags.ToArray();
 
             if (item.transform.childCount > 0)
             {
@@ -329,23 +329,23 @@ namespace SideLoader
                         children.Add(effectsChild);
                     }
                 }
-                holder.EffectTransforms = children.ToArray();
+                EffectTransforms = children.ToArray();
             }
 
             if (item.HasVisualPrefab && ResourcesPrefabManager.Instance.GetItemVisualPrefab(item.VisualPrefabPath).GetComponent<ItemVisual>() is ItemVisual visual)
             {
-                holder.ItemVisuals = SL_ItemVisual.ParseVisualToTemplate(item, VisualPrefabType.VisualPrefab, visual);
-                holder.ItemVisuals.Type = VisualPrefabType.VisualPrefab;
+                ItemVisuals = SL_ItemVisual.ParseVisualToTemplate(item, VisualPrefabType.VisualPrefab, visual);
+                ItemVisuals.Type = VisualPrefabType.VisualPrefab;
             }
             if (item.HasSpecialVisualDefaultPrefab)
             {
-                holder.SpecialItemVisuals = SL_ItemVisual.ParseVisualToTemplate(item, VisualPrefabType.SpecialVisualPrefabDefault, ResourcesPrefabManager.Instance.GetItemVisualPrefab(item.SpecialVisualPrefabDefaultPath).GetComponent<ItemVisual>());
-                holder.SpecialItemVisuals.Type = VisualPrefabType.SpecialVisualPrefabDefault;
+                SpecialItemVisuals = SL_ItemVisual.ParseVisualToTemplate(item, VisualPrefabType.SpecialVisualPrefabDefault, ResourcesPrefabManager.Instance.GetItemVisualPrefab(item.SpecialVisualPrefabDefaultPath).GetComponent<ItemVisual>());
+                SpecialItemVisuals.Type = VisualPrefabType.SpecialVisualPrefabDefault;
             }
             if (item.HasSpecialVisualFemalePrefab)
             {
-                holder.SpecialFemaleItemVisuals = SL_ItemVisual.ParseVisualToTemplate(item, VisualPrefabType.SpecialVisualPrefabFemale, ResourcesPrefabManager.Instance.GetItemVisualPrefab(item.SpecialVisualPrefabFemalePath).GetComponent<ItemVisual>());
-                holder.SpecialFemaleItemVisuals.Type = VisualPrefabType.SpecialVisualPrefabFemale;
+                SpecialFemaleItemVisuals = SL_ItemVisual.ParseVisualToTemplate(item, VisualPrefabType.SpecialVisualPrefabFemale, ResourcesPrefabManager.Instance.GetItemVisualPrefab(item.SpecialVisualPrefabFemalePath).GetComponent<ItemVisual>());
+                SpecialFemaleItemVisuals.Type = VisualPrefabType.SpecialVisualPrefabFemale;
             }
         }
     }

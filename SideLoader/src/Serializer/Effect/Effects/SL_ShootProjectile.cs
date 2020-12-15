@@ -114,26 +114,25 @@ namespace SideLoader
             }
         }
 
-        public override void SerializeEffect<T>(T effect, SL_Effect holder)
+        public override void SerializeEffect<T>(T effect)
         {
-            base.SerializeEffect(effect, holder);
+            base.SerializeEffect(effect);
 
-            var template = holder as SL_ShootProjectile;
             var comp = effect as ShootProjectile;
 
-            template.AddDirection = comp.AddDirection;
-            template.AddRotationForce = comp.AddRotationForce;
-            template.AutoTarget = comp.AutoTarget;
-            template.AutoTargetMaxAngle = comp.AutoTargetMaxAngle;
-            template.AutoTargetRange = comp.AutoTargetRange;
-            template.IgnoreShooterCollision = comp.IgnoreShooterCollision;
-            template.ProjectileForce = comp.ProjectileForce;
-            template.TargetCountPerProjectile = comp.TargetCountPerProjectile;
-            template.TargetingMode = comp.TargetingMode;
-            template.TargetRange = comp.TargetRange;
-            template.YMagnitudeAffect = comp.YMagnitudeAffect;
-            template.YMagnitudeForce = comp.YMagnitudeForce;
-            template.InstantiatedAmount = comp.IntanstiatedAmount;
+            AddDirection = comp.AddDirection;
+            AddRotationForce = comp.AddRotationForce;
+            AutoTarget = comp.AutoTarget;
+            AutoTargetMaxAngle = comp.AutoTargetMaxAngle;
+            AutoTargetRange = comp.AutoTargetRange;
+            IgnoreShooterCollision = comp.IgnoreShooterCollision;
+            ProjectileForce = comp.ProjectileForce;
+            TargetCountPerProjectile = comp.TargetCountPerProjectile;
+            TargetingMode = comp.TargetingMode;
+            TargetRange = comp.TargetRange;
+            YMagnitudeAffect = comp.YMagnitudeAffect;
+            YMagnitudeForce = comp.YMagnitudeForce;
+            InstantiatedAmount = comp.IntanstiatedAmount;
 
             var prefabEnum = GetProjectilePrefabEnum(comp.BaseProjectile);
 
@@ -141,20 +140,20 @@ namespace SideLoader
             {
                 var proj = comp.BaseProjectile;
 
-                template.BaseProjectile = prefabEnum;
-                template.DefenseLength = proj.DefenseLength;
-                template.DefenseRange = proj.DefenseRange;
-                template.DisableOnHit = proj.DisableOnHit;
-                template.EffectsOnlyIfHitCharacter = proj.EffectsOnlyIfHitCharacter;
-                template.EndMode = proj.EndMode;
-                template.ImpactSoundMaterial = proj.ImpactSoundMaterial;
-                template.LateShootTime = proj.LateShootTime;
-                template.Lifespan = proj.Lifespan;
-                template.LightIntensityFade = proj.LightIntensityFade;
-                template.PointOffset = proj.PointOffset;
-                template.TrailEnabled = proj.TrailEnabled;
-                template.TrailTime = proj.TrailTime;
-                template.Unblockable = proj.Unblockable;
+                BaseProjectile = prefabEnum;
+                DefenseLength = proj.DefenseLength;
+                DefenseRange = proj.DefenseRange;
+                DisableOnHit = proj.DisableOnHit;
+                EffectsOnlyIfHitCharacter = proj.EffectsOnlyIfHitCharacter;
+                EndMode = proj.EndMode;
+                ImpactSoundMaterial = proj.ImpactSoundMaterial;
+                LateShootTime = proj.LateShootTime;
+                Lifespan = proj.Lifespan;
+                LightIntensityFade = proj.LightIntensityFade;
+                PointOffset = proj.PointOffset;
+                TrailEnabled = proj.TrailEnabled;
+                TrailTime = proj.TrailTime;
+                Unblockable = proj.Unblockable;
 
                 var list = new List<SL_EffectTransform>();
                 foreach (Transform child in proj.transform)
@@ -166,7 +165,7 @@ namespace SideLoader
                         list.Add(effectsChild);
                     }
                 }
-                template.ProjectileEffects = list.ToArray();
+                ProjectileEffects = list.ToArray();
             }
             else if (comp.BaseProjectile)
             {
@@ -185,7 +184,7 @@ namespace SideLoader
                     NoBaseDir = shot.NoBaseDir
                 });
             }
-            template.ProjectileShots = shots.ToArray();
+            ProjectileShots = shots.ToArray();
         }
 
         public class SL_ProjectileShot
@@ -394,7 +393,7 @@ namespace SideLoader
                 if (!names.Contains(proj.name))
                 {
                     names.Add(proj.name);
-                    //Debug.Log(proj.name + ",");
+                    //SL.Log(proj.name + ",");
                 }
             }
             File.WriteAllLines("projectiles.txt", names.ToArray());

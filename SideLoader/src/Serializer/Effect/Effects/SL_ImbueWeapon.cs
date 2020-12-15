@@ -6,32 +6,26 @@ using UnityEngine;
 
 namespace SideLoader
 {
-    public class SL_ImbueWeapon : SL_Effect
+    public class SL_ImbueWeapon : SL_ImbueObject
     {
-        public float Lifespan;
-        public int ImbueEffect_Preset_ID;
         public Weapon.WeaponSlot Imbue_Slot;
 
         public override void ApplyToComponent<T>(T component)
         {
-            var preset = ResourcesPrefabManager.Instance.GetEffectPreset(this.ImbueEffect_Preset_ID);
+            base.ApplyToComponent(component);
 
-            if (!preset)
-            {
-                SL.Log("Could not find imbue effect preset of ID " + this.ImbueEffect_Preset_ID);
-                return;
-            }
+            var comp = component as ImbueWeapon;
 
-            (component as ImbueWeapon).SetLifespanImbue(this.Lifespan);
-            (component as ImbueWeapon).ImbuedEffect = preset as ImbueEffectPreset;
-            (component as ImbueWeapon).AffectSlot = this.Imbue_Slot;
+            comp.AffectSlot = this.Imbue_Slot;
         }
 
-        public override void SerializeEffect<T>(T effect, SL_Effect holder)
+        public override void SerializeEffect<T>(T effect)
         {
-            (holder as SL_ImbueWeapon).ImbueEffect_Preset_ID = (effect as ImbueWeapon).ImbuedEffect.PresetID;
-            (holder as SL_ImbueWeapon).Imbue_Slot = (effect as ImbueWeapon).AffectSlot;
-            (holder as SL_ImbueWeapon).Lifespan = (effect as ImbueWeapon).LifespanImbue;
+            base.SerializeEffect(effect);
+
+            var comp = effect as ImbueWeapon;
+
+            Imbue_Slot = comp.AffectSlot;
         }
     }
 }

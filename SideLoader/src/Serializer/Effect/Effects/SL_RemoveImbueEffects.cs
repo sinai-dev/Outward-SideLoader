@@ -14,9 +14,9 @@ namespace SideLoader
             (component as RemoveImbueEffects).AffectSlot = this.AffectSlot;
         }
 
-        public override void SerializeEffect<T>(T effect, SL_Effect holder)
+        public override void SerializeEffect<T>(T effect)
         {
-            (holder as SL_RemoveImbueEffects).AffectSlot = (effect as RemoveImbueEffects).AffectSlot;
+            AffectSlot = (effect as RemoveImbueEffects).AffectSlot;
         }
     }
 }

@@ -30,15 +30,14 @@ namespace SideLoader
             comp.ComparaisonType = this.ComparisonType;
         }
 
-        public override void SerializeEffect<T>(EffectCondition component, T template)
+        public override void SerializeEffect<T>(T component)
         {
             var comp = component as HasStatusLevelCondition;
-            var holder = template as SL_HasStatusLevelCondition;
 
-            holder.StatusIdentifier = comp.StatusEffect?.IdentifierName;
-            holder.CheckOwner = comp.CheckOwner;
-            holder.CompareLevel = comp.CompareLevel;
-            holder.ComparisonType = comp.ComparaisonType;
+            StatusIdentifier = comp.StatusEffect?.IdentifierName;
+            CheckOwner = comp.CheckOwner;
+            CompareLevel = comp.CompareLevel;
+            ComparisonType = comp.ComparaisonType;
         }
     }
 }

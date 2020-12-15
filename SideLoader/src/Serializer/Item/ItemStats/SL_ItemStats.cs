@@ -42,16 +42,16 @@ namespace SideLoader
 
             var holder = (SL_ItemStats)Activator.CreateInstance(type);
 
-            holder.SerializeStats(stats, holder);
+            holder.SerializeStats(stats);
 
             return holder;
         }
     
-        public virtual void SerializeStats(ItemStats stats, SL_ItemStats holder)
+        public virtual void SerializeStats(ItemStats stats)
         {
-            holder.BaseValue = stats.BaseValue;
-            holder.MaxDurability = stats.MaxDurability;
-            holder.RawWeight = stats.RawWeight;
+            BaseValue = stats.BaseValue;
+            MaxDurability = stats.MaxDurability;
+            RawWeight = stats.RawWeight;
         }
     }
 }

@@ -33,12 +33,12 @@ namespace SideLoader
             (component as AddStatusEffect).Status = status;
         }
 
-        public override void SerializeEffect<T>(T effect, SL_Effect holder)
+        public override void SerializeEffect<T>(T effect)
         {
             if ((effect as AddStatusEffect).Status)
             {
-                (holder as SL_AddStatusEffect).StatusEffect = (effect as AddStatusEffect).Status.IdentifierName;
-                (holder as SL_AddStatusEffect).ChanceToContract = (effect as AddStatusEffect).BaseChancesToContract;
+                StatusEffect = (effect as AddStatusEffect).Status.IdentifierName;
+                ChanceToContract = (effect as AddStatusEffect).BaseChancesToContract;
             }
         }
     }

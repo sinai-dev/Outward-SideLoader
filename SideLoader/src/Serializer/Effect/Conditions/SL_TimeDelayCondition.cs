@@ -21,14 +21,13 @@ namespace SideLoader
             comp.IgnoreFirstCheck = this.IgnoreFirstCheck;
         }
 
-        public override void SerializeEffect<T>(EffectCondition component, T template)
+        public override void SerializeEffect<T>(T component)
         {
-            var holder = template as SL_TimeDelayCondition;
             var comp = component as TimeDelayCondition;
 
-            holder.DelayRange = comp.DelayRange;
-            holder.TimeFormat = comp.TimeFormat;
-            holder.IgnoreFirstCheck = comp.IgnoreFirstCheck;
+            DelayRange = comp.DelayRange;
+            TimeFormat = comp.TimeFormat;
+            IgnoreFirstCheck = comp.IgnoreFirstCheck;
         }
     }
 }

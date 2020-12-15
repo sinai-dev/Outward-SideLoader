@@ -107,24 +107,23 @@ namespace SideLoader
             }
         }
 
-        public override void SerializeItem(Item item, SL_Item holder)
+        public override void SerializeItem(Item item)
         {
-            base.SerializeItem(item, holder);
+            base.SerializeItem(item);
 
-            var skillHolder = holder as SL_Skill;
             var skill = item as Skill;
 
-            skillHolder.Cooldown = skill.Cooldown;
-            skillHolder.StaminaCost = skill.StaminaCost;
-            skillHolder.ManaCost = skill.ManaCost;
-            skillHolder.DurabilityCost = skill.DurabilityCost;
-            skillHolder.DurabilityCostPercent = skill.DurabilityCostPercent;
+            Cooldown = skill.Cooldown;
+            StaminaCost = skill.StaminaCost;
+            ManaCost = skill.ManaCost;
+            DurabilityCost = skill.DurabilityCost;
+            DurabilityCostPercent = skill.DurabilityCostPercent;
 
-            skillHolder.VFXOnStart = skill.VFXOnStart;
-            skillHolder.StopStartVFXOnEnd = skill.StopVFX;
+            VFXOnStart = skill.VFXOnStart;
+            StopStartVFXOnEnd = skill.StopVFX;
 
             if (skill.StartVFX)
-                skillHolder.StartVFX = SL_PlayVFX.GetVFXSystemEnum(skill.StartVFX);
+                StartVFX = SL_PlayVFX.GetVFXSystemEnum(skill.StartVFX);
 
             if (skill.RequiredItems != null)
             {
@@ -143,7 +142,7 @@ namespace SideLoader
                     }
                 }
 
-                skillHolder.RequiredItems = list.ToArray();
+                RequiredItems = list.ToArray();
             }
         }
 

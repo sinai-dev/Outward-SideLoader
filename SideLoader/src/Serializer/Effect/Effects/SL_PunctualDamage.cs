@@ -38,15 +38,14 @@ namespace SideLoader
             }
         }
 
-        public override void SerializeEffect<T>(T effect, SL_Effect holder)
+        public override void SerializeEffect<T>(T effect)
         {
             var puncDamage = effect as PunctualDamage;
-            var puncHolder = holder as SL_PunctualDamage;
 
-            puncHolder.Knockback = puncDamage.Knockback;
-            puncHolder.HitInventory = puncDamage.HitInventory;
-            puncHolder.Damage = SL_Damage.ParseDamageArray(puncDamage.Damages);
-            puncHolder.Damages_AI = SL_Damage.ParseDamageArray(puncDamage.DamagesAI);
+            Knockback = puncDamage.Knockback;
+            HitInventory = puncDamage.HitInventory;
+            Damage = SL_Damage.ParseDamageArray(puncDamage.Damages);
+            Damages_AI = SL_Damage.ParseDamageArray(puncDamage.DamagesAI);
         }
     }
 }

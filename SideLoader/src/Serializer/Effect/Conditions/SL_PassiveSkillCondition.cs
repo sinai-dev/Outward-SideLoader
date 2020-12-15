@@ -25,10 +25,10 @@ namespace SideLoader
             (component as PassiveSkillCondition).PassiveSkill = skill;
         }
 
-        public override void SerializeEffect<T>(EffectCondition component, T template)
+        public override void SerializeEffect<T>(T component)
         {
-            template.Invert = (component as PassiveSkillCondition).Inverse;
-            (template as SL_PassiveSkillCondition).ReqSkillID = (component as PassiveSkillCondition).PassiveSkill.ItemID;
+            Invert = (component as PassiveSkillCondition).Inverse;
+            ReqSkillID = (component as PassiveSkillCondition).PassiveSkill.ItemID;
         }
     }
 }

@@ -16,11 +16,11 @@ namespace SideLoader
             (component as WeaponDamageFlurry).HitDelay = this.HitDelay;
         }
 
-        public override void SerializeEffect<T>(T effect, SL_Effect holder)
+        public override void SerializeEffect<T>(T effect)
         {
-            base.SerializeEffect(effect, holder);
+            base.SerializeEffect(effect);
 
-            (holder as SL_WeaponDamageFlurry).HitDelay = (effect as WeaponDamageFlurry).HitDelay;
+            HitDelay = (effect as WeaponDamageFlurry).HitDelay;
         }
     }
 }

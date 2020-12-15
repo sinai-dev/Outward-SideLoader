@@ -20,30 +20,24 @@ namespace SideLoader
             var trap = item as DeployableTrap;
 
             if (this.OneTimeUse != null)
-            {
                 At.SetField(trap, "m_oneTimeUse", (bool)this.OneTimeUse);
-            }
 
             if (this.TrapRecipeEffects != null)
             {
                 var list = new List<TrapEffectRecipe>();
                 foreach (var holder in this.TrapRecipeEffects)
-                {
                     list.Add(holder.Apply());
-                }
                 At.SetField(trap, "m_trapRecipes", list.ToArray());
             }
         }
 
-        public override void SerializeItem(Item item, SL_Item holder)
+        public override void SerializeItem(Item item)
         {
-            base.SerializeItem(item, holder);
+            base.SerializeItem(item);
 
             var trap = item as DeployableTrap;
 
-            var template = holder as SL_DeployableTrap;
-
-            template.OneTimeUse = (bool)At.GetField(trap, "m_oneTimeUse");
+            OneTimeUse = (bool)At.GetField(trap, "m_oneTimeUse");
 
             var recipes = (TrapEffectRecipe[])At.GetField(trap, "m_trapRecipes");
             if (recipes != null)

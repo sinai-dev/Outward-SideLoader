@@ -28,17 +28,16 @@ namespace SideLoader
             }
         }
 
-        public override void SerializeItem(Item item, SL_Item holder)
+        public override void SerializeItem(Item item)
         {
-            base.SerializeItem(item, holder);
+            base.SerializeItem(item);
 
-            var template = holder as SL_ThrowSkill;
             var skill = item as ThrowSkill;
 
-            template.ThrowableItemIDs = new List<int>();
+            ThrowableItemIDs = new List<int>();
             foreach (var throwable in skill.ThrowableItems)
             {
-                template.ThrowableItemIDs.Add(throwable.ItemID);
+                ThrowableItemIDs.Add(throwable.ItemID);
             }
         }
     }

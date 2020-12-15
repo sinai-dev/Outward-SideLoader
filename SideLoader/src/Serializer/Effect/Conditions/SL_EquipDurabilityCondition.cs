@@ -16,10 +16,10 @@ namespace SideLoader
             (component as EquipDurabilityCondition).DurabilityRequired = this.MinimumDurability;
         }
 
-        public override void SerializeEffect<T>(EffectCondition component, T template)
+        public override void SerializeEffect<T>(T component)
         {
-            (template as SL_EquipDurabilityCondition).MinimumDurability = (component as EquipDurabilityCondition).DurabilityRequired;
-            (template as SL_EquipDurabilityCondition).EquipmentSlot = (component as EquipDurabilityCondition).EquipmentSlot;
+            MinimumDurability = (component as EquipDurabilityCondition).DurabilityRequired;
+            EquipmentSlot = (component as EquipDurabilityCondition).EquipmentSlot;
         }
     }
 }

@@ -24,63 +24,48 @@ namespace SideLoader
             var skill = item as CounterSkill;
 
             if (this.BlockMult != null)
-            {
                 skill.BlockMult = (float)this.BlockMult;
-            }
 
             if (this.DamageMult != null)
-            {
                 skill.DamageMult = (float)this.DamageMult;
-            }
 
             if (this.KnockbackMult != null)
-            {
                 skill.KnockbackMult = (float)this.KnockbackMult;
-            }
 
             if (this.BlockDamageTypes != null)
             {
                 skill.BlockTypes = new List<DamageType.Types>();
                 foreach (var type in this.BlockDamageTypes)
-                {
                     skill.BlockTypes.Add(type);
-                }
             }
 
             if (this.CounterDamageTypes != null)
             {
                 skill.CounterTypes = new List<DamageType.Types>();
                 foreach (var type in this.CounterDamageTypes)
-                {
                     skill.CounterTypes.Add(type);
-                }
             }
 
             if (this.MaxRange != null)
-            {
                 skill.MaxRange = (float)this.MaxRange;
-            }
 
             if (this.TurnTowardsDealer != null)
-            {
                 skill.TurnTowardsDealer = (bool)this.TurnTowardsDealer;
-            }
         }
 
-        public override void SerializeItem(Item item, SL_Item holder)
+        public override void SerializeItem(Item item)
         {
-            base.SerializeItem(item, holder);
+            base.SerializeItem(item);
 
-            var template = holder as SL_CounterSkill;
             var skill = item as CounterSkill;
 
-            template.BlockMult = skill.BlockMult;
-            template.DamageMult = skill.DamageMult;
-            template.KnockbackMult = skill.KnockbackMult;
-            template.BlockDamageTypes = skill.BlockTypes.ToArray();
-            template.CounterDamageTypes = skill.CounterTypes.ToArray();
-            template.MaxRange = skill.MaxRange;
-            template.TurnTowardsDealer = skill.TurnTowardsDealer;
+            BlockMult = skill.BlockMult;
+            DamageMult = skill.DamageMult;
+            KnockbackMult = skill.KnockbackMult;
+            BlockDamageTypes = skill.BlockTypes.ToArray();
+            CounterDamageTypes = skill.CounterTypes.ToArray();
+            MaxRange = skill.MaxRange;
+            TurnTowardsDealer = skill.TurnTowardsDealer;
         }
     }
 }

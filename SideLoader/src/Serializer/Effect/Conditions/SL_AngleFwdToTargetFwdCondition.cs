@@ -15,12 +15,11 @@ namespace SideLoader
             (component as AngleFwdToTargetFwdCondition).AnglesToCompare = this.AnglesToCompare.ToArray();
         }
 
-        public override void SerializeEffect<T>(EffectCondition component, T template)
+        public override void SerializeEffect<T>(T component)
         {
-            var holder = template as SL_AngleFwdToTargetFwdCondition;
             var angles = (component as AngleFwdToTargetFwdCondition).AnglesToCompare;
 
-            holder.AnglesToCompare = angles.ToList();
+            AnglesToCompare = angles.ToList();
         }
     }
 }

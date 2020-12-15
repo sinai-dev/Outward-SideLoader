@@ -14,7 +14,7 @@ namespace SideLoader
             
         }
 
-        public override void SerializeEffect<T>(EffectCondition component, T template)
+        public override void SerializeEffect<T>(T component)
         {
             
         }

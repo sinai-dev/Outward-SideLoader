@@ -14,9 +14,9 @@ namespace SideLoader
             (component as VitalityDamage).PercentOfMax = this.PercentOfMax;
         }
 
-        public override void SerializeEffect<T>(T effect, SL_Effect holder)
+        public override void SerializeEffect<T>(T effect)
         {
-            (holder as SL_VitalityDamage).PercentOfMax = (effect as VitalityDamage).PercentOfMax;
+            PercentOfMax = (effect as VitalityDamage).PercentOfMax;
         }
     }
 }

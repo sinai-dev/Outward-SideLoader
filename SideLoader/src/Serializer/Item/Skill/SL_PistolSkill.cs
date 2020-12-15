@@ -33,15 +33,14 @@ namespace SideLoader
             }
         }
 
-        public override void SerializeItem(Item item, SL_Item holder)
+        public override void SerializeItem(Item item)
         {
-            base.SerializeItem(item, holder);
+            base.SerializeItem(item);
 
             var comp = item as PistolSkill;
-            var template = holder as SL_PistolSkill;
 
-            template.AlternativeActivationRequirement = comp.AlternateActivationLoadoutReq;
-            template.PrimaryActivationRequirement = comp.PrimaryActivationLoadoutReq;
+            AlternativeActivationRequirement = comp.AlternateActivationLoadoutReq;
+            PrimaryActivationRequirement = comp.PrimaryActivationLoadoutReq;
         }
     }
 }

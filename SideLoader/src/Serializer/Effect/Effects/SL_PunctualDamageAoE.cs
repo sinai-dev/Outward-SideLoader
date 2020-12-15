@@ -20,16 +20,15 @@ namespace SideLoader
             (component as PunctualDamageAoE).IgnoreShooter = this.IgnoreShooter;
         }
 
-        public override void SerializeEffect<T>(T effect, SL_Effect holder)
+        public override void SerializeEffect<T>(T effect)
         {
-            base.SerializeEffect(effect, holder);
+            base.SerializeEffect(effect);
 
-            var template = holder as SL_PunctualDamageAoE;
             var comp = effect as PunctualDamageAoE;
 
-            template.Radius = comp.Radius;
-            template.TargetType = comp.TargetType;
-            template.IgnoreShooter = comp.IgnoreShooter;
+            Radius = comp.Radius;
+            TargetType = comp.TargetType;
+            IgnoreShooter = comp.IgnoreShooter;
         }
     }
 }

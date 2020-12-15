@@ -2,22 +2,30 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace SideLoader
 {
-    /// <summary>
-    /// Shell class, doesn't require any extra fields, but requires a WeaponLoadoutItem ItemExtension on the Item.
-    /// </summary>
-    public class SL_ShootItem : SL_ShootProjectile
+    public class SL_ImbueProjectile : SL_ImbueObject
     {
+        public bool UnloadProjectile;
+
         public override void ApplyToComponent<T>(T component)
         {
             base.ApplyToComponent(component);
+
+            var comp = component as ImbueProjectile;
+
+            comp.UnloadProjectile = this.UnloadProjectile;
         }
 
         public override void SerializeEffect<T>(T effect)
         {
             base.SerializeEffect(effect);
+
+            var comp = effect as ImbueProjectile;
+
+            UnloadProjectile = comp.UnloadProjectile;
         }
     }
 }

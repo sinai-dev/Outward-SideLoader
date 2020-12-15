@@ -11,6 +11,6 @@ namespace SideLoader
 
         public override void ApplyToComponent<T>(T component) { }
 
-        public override void SerializeEffect<T>(T effect, SL_Effect holder) { }
+        public override void SerializeEffect<T>(T effect) { }
     }
 }

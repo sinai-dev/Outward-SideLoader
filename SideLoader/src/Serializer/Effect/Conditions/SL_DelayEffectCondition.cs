@@ -16,10 +16,10 @@ namespace SideLoader
             (component as DelayEffectCondition).DelayType = this.DelayType;
         }
 
-        public override void SerializeEffect<T>(EffectCondition component, T template)
+        public override void SerializeEffect<T>(T component)
         {
-            (template as SL_DelayEffectCondition).Delay = (component as DelayEffectCondition).Delay;
-            (template as SL_DelayEffectCondition).DelayType = (component as DelayEffectCondition).DelayType;
+            Delay = (component as DelayEffectCondition).Delay;
+            DelayType = (component as DelayEffectCondition).DelayType;
         }
     }
 }

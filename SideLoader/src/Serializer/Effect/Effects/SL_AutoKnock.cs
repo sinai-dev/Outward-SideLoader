@@ -14,9 +14,9 @@ namespace SideLoader
             (component as AutoKnock).Down = this.KnockDown;
         }
 
-        public override void SerializeEffect<T>(T effect, SL_Effect holder)
+        public override void SerializeEffect<T>(T effect)
         {
-            (holder as SL_AutoKnock).KnockDown = (effect as AutoKnock).Down;
+            KnockDown = (effect as AutoKnock).Down;
         }
     }
 }

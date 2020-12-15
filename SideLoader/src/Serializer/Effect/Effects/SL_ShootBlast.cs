@@ -112,33 +112,32 @@ namespace SideLoader
             }
         }
 
-        public override void SerializeEffect<T>(T effect, SL_Effect holder)
+        public override void SerializeEffect<T>(T effect)
         {
-            base.SerializeEffect(effect, holder);
+            base.SerializeEffect(effect);
 
-            var template = holder as SL_ShootBlast;
             var comp = effect as ShootBlast;
 
             if (comp.BaseBlast is Blast blast && GetBlastPrefabEnum(blast) != BlastPrefabs.NONE)
             {
-                template.BaseBlast = GetBlastPrefabEnum(blast);
-                template.AffectHitTargetCenter = blast.AffectHitTargetCenter;
-                template.DontPlayHitSound = blast.DontPlayHitSound;
-                template.FXIsWorld = blast.FXIsWorld;
-                template.HitOnShoot = blast.HitOnShoot;
-                template.IgnoreShooter = blast.IgnoreShooter;
-                template.ImpactSoundMaterial = blast.ImpactSoundMaterial;
-                template.Interruptible = blast.Interruptible;
-                template.MaxHitTargetCount = blast.MaxHitTargetCount;
-                template.Radius = blast.Radius;
-                template.RefreshTime = blast.RefreshTime;
+                BaseBlast = GetBlastPrefabEnum(blast);
+                AffectHitTargetCenter = blast.AffectHitTargetCenter;
+                DontPlayHitSound = blast.DontPlayHitSound;
+                FXIsWorld = blast.FXIsWorld;
+                HitOnShoot = blast.HitOnShoot;
+                IgnoreShooter = blast.IgnoreShooter;
+                ImpactSoundMaterial = blast.ImpactSoundMaterial;
+                Interruptible = blast.Interruptible;
+                MaxHitTargetCount = blast.MaxHitTargetCount;
+                Radius = blast.Radius;
+                RefreshTime = blast.RefreshTime;
 
-                template.BlastLifespan = comp.BlastLifespan;
-                template.IgnoreStop = comp.IgnoreStop;
-                template.InstantiatedAmount = comp.InstanstiatedAmount;
-                template.NoTargetForwardMultiplier = comp.NoTargetForwardMultiplier;
-                template.ParentToShootTransform = comp.ParentToShootTransform;
-                template.UseTargetCharacterPositionType = comp.UseTargetCharacterPositionType;
+                BlastLifespan = comp.BlastLifespan;
+                IgnoreStop = comp.IgnoreStop;
+                InstantiatedAmount = comp.InstanstiatedAmount;
+                NoTargetForwardMultiplier = comp.NoTargetForwardMultiplier;
+                ParentToShootTransform = comp.ParentToShootTransform;
+                UseTargetCharacterPositionType = comp.UseTargetCharacterPositionType;
 
                 if (blast.transform.childCount > 0)
                 {
@@ -152,7 +151,7 @@ namespace SideLoader
                             list.Add(effectsChild);
                         }
                     }
-                    template.BlastEffects = list.ToArray();
+                    BlastEffects = list.ToArray();
                 }
             }
             else if (comp.BaseBlast)
@@ -389,7 +388,7 @@ namespace SideLoader
 
         public static void DebugBlastNames()
         {
-            Debug.Log("----------- BLASTS ------------ ");
+            SL.Log("----------- BLASTS ------------ ");
             var blasts = Resources.FindObjectsOfTypeAll<Blast>();
             var names = new List<string>();
             foreach (var blast in blasts)
@@ -397,7 +396,7 @@ namespace SideLoader
                 if (!names.Contains(blast.name))
                 {
                     names.Add(blast.name);
-                    //Debug.Log(blast.name + ",");
+                    //SL.Log(blast.name + ",");
                 }
             }
             File.WriteAllLines("blasts.txt", names.ToArray());

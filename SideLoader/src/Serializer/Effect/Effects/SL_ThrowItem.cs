@@ -22,17 +22,16 @@ namespace SideLoader
             comp.DefenseRange = this.DefenseRange;
         }
 
-        public override void SerializeEffect<T>(T effect, SL_Effect holder)
+        public override void SerializeEffect<T>(T effect)
         {
-            base.SerializeEffect(effect, holder);
+            base.SerializeEffect(effect);
 
-            var template = holder as SL_ThrowItem;
             var comp = effect as ThrowItem;
 
-            template.CollisionBehaviour = comp.CollisionBehavior;
-            template.ProjectileBehaviour = comp.ProjectileBehavior;
-            template.DefenseLength = comp.DefenseLength;
-            template.DefenseRange = comp.DefenseRange;
+            CollisionBehaviour = comp.CollisionBehavior;
+            ProjectileBehaviour = comp.ProjectileBehavior;
+            DefenseLength = comp.DefenseLength;
+            DefenseRange = comp.DefenseRange;
         }
     }
 }

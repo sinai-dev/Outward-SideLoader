@@ -45,7 +45,7 @@ namespace SideLoader
 
                 holder.Invert = component.Invert;
 
-                holder.SerializeEffect(component, holder);
+                holder.SerializeEffect(component);
                 return holder;
             }
             else
@@ -55,6 +55,6 @@ namespace SideLoader
             }
         }
 
-        public abstract void SerializeEffect<T>(EffectCondition component, T template) where T : SL_EffectCondition;
+        public abstract void SerializeEffect<T>(T component) where T : EffectCondition;
     }
 }

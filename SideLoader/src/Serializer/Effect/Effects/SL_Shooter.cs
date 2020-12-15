@@ -29,16 +29,15 @@ namespace SideLoader
             comp.TransformName = this.TransformName;
         }
 
-        public override void SerializeEffect<T>(T effect, SL_Effect holder)
+        public override void SerializeEffect<T>(T effect)
         {
             var comp = effect as Shooter;
-            var template = holder as SL_Shooter;
 
-            template.CastPosition = comp.CastPosition;
-            template.NoAim = comp.NoAim;
-            template.LocalPositionAdd = comp.LocalCastPositionAdd;
-            template.TargetType = comp.TargetType;
-            template.TransformName = comp.TransformName;
+            CastPosition = comp.CastPosition;
+            NoAim = comp.NoAim;
+            LocalPositionAdd = comp.LocalCastPositionAdd;
+            TargetType = comp.TargetType;
+            TransformName = comp.TransformName;
         }
     }
 }

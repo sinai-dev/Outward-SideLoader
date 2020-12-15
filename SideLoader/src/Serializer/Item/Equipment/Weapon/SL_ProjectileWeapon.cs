@@ -44,20 +44,19 @@ namespace SideLoader
                 weapon.FullyBentSound = (GlobalAudioManager.Sounds)this.FullyBentSound;
         }
 
-        public override void SerializeItem(Item item, SL_Item holder)
+        public override void SerializeItem(Item item)
         {
-            base.SerializeItem(item, holder);
+            base.SerializeItem(item);
 
-            var template = holder as SL_ProjectileWeapon;
             var weapon = item as ProjectileWeapon;
 
-            template.AutoLoad = weapon.AutoLoad;
-            template.UnloadOnEquip = weapon.UnloadOnUnequip;
-            template.UnloadOnIncompleteShot = weapon.UnloadOnIncompleteShot;
-            template.UnloadOnSheathe = weapon.UnloadOnSheathe;
-            template.LocomotionEnabledOnReload = weapon.LocomotionEnableOnReload;
-            template.LoadAnim = weapon.LoadAnim;
-            template.FullyBentSound = weapon.FullyBentSound;
+            AutoLoad = weapon.AutoLoad;
+            UnloadOnEquip = weapon.UnloadOnUnequip;
+            UnloadOnIncompleteShot = weapon.UnloadOnIncompleteShot;
+            UnloadOnSheathe = weapon.UnloadOnSheathe;
+            LocomotionEnabledOnReload = weapon.LocomotionEnableOnReload;
+            LoadAnim = weapon.LoadAnim;
+            FullyBentSound = weapon.FullyBentSound;
         }
     }
 }

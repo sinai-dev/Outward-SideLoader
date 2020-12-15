@@ -17,10 +17,10 @@ namespace SideLoader
             (component as AffectStability).IsModifier = this.IsModifier;
         }
 
-        public override void SerializeEffect<T>(T effect, SL_Effect holder)
+        public override void SerializeEffect<T>(T effect)
         {
-            (holder as SL_AffectStability).AffectQuantity = (effect as AffectStability).AffectQuantity;
-            (holder as SL_AffectStability).IsModifier = (effect as AffectStability).IsModifier;
+            AffectQuantity = (effect as AffectStability).AffectQuantity;
+            IsModifier = (effect as AffectStability).IsModifier;
         }
     }
 }

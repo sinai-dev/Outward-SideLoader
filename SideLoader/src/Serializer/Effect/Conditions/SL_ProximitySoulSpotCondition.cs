@@ -14,9 +14,9 @@ namespace SideLoader
             (component as ProximitySoulSpotCondition).ProximityDist = this.Distance;
         }
 
-        public override void SerializeEffect<T>(EffectCondition component, T template)
+        public override void SerializeEffect<T>(T component)
         {
-            (template as SL_ProximitySoulSpotCondition).Distance = (component as ProximitySoulSpotCondition).ProximityDist;
+            Distance = (component as ProximitySoulSpotCondition).ProximityDist;
         }
     }
 }

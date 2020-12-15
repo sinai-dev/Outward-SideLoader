@@ -145,7 +145,7 @@ namespace SideLoader
         /// <returns></returns>
         public GameObject SetCustomVisualPrefab(Item item, VisualPrefabType type, Transform newVisuals, Transform oldVisuals)
         {
-            Debug.Log($"Setting the {type} for {item.Name}");
+            SL.Log($"Setting the {type} for {item.Name}");
 
             var basePrefab = GameObject.Instantiate(oldVisuals.gameObject);
             GameObject.DontDestroyOnLoad(basePrefab);

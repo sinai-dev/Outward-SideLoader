@@ -31,15 +31,14 @@ namespace SideLoader
             (component as AddStatusEffectBuildUp).BuildUpValue = this.Buildup;
         }
 
-        public override void SerializeEffect<T>(T effect, SL_Effect holder)
+        public override void SerializeEffect<T>(T effect)
         {
             var addStatusEffectBuildUp = effect as AddStatusEffectBuildUp;
-            var addStatusEffectBuildupHolder = holder as SL_AddStatusEffectBuildUp;
 
             if (addStatusEffectBuildUp.Status)
             {
-                addStatusEffectBuildupHolder.StatusEffect = addStatusEffectBuildUp.Status.IdentifierName;
-                addStatusEffectBuildupHolder.Buildup = addStatusEffectBuildUp.BuildUpValue;
+                StatusEffect = addStatusEffectBuildUp.Status.IdentifierName;
+                Buildup = addStatusEffectBuildUp.BuildUpValue;
             }
         }
     }

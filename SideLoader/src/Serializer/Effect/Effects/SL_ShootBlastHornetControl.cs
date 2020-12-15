@@ -67,29 +67,28 @@ namespace SideLoader
             comp.TimeStayOnTarget = this.TimeStayOnTarget;
         }
 
-        public override void SerializeEffect<T>(T effect, SL_Effect holder)
+        public override void SerializeEffect<T>(T effect)
         {
-            base.SerializeEffect(effect, holder);
+            base.SerializeEffect(effect);
 
-            var template = holder as SL_ShootBlastHornetControl;
             var comp = effect as ShootBlastHornetControl;
 
-            template.BurstSkillID = comp.BurstSkill?.ItemID ?? -1;
-            template.HealSkillID = comp.HealSkill?.ItemID ?? -1;
+            BurstSkillID = comp.BurstSkill?.ItemID ?? -1;
+            HealSkillID = comp.HealSkill?.ItemID ?? -1;
 
-            template.Acceleration = comp.Acceleration;
-            template.DistStayOnTarget = comp.DistStayOnTarget;
-            template.EndEffectTriggerDist = comp.EndEffectTriggerDist;
-            template.EnvironmentCheckRadius = comp.EnvironmentCheckRadius;
-            template.HornetLookForTargetRange = comp.HornetLookForTargetRange;
-            template.HornetPassiveAttackTimer = comp.HornetPassiveAttackTimer;
-            template.HornetPassiveTargetRange = comp.HornetPassiveTargetRange;
-            template.PassiveTimeFlight = comp.PassiveTimeFlight;
-            template.PassiveTimeStayOnTarget = comp.PassiveTimeStayOnTarget;
-            template.Speed = comp.Speed;
-            template.SpeedDistLerpWhenCloseMult = comp.SpeedDistLerpWhenCloseMult;
-            template.TimeFlight = comp.TimeFlight;
-            template.TimeStayOnTarget = comp.TimeStayOnTarget;
+            Acceleration = comp.Acceleration;
+            DistStayOnTarget = comp.DistStayOnTarget;
+            EndEffectTriggerDist = comp.EndEffectTriggerDist;
+            EnvironmentCheckRadius = comp.EnvironmentCheckRadius;
+            HornetLookForTargetRange = comp.HornetLookForTargetRange;
+            HornetPassiveAttackTimer = comp.HornetPassiveAttackTimer;
+            HornetPassiveTargetRange = comp.HornetPassiveTargetRange;
+            PassiveTimeFlight = comp.PassiveTimeFlight;
+            PassiveTimeStayOnTarget = comp.PassiveTimeStayOnTarget;
+            Speed = comp.Speed;
+            SpeedDistLerpWhenCloseMult = comp.SpeedDistLerpWhenCloseMult;
+            TimeFlight = comp.TimeFlight;
+            TimeStayOnTarget = comp.TimeStayOnTarget;
         }
     }
 }

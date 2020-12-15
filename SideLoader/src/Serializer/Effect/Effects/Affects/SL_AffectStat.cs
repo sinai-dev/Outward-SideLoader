@@ -27,11 +27,11 @@ namespace SideLoader
             (component as AffectStat).IsModifier = this.IsModifier;
         }
 
-        public override void SerializeEffect<T>(T effect, SL_Effect holder)
+        public override void SerializeEffect<T>(T effect)
         {
-            (holder as SL_AffectStat).Stat_Tag = (effect as AffectStat).AffectedStat.Tag.TagName;
-            (holder as SL_AffectStat).AffectQuantity = (effect as AffectStat).Value;
-            (holder as SL_AffectStat).IsModifier = (effect as AffectStat).IsModifier;
+            Stat_Tag = (effect as AffectStat).AffectedStat.Tag.TagName;
+            AffectQuantity = (effect as AffectStat).Value;
+            IsModifier = (effect as AffectStat).IsModifier;
         }
     }
 }

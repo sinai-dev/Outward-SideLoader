@@ -17,10 +17,10 @@ namespace SideLoader
             (component as AffectBurntHealth).IsModifier = this.IsModifier;
         }
 
-        public override void SerializeEffect<T>(T effect, SL_Effect holder)
+        public override void SerializeEffect<T>(T effect)
         {
-            (holder as SL_AffectBurntHealth).AffectQuantity = (effect as AffectBurntHealth).AffectQuantity;
-            (holder as SL_AffectBurntHealth).IsModifier = (effect as AffectBurntHealth).IsModifier;
+            AffectQuantity = (effect as AffectBurntHealth).AffectQuantity;
+            IsModifier = (effect as AffectBurntHealth).IsModifier;
         }
     }
 }

@@ -24,10 +24,10 @@ namespace SideLoader
             (component as ReduceStatusLevel).StatusEffectToReduce = status;
         }
 
-        public override void SerializeEffect<T>(T effect, SL_Effect holder)
+        public override void SerializeEffect<T>(T effect)
         {
-            (holder as SL_ReduceStatusLevel).ReduceAmount = (effect as ReduceStatusLevel).LevelAmount;
-            (holder as SL_ReduceStatusLevel).StatusIdentifierToReduce = (effect as ReduceStatusLevel).StatusEffectToReduce.IdentifierName;
+            ReduceAmount = (effect as ReduceStatusLevel).LevelAmount;
+            StatusIdentifierToReduce = (effect as ReduceStatusLevel).StatusEffectToReduce.IdentifierName;
         }
     }
 }

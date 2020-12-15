@@ -62,16 +62,15 @@ namespace SideLoader
             }
         }
 
-        public override void SerializeEffect<T>(T effect, SL_Effect holder)
+        public override void SerializeEffect<T>(T effect)
         {
-            var template = holder as SL_RunicBlade;
             var comp = effect as RunicBlade;
 
-            template.SummonLifespan = comp.SummonLifeSpan;
-            template.WeaponID = comp.RunicBladePrefab.ItemID;
-            template.GreaterWeaponID = comp.RunicGreatBladePrefab.ItemID;
-            template.PrefixImbueID = comp.ImbueAmplifierRunicBlade.PresetID;
-            template.PrefixGreaterImbueID = comp.ImbueAmplifierGreatRunicBlade.PresetID;
+            SummonLifespan = comp.SummonLifeSpan;
+            WeaponID = comp.RunicBladePrefab.ItemID;
+            GreaterWeaponID = comp.RunicGreatBladePrefab.ItemID;
+            PrefixImbueID = comp.ImbueAmplifierRunicBlade.PresetID;
+            PrefixGreaterImbueID = comp.ImbueAmplifierGreatRunicBlade.PresetID;
         }
     }
 }

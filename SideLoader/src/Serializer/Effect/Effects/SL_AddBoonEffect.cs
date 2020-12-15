@@ -25,11 +25,11 @@ namespace SideLoader
             (component as AddBoonEffect).BoonAmplification = status;
         }
 
-        public override void SerializeEffect<T>(T effect, SL_Effect holder)
+        public override void SerializeEffect<T>(T effect)
         {
-            base.SerializeEffect(effect, holder);
+            base.SerializeEffect(effect);
 
-            (holder as SL_AddBoonEffect).AmplifiedEffect = (effect as AddBoonEffect).BoonAmplification.IdentifierName;
+            AmplifiedEffect = (effect as AddBoonEffect).BoonAmplification.IdentifierName;
         }
     }
 }

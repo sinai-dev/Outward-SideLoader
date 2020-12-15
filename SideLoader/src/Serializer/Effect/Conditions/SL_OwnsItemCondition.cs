@@ -24,10 +24,10 @@ namespace SideLoader
             (component as OwnsItemCondition).MinAmount = this.ReqAmount;
         }
 
-        public override void SerializeEffect<T>(EffectCondition component, T template)
+        public override void SerializeEffect<T>(T component)
         {
-            (template as SL_OwnsItemCondition).ReqItemID = (component as OwnsItemCondition).ReqItem.ItemID;
-            (template as SL_OwnsItemCondition).ReqAmount = (component as OwnsItemCondition).MinAmount;
+            ReqItemID = (component as OwnsItemCondition).ReqItem.ItemID;
+            ReqAmount = (component as OwnsItemCondition).MinAmount;
         }
     }
 }

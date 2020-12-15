@@ -21,14 +21,13 @@ namespace SideLoader
             comp.AffectType = this.AffectType;
         }
 
-        public override void SerializeEffect<T>(T effect, SL_Effect holder)
+        public override void SerializeEffect<T>(T effect)
         {
             var comp = effect as AffectMana;
-            var template = holder as SL_AffectMana;
 
-            template.AffectQuantity = comp.Value;
-            template.IsModifier =     comp.IsModifier;
-            template.AffectType =     comp.AffectType;
+            AffectQuantity = comp.Value;
+            IsModifier =     comp.IsModifier;
+            AffectType =     comp.AffectType;
         }
     }
 }

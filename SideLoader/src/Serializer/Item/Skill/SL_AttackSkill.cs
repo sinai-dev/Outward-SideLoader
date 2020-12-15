@@ -47,27 +47,22 @@ namespace SideLoader
             }
         }
 
-        public override void SerializeItem(Item item, SL_Item holder)
+        public override void SerializeItem(Item item)
         {
-            base.SerializeItem(item, holder);
+            base.SerializeItem(item);
 
-            var template = holder as SL_AttackSkill;
             var attackSkill = item as AttackSkill;
 
             if (attackSkill.AmmunitionTypes != null)
-            {
-                template.AmmunitionTypes = attackSkill.AmmunitionTypes.ToArray();
-            }
+                AmmunitionTypes = attackSkill.AmmunitionTypes.ToArray();
+
             if (attackSkill.RequiredOffHandTypes != null)
-            {
-                template.RequiredOffHandTypes = attackSkill.RequiredOffHandTypes.ToArray();
-            }
+                RequiredOffHandTypes = attackSkill.RequiredOffHandTypes.ToArray();
+
             if (attackSkill.RequiredWeaponTypes != null)
-            {
-                template.RequiredWeaponTypes = attackSkill.RequiredWeaponTypes.ToArray();
-            }
+                RequiredWeaponTypes = attackSkill.RequiredWeaponTypes.ToArray();
             
-            template.RequireImbue = attackSkill.RequireImbue;
+            RequireImbue = attackSkill.RequireImbue;
 
             if (attackSkill.RequiredTags != null)
             {
@@ -76,7 +71,7 @@ namespace SideLoader
                 {
                     tagList.Add(tag.Tag.TagName);
                 }
-                template.RequiredWeaponTags = tagList.ToArray();
+                RequiredWeaponTags = tagList.ToArray();
             }
         }
     }

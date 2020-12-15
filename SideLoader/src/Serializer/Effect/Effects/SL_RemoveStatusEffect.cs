@@ -51,28 +51,27 @@ namespace SideLoader
             }
         }
 
-        public override void SerializeEffect<T>(T effect, SL_Effect holder)
+        public override void SerializeEffect<T>(T effect)
         {
-            var template = holder as SL_RemoveStatusEffect;
             var comp = effect as RemoveStatusEffect;
 
-            template.CleanseType = comp.CleanseType;
+            CleanseType = comp.CleanseType;
 
-            if (template.CleanseType == RemoveStatusEffect.RemoveTypes.StatusSpecific && comp.StatusEffect)
+            switch (CleanseType)
             {
-                template.Status_Name = comp.StatusEffect.IdentifierName;
-            }
-            else if (template.CleanseType == RemoveStatusEffect.RemoveTypes.StatusFamily && comp.StatusFamily != null)
-            {
-                template.Status_Name = comp.StatusFamily.SelectorValue;
-            }
-            else if (template.CleanseType == RemoveStatusEffect.RemoveTypes.StatusType)
-            {
-                template.Status_Tag = comp.StatusType?.Tag.TagName;
-            }
-            else if (template.CleanseType == RemoveStatusEffect.RemoveTypes.StatusNameContains)
-            {
-                template.Status_Name = comp.StatusName;
+                case RemoveStatusEffect.RemoveTypes.StatusSpecific:
+                    if (comp.StatusEffect)
+                        Status_Name = comp.StatusEffect.IdentifierName;
+                    break;
+                case RemoveStatusEffect.RemoveTypes.StatusFamily:
+                        Status_Name = comp.StatusFamily?.SelectorValue;
+                    break;
+                case RemoveStatusEffect.RemoveTypes.StatusType:
+                    Status_Name = comp.StatusType?.Tag.TagName;
+                    break;
+                case RemoveStatusEffect.RemoveTypes.StatusNameContains:
+                    Status_Name = comp.StatusName;
+                    break;
             }
         }
     }

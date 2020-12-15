@@ -14,9 +14,9 @@ namespace SideLoader
             (component as LightLantern).Light = this.Light;
         }
 
-        public override void SerializeEffect<T>(T effect, SL_Effect holder)
+        public override void SerializeEffect<T>(T effect)
         {
-            (holder as SL_LightLantern).Light = (effect as LightLantern).Light;
+            Light = (effect as LightLantern).Light;
         }
     }
 }

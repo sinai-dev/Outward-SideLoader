@@ -38,16 +38,15 @@ namespace SideLoader
             }
         }
 
-        public override void SerializeItem(Item item, SL_Item holder)
+        public override void SerializeItem(Item item)
         {
-            base.SerializeItem(item, holder);
+            base.SerializeItem(item);
 
             var bag = item as Bag;
-            var template = holder as SL_Bag;
 
-            template.Capacity = bag.BagCapacity;
-            template.Restrict_Dodge = bag.RestrictDodge;
-            template.InventoryProtection = bag.InventoryProtection;
+            Capacity = bag.BagCapacity;
+            Restrict_Dodge = bag.RestrictDodge;
+            InventoryProtection = bag.InventoryProtection;
         }
     }
 }

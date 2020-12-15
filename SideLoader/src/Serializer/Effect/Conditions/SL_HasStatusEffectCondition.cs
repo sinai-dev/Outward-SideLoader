@@ -45,31 +45,30 @@ namespace SideLoader
             }
         }
 
-        public override void SerializeEffect<T>(EffectCondition component, T template)
+        public override void SerializeEffect<T>(T component)
         {
             var comp = component as HasStatusEffectEffectCondition;
-            var holder = template as SL_HasStatusEffectEffectCondition;
 
-            holder.Invert = comp.Inverse;
-            holder.DiseaseAge = comp.DiseaseAge;
-            holder.CheckOwner = comp.CheckOwner;
+            Invert = comp.Inverse;
+            DiseaseAge = comp.DiseaseAge;
+            CheckOwner = comp.CheckOwner;
 
             var selector = comp.StatusEffect;
 
-            holder.StatusSelectorType = selector.Type;
+            StatusSelectorType = selector.Type;
 
             switch (selector.Type)
             {
                 case StatusEffectSelector.Types.StatusFamily:
-                    holder.SelectorValue = StatusEffectFamilyLibrary.Instance.GetStatusEffect(selector.StatusFamily.SelectorValue).UID;
+                    SelectorValue = StatusEffectFamilyLibrary.Instance.GetStatusEffect(selector.StatusFamily.SelectorValue).UID;
                     break;
 
                 case StatusEffectSelector.Types.StatusSpecific:
-                    holder.SelectorValue = selector.StatusEffect?.IdentifierName;
+                    SelectorValue = selector.StatusEffect?.IdentifierName;
                     break;
 
                 case StatusEffectSelector.Types.StatusType:
-                    holder.SelectorValue = selector.StatusType.Tag.TagName;
+                    SelectorValue = selector.StatusType.Tag.TagName;
                     break;
             }
         }

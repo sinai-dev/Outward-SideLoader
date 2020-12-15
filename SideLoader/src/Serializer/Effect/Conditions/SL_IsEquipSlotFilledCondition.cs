@@ -14,9 +14,9 @@ namespace SideLoader
             (component as IsEquipSlotFilledCondition).EquipmentSlot = this.EquipmentSlot;
         }
 
-        public override void SerializeEffect<T>(EffectCondition component, T template)
+        public override void SerializeEffect<T>(T component)
         {
-            (template as SL_IsEquipSlotFilledCondition).EquipmentSlot = (component as IsEquipSlotFilledCondition).EquipmentSlot;   
+            EquipmentSlot = (component as IsEquipSlotFilledCondition).EquipmentSlot;   
         }
     }
 }

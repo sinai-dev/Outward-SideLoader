@@ -25,16 +25,15 @@ namespace SideLoader
             comp.UseTarget = this.UseTarget;
         }
 
-        public override void SerializeEffect<T>(T effect, SL_Effect holder)
+        public override void SerializeEffect<T>(T effect)
         {
-            var template = holder as SL_Teleport;
             var comp = effect as Teleport;
 
-            template.MaxRange = comp.MaxRange;
-            template.MaxYDiff = comp.MaxYDiff;
-            template.MaxTargetRange = comp.MaxTargetRange;
-            template.OffsetRelativeTarget = comp.OffsetRelativeTarget;
-            template.UseTarget = comp.UseTarget;
+            MaxRange = comp.MaxRange;
+            MaxYDiff = comp.MaxYDiff;
+            MaxTargetRange = comp.MaxTargetRange;
+            OffsetRelativeTarget = comp.OffsetRelativeTarget;
+            UseTarget = comp.UseTarget;
         }
     }
 }

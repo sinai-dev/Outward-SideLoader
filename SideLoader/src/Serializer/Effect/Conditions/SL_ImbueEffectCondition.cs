@@ -28,14 +28,13 @@ namespace SideLoader
             comp.WeaponToCheck = this.WeaponToCheck;
         }
 
-        public override void SerializeEffect<T>(EffectCondition component, T template)
+        public override void SerializeEffect<T>(T component)
         {
             var comp = component as ImbueEffectCondition;
-            var holder = template as SL_ImbueEffectCondition;
 
-            holder.AnyImbue = comp.AnyImbue;
-            holder.WeaponToCheck = comp.WeaponToCheck;
-            holder.ImbuePresetID = comp.ImbueEffectPreset?.PresetID ?? -1;
+            AnyImbue = comp.AnyImbue;
+            WeaponToCheck = comp.WeaponToCheck;
+            ImbuePresetID = comp.ImbueEffectPreset?.PresetID ?? -1;
         }
     }
 }

@@ -35,17 +35,16 @@ namespace SideLoader
             }
         }
 
-        public override void SerializeItem(Item item, SL_Item holder)
+        public override void SerializeItem(Item item)
         {
-            base.SerializeItem(item, holder);
+            base.SerializeItem(item);
 
-            var template = holder as SL_Equipment;
             var equipment = item as Equipment;
 
-            template.EquipSlot = equipment.EquipSlot;
-            template.VisualDetectabilityAdd = equipment.VisualDetectabilityAdd;
-            template.TwoHandType = equipment.TwoHand;
-            template.IKType = equipment.IKType;
+            EquipSlot = equipment.EquipSlot;
+            VisualDetectabilityAdd = equipment.VisualDetectabilityAdd;
+            TwoHandType = equipment.TwoHand;
+            IKType = equipment.IKType;
         }
     }
 }

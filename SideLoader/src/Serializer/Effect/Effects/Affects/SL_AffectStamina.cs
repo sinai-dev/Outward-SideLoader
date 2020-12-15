@@ -15,9 +15,9 @@ namespace SideLoader
             (component as AffectStamina).AffectQuantity = this.AffectQuantity;
         }
 
-        public override void SerializeEffect<T>(T effect, SL_Effect holder)
+        public override void SerializeEffect<T>(T effect)
         {
-            (holder as SL_AffectStamina).AffectQuantity = (effect as AffectStamina).AffectQuantity;
+            AffectQuantity = (effect as AffectStamina).AffectQuantity;
         }
     }
 }

@@ -44,7 +44,7 @@ namespace SideLoader
             }
         }
 
-        public abstract void SerializeEffect<T>(T effect, SL_Effect holder) where T : Effect;
+        public abstract void SerializeEffect<T>(T effect) where T : Effect;
 
         /// <summary>Serialize an effect and get the equivalent SL_Effect.</summary>
         public static SL_Effect ParseEffect(Effect effect)
@@ -58,7 +58,7 @@ namespace SideLoader
                 holder.OverrideCategory = effect.OverrideEffectCategory;
                 holder.SyncType = effect.SyncType;
 
-                holder.SerializeEffect(effect, holder);
+                holder.SerializeEffect(effect);
                 return holder;
             }
             else

@@ -14,9 +14,9 @@ namespace SideLoader
             (component as Cough).ChancesToTrigger = this.ChanceToTrigger;
         }
 
-        public override void SerializeEffect<T>(T effect, SL_Effect holder)
+        public override void SerializeEffect<T>(T effect)
         {
-            (holder as SL_Cough).ChanceToTrigger = (effect as Cough).ChancesToTrigger;
+            ChanceToTrigger = (effect as Cough).ChancesToTrigger;
         }
     }
 }

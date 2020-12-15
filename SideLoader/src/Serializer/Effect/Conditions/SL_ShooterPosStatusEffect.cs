@@ -22,9 +22,9 @@ namespace SideLoader
             (component as ShooterPosStatusEffect).StatusEffect = status;
         }
 
-        public override void SerializeEffect<T>(EffectCondition component, T template)
+        public override void SerializeEffect<T>(T component)
         {
-            (template as SL_ShooterPosStatusEffect).StatusIdentifier = (component as ShooterPosStatusEffect).StatusEffect.IdentifierName;
+            StatusIdentifier = (component as ShooterPosStatusEffect).StatusEffect.IdentifierName;
         }
     }
 }

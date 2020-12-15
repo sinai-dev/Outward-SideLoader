@@ -20,34 +20,28 @@ namespace SideLoader
             var skill = item as RangeAttackSkill;
 
             if (this.AutoLoad != null)
-            {
                 skill.AutoLoad = (bool)this.AutoLoad;
-            }
+
             if (this.FakeShoot != null)
-            {
                 skill.FakeShoot = (bool)this.FakeShoot;
-            }
+
             if (this.OverrideAimOffset != null)
-            {
                 skill.OverrideAimOffset = (bool)this.OverrideAimOffset;
-            }
+
             if (this.AimOffset != null)
-            {
                 skill.AimOffset = (Vector2)this.AimOffset;
-            }
         }
 
-        public override void SerializeItem(Item item, SL_Item holder)
+        public override void SerializeItem(Item item)
         {
-            base.SerializeItem(item, holder);
+            base.SerializeItem(item);
 
-            var template = holder as SL_RangeAttackSkill;
             var skill = item as RangeAttackSkill;
 
-            template.AutoLoad = skill.AutoLoad;
-            template.FakeShoot = skill.FakeShoot;
-            template.OverrideAimOffset = skill.OverrideAimOffset;
-            template.AimOffset = skill.AimOffset;
+            AutoLoad = skill.AutoLoad;
+            FakeShoot = skill.FakeShoot;
+            OverrideAimOffset = skill.OverrideAimOffset;
+            AimOffset = skill.AimOffset;
         }
     }
 }

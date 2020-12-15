@@ -16,10 +16,10 @@ namespace SideLoader
             (component as ReduceDurability).EquipmentSlot = this.EquipmentSlot;
         }
 
-        public override void SerializeEffect<T>(T effect, SL_Effect holder)
+        public override void SerializeEffect<T>(T effect)
         {
-            (holder as SL_ReduceDurability).EquipmentSlot = (effect as ReduceDurability).EquipmentSlot;
-            (holder as SL_ReduceDurability).Durability = (effect as ReduceDurability).Durability;
+            EquipmentSlot = (effect as ReduceDurability).EquipmentSlot;
+            Durability = (effect as ReduceDurability).Durability;
         }
     }
 }
