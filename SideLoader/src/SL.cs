@@ -22,8 +22,10 @@ namespace SideLoader
         public const string SL_FOLDER = @"Mods\SideLoader";
         public static string PLUGINS_FOLDER => Paths.PluginPath;
         public static string GENERATED_FOLDER => $@"{SL_FOLDER}\{_GENERATED}";
+        public static string INTERNAL_FOLDER => $@"{SL_FOLDER}\{_INTERNAL}";
 
         public const string _GENERATED = "_GENERATED";
+        public const string _INTERNAL = "_INTERNAL";
 
         // SL Packs
         internal static Dictionary<string, SLPack> Packs = new Dictionary<string, SLPack>();
@@ -104,9 +106,9 @@ namespace SideLoader
             // 'Mods\SideLoader\...' packs:
             foreach (var dir in Directory.GetDirectories(SL_FOLDER))
             {
-                if (dir == GENERATED_FOLDER)
+                if (dir == GENERATED_FOLDER || dir == INTERNAL_FOLDER || dir == SLSaveManager.SAVEDATA_FOLDER)
                 {
-                    // this is SideLoader's folder for generated templates and textures.
+                    // not a real SLPack
                     continue;
                 }
 

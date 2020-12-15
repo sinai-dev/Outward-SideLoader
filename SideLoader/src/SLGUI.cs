@@ -35,7 +35,7 @@ namespace SideLoader.GUI
 
             CustomKeybindings.AddAction(MENU_TOGGLE_KEY, KeybindingsCategory.CustomKeybindings);
 
-            var filePath = $@"{SL.SL_FOLDER}\_INTERNAL\slgui.bundle";
+            var filePath = $@"{SL.INTERNAL_FOLDER}\slgui.bundle";
             if (!File.Exists(filePath))
             {
                 SL.LogWarning("Could not find the SL GUI bundle, it should exist at '" + filePath + "'. Try re-installing SideLoader.");
