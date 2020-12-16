@@ -131,7 +131,7 @@ namespace SideLoader
         /// <param name="category">The category to add to</param>
         /// <param name="controlType">What type of control this is</param>
         /// <param name="type">What type(s) of input it will accept</param>
-        public static void AddAction(string name, KeybindingsCategory category, ControlType controlType = ControlType.Both, InputType type = InputType.Button)
+        public static void AddAction(string name, KeybindingsCategory category, ControlType controlType = ControlType.Keyboard, InputType type = InputType.Button)
         {
             bool initialized = (bool)At.GetPropertyStatic(typeof(ReInput), "initialized");
             if (initialized)
