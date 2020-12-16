@@ -63,6 +63,9 @@ namespace SideLoader
             Flamethrower_FXFire,
             Flamethrower_FXIce,
             Flamethrower_FXLightning,
+            GargoyleBoonVFX,
+            GrandmotherBoonVFX,
+            GrandmotherReanimate_ExplosionFX,
             HexBleedingVFX,
             HexBurningVFX,
             HexChillVFX,
@@ -76,13 +79,17 @@ namespace SideLoader
             HexSappedVFX,
             HexScorchVFX,
             HexWeakenVFX,
+            HolyBlazeVFX,
             JinxProjectile_VFXChill,
             JinxProjectile_VFXCurse,
             JinxProjectile_VFXDoom,
             JinxProjectile_VFXHaunt,
             JinxProjectile_VFXScorch,
             LichRustReanimate_ExplosionFX,
+            LionManBoonVFX1,
+            LionManBoonVFX2,
             NewGhostOneHandedAlly_v_VFXDeathGhost,
+            PlagueVFX,
             TormentBlast_NormalChill_VfxChill,
             TormentBlast_NormalConfusion_VfxConfusion,
             TormentBlast_NormalCurse_VFXCurse,
@@ -93,6 +100,8 @@ namespace SideLoader
             UnerringReadTriggerVFX,
             UnerringReadVFX,
             VFX_RunicHeal,
+            VFXAetherBomb,
+            VFXAetherBombExplosion,
             VFXAnkleBlow,
             VFXBloodBullet,
             VFXBloodLust,
@@ -108,6 +117,10 @@ namespace SideLoader
             VFXChakramLong,
             VFXCleanse,
             VFXCounter,
+            VFXCrescendo,
+            VFXCrimsonMineAnticipations,
+            VFXCrimsonMineEliteLvl2Anticipations,
+            VFXCrimsonMineLvl2Anticipations,
             VFXDetectSoul,
             VFXDiscipline,
             VFXEvasionShot,
@@ -120,14 +133,22 @@ namespace SideLoader
             VFXLeapAttack,
             VFXLifeSyphonHit,
             VFXMaceFillAbsorb,
+            VFXMomentOfTruth,
             VFXMoonSwipe,
             VFXMultiStrikeWind,
+            VFXNurturingEcho,
+            VFXPetrification,
+            VFXPetrified,
+            VFXPetrifiedStop,
             VFXPiercingShot,
             VFXPreciseStrike,
             VFXRage,
             VFXRuneDeez,
+            VFXRuneDezEgoth,
             VFXRuneEgoth,
+            VFXRuneEgothDez,
             VFXRuneFal,
+            VFXRuneFalShim,
             VFXRuneShim,
             VFXRunicBlade,
             VFXSavageStrikes,
@@ -135,9 +156,13 @@ namespace SideLoader
             VFXShieldBrace,
             VFXShieldCharge,
             VFXSniperShot,
+            VFXSplitter,
             VFXSweepKick,
             VFXTeleport,
-            VFXViolentStab
+            VFXTheTechnique,
+            VFXViciousCycle,
+            VFXViolentStab,
+
         }
 
         // ============ VFXSystem Dictionary ============ //
@@ -199,8 +224,7 @@ namespace SideLoader
         public static string GetSafeVFXName(VFXSystem vfx)
         {
             var safeName = vfx.transform.GetGameObjectPath().Trim();
-            safeName = safeName.Replace("(Clone)", "");
-            safeName = safeName.Replace(" (1)", "");
+            safeName = safeName.Replace("(Clone)", "").Replace(" (1)", "").Replace(" ", "_");
             safeName = Serializer.ReplaceInvalidChars(safeName);
             safeName = safeName.Substring(1, safeName.Length - 1);
             return safeName;
