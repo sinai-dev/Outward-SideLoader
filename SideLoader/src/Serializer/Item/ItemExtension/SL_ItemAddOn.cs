@@ -22,7 +22,7 @@ namespace SideLoader
                 var addOnComptaible = ResourcesPrefabManager.Instance.GetItemPrefab((int)this.AddOnCompatibleItemID);
                 if (addOnComptaible)
                 {
-                    comp.AddOnCompatibleItem = addOnComptaible;
+                    At.SetField(comp, "m_addOnCompatibleItem", addOnComptaible);
                 }
             }
             if (this.AddOnStatePrefabItemID != null)
@@ -35,7 +35,7 @@ namespace SideLoader
             }
             if (this.SnappingRadius != null)
             {
-                comp.SnappingRadius = (float)this.SnappingRadius;
+                At.SetField(comp, "m_snappingRadius", (float)this.SnappingRadius);
             }
         }
 
@@ -43,6 +43,10 @@ namespace SideLoader
         {
             base.SerializeComponent(extension);
 
+            var comp = extension as ItemAddOn;
+
+            this.SnappingRadius = comp.SnappingRadius;
+            this.AddOnCompatibleItemID = comp.CompatibleItem?.ItemID ?? -1;
 
         }
     }

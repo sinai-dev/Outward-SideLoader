@@ -9,18 +9,17 @@ namespace SideLoader
     public class SL_AffectStability : SL_Effect
     {
         public float AffectQuantity;
-        public bool IsModifier;
 
         public override void ApplyToComponent<T>(T component)
         {
-            (component as AffectStability).AffectQuantity = this.AffectQuantity;
-            (component as AffectStability).IsModifier = this.IsModifier;
+            var comp = component as AffectStability;
+            comp.AffectQuantity = this.AffectQuantity;
+            
         }
 
         public override void SerializeEffect<T>(T effect)
         {
             AffectQuantity = (effect as AffectStability).AffectQuantity;
-            IsModifier = (effect as AffectStability).IsModifier;
         }
     }
 }

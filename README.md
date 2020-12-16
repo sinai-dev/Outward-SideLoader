@@ -14,9 +14,11 @@
   </a>  
 </p>
 
-## Beta Preview [![Beta Preview](https://img.shields.io/badge/version-3.0.0b-green.svg)](https://github.com/sinai-dev/Outward-SideLoader/releases/tag/3.0.0b)
+## 3.0 Release
 
-SideLoader's 3.0 version is ready for beta testing. See [here](https://github.com/sinai-dev/Outward-SideLoader/releases/tag/3.0.0b) for more information.
+SideLoader's 3.0 release is ready, with a few major changes (especially for C# mods).
+
+See [here](https://github.com/sinai-dev/Outward-SideLoader/releases/tag/3.0.0) for more information.
 
 ## Install [![Version](https://img.shields.io/badge/BepInEx-5.4.1-green.svg)](https://github.com/BepInEx/BepInEx)
 
@@ -24,6 +26,7 @@ SideLoader's 3.0 version is ready for beta testing. See [here](https://github.co
 
 ## Documentation
 * <b>[SideLoader Docs](https://sinai-dev.github.io/OSLDocs/#/)</b>
+* <B>NOTE:</B> Docs currently not yet updated for version 3.0!
 
 ## Credits
 Written by Sinai.

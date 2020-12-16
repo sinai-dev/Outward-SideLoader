@@ -101,7 +101,7 @@ namespace SideLoader
             {
                 if (m_enchantmentPrefabs == null)
                 {
-                    m_enchantmentPrefabs = At.GetField<ResourcesPrefabManager>(null, "ENCHANTMENT_PREFABS") as Dictionary<int, Enchantment>;
+                    m_enchantmentPrefabs = At.GetField<ResourcesPrefabManager>("ENCHANTMENT_PREFABS") as Dictionary<int, Enchantment>;
                 }
                 return m_enchantmentPrefabs;
             }
