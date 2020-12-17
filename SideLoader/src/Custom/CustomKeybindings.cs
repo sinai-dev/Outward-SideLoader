@@ -24,7 +24,7 @@ namespace SideLoader
     {
         CustomKeybindings = 0,
         Menus = 1,
-        //QuickSlot = 2, // Disabled due to being buggy.
+        QuickSlot = 2,
         Actions = 4,
     }
 
@@ -74,6 +74,9 @@ namespace SideLoader
             // check all players in case its split screen (this is the playerID returned)
             foreach (var entry in CustomKeybindings.PlayerInputManager)
             {
+                //if (entry.Value.GetButtonDown(this.name))
+                //    return true;
+
                 var id = entry.Key;
                 var player = entry.Value;
 
@@ -126,6 +129,8 @@ namespace SideLoader
 
         internal static Dictionary<string, KeybindInfo> s_customKeyDict = new Dictionary<string, KeybindInfo>();
 
+        internal static readonly HashSet<string> s_loggedMissingKeyNames = new HashSet<string>();
+
         /// <summary>Use this to add a new Keybinding to the game.</summary>
         /// <param name="name">The name for the keybinding displayed in the menu.</param>
         /// <param name="category">The category to add to</param>
@@ -161,13 +166,21 @@ namespace SideLoader
         /// <returns>True if pressed, false if not.</returns>
         public static bool GetKeyDown(string keyName, out int playerID)
         {
-            if (!CheckKey(keyName))
+            if (s_customKeyDict.TryGetValue(keyName, out KeybindInfo key))
             {
-                playerID = -1;
-                return false;
+                return key.GetKeyDown(out playerID);
             }
 
-            return s_customKeyDict[keyName].GetKeyDown(out playerID);
+            if (!s_loggedMissingKeyNames.Contains(keyName))
+            {
+                SL.LogWarning($"Attempting to get custom keybinding state, but no custom keybinding " +
+                    $"with the name '{keyName}' was registered, this will not be logged again.");
+
+                s_loggedMissingKeyNames.Add(keyName);
+            }
+
+            playerID = -1;
+            return false;
         }
 
         /// <summary>Use this to check if a key is held this frame.</summary>
@@ -181,40 +194,37 @@ namespace SideLoader
         /// <returns>True if pressed, false if not.</returns>
         public static bool GetKey(string keyName, out int playerID)
         {
-            if (!CheckKey(keyName))
+            if (s_customKeyDict.TryGetValue(keyName, out KeybindInfo key))
             {
-                playerID = -1;
-                return false;
-            }    
-
-            return s_customKeyDict[keyName].GetKey(out playerID);
-        }
-
-        internal static readonly HashSet<string> s_loggedKeynames = new HashSet<string>();
-
-        internal static bool CheckKey(string keyName)
-        {
-            if (!s_customKeyDict.ContainsKey(keyName))
-            {
-                if (!s_loggedKeynames.Contains(keyName))
-                {
-                    SL.LogWarning($"Attempting to get custom keybinding state, but no custom keybinding " +
-                        $"with the name '{keyName}' was registered, this will not be logged again.");
-
-                    s_loggedKeynames.Add(keyName);
-                }
-                return false;
+                return key.GetKey(out playerID);
             }
 
-            return true;
+            if (!s_loggedMissingKeyNames.Contains(keyName))
+            {
+                SL.LogWarning($"Attempting to get custom keybinding state, but no custom keybinding " +
+                    $"with the name '{keyName}' was registered, this will not be logged again.");
+
+                s_loggedMissingKeyNames.Add(keyName);
+            }
+
+            playerID = -1;
+            return false;
         }
+
+        // ===================== INTERNAL ===================== //
+
+        // This patch is just used to grab a reference to the UserData
+
+        //internal static UserData s_userData;
 
         [HarmonyPatch(typeof(InputManager_Base), "Initialize")]
         public class InputManager_Base_Initialize
         {
             [HarmonyPrefix]
-            public static void Prefix(InputManager_Base __instance)
+            public static void InitializePatch(InputManager_Base __instance)
             {
+                //s_userData = __instance.userData;
+
                 foreach (var keybindInfo in s_customKeyDict.Values)
                 {
                     // This actually creates the new actions:
@@ -226,13 +236,16 @@ namespace SideLoader
             }
         }
 
+        // Actually add the Rewired control map
+
         internal static InputAction AddRewiredAction(UserData userData, string name, KeybindingsCategory category, InputType type, out int actionID)
         {
+            int[] preAddIDs = userData.GetActionIds();
+
             // Add an action to the data store
             userData.AddAction((int)category);
 
-            int[] actionIds = userData.GetActionIds();
-            actionID = actionIds.Length - 1;
+            actionID = userData.GetActionIds().Where(it => !preAddIDs.Contains(it)).FirstOrDefault();
 
             // Get a reference to the added action
             var inputAction = userData.GetActionById(actionID);
@@ -247,133 +260,110 @@ namespace SideLoader
             return inputAction;
         }
 
-        // patch to set up custom keybinding section on the UI
+        // Main patch where our internal setup is done
 
         [HarmonyPatch(typeof(ControlMappingPanel), "InitMappings")]
         public class ControlMappingPanel_InitMappings
         {
             [HarmonyPrefix]
-            public static void Prefix(ControlMappingPanel __instance, ControlMappingSection ___m_sectionTemplate,
+            public static void InitMappings(ControlMappingPanel __instance, ControlMappingSection ___m_sectionTemplate,
                 DictionaryExt<int, ControlMappingSection> ___m_sectionList, Controller ___m_lastJoystickController)
             {
+                // filter our custom keybindings for this context
+                var filter = s_customKeyDict.Values
+                    .Where(it => it.category == CUSTOM_CATEGORY
+                              && (it.controllerType == ControlType.Both || (int)it.controllerType == (int)__instance.ControllerType));
+
                 // check if any keybindings in "custom" category were defined
-                if (!s_customKeyDict.Values.Where(it => it.category == CUSTOM_CATEGORY).Any())
+                if (!filter.Any())
                     return;
 
-                // set up our custom localization
+                // set up our custom localization (if not already)
                 InitLocalization();
 
                 // set the template active while we clone from it
                 ___m_sectionTemplate.gameObject.SetActive(true);
-
                 // Create the UI (copied from how game does it)
                 var mapSection = UnityEngine.Object.Instantiate(___m_sectionTemplate, ___m_sectionTemplate.transform.parent);
-                mapSection.ControllerType = __instance.ControllerType;
-                ___m_sectionList.Add(CUSTOM_CATEGORY, mapSection);
+                // set the template inactive again
+                ___m_sectionTemplate.gameObject.SetActive(false);
 
+                // move our custom section to the top
+                mapSection.transform.SetAsFirstSibling();
+
+                // Setup our custom map section
+                ___m_sectionList.Add(CUSTOM_CATEGORY, mapSection);
+                mapSection.ControllerType = __instance.ControllerType;
                 mapSection.SetCategory(CUSTOM_CATEGORY);
 
                 // Init the custom keys
                 if (__instance.ControllerType == ControlMappingPanel.ControlType.Keyboard)
                 {
                     var kbMap = ReInput.mapping.GetKeyboardMapInstance(CUSTOM_CATEGORY, 0);
-                    InitSections(mapSection, kbMap);
+                    InitCustomSection(mapSection, kbMap, filter);
 
                     var mouseMap = ReInput.mapping.GetMouseMapInstance(CUSTOM_CATEGORY, 0);
-                    InitSections(mapSection, mouseMap);
+                    InitCustomSection(mapSection, mouseMap, filter);
                 }
                 else
                 {
                     var joyMap = ReInput.mapping.GetJoystickMapInstance(___m_lastJoystickController as Joystick, CUSTOM_CATEGORY, 0);
-                    InitSections(mapSection, joyMap);
-                }
-
-                //// Create a fake label (and space)
-                //var lbl = (UnityEngine.UI.Text)At.GetField("m_lblSectionName", mapSection);
-                //var sectNameObj = lbl.gameObject;
-                //var parent = lbl.transform.parent.parent;
-
-                //var emptyLbl = UnityEngine.Object.Instantiate(sectNameObj, parent);
-                //emptyLbl.GetComponent<UnityEngine.UI.Text>().text = "";
-                //var fakeLbl = UnityEngine.Object.Instantiate(sectNameObj, parent);
-                //fakeLbl.GetComponent<UnityEngine.UI.Text>().text = "Actions";
-
-                // set the template inactive again
-                ___m_sectionTemplate.gameObject.SetActive(false);
-            }
-
-            // patch to set up actual custom keybinding rows for each UI instance
-
-            internal static void InitSections(ControlMappingSection mapSection, ControllerMap _controllerMap)
-            {
-                if (_controllerMap == null)
-                    return;
-
-                if (_controllerMap.categoryId != 5)
-                    return;
-
-                // Loop through the custom actions we defined
-                foreach (var entry in s_customKeyDict)
-                {
-                    var customKey = entry.Value;
-
-                    // check if this controllerMap is actually for the keybind type (if not Both)
-                    if (customKey.controllerType != ControlType.Both)
-                    {
-                        if (customKey.controllerType == ControlType.Keyboard 
-                            && (_controllerMap.controllerType == Rewired.ControllerType.Keyboard 
-                                || _controllerMap.controllerType == Rewired.ControllerType.Mouse))
-                        {
-                            if (!(_controllerMap is KeyboardMap) && !(_controllerMap is MouseMap))
-                                continue;
-                        }
-                        else if (customKey.controllerType == ControlType.Gamepad && _controllerMap.controllerType == Rewired.ControllerType.Joystick)
-                        {
-                            if (_controllerMap is JoystickMap)
-                                continue;
-                        }
-                    }
-
-                    // add the actual keybind mapping to this controller in Rewired
-                    _controllerMap.CreateElementMap(customKey.actionID, Pole.Positive, KeyCode.None, ModifierKeyFlags.None);
-
-                    var alreadyKnown = At.GetField(mapSection, "m_actionAlreadyKnown") as List<int>;
-
-                    // see if the UI has already been set up for this keybind
-                    if (alreadyKnown.Contains(customKey.actionID))
-                        continue;
-
-                    // set up the UI for this keybind (same as how game does it)
-
-                    alreadyKnown.Add(customKey.actionID);
-
-                    var action = ReInput.mapping.GetAction(customKey.actionID);
-
-                    var actTemplate = At.GetField(mapSection, "m_actionTemplate") as ControlMappingAction;
-
-                    actTemplate.gameObject.SetActive(true);
-                    if (action.type == InputActionType.Button)
-                    {
-                        At.Invoke(mapSection, "CreateActionRow", CUSTOM_CATEGORY, action, AxisRange.Positive);
-                    }
-                    else
-                    {
-                        if (mapSection.ControllerType == ControlMappingPanel.ControlType.Keyboard)
-                        {
-                            At.Invoke(mapSection, "CreateActionRow", CUSTOM_CATEGORY, action, AxisRange.Positive);
-                            At.Invoke(mapSection, "CreateActionRow", CUSTOM_CATEGORY, action, AxisRange.Negative);
-                        }
-                        else
-                        {
-                            At.Invoke(mapSection, "CreateActionRow", CUSTOM_CATEGORY, action, AxisRange.Full);
-                        }
-                    }
-                    actTemplate.gameObject.SetActive(false);
-
-                    // Continue the loop of custom keys...
+                    InitCustomSection(mapSection, joyMap, filter);
                 }
             }
         }
+
+        //Set up a control mapping UI section and bind references
+
+        internal static void InitCustomSection(ControlMappingSection mapSection, ControllerMap _controllerMap, IEnumerable<KeybindInfo> keysToAdd)
+        {
+            if (_controllerMap == null)
+                return;
+
+            // Loop through the custom actions we defined
+            foreach (var customKey in keysToAdd)
+            {
+                // add the actual keybind mapping to this controller in Rewired
+                _controllerMap.CreateElementMap(customKey.actionID, Pole.Positive, KeyCode.None, ModifierKeyFlags.None);
+
+                var alreadyKnown = At.GetField(mapSection, "m_actionAlreadyKnown") as List<int>;
+
+                // see if the UI has already been set up for this keybind
+                if (alreadyKnown.Contains(customKey.actionID))
+                    continue;
+
+                // set up the UI for this keybind (same as how game does it)
+                alreadyKnown.Add(customKey.actionID);
+
+                var action = ReInput.mapping.GetAction(customKey.actionID);
+
+                var actTemplate = At.GetField(mapSection, "m_actionTemplate") as ControlMappingAction;
+
+                actTemplate.gameObject.SetActive(true);
+                if (action.type == InputActionType.Button)
+                {
+                    At.Invoke(mapSection, "CreateActionRow", CUSTOM_CATEGORY, action, AxisRange.Positive);
+                }
+                else
+                {
+                    if (mapSection.ControllerType == ControlMappingPanel.ControlType.Keyboard)
+                    {
+                        At.Invoke(mapSection, "CreateActionRow", CUSTOM_CATEGORY, action, AxisRange.Positive);
+                        At.Invoke(mapSection, "CreateActionRow", CUSTOM_CATEGORY, action, AxisRange.Negative);
+                    }
+                    else
+                    {
+                        At.Invoke(mapSection, "CreateActionRow", CUSTOM_CATEGORY, action, AxisRange.Full);
+                    }
+                }
+                actTemplate.gameObject.SetActive(false);
+
+                // Continue the loop of custom keys...
+            }
+        }
+
+        // This patch WAS used to add custom keys to existing categories.
+        // It has been disabled at the moment.
 
         [HarmonyPatch(typeof(ControlMappingPanel), "InitSections")]
         public class ControlMappingPanel_InitSections
@@ -381,6 +371,8 @@ namespace SideLoader
             [HarmonyPrefix]
             public static bool InitSections(ControllerMap _controllerMap)
             {
+                InitLocalization();
+
                 if (_controllerMap.categoryId == CUSTOM_CATEGORY)
                     return false;
 
@@ -395,16 +387,16 @@ namespace SideLoader
                         continue;
                     }
 
+                    // i dont know but this gets the best results
                     if (_controllerMap.categoryId != 5)
                     {
                         // Skip to next action
                         continue;
                     }
 
-                    // If we pass the tests, create & add the action-to-element map for this particular action
-                    _controllerMap.CreateElementMap(keybindInfo.actionID, Pole.Positive, KeyCode.None, ModifierKeyFlags.None);
+                    //SL.LogWarning("Creating element map for '" + keybindInfo.name + "', id: " + _controllerMap.id + ", categoryId: " + _controllerMap.categoryId);
 
-                    // Continue the loop...
+                    _controllerMap.CreateElementMap(keybindInfo.actionID, Pole.Positive, KeyCode.None, ModifierKeyFlags.None);
                 }
 
                 // We're done here. Call original implementation
@@ -412,31 +404,35 @@ namespace SideLoader
             }
         }
 
-        internal static bool s_doneInit;
+        internal static bool s_doneLocalization;
 
         public static void InitLocalization()
         {
-            if (s_doneInit)
+            if (s_doneLocalization)
                 return;
 
-            s_doneInit = true;
-
-            var genLoc = References.GENERAL_LOCALIZATION;
+            s_doneLocalization = true;
 
             // get the Rewired Category for the category we're using
             var category = ReInput.mapping.GetActionCategory(CUSTOM_CATEGORY);
-
             // override the internal name
             At.SetField(category, "_name", "CustomKeybindings");
 
-            // add localization for this name, in the format the game will expect to find it
+            // Get reference to localization dict
+            var genLoc = References.GENERAL_LOCALIZATION;
+
+            // add localization for our category, in the format the game will expect to find it
             genLoc.Add("ActionCategory_CustomKeybindings", "Custom Keybindings");
 
-            // Go through the added actions and use the user-created action descriptions to name them
+            // Localize the keys
             foreach (var customKey in s_customKeyDict.Values)
             {
                 string key = "InputAction_" + customKey.name;
-                genLoc.Add(key, customKey.name);
+
+                if (!genLoc.ContainsKey(key))
+                    genLoc.Add(key, customKey.name);
+                else
+                    genLoc[key] = customKey.name;
             }
         }
     }

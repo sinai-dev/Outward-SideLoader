@@ -33,6 +33,7 @@ namespace SideLoader.GUI
         {
             Instance = this;
 
+            //CustomKeybindings.AddAction(MENU_TOGGLE_KEY, KeybindingsCategory.CustomKeybindings);
             CustomKeybindings.AddAction(MENU_TOGGLE_KEY, KeybindingsCategory.CustomKeybindings);
 
             var filePath = $@"{SL.INTERNAL_FOLDER}\slgui.bundle";
