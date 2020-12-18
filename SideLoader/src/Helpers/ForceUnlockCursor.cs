@@ -29,7 +29,7 @@ namespace SideLoader.Helpers
 
         internal static void UpdateCursorControl()
         {
-            var mainChar = CharacterManager.Instance.GetFirstLocalCharacter();
+            var mainChar = CharacterManager.Instance?.GetFirstLocalCharacter();
             if (!mainChar)
                 return;
 
