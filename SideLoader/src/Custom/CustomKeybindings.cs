@@ -9,8 +9,6 @@ using UnityEngine;
 using HarmonyLib;
 using RewiredDict = System.Collections.Generic.Dictionary<int, RewiredInputs>;
 using System.Linq;
-using SideLoader.Helpers;
-using UnityEngine.UI;
 
 // Credits:
 // - Stian for the original version
@@ -433,6 +431,29 @@ namespace SideLoader
                     genLoc.Add(key, customKey.name);
                 else
                     genLoc[key] = customKey.name;
+            }
+        }
+
+        // These two patches are to fix an issue with saving our custom keybindings.
+        // The map category we use is apparently not marked as UserAssignable.
+
+        [HarmonyPatch(typeof(Player), nameof(Player.GetSaveData))]
+        public class Player_GetSaveData
+        {
+            [HarmonyPrefix]
+            public static void Prefix(ref bool userAssignableMapsOnly)
+            {
+                userAssignableMapsOnly = false;
+            }
+        }
+
+        [HarmonyPatch(typeof(RewiredInputs), "GetAllControllerMapsXml")]
+        public class RewiredInputs_GetAllControllerMapsXml
+        {
+            [HarmonyPrefix]
+            public static void Prefix(ref bool _userAssignableMapsOnly)
+            {
+                _userAssignableMapsOnly = false;
             }
         }
     }
