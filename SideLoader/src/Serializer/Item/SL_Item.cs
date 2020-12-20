@@ -261,6 +261,12 @@ namespace SideLoader
 
             var type = Serializer.GetBestSLType(item.GetType());
 
+            if (type == null)
+            {
+                SL.LogWarning("Could not get SL_Type for " + item.GetType().FullName + "!");
+                return null;
+            }
+
             var holder = (SL_Item)Activator.CreateInstance(type);
 
             holder.SerializeItem(item);

@@ -38,7 +38,7 @@ namespace SideLoader
 
         public static SL_ItemStats ParseItemStats(ItemStats stats)
         {
-            var type = Serializer.GetSLType(stats.GetType());
+            var type = Serializer.GetBestSLType(stats.GetType());
 
             var holder = (SL_ItemStats)Activator.CreateInstance(type);
 

@@ -99,10 +99,10 @@ namespace SideLoader
         /// </summary>
         /// <param name="_gameType">Eg, typeof(Item)</param>
         /// <param name="logging">If you want to log debug messages.</param>
-        public static Type GetSLType(Type _gameType, bool logging = true)
+        private static Type GetSLType(Type _gameType, bool logging = true)
         {
-            if (s_typeConversions.ContainsKey(_gameType))
-                return s_typeConversions[_gameType];
+            //if (s_typeConversions.ContainsKey(_gameType))
+            //    return s_typeConversions[_gameType];
 
             var name = $"SideLoader.SL_{_gameType.Name}";
 
@@ -122,7 +122,7 @@ namespace SideLoader
                 }
             }
 
-            s_typeConversions.Add(_gameType, ret);
+            //s_typeConversions.Add(_gameType, ret);
 
             return ret;
         }
@@ -132,23 +132,26 @@ namespace SideLoader
         /// Will get the highest-level base class of the provided game class with a matching SL class.
         /// </summary>
         /// <param name="gameType">The game class you want a match for.</param>
+        /// <param name="originalQuery">Internal, do not use.</param>
         /// <returns>Best-match SL Type, if any, otherwise null.</returns>
-        public static Type GetBestSLType(Type gameType)
+        public static Type GetBestSLType(Type gameType, Type originalQuery = null)
         {
-            if (s_typeConversions.ContainsKey(gameType))
-                return s_typeConversions[gameType];
+            var key = originalQuery ?? gameType;
+
+            if (s_typeConversions.ContainsKey(key))
+                return s_typeConversions[key];
 
             if (GetSLType(gameType, false) is Type slType && !slType.IsAbstract)
             {
-                if (!s_typeConversions.ContainsKey(gameType))
-                    s_typeConversions.Add(gameType, slType);
+                if (!s_typeConversions.ContainsKey(key))
+                    s_typeConversions.Add(key, slType);
 
                 return slType;
             }
             else
             {
                 if (gameType.BaseType != null)
-                    return GetBestSLType(gameType.BaseType);
+                    return GetBestSLType(gameType.BaseType, originalQuery ?? gameType);
                 else
                     return null;
             }

@@ -39,7 +39,7 @@ namespace SideLoader
         {
             var type = component.GetType();
 
-            if (Serializer.GetSLType(type) is Type sl_type)
+            if (Serializer.GetBestSLType(type) is Type sl_type)
             {
                 var holder = Activator.CreateInstance(sl_type) as SL_EffectCondition;
 

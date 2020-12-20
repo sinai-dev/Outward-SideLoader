@@ -425,6 +425,12 @@ namespace SideLoader
             // Localize the keys
             foreach (var customKey in s_customKeyDict.Values)
             {
+                if (customKey.name.Contains("QS_Instant"))
+                {
+                    //SL.Log("Skipping localization for " + customKey.name);
+                    continue;
+                }
+
                 string key = "InputAction_" + customKey.name;
 
                 if (!genLoc.ContainsKey(key))
