@@ -79,35 +79,41 @@ namespace SideLoader
                 var player = entry.Value;
 
                 // get the last controller used for this keybinding
-                var lastInput = player.GetLastUsedControllerFirstElementMapWithAction(name);
-
-                if (lastInput.aem == null)
-                    continue;
-
-                // update the internal ID used for the input
-                keyIDs[id] = lastInput.aem.elementIdentifierId;
-
-                // get the internal controller map
-                var ctrlrList = ReInput.players.GetPlayer(id).controllers;
-                var map = lastInput.aem.controllerMap;
-                var controller = ctrlrList.GetController(map.controllerType, map.controllerId);
-
-                // finally we just call this to check
-                if (down)
+                var glyphData = player.GetLastUsedControllerFirstElementMapWithAction(name);
+                if (glyphData.aem != null)
                 {
-                    if (controller.GetButtonDownById(keyIDs[id]))
+                    // update the internal ID used for the input
+                    keyIDs[id] = glyphData.aem.elementIdentifierId;
+
+                    // get the internal controller map
+                    var ctrlrList = ReInput.players.GetPlayer(id).controllers;
+                    var map = glyphData.aem.controllerMap;
+                    var controller = ctrlrList.GetController(map.controllerType, map.controllerId);
+
+                    // finally we just call this to check
+                    if (down)
                     {
-                        playerID = id;
-                        return true;
+                        if (controller.GetButtonDownById(keyIDs[id]))
+                        {
+                            playerID = id;
+                            return true;
+                        }
+                    }
+                    else
+                    {
+                        if (controller.GetButtonById(keyIDs[id]))
+                        {
+                            playerID = id;
+                            return true;
+                        }
                     }
                 }
                 else
                 {
-                    if (controller.GetButtonById(keyIDs[id]))
-                    {
-                        playerID = id;
-                        return true;
-                    }
+                    if (down)
+                        return player.GetButtonDown(this.name);
+                    else
+                        return player.GetButton(this.name);
                 }
             }
 
