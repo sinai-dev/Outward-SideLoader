@@ -9,9 +9,33 @@ using UnityEngine.SceneManagement;
 
 namespace SideLoader.Hooks
 {
-    // All HarmonyPatches used by SideLoader are in this file.
+    #region Name localization
 
-    #region Item name bugfix
+    [HarmonyPatch(typeof(Item), "GetLocalizedName")]
+    public class Item_GetLocalizedName
+    {
+        [HarmonyPostfix]
+        public static void Postfix(Item __instance, ref string __result)
+        {
+            if (CustomItems.s_customLocalizations.ContainsKey(__instance.ItemID))
+                __result = CustomItems.s_customLocalizations[__instance.ItemID][0];
+        }
+    }
+
+    [HarmonyPatch(typeof(Item), "Description", MethodType.Getter)]
+    public class Item_get_Description
+    {
+        [HarmonyPostfix]
+        public static void Postfix(Item __instance, ref string __result)
+        {
+            if (CustomItems.s_customLocalizations.ContainsKey(__instance.ItemID))
+                __result = CustomItems.s_customLocalizations[__instance.ItemID][1];
+        }
+    }
+
+    #endregion
+
+    #region Item gameobject name bugfix
 
     [HarmonyPatch(typeof(Item), "Start")]
     public class Item_Start

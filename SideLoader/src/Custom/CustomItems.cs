@@ -66,7 +66,15 @@ namespace SideLoader
                 return null;
             }
 
-            Item item; 
+            Item item;
+
+            if (newID == -1)
+            {
+                if (template != null)
+                    template.New_ItemID = template.Target_ItemID;
+
+                newID = cloneTargetID;
+            }
 
             // modifying an existing item
             if (newID == cloneTargetID)
@@ -151,25 +159,40 @@ namespace SideLoader
         }
 
         /// <summary> Set both name and description. Used by SetName and SetDescription. </summary>
-        public static void SetNameAndDescription(Item _item, string _name, string _description)
+        public static void SetNameAndDescription(Item item, string _name, string _description)
         {
             var name = _name ?? "";
             var desc = _description ?? "";
 
-            At.SetField(_item, "m_name", name);
-            At.SetField(_item, "m_lastDescLang", LocalizationManager.Instance.CurrentLanguage);
-            At.SetField(_item, "m_localizedDescription", desc);
+            At.SetField(item, "m_name", name);
+            At.SetField(item, "m_lastDescLang", LocalizationManager.Instance.CurrentLanguage);
+            At.SetField(item, "m_localizedDescription", desc);
 
-            if (References.ITEM_LOCALIZATION.ContainsKey(_item.ItemID))
+            SetCustomLocalization(item.ItemID, name, desc);
+
+            if (References.ITEM_LOCALIZATION.ContainsKey(item.ItemID))
             {
-                References.ITEM_LOCALIZATION[_item.ItemID].Name = name;
-                References.ITEM_LOCALIZATION[_item.ItemID].Desc = desc;
+                References.ITEM_LOCALIZATION[item.ItemID].Name = name;
+                References.ITEM_LOCALIZATION[item.ItemID].Desc = desc;
             }
             else
             {
                 ItemLocalization loc = new ItemLocalization(name, desc);
-                References.ITEM_LOCALIZATION.Add(_item.ItemID, loc);
+                References.ITEM_LOCALIZATION.Add(item.ItemID, loc);
             }
+        }
+
+        internal static Dictionary<int, string[]> s_customLocalizations = new Dictionary<int, string[]>();
+
+        internal static void SetCustomLocalization(int id, string name, string desc)
+        {
+            if (s_customLocalizations.ContainsKey(id))
+            {
+                s_customLocalizations[id][0] = name;
+                s_customLocalizations[id][1] = desc;
+            }
+            else
+                s_customLocalizations.Add(id, new string[] { name, desc });
         }
 
         // ================ TAGS ================ //
