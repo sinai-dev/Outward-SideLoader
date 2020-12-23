@@ -68,57 +68,38 @@ namespace SideLoader
             }
 
             if (RefreshRate != null)
-            {
                 status.RefreshRate = (float)RefreshRate;
-            }
 
             if (BuildupRecoverySpeed != null)
-            {
                 status.BuildUpRecoverSpeed = (float)BuildupRecoverySpeed;
-            }
 
             if (IgnoreBuildupIfApplied != null)
-            {
                 status.IgnoreBuildUpIfApplied = (bool)IgnoreBuildupIfApplied;
-            }
 
             if (DisplayedInHUD != null)
-            {
                 status.DisplayInHud = (bool)DisplayedInHUD;
-            }
 
             if (IsHidden != null)
-            {
                 status.IsHidden = (bool)IsHidden;
-            }
+            
 
             if (IsMalusEffect != null)
-            {
                 status.IsMalusEffect = (bool)this.IsMalusEffect;
-            }
+            
 
             if (!string.IsNullOrEmpty(this.AmplifiedStatusIdentifier))
             {
                 var amp = ResourcesPrefabManager.Instance.GetStatusEffectPrefab(AmplifiedStatusIdentifier);
                 if (amp)
-                {
                     At.SetField(status, "m_amplifiedStatus", amp);
-                }
                 else
-                {
                     SL.Log("StatusEffect.ApplyTemplate - could not find AmplifiedStatusIdentifier " + this.AmplifiedStatusIdentifier);
-                }
             }
 
             if (Tags != null)
             {
-                var tagList = (List<Tag>)At.GetField(status, "m_tags");
-                tagList.Clear();
-                foreach (var tagName in Tags)
-                {
-                    if (CustomItems.GetTag(tagName) is Tag tag && tag != Tag.None)
-                        tagList.Add(tag);
-                }
+                var tagSource = CustomTags.SetTagSource(status.gameObject, Tags, true);
+                At.SetField(status, "m_tagSource", tagSource);
             }
 
             // check for custom icon
@@ -136,16 +117,12 @@ namespace SideLoader
             }
 
             if (EffectBehaviour == EditBehaviours.Destroy)
-            {
                 UnityHelpers.DestroyChildren(status.transform);
-            }
 
             // setup family and length type
             StatusEffectFamily.LengthTypes lengthType = status.EffectFamily?.LengthType ?? StatusEffectFamily.LengthTypes.Short;
             if (LengthType != null)
-            {
                 lengthType = (StatusEffectFamily.LengthTypes)LengthType;
-            }
 
             bool editingOrig = this.StatusIdentifier == this.TargetStatusIdentifier;
             if (!editingOrig)
@@ -164,9 +141,7 @@ namespace SideLoader
             else
             {
                 if (status.EffectFamily != null)
-                {
                     status.EffectFamily.LengthType = lengthType;
-                }
             }
 
             // setup signature and finalize
@@ -180,20 +155,14 @@ namespace SideLoader
                 comp.SignatureUID = new UID($"{NewStatusID}_{status.IdentifierName}");
             }
             else
-            {
                 signature = status.transform.GetChild(0);
-            }
 
             if (Effects != null)
             {
                 if (signature)
-                {
                     SL_EffectTransform.ApplyTransformList(signature, Effects, EffectBehaviour);
-                }
                 else
-                {
                     SL.Log("Could not get effect signature!");
-                }
             }
 
             // fix StatusData for the new effects
@@ -222,10 +191,7 @@ namespace SideLoader
                 // Create a blank holder, in the case this effect isn't supported or doesn't serialize anything.
                 var data = new StatusData.EffectData()
                 {
-                    Data = new string[]
-                    {
-                        "0"
-                    }
+                    Data = new string[] { "0" }
                 };
 
                 var type = effect.GetType();
@@ -306,14 +272,9 @@ namespace SideLoader
 
             CustomStatusEffects.GetStatusLocalization(status, out template.Name, out template.Description);
 
-            var tagList = new List<string>();
-            status.InitTags();
-            var tags = (List<Tag>)At.GetField(status, "m_tags");
-            foreach (var tag in tags)
-            {
-                tagList.Add(tag.TagName);
-            }
-            template.Tags = tagList.ToArray();
+            var tags = At.GetField(status, "m_tagSource") as TagListSelectorComponent;
+            if (tags)
+                template.Tags = tags.Tags.Select(it => it.TagName).ToArray();
 
             // For existing StatusEffects, the StatusData contains the real values, so we need to SetValue to each Effect.
             var statusData = status.StatusData.EffectsData;
@@ -322,9 +283,7 @@ namespace SideLoader
             {
                 var comp = components[i];
                 if (comp && comp.Signature.Length > 0)
-                {
                     comp.SetValue(statusData[i].Data);
-                }
             }
 
             var effects = new List<SL_EffectTransform>();
@@ -336,9 +295,7 @@ namespace SideLoader
                     var effectsChild = SL_EffectTransform.ParseTransform(child);
 
                     if (effectsChild.HasContent)
-                    {
                         effects.Add(effectsChild);
-                    }
                 }
             }
             template.Effects = effects.ToArray();

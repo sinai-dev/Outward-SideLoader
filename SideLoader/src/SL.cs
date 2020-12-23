@@ -30,6 +30,8 @@ namespace SideLoader
         // SL Packs
         internal static Dictionary<string, SLPack> Packs = new Dictionary<string, SLPack>();
 
+        internal static Dictionary<int, Skill> s_customSkills = new Dictionary<int, Skill>();
+
         public static SLPack GetSLPack(string name)
         {
             Packs.TryGetValue(name, out SLPack pack);
@@ -172,6 +174,7 @@ namespace SideLoader
         {
             // Reset packs
             Packs.Clear();
+            s_customSkills.Clear();
 
             // Clear textures dictionary
             CustomTextures.Textures.Clear();

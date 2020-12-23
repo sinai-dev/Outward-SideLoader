@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using SideLoader.Helpers;
+using UnityEngine;
 
 namespace SideLoader
 {
@@ -57,6 +58,34 @@ namespace SideLoader
             }
 
             return tag;
+        }
+
+        public static TagListSelectorComponent SetTagSource(GameObject gameObject, string[] tags, bool destroyExisting)
+        {
+            var tagsource = gameObject.GetComponent<TagListSelectorComponent>();
+            if (!tagsource)
+                tagsource = gameObject.AddComponent<TagSource>();
+
+            List<TagSourceSelector> list;
+            if (destroyExisting)
+            {
+                list = new List<TagSourceSelector>();
+                At.SetField(tagsource, "m_tagSelectors", list);
+                At.SetField(tagsource, "m_tags", new List<Tag>());
+            }
+            else
+                list = At.GetField(tagsource, "m_tagSelectors") as List<TagSourceSelector>;
+
+            foreach (var name in tags)
+            {
+                var tag = GetTag(name);
+                if (tag != Tag.None)
+                    list.Add(new TagSourceSelector(tag));
+            }
+
+            tagsource.RefreshTags();
+
+            return tagsource;
         }
     }
 }

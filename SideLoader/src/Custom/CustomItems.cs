@@ -190,31 +190,9 @@ namespace SideLoader
             CustomTags.CreateTag(tagName);
         }
 
-        /// <summary> Adds the range of tags to the Items' TagSource, and optionally destroys the existing tags.</summary>
         public static void SetItemTags(Item item, string[] tags, bool destroyExisting)
-        {
-            var tagsource = item.transform.GetComponent<TagListSelectorComponent>();
-            if (!tagsource)
-                tagsource = item.gameObject.AddComponent<TagSource>();
-
-            if (destroyExisting)
-            {
-                At.SetField(tagsource, "m_tags", new List<Tag>());
-                At.SetField(tagsource, "m_tagSelectors", new List<TagSourceSelector>());
-            }
-
-            var list = new List<TagSourceSelector>();
-
-            foreach (var tag in tags)
-            {
-                if (GetTag(tag) is Tag _tag && _tag != Tag.None)
-                    list.Add(new TagSourceSelector(_tag));
-            }
-
-            At.SetField(tagsource, "m_tagSelectors", list);
-
-            tagsource.RefreshTags();
-
+        { 
+            var tagsource = CustomTags.SetTagSource(item.gameObject, tags, destroyExisting);
             At.SetField(item, "m_tagSource", tagsource);
         }
 

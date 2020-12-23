@@ -49,9 +49,7 @@ namespace SideLoader
             At.SetField(school, "m_nameLocKey", "");
 
             if (string.IsNullOrEmpty(this.UID))
-            {
                 this.UID = this.Name;
-            }
             At.SetField(school, "m_uid", new UID(this.UID));
 
             // fix the breakthrough int
@@ -59,9 +57,7 @@ namespace SideLoader
 
             // set the sprite
             if (this.Sigil)
-            {
                 school.SchoolSigil = this.Sigil;
-            }
 
             // add it to the game's skill tree holder.
             var list = (At.GetField(SkillTreeHolder.Instance, "m_skillTrees") as SkillSchool[]).ToList();
@@ -69,14 +65,19 @@ namespace SideLoader
             At.SetField(SkillTreeHolder.Instance, "m_skillTrees", list.ToArray());
 
             if (applyRowsInstantly)
-            {
                 ApplyRows();
-            }
 
             return school;
         }
 
         public void ApplyRows()
+        {
+            var list = (At.GetField(SkillTreeHolder.Instance, "m_skillTrees") as SkillSchool[]).ToList();
+            var treeID = list.Count;
+            ApplyRows(treeID);
+        }
+
+        public void ApplyRows(int treeID)
         {
             if (!this.m_object)
             {
@@ -92,14 +93,12 @@ namespace SideLoader
             for (int i = 0; i < 6; i++)
             {
                 if (m_object.transform.Find("Row" + i) is Transform row)
-                {
                     UnityEngine.Object.DestroyImmediate(row.gameObject);
-                }
             }
 
             foreach (var row in this.SkillRows)
             {
-                row.ApplyToSchoolTransform(m_object.transform);
+                row.ApplyToSchoolTransform(m_object.transform, treeID);
             }
 
             m_object.transform.parent = SkillTreeHolder.Instance.transform;
@@ -109,9 +108,7 @@ namespace SideLoader
         private void FixOnMainMenu(Scene scene, LoadSceneMode mode)
         {
             if (scene.name.ToLower().Contains("mainmenu"))
-            {
                 SLPlugin.Instance.StartCoroutine(FixOnMenuCoroutine());
-            }
         }
 
         private IEnumerator FixOnMenuCoroutine()
@@ -119,9 +116,7 @@ namespace SideLoader
             yield return new WaitForSeconds(1f);
 
             while (!SkillTreeHolder.Instance)
-            {
                 yield return null;
-            }
 
             CreateSchool();
             ApplyRows();
@@ -135,7 +130,7 @@ namespace SideLoader
 
         public List<SL_BaseSkillSlot> Slots = new List<SL_BaseSkillSlot>();
 
-        public void ApplyToSchoolTransform(Transform schoolTransform)
+        public void ApplyToSchoolTransform(Transform schoolTransform, int treeID)
         {
             var row = schoolTransform.Find("Row" + RowIndex);
             if (!row)
@@ -146,24 +141,18 @@ namespace SideLoader
             }
 
             foreach (var slot in this.Slots)
-            {
-                if (slot is SL_SkillSlotFork)
-                {
-                    (slot as SL_SkillSlotFork).ApplyToRow(row);
-                }
-                else if (slot is SL_SkillSlot)
-                {
-                    (slot as SL_SkillSlot).ApplyToRow(row);
-                }
-            }
+                slot.ApplyToRow(row, treeID);
+
         }
     }
 
     [SL_Serialized]
-    public class SL_BaseSkillSlot
+    public abstract class SL_BaseSkillSlot
     {
         public int ColumnIndex;
         public Vector2 RequiredSkillSlot = Vector2.zero;
+
+        public abstract SkillSlot ApplyToRow(Transform row, int treeID);
 
         /// <summary>
         /// Internal use for setting a required slot.
@@ -187,9 +176,7 @@ namespace SideLoader
             }
 
             if (!success)
-            {
                 SL.Log("Could not set required slot. Maybe it's not set yet?");
-            }
         }
     }
 
@@ -198,7 +185,7 @@ namespace SideLoader
         public SL_SkillSlot Choice1;
         public SL_SkillSlot Choice2;
 
-        public void ApplyToRow(Transform row)
+        public override SkillSlot ApplyToRow(Transform row, int treeID)
         {
             var col = new GameObject("Col" + this.ColumnIndex);
             col.transform.parent = row;
@@ -209,8 +196,10 @@ namespace SideLoader
             if (this.RequiredSkillSlot != Vector2.zero)
                 SetRequiredSlot(comp);
 
-            Choice1.ApplyToRow(col.transform);
-            Choice2.ApplyToRow(col.transform);
+            Choice1.ApplyToRow(col.transform, treeID);
+            Choice2.ApplyToRow(col.transform, treeID);
+
+            return null;
         }
     }
 
@@ -220,21 +209,25 @@ namespace SideLoader
         public int SilverCost;
         public bool Breakthrough;
 
-        public SkillSlot ApplyToRow(Transform row)
+        public override SkillSlot ApplyToRow(Transform row, int treeID)
         {
             var col = new GameObject("Col" + this.ColumnIndex);
             col.transform.parent = row;
 
             var comp = col.AddComponent<SkillSlot>();
             comp.IsBreakthrough = Breakthrough;
-            At.SetField(comp, "m_skill", ResourcesPrefabManager.Instance.GetItemPrefab(SkillID) as Skill);
+
             At.SetField(comp, "m_requiredMoney", SilverCost);
             At.SetField(comp as BaseSkillSlot, "m_columnIndex", ColumnIndex);
 
+            var skill = ResourcesPrefabManager.Instance.GetItemPrefab(SkillID) as Skill;
+            At.SetField(comp, "m_skill", skill);
+
+            At.SetField(skill, "m_schoolIndex", treeID);
+            //SL.LogWarning("Set " + treeID + " for " + skill.Name + "'s treeID");
+
             if (this.RequiredSkillSlot != Vector2.zero)
-            {
                 SetRequiredSlot(comp);
-            }
 
             return comp;
         }

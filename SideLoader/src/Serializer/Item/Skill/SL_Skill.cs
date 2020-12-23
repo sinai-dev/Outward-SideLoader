@@ -105,6 +105,12 @@ namespace SideLoader
 
                 At.SetField(skill, "m_additionalConditions", activationConditions.ToArray());
             }
+
+            // Add to SideLoader's internal dictionary of custom skills (for F3 menu fix)
+            if (SL.s_customSkills.ContainsKey(skill.ItemID))
+                SL.s_customSkills[skill.ItemID] = skill;
+            else
+                SL.s_customSkills.Add(skill.ItemID, skill);
         }
 
         public override void SerializeItem(Item item)

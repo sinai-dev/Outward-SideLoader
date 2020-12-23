@@ -6,6 +6,7 @@ using HarmonyLib;
 using BepInEx;
 using SideLoader.GUI;
 using BepInEx.Logging;
+using System.Collections.Generic;
 
 namespace SideLoader
 {
@@ -18,7 +19,7 @@ namespace SideLoader
         // Mod Info
         public const string GUID = "com.sinai." + MODNAME;
         public const string MODNAME = "SideLoader";
-        public const string VERSION = "3.0.2";
+        public const string VERSION = "3.0.3";
 
         // ================ Main Setup ====================
 
