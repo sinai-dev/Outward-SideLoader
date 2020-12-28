@@ -14,12 +14,6 @@
   </a>  
 </p>
 
-## 3.0 Release
-
-SideLoader's 3.0 release is ready, with a few major changes (especially for C# mods).
-
-See [here](https://github.com/sinai-dev/Outward-SideLoader/releases/tag/3.0.0) for more information.
-
 ## Install [![Version](https://img.shields.io/badge/BepInEx-5.4.1-green.svg)](https://github.com/BepInEx/BepInEx)
 
 * [How To Install](https://sinai-dev.github.io/OSLDocs/#/GettingStarted/Installation)
