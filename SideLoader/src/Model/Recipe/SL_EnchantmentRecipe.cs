@@ -38,8 +38,8 @@ namespace SideLoader
         public float StaminaAbsorbRatio;
         public bool Indestructible;
         public float TrackDamageRatio;
-        public float GlobalStatusResistance;
 
+        public float GlobalStatusResistance;
         public string QuestEventUID;
 
         public void Apply()
