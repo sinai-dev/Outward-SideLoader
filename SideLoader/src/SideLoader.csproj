@@ -53,6 +53,7 @@
     <Compile Include="Model\Effect\Conditions\SL_NoSameShooterBlastInProximity.cs" />
     <Compile Include="Model\Effect\Conditions\SL_PrePackDeployableCondition.cs" />
     <Compile Include="Model\Effect\Effects\Affects\SL_AffectStatusEffectBuildUpResistance.cs" />
+    <Compile Include="Model\Effect\Effects\SL_AddAbsorbHealth.cs" />
     <Compile Include="Model\Effect\Effects\SL_AddAllStatusEffectBuildUp.cs" />
     <Compile Include="Model\Effect\Effects\SL_AddChargeInstrument.cs" />
     <Compile Include="Model\Effect\Effects\SL_AddPukeOnEat.cs" />
