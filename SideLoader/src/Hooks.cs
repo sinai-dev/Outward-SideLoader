@@ -112,35 +112,43 @@ namespace SideLoader.Hooks
         [HarmonyPrefix]
         public static bool Prefix(Item __instance, bool _special, ref Transform __result)
         {
-            if (CustomItemVisuals.GetItemVisualLink(__instance) is CustomItemVisuals.ItemVisualsLink link)
+            try
             {
-                if (!_special)
+                if (CustomItemVisuals.GetItemVisualLink(__instance) is CustomItemVisuals.ItemVisualsLink link)
                 {
-                    if (link.ItemVisuals)
+                    if (!_special)
                     {
-                        __result = link.ItemVisuals;
-                        return false;
-                    }
-                }
-                else
-                {
-                    if (__instance.UseSpecialVisualFemale)
-                    {
-                        if (link.ItemSpecialFemaleVisuals)
+                        if (link.ItemVisuals)
                         {
-                            __result = link.ItemSpecialFemaleVisuals;
+                            __result = link.ItemVisuals;
                             return false;
                         }
                     }
-                    else if (link.ItemSpecialVisuals)
+                    else
                     {
-                        __result = link.ItemSpecialVisuals;
-                        return false;
+                        if (__instance.UseSpecialVisualFemale)
+                        {
+                            if (link.ItemSpecialFemaleVisuals)
+                            {
+                                __result = link.ItemSpecialFemaleVisuals;
+                                return false;
+                            }
+                        }
+                        else if (link.ItemSpecialVisuals)
+                        {
+                            __result = link.ItemSpecialVisuals;
+                            return false;
+                        }
                     }
                 }
-            }
 
-            return true;
+                return true;
+            }
+            catch (Exception e)
+            {
+                SL.LogInnerException(e);
+                return true;
+            }
         }
     }
 
