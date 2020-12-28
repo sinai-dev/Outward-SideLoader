@@ -17,4 +17,5 @@ SleepDepletionRate,
 PouchCapacity,
 ImpactResistance,
 HeatProtection,
-ColdProtection
+ColdProtection,
+Barrier

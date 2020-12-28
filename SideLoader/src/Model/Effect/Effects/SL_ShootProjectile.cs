@@ -448,8 +448,6 @@ namespace SideLoader
             TrogHexProjectile,
             VendavelIcicleProjectile,
             WindGust,
-
-
         }
 
         public static void DebugProjectileNames()
