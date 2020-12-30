@@ -11,6 +11,7 @@ namespace SideLoader
         public string Stat_Tag = "";
         public float AffectQuantity;
         public bool IsModifier;
+        public string[] Tags;
 
         public override void ApplyToComponent<T>(T component)
         {
@@ -22,16 +23,31 @@ namespace SideLoader
                 return;
             }
 
-            (component as AffectStat).AffectedStat = new TagSourceSelector(tag);
-            (component as AffectStat).Value = this.AffectQuantity;
-            (component as AffectStat).IsModifier = this.IsModifier;
+            var comp = component as AffectStat;
+
+            comp.AffectedStat = new TagSourceSelector(tag);
+            comp.Value = this.AffectQuantity;
+            comp.IsModifier = this.IsModifier;
+
+            if (this.Tags != null)
+            {
+                comp.Tags = this.Tags
+                                .Select(it => new TagSourceSelector(CustomTags.GetTag(it)))
+                                .ToArray();
+            }
         }
 
         public override void SerializeEffect<T>(T effect)
         {
-            Stat_Tag = (effect as AffectStat).AffectedStat.Tag.TagName;
-            AffectQuantity = (effect as AffectStat).Value;
-            IsModifier = (effect as AffectStat).IsModifier;
+            var comp = effect as AffectStat;
+            this.Stat_Tag = comp.AffectedStat.Tag.TagName;
+            this.AffectQuantity = comp.Value;
+            this.IsModifier = comp.IsModifier;
+
+            if (comp.Tags != null)
+                this.Tags = comp.Tags
+                           .Select(it => it.Tag.TagName)
+                           .ToArray();
         }
     }
 }
