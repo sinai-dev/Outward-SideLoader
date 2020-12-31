@@ -22,7 +22,7 @@ namespace SideLoader
             {
                 // set container capacity
                 var container = item.transform.Find("Content").GetComponent<ItemContainerStatic>();
-                At.SetField(container, "m_baseContainerCapacity", (float)this.Capacity);
+                At.SetField<ItemContainer>(container, "m_baseContainerCapacity", (float)this.Capacity);
             }
 
             // set restrict dodge 

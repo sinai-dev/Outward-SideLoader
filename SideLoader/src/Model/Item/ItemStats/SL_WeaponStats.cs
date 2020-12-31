@@ -126,11 +126,11 @@ namespace SideLoader
 
         public static Dictionary<Weapon.WeaponType, WeaponStatData> WeaponBaseDataDict = new Dictionary<Weapon.WeaponType, WeaponStatData>()
         {
-            {
+           {
                 Weapon.WeaponType.Sword_1H,
                 new WeaponStatData()
                 {   //                         1     2     3     4     5
-                    DamageMult = new float[] { 1.0f, 1.0f, 1.3f, 1.1f, 1.1f },
+                    DamageMult = new float[] { 1.0f, 1.0f, 1.495f, 1.265f, 1.265f },
                     ImpactMult = new float[] { 1.0f, 1.0f, 1.3f, 1.1f, 1.1f },
                     StamMult   = new float[] { 1.0f, 1.0f, 1.2f, 1.1f, 1.1f }
                 }
@@ -139,9 +139,9 @@ namespace SideLoader
                 Weapon.WeaponType.Sword_2H,
                 new WeaponStatData()
                 {   //                         1     2     3     4     5
-                    DamageMult = new float[] { 1.0f, 1.0f, 1.5f, 1.1f, 1.1f },
+                    DamageMult = new float[] { 1.0f, 1.0f, 1.5f, 1.265f, 1.265f },
                     ImpactMult = new float[] { 1.0f, 1.0f, 1.5f, 1.1f, 1.1f },
-                    StamMult   = new float[] { 1.0f, 1.0f, 1.3f, 1.1f, 1.1f } 
+                    StamMult   = new float[] { 1.0f, 1.0f, 1.3f, 1.1f, 1.1f }
                 }
             },
             {
@@ -150,7 +150,7 @@ namespace SideLoader
                 {   //                         1     2     3     4     5
                     DamageMult = new float[] { 1.0f, 1.0f, 1.3f, 1.3f, 1.3f },
                     ImpactMult = new float[] { 1.0f, 1.0f, 1.3f, 1.3f, 1.3f },
-                    StamMult   = new float[] { 1.0f, 1.0f, 1.2f, 1.2f, 1.2f } 
+                    StamMult   = new float[] { 1.0f, 1.0f, 1.2f, 1.2f, 1.2f }
                 }
             },
             {
@@ -159,7 +159,7 @@ namespace SideLoader
                 {   //                         1     2     3     4     5
                     DamageMult = new float[] { 1.0f, 1.0f, 1.3f, 1.3f, 1.3f },
                     ImpactMult = new float[] { 1.0f, 1.0f, 1.3f, 1.3f, 1.3f },
-                    StamMult   = new float[] { 1.0f, 1.0f, 1.2f, 1.1f, 1.1f } 
+                    StamMult   = new float[] { 1.0f, 1.0f, 1.375f, 1.375f, 1.35f }
                 }
             },
             {
@@ -168,7 +168,7 @@ namespace SideLoader
                 {   //                         1     2     3     4     5
                     DamageMult = new float[] { 1.0f, 1.0f, 1.3f, 1.3f, 1.3f },
                     ImpactMult = new float[] { 1.0f, 1.0f, 2.5f, 1.3f, 1.3f },
-                    StamMult   = new float[] { 1.0f, 1.0f, 1.3f, 1.3f, 1.3f } 
+                    StamMult   = new float[] { 1.0f, 1.0f, 1.3f, 1.3f, 1.3f }
                 }
             },
             {
@@ -177,7 +177,7 @@ namespace SideLoader
                 {   //                         1     2     3      4     5
                     DamageMult = new float[] { 1.0f, 1.0f, 0.75f, 1.4f, 1.4f },
                     ImpactMult = new float[] { 1.0f, 1.0f, 2.0f,  1.4f, 1.4f },
-                    StamMult   = new float[] { 1.0f, 1.0f, 1.2f,  1.2f, 1.2f } 
+                    StamMult   = new float[] { 1.0f, 1.0f, 1.2f,  1.2f, 1.2f }
                 }
             },
             {
@@ -186,7 +186,7 @@ namespace SideLoader
                 {   //                         1     2     3     4     5
                     DamageMult = new float[] { 1.0f, 1.0f, 1.3f, 1.3f, 1.7f },
                     ImpactMult = new float[] { 1.0f, 1.0f, 1.3f, 1.3f, 1.7f },
-                    StamMult   = new float[] { 1.0f, 1.0f, 1.25f, 1.25f, 1.75f } 
+                    StamMult   = new float[] { 1.0f, 1.0f, 1.25f, 1.25f, 1.75f }
                 }
             },
             {
