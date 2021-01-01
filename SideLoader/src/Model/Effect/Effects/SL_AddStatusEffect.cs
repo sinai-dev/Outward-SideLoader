@@ -11,7 +11,7 @@ namespace SideLoader
         /// <summary>Must use a Status Identifier, not the actual name of the status effect.</summary>
         public string StatusEffect = "";
         /// <summary>Usually this is 100 for 100%, but it can be between 0 and 100.</summary>
-        public int ChanceToContract;
+        public int ChanceToContract = 100;
         /// <summary>If true, overrides the affected character to be the creator of this effect. Used for HitEffects.</summary>
         public bool AffectController = false;
         /// <summary>For LevelStatusEffects (ie Alert), adds additional stacks to the level.</summary>
@@ -25,7 +25,7 @@ namespace SideLoader
 
             if (!status)
             {
-                SL.Log("Error getting status effect on AddStatusEffectHolder. Could not find " + this.StatusEffect);
+                SL.LogWarning($"{this.GetType().Name}: Could not find any effect with the identifier '{this.StatusEffect}'");
                 return;
             }
 

@@ -17,7 +17,7 @@ namespace SideLoader
         /// </summary>
         public float Buildup;
 
-        public float BuildUpMultiplier;
+        public float BuildUpMultiplier = 1.0f;
         public bool BypassCounter;
 
         public override void ApplyToComponent<T>(T component)
@@ -26,7 +26,7 @@ namespace SideLoader
 
             if (!status)
             {
-                SL.Log("Error getting status effect on AddStatusEffectBuildupHolder. Could not find " + this.StatusEffect);
+                SL.LogWarning($"{this.GetType().Name}: Could not find any effect with the identifier '{this.StatusEffect}'");
                 return;
             }
 

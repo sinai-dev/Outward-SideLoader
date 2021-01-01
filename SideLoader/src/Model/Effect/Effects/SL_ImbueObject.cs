@@ -17,7 +17,7 @@ namespace SideLoader
 
             if (!preset)
             {
-                SL.Log("Could not find imbue effect preset of ID " + this.ImbueEffect_Preset_ID);
+                SL.Log($"{this.GetType().Name}: Could not find imbue effect preset of ID '{this.ImbueEffect_Preset_ID}'");
                 return;
             }
 

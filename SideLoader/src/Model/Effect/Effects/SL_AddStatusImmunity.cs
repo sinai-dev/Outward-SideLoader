@@ -16,7 +16,7 @@ namespace SideLoader
 
             if (tag == Tag.None)
             {
-                SL.Log("Could not find a tag with the name " + ImmunityTag + "!");
+                SL.LogWarning($"{this.GetType().Name}: Could not find a tag with the name '{ImmunityTag}'!");
                 return;
             }
 
