@@ -10,7 +10,7 @@
   </a> 
   <img src="https://img.shields.io/github/downloads/sinai-dev/Outward-SideLoader/total.svg" /> 
   <a href="https://www.nexusmods.com/outward/mods/96">
-    <img src="https://img.shields.io/badge/NexusMods-40k+%20downloads-red?link=https://www.nexusmods.com/outward/mods/96" />
+    <img src="https://img.shields.io/badge/NexusMods-red?link=https://www.nexusmods.com/outward/mods/96" />
   </a>  
 </p>
 
