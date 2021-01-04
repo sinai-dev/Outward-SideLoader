@@ -52,38 +52,55 @@ namespace SideLoader
             var ingredients = new List<RecipeIngredient>();
             foreach (var ingredient in this.Ingredients)
             {
-                if (ingredient.Ingredient_ItemID == 0)
+                if (ingredient.Type == RecipeIngredient.ActionTypes.AddGenericIngredient)
                 {
-                    SL.LogWarning("Picking an Ingredient based on Item ID, but no ID was set. Check your XML and make sure there are no logical errors. Aborting");
-                    return;
+                    var tag = CustomTags.GetTag(ingredient.Ingredient_Tag);
+                    if (tag == Tag.None)
+                    {
+                        SL.LogWarning("Could not get a tag by the name of '" + ingredient.Ingredient_Tag);
+                        return;
+                    }
+
+                    ingredients.Add(new RecipeIngredient
+                    {
+                        ActionType = ingredient.Type,
+                        AddedIngredientType = new TagSourceSelector(tag)
+                    });
                 }
-
-                var ingredientItem = ResourcesPrefabManager.Instance.GetItemPrefab(ingredient.Ingredient_ItemID);
-                if (!ingredientItem)
+                else
                 {
-                    SL.Log("Error: Could not get ingredient id : " + ingredient.Ingredient_ItemID);
-                    return;
+                    if (ingredient.Ingredient_ItemID == 0)
+                    {
+                        SL.LogWarning("Picking an Ingredient based on Item ID, but no ID was set. Check your XML and make sure there are no logical errors. Aborting");
+                        return;
+                    }
+
+                    var ingredientItem = ResourcesPrefabManager.Instance.GetItemPrefab(ingredient.Ingredient_ItemID);
+                    if (!ingredientItem)
+                    {
+                        SL.Log("Error: Could not get ingredient id : " + ingredient.Ingredient_ItemID);
+                        return;
+                    }
+
+                    // The item needs the station type tag in order to be used in a manual recipe on that station
+                    var tag = TagSourceManager.GetCraftingIngredient(StationType);
+                    if (!ingredientItem.HasTag(tag))
+                    {
+                        //SL.Log($"Adding tag {tag.TagName} to " + ingredientItem.name);
+
+                        if (!ingredientItem.GetComponent<TagSource>())
+                            ingredientItem.gameObject.AddComponent<TagSource>();
+
+                        ((List<TagSourceSelector>)At.GetField<TagListSelectorComponent>(ingredientItem.GetComponent<TagSource>(), "m_tagSelectors"))
+                            .Add(new TagSourceSelector(tag));
+                    }
+
+                    ingredients.Add(new RecipeIngredient()
+                    {
+                        ActionType = RecipeIngredient.ActionTypes.AddSpecificIngredient,
+                        AddedIngredient = ingredientItem,
+                    });
                 }
-
-                // The item needs the station type tag in order to be used in a manual recipe on that station
-                var tag = TagSourceManager.GetCraftingIngredient(StationType);
-                if (!ingredientItem.HasTag(tag))
-                {
-                    //SL.Log($"Adding tag {tag.TagName} to " + ingredientItem.name);
-
-                    //if (!ingredientItem.GetComponent<TagSource>())
-                    //    ingredientItem.gameObject.AddComponent<TagSource>();
-
-                    ((List<TagSourceSelector>)At.GetField<TagListSelectorComponent>(ingredientItem.GetComponent<TagSource>(), "m_tagSelectors"))
-                        .Add(new TagSourceSelector(tag));
-                }
-
-                ingredients.Add(new RecipeIngredient()
-                {
-                    ActionType = ingredient.Type,
-                    AddedIngredient = ingredientItem,
-                    AddedIngredientType = ingredient.Ingredient_Tag == null ? null : new TagSourceSelector(CustomItems.GetTag(ingredient.Ingredient_Tag))
-                });
             }
 
             var recipe = ScriptableObject.CreateInstance<Recipe>();
