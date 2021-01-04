@@ -25,6 +25,12 @@ namespace SideLoader
 
         public void ApplyRecipe()
         {
+            if (string.IsNullOrEmpty(this.UID))
+            {
+                SL.LogWarning("No UID was set! Please set a UID, for example 'myname.myrecipe'. Aborting.");
+                return;
+            }
+
             if (m_applied)
             {
                 SL.Log("Trying to apply an SL_Recipe that is already applied! This is not allowed.");
@@ -46,6 +52,12 @@ namespace SideLoader
             var ingredients = new List<RecipeIngredient>();
             foreach (var ingredient in this.Ingredients)
             {
+                if (ingredient.Ingredient_ItemID == 0)
+                {
+                    SL.LogWarning("Picking an Ingredient based on Item ID, but no ID was set. Check your XML and make sure there are no logical errors. Aborting");
+                    return;
+                }
+
                 var ingredientItem = ResourcesPrefabManager.Instance.GetItemPrefab(ingredient.Ingredient_ItemID);
                 if (!ingredientItem)
                 {
@@ -58,6 +70,9 @@ namespace SideLoader
                 if (!ingredientItem.HasTag(tag))
                 {
                     //SL.Log($"Adding tag {tag.TagName} to " + ingredientItem.name);
+
+                    //if (!ingredientItem.GetComponent<TagSource>())
+                    //    ingredientItem.gameObject.AddComponent<TagSource>();
 
                     ((List<TagSourceSelector>)At.GetField<TagListSelectorComponent>(ingredientItem.GetComponent<TagSource>(), "m_tagSelectors"))
                         .Add(new TagSourceSelector(tag));

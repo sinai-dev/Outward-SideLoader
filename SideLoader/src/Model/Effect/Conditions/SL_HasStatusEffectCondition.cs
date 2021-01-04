@@ -19,7 +19,9 @@ namespace SideLoader
         {
             var comp = component as HasStatusEffectEffectCondition;
 
+            comp.Invert = false;
             comp.Inverse = this.Invert;
+
             comp.CheckOwner = this.CheckOwner;
             comp.DiseaseAge = this.DiseaseAge;
 
@@ -50,6 +52,7 @@ namespace SideLoader
             var comp = component as HasStatusEffectEffectCondition;
 
             Invert = comp.Inverse;
+
             DiseaseAge = comp.DiseaseAge;
             CheckOwner = comp.CheckOwner;
 

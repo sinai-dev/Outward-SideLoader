@@ -165,8 +165,9 @@ namespace SideLoader
             var desc = _description ?? "";
 
             At.SetField(item, "m_name", name);
-            At.SetField(item, "m_lastDescLang", LocalizationManager.Instance.CurrentLanguage);
+            At.SetField(item, "m_localizedName", name);
             At.SetField(item, "m_localizedDescription", desc);
+            At.SetField(item, "m_lastDescLang", LocalizationManager.Instance.CurrentLanguage);
 
             SetCustomLocalization(item.ItemID, name, desc);
 
