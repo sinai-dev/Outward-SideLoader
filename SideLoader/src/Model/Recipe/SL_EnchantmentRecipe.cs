@@ -46,12 +46,11 @@ namespace SideLoader
         {
             if (SL.PacksLoaded)
             {
+                SL.LogWarning("Applying a template AFTER SL.OnPacksLoaded has been called. This is not recommended, use SL.BeforePacksLoaded instead.");
                 ApplyTemplate();
             }
             else
-            {
-                SL.INTERNAL_ApplyRecipes += ApplyTemplate;
-            }
+                SL.PendingEnchantments.Add(this);
         }
 
         private void ApplyTemplate()

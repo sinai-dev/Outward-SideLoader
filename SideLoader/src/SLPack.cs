@@ -187,7 +187,7 @@ namespace SideLoader
             if (!Directory.Exists(GetSubfolderPath(SubFolders.Texture2D)))
                 return;
 
-            foreach (var texPath in Directory.GetFiles(GetSubfolderPath(SubFolders.Texture2D)))
+            foreach (var texPath in Directory.GetFiles(GetSubfolderPath(SubFolders.Texture2D), "*.png"))
             {
                 var texture = CustomTextures.LoadTexture(texPath, false, false);
                 var name = Path.GetFileNameWithoutExtension(texPath);
@@ -234,15 +234,15 @@ namespace SideLoader
 
                 if (template is SL_StatusEffect statusTemplate)
                 {
-                    CustomStatusEffects.CreateCustomStatus(statusTemplate);
                     statusTemplate.SLPackName = Name;
                     statusTemplate.SubfolderName = entry.Value;
+                    statusTemplate.Apply();                 
                 }
                 else if (template is SL_ImbueEffect imbueTemplate)
                 {
-                    CustomStatusEffects.CreateCustomImbue(imbueTemplate);
                     imbueTemplate.SLPackName = Name;
                     imbueTemplate.SubfolderName = entry.Value;
+                    imbueTemplate.Apply();
                 }
                 else
                 {
@@ -301,14 +301,12 @@ namespace SideLoader
                         {
                             itemHolder.SubfolderName = entry.Value;
                             itemHolder.SLPackName = Name;
-
-                            // Clone the target item. This also adds a callback for itemHolder.ApplyTemplateToItem
-                            var item = CustomItems.CreateCustomItem(itemHolder);
+                            itemHolder.Apply();
                         }
                     }
                     catch (Exception e)
                     {
-                        SL.Log("LoadFromFolder: Error creating custom item! " + e.GetType() + ", " + e.Message);
+                        SL.Log("Error loading custom item! " + e.GetType() + ", " + e.Message);
                         while (e != null)
                         {
                             SL.Log(e.ToString());
@@ -347,9 +345,7 @@ namespace SideLoader
             foreach (var recipePath in Directory.GetFiles(path))
             {
                 if (Serializer.LoadFromXml(recipePath) is SL_Recipe recipeHolder)
-                {
-                    SL.INTERNAL_ApplyRecipes += recipeHolder.ApplyRecipe;
-                }
+                    SL.PendingRecipes.Add(recipeHolder);
             }
         }
 
@@ -388,9 +384,7 @@ namespace SideLoader
                 try
                 {
                     if (Serializer.LoadFromXml(filePath) is SL_EnchantmentRecipe template)
-                    {
                         template.Apply();
-                    }
                 }
                 catch
                 {

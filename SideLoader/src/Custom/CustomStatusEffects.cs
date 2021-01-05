@@ -132,11 +132,11 @@ namespace SideLoader
             // Always do this
             GameObject.DontDestroyOnLoad(newEffect.gameObject);
 
-            // Apply template
-            if (SL.PacksLoaded)
-                template.ApplyTemplate();
-            else
-                SL.INTERNAL_ApplyStatuses += template.ApplyTemplate;
+            //// Apply template
+            //if (SL.PacksLoaded)
+            //    template.ApplyTemplate();
+            //else
+            //    SL.INTERNAL_ApplyStatuses += template.ApplyTemplate;
 
             return newEffect;
         }
@@ -236,11 +236,11 @@ namespace SideLoader
             // Always do this
             GameObject.DontDestroyOnLoad(newEffect.gameObject);
 
-            // Apply template
-            if (SL.PacksLoaded)
-                template.ApplyTemplate();
-            else
-                SL.INTERNAL_ApplyStatuses += template.ApplyTemplate;
+            //// Apply template
+            //if (SL.PacksLoaded)
+            //    template.ApplyTemplate();
+            //else
+            //    SL.INTERNAL_ApplyStatuses += template.ApplyTemplate;
 
             return newEffect;
         }

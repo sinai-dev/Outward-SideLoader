@@ -6,13 +6,24 @@ using System.Linq;
 using System.Reflection;
 using System.Xml.Serialization;
 using SideLoader.Helpers;
+using SideLoader.Model;
 using UnityEngine;
 
 namespace SideLoader
 {
     [SL_Serialized]
-    public class SL_StatusEffect
+    public class SL_StatusEffect : IPrefabTemplate<string>
     {
+        public bool IsCreatingNewID => !string.IsNullOrEmpty(this.StatusIdentifier) && this.StatusIdentifier != this.TargetStatusIdentifier;
+        public bool DoesTargetExist => ResourcesPrefabManager.Instance.GetStatusEffectPrefab(this.TargetStatusIdentifier);
+
+        public string TargetID => this.TargetStatusIdentifier;
+        public string NewID => this.StatusIdentifier;
+
+        public void CreatePrefab() => this.ApplyTemplate();
+
+        // ~~~~~~~~~~~~~~~~~~~~
+
         /// <summary> [NOT SERIALIZED] The name of the SLPack this custom status template comes from (or is using).
         /// If defining from C#, you can set this to the name of the pack you want to load assets from.</summary>
         [XmlIgnore] public string SLPackName;
@@ -55,14 +66,23 @@ namespace SideLoader
         public EditBehaviours EffectBehaviour = EditBehaviours.Override;
         public SL_EffectTransform[] Effects;
 
+        public void Apply()
+        {
+            if (SL.PacksLoaded)
+            {
+                SL.LogWarning("Applying a template AFTER SL.OnPacksLoaded has been called. This is not recommended, use SL.BeforePacksLoaded instead.");
+                ApplyTemplate();
+            }
+            else
+                SL.PendingStatuses.Add(this);
+        }
+
         public virtual void ApplyTemplate()
         {
-            StatusEffect status = ResourcesPrefabManager.Instance.GetStatusEffectPrefab(this.StatusIdentifier);
-            if (!status)
-            {
-                SL.Log("Could not find a StatusEffect with the Identifier: " + StatusIdentifier);
-                return;
-            }
+            if (string.IsNullOrEmpty(this.StatusIdentifier))
+                this.StatusIdentifier = this.TargetStatusIdentifier;
+
+            var status = CustomStatusEffects.CreateCustomStatus(this);
 
             SL.Log("Applying Status Effect template: " + Name ?? status.name);
 

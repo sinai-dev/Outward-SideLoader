@@ -25,141 +25,150 @@ namespace SideLoader
 
         public void ApplyRecipe()
         {
-            if (string.IsNullOrEmpty(this.UID))
+            try
             {
-                SL.LogWarning("No UID was set! Please set a UID, for example 'myname.myrecipe'. Aborting.");
-                return;
-            }
+                SL.Log("Defining recipe UID: " + this.UID);
 
-            if (m_applied)
-            {
-                SL.Log("Trying to apply an SL_Recipe that is already applied! This is not allowed.");
-                return;
-            }
-
-            var results = new List<ItemReferenceQuantity>();
-            foreach (var result in this.Results)
-            {
-                var resultItem = ResourcesPrefabManager.Instance.GetItemPrefab(result.ItemID);
-                if (!resultItem)
+                if (string.IsNullOrEmpty(this.UID))
                 {
-                    SL.Log("Error: Could not get recipe result id : " + result.ItemID);
+                    SL.LogWarning("No UID was set! Please set a UID, for example 'myname.myrecipe'. Aborting.");
                     return;
                 }
-                results.Add(new ItemReferenceQuantity(resultItem, result.Quantity));
-            }
 
-            var ingredients = new List<RecipeIngredient>();
-            foreach (var ingredient in this.Ingredients)
-            {
-                if (ingredient.Type == RecipeIngredient.ActionTypes.AddGenericIngredient)
+                if (m_applied)
                 {
-                    var tag = CustomTags.GetTag(ingredient.Ingredient_Tag);
-                    if (tag == Tag.None)
+                    SL.Log("Trying to apply an SL_Recipe that is already applied! This is not allowed.");
+                    return;
+                }
+
+                var results = new List<ItemReferenceQuantity>();
+                foreach (var result in this.Results)
+                {
+                    var resultItem = ResourcesPrefabManager.Instance.GetItemPrefab(result.ItemID);
+                    if (!resultItem)
                     {
-                        SL.LogWarning("Could not get a tag by the name of '" + ingredient.Ingredient_Tag);
+                        SL.Log("Error: Could not get recipe result id : " + result.ItemID);
                         return;
                     }
+                    results.Add(new ItemReferenceQuantity(resultItem, result.Quantity));
+                }
 
-                    ingredients.Add(new RecipeIngredient
+                var ingredients = new List<RecipeIngredient>();
+                foreach (var ingredient in this.Ingredients)
+                {
+                    if (ingredient.Type == RecipeIngredient.ActionTypes.AddGenericIngredient)
                     {
-                        ActionType = ingredient.Type,
-                        AddedIngredientType = new TagSourceSelector(tag)
-                    });
+                        var tag = CustomTags.GetTag(ingredient.Ingredient_Tag);
+                        if (tag == Tag.None)
+                        {
+                            SL.LogWarning("Could not get a tag by the name of '" + ingredient.Ingredient_Tag);
+                            return;
+                        }
+
+                        ingredients.Add(new RecipeIngredient
+                        {
+                            ActionType = ingredient.Type,
+                            AddedIngredientType = new TagSourceSelector(tag)
+                        });
+                    }
+                    else
+                    {
+                        if (ingredient.Ingredient_ItemID == 0)
+                        {
+                            SL.LogWarning("Picking an Ingredient based on Item ID, but no ID was set. Check your XML and make sure there are no logical errors. Aborting");
+                            return;
+                        }
+
+                        var ingredientItem = ResourcesPrefabManager.Instance.GetItemPrefab(ingredient.Ingredient_ItemID);
+                        if (!ingredientItem)
+                        {
+                            SL.Log("Error: Could not get ingredient id : " + ingredient.Ingredient_ItemID);
+                            return;
+                        }
+
+                        // The item needs the station type tag in order to be used in a manual recipe on that station
+                        var tag = TagSourceManager.GetCraftingIngredient(StationType);
+                        if (!ingredientItem.HasTag(tag))
+                        {
+                            //SL.Log($"Adding tag {tag.TagName} to " + ingredientItem.name);
+
+                            if (!ingredientItem.GetComponent<TagSource>())
+                                ingredientItem.gameObject.AddComponent<TagSource>();
+
+                            ((List<TagSourceSelector>)At.GetField<TagListSelectorComponent>(ingredientItem.GetComponent<TagSource>(), "m_tagSelectors"))
+                                .Add(new TagSourceSelector(tag));
+                        }
+
+                        ingredients.Add(new RecipeIngredient()
+                        {
+                            ActionType = RecipeIngredient.ActionTypes.AddSpecificIngredient,
+                            AddedIngredient = ingredientItem,
+                        });
+                    }
+                }
+
+                var recipe = ScriptableObject.CreateInstance<Recipe>();
+
+                recipe.SetCraftingType(this.StationType);
+
+                At.SetField(recipe, "m_results", results.ToArray());
+                recipe.SetRecipeIngredients(ingredients.ToArray());
+
+                // set or generate UID
+                if (string.IsNullOrEmpty(this.UID))
+                {
+                    var uid = $"{recipe.Results[0].ItemID}{recipe.Results[0].Quantity}";
+                    foreach (var ing in recipe.Ingredients)
+                    {
+                        if (ing.AddedIngredient != null)
+                        {
+                            uid += $"{ing.AddedIngredient.ItemID}";
+                        }
+                        else if (ing.AddedIngredientType != null)
+                        {
+                            uid += $"{ing.AddedIngredientType.Tag.TagName}";
+                        }
+                    }
+                    this.UID = uid;
+                    At.SetField(recipe, "m_uid", new UID(uid));
                 }
                 else
                 {
-                    if (ingredient.Ingredient_ItemID == 0)
-                    {
-                        SL.LogWarning("Picking an Ingredient based on Item ID, but no ID was set. Check your XML and make sure there are no logical errors. Aborting");
-                        return;
-                    }
-
-                    var ingredientItem = ResourcesPrefabManager.Instance.GetItemPrefab(ingredient.Ingredient_ItemID);
-                    if (!ingredientItem)
-                    {
-                        SL.Log("Error: Could not get ingredient id : " + ingredient.Ingredient_ItemID);
-                        return;
-                    }
-
-                    // The item needs the station type tag in order to be used in a manual recipe on that station
-                    var tag = TagSourceManager.GetCraftingIngredient(StationType);
-                    if (!ingredientItem.HasTag(tag))
-                    {
-                        //SL.Log($"Adding tag {tag.TagName} to " + ingredientItem.name);
-
-                        if (!ingredientItem.GetComponent<TagSource>())
-                            ingredientItem.gameObject.AddComponent<TagSource>();
-
-                        ((List<TagSourceSelector>)At.GetField<TagListSelectorComponent>(ingredientItem.GetComponent<TagSource>(), "m_tagSelectors"))
-                            .Add(new TagSourceSelector(tag));
-                    }
-
-                    ingredients.Add(new RecipeIngredient()
-                    {
-                        ActionType = RecipeIngredient.ActionTypes.AddSpecificIngredient,
-                        AddedIngredient = ingredientItem,
-                    });
+                    At.SetField(recipe, "m_uid", new UID(this.UID));
                 }
-            }
 
-            var recipe = ScriptableObject.CreateInstance<Recipe>();
+                recipe.Init();
 
-            recipe.SetCraftingType(this.StationType);
+                // fix Recipe Manager dictionaries to contain our recipe
+                var dict = References.ALL_RECIPES;
+                var dict2 = References.RECIPES_PER_UTENSIL;
 
-            At.SetField(recipe, "m_results", results.ToArray());
-            recipe.SetRecipeIngredients(ingredients.ToArray());            
-
-            // set or generate UID
-            if (string.IsNullOrEmpty(this.UID))
-            {
-                var uid = $"{recipe.Results[0].ItemID}{recipe.Results[0].Quantity}";
-                foreach (var ing in recipe.Ingredients)
+                if (dict.ContainsKey(recipe.UID))
                 {
-                    if (ing.AddedIngredient != null)
-                    {
-                        uid += $"{ing.AddedIngredient.ItemID}";
-                    }
-                    else if (ing.AddedIngredientType != null)
-                    {
-                        uid += $"{ing.AddedIngredientType.Tag.TagName}";
-                    }
+                    dict[recipe.UID] = recipe;
                 }
-                this.UID = uid;
-                At.SetField(recipe, "m_uid", new UID(uid));
-            }
-            else
-            {
-                At.SetField(recipe, "m_uid",new UID(this.UID));
-            }
+                else
+                {
+                    dict.Add(recipe.UID, recipe);
+                }
 
-            recipe.Init();
+                if (!dict2.ContainsKey(recipe.CraftingStationType))
+                {
+                    dict2.Add(recipe.CraftingStationType, new List<UID>());
+                }
 
-            // fix Recipe Manager dictionaries to contain our recipe
-            var dict = References.ALL_RECIPES;
-            var dict2 = References.RECIPES_PER_UTENSIL;
+                if (!dict2[recipe.CraftingStationType].Contains(recipe.UID))
+                {
+                    dict2[recipe.CraftingStationType].Add(recipe.UID);
+                }
 
-            if (dict.ContainsKey(recipe.UID))
-            {
-                dict[recipe.UID] = recipe;
+                m_applied = true;
             }
-            else
+            catch (Exception e)
             {
-                dict.Add(recipe.UID, recipe);
+                SL.LogWarning("Error applying recipe!");
+                SL.LogInnerException(e);
             }
-
-            if (!dict2.ContainsKey(recipe.CraftingStationType))
-            {
-                dict2.Add(recipe.CraftingStationType, new List<UID>());
-            }
-            
-            if (!dict2[recipe.CraftingStationType].Contains(recipe.UID))
-            {
-                dict2[recipe.CraftingStationType].Add(recipe.UID);
-            }
-
-            SL.Log("Defined recipe '" + recipe.Name + "', UID: " + recipe.UID);
-            m_applied = true;
         }
 
         public static SL_Recipe ParseRecipe(Recipe recipe)

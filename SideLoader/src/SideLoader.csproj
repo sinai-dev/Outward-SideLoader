@@ -47,6 +47,7 @@
     <Compile Include="Helpers\References.cs" />
     <Compile Include="Helpers\UnityHelpers.cs" />
     <Compile Include="Hooks.cs" />
+    <Compile Include="Model\TemplateDependancySolver.cs" />
     <Compile Include="Model\Effect\Conditions\SL_InBoundsCondition.cs" />
     <Compile Include="Model\Effect\Conditions\SL_InstrumentClose.cs" />
     <Compile Include="Model\Effect\Conditions\SL_InTownOrCityCondition.cs" />
@@ -71,6 +72,7 @@
     <Compile Include="Model\Effect\Effects\SL_WeaponDamageProjectileWeapon.cs" />
     <Compile Include="Model\Effect\Effects\SL_WeaponDamageStatusOnKill.cs" />
     <Compile Include="Model\Effect\Effects\SL_WeaponDamageTargetHealth.cs" />
+    <Compile Include="Model\IPrefabTemplate.cs" />
     <Compile Include="Model\Item\Building\SL_Building.cs" />
     <Compile Include="Model\Item\Building\SL_BuildingRequirement.cs" />
     <Compile Include="Model\Item\Building\SL_ConstructionPhase.cs" />

@@ -49,12 +49,11 @@ namespace SideLoader
 
         /// <summary>
         /// Clones an item prefab and returns the clone to you. Caches the original prefab for other mods or other custom items to reference.
-        /// If you provide a SL_Item template, this will be applied as well (either immediately or with a callback later).
         /// </summary>
         /// <param name="cloneTargetID">The Item ID of the Item you want to clone from</param>
         /// <param name="newID">The new Item ID for your cloned item. Can be the same as the target, will overwrite.</param>
         /// <param name="name">Only used for the gameObject name, not the actual Item Name. This is the name thats used in Debug Menus.</param>
-        /// <param name="template">[Optional] If you want to apply a template for this item manually, you can provide it here.</param>
+        /// <param name="template">[Optional] If provided, the item component may be changed to match the type of the template if necessary.</param>
         /// <returns>Your cloned Item prefab</returns>
         public static Item CreateCustomItem(int cloneTargetID, int newID, string name, SL_Item template = null)
         {
@@ -67,14 +66,6 @@ namespace SideLoader
             }
 
             Item item;
-
-            if (newID == -1)
-            {
-                if (template != null)
-                    template.New_ItemID = template.Target_ItemID;
-
-                newID = cloneTargetID;
-            }
 
             // modifying an existing item
             if (newID == cloneTargetID)
@@ -116,11 +107,6 @@ namespace SideLoader
             // Do this so that any changes we make are not destroyed on scene changes.
             // This is needed whether this is a clone or a new item.
             GameObject.DontDestroyOnLoad(item.gameObject);
-
-            if (template != null)
-            {
-                template.Apply();
-            }
 
             return item;
         }

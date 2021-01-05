@@ -5,12 +5,21 @@ using System.Text;
 using System.Xml.Serialization;
 using UnityEngine;
 using System.IO;
+using SideLoader.Model;
 
 namespace SideLoader
 {
     [SL_Serialized]
-    public class SL_ImbueEffect
+    public class SL_ImbueEffect : IPrefabTemplate<int>
     {
+        public bool IsCreatingNewID => this.NewStatusID > 0 && this.NewStatusID != this.TargetStatusID;
+        public bool DoesTargetExist => ResourcesPrefabManager.Instance.GetEffectPreset(this.TargetStatusID);
+
+        public int TargetID => this.TargetStatusID;
+        public int NewID => this.NewStatusID;
+
+        public void CreatePrefab() => this.ApplyTemplate();
+
         /// <summary> [NOT SERIALIZED] The name of the SLPack this custom item template comes from (or is using).
         /// If defining from C#, you can set this to the name of the pack you want to load assets from.</summary>
         [XmlIgnore]
@@ -30,14 +39,23 @@ namespace SideLoader
         public EditBehaviours EffectBehaviour = EditBehaviours.Override;
         public SL_EffectTransform[] Effects;
 
+        public void Apply()
+        {
+            if (SL.PacksLoaded)
+            {
+                SL.LogWarning("Applying a template AFTER SL.OnPacksLoaded has been called. This is not recommended, use SL.BeforePacksLoaded instead.");
+                ApplyTemplate();
+            }
+            else
+                SL.PendingImbues.Add(this);
+        }
+
         public void ApplyTemplate()
         {
-            var preset = (ImbueEffectPreset)ResourcesPrefabManager.Instance.GetEffectPreset(this.NewStatusID);
-            if (!preset)
-            {
-                SL.Log($"Could not find an Imbue Effect with the ID {NewStatusID}! Make sure you've called CustomStatusEffects.CreateCustomImbue first!");
-                return;
-            }
+            if (this.NewStatusID <= 0)
+                this.NewStatusID = this.TargetStatusID;
+
+            var preset = CustomStatusEffects.CreateCustomImbue(this);
 
             CustomStatusEffects.SetImbueLocalization(preset, Name, Description);
 

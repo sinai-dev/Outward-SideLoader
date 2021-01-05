@@ -5,6 +5,7 @@ using System.IO;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using BepInEx;
+using SideLoader.Model;
 
 namespace SideLoader
 {
@@ -53,11 +54,13 @@ namespace SideLoader
         /// loaded, gameplay may not yet be resumed).</summary>
         public static event Action OnSceneLoaded;
 
-        // Internal Events
-        internal static event Action INTERNAL_ApplyStatuses;
-        internal static event Action INTERNAL_ApplyItems;
-        internal static event Action INTERNAL_ApplyRecipes;
-        internal static event Action INTERNAL_ApplyLateItems;
+        // custom template lists
+        internal static readonly List<SL_Item> PendingItems = new List<SL_Item>();
+        internal static readonly List<SL_StatusEffect> PendingStatuses = new List<SL_StatusEffect>();
+        internal static readonly List<SL_ImbueEffect> PendingImbues = new List<SL_ImbueEffect>();
+        internal static readonly List<SL_Recipe> PendingRecipes = new List<SL_Recipe>();
+        internal static readonly List<SL_EnchantmentRecipe> PendingEnchantments = new List<SL_EnchantmentRecipe>();
+        internal static readonly List<SL_Item> PendingLateItems = new List<SL_Item>();
 
         // ======== Scene Change Event ========
 
@@ -100,9 +103,7 @@ namespace SideLoader
 
                 var slFolder = dir + @"\SideLoader";
                 if (Directory.Exists(slFolder))
-                {
                     SLPack.TryLoadPack(name, false, !firstSetup);
-                }
             }
 
             // 'Mods\SideLoader\...' packs:
@@ -120,22 +121,23 @@ namespace SideLoader
 
             // ====== Invoke Callbacks ======
 
-            var delegates = new Dictionary<string, Action>
-            {
-                { "Status Effects", INTERNAL_ApplyStatuses },
-                { "Items",          INTERNAL_ApplyItems },
-                { "Recipes",        INTERNAL_ApplyRecipes },
-                { "Late Items",     INTERNAL_ApplyLateItems },
-            };
+            // apply custom statuses and imbues first
+            new TemplateDependancySolver<SL_StatusEffect, string>().ApplyTemplates(PendingStatuses);
+            new TemplateDependancySolver<SL_ImbueEffect, int>().ApplyTemplates(PendingImbues);
 
-            foreach (var entry in delegates)
-            {
-                if (entry.Value != null)
-                {
-                    Log($"Applying custom {entry.Key}, count: {entry.Value.GetInvocationList().Length}");
-                    TryInvoke(entry.Value);
-                }
-            }
+            // apply early items
+            var itemSolver = new TemplateDependancySolver<SL_Item, int>();
+            itemSolver.ApplyTemplates(PendingItems);
+
+            // apply recipes
+            foreach (var recipe in PendingRecipes)
+                recipe.ApplyRecipe();
+
+            foreach (var enchant in PendingEnchantments)
+                enchant.Apply();
+
+            // apply late items
+            itemSolver.ApplyTemplates(PendingLateItems);
 
             if (firstSetup)
             {
@@ -152,6 +154,12 @@ namespace SideLoader
                 TryInvoke(OnPacksLoaded);
                 Log("Finished invoking OnPacksLoaded.");
             }
+
+            PendingImbues.Clear();
+            PendingItems.Clear();
+            PendingLateItems.Clear();
+            PendingRecipes.Clear();
+            PendingStatuses.Clear();
         }
 
         internal static void CheckPrefabDictionaries()
@@ -178,12 +186,6 @@ namespace SideLoader
 
             // Clear textures dictionary
             CustomTextures.Textures.Clear();
-
-            // Reset internal invocation lists
-            INTERNAL_ApplyItems = null;
-            INTERNAL_ApplyLateItems = null;
-            INTERNAL_ApplyRecipes = null;
-            INTERNAL_ApplyStatuses = null;
         }
 
         public static void TryInvoke(MulticastDelegate _delegate, params object[] args)

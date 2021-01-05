@@ -6,22 +6,32 @@ using UnityEngine;
 using System.IO;
 using System.Xml.Serialization;
 using SideLoader.Helpers;
+using SideLoader.Model;
 
 namespace SideLoader
 {
     [SL_Serialized]
-    public class SL_Item
+    public class SL_Item : IPrefabTemplate<int>
     {
+        // IPrefabTemplate implementation
+
+        public bool IsCreatingNewID => this.New_ItemID > 0 && this.New_ItemID != this.Target_ItemID;
+        public bool DoesTargetExist => ResourcesPrefabManager.Instance.GetItemPrefab(this.Target_ItemID);
+
+        public int TargetID => this.Target_ItemID;
+        public int NewID => this.New_ItemID;
+
+        public void CreatePrefab() => ApplyToItem();
+
+        // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
         /// <summary> [NOT SERIALIZED] The name of the SLPack this custom item template comes from (or is using).
         /// If defining from C#, you can set this to the name of the pack you want to load assets from.</summary>
-        [XmlIgnore]
-        public string SLPackName;
+        [XmlIgnore] public string SLPackName;
         /// <summary> [NOT SERIALIZED] The name of the folder this custom item is using for textures (MyPack/Items/[SubfolderName]/Textures/).</summary>
-        [XmlIgnore]
-        public string SubfolderName;
+        [XmlIgnore] public string SubfolderName;
 
-        [XmlIgnore]
-        public virtual bool ShouldApplyLate => false;
+        [XmlIgnore] public virtual bool ShouldApplyLate => false;
 
         /// <summary>The Item ID of the Item you are cloning FROM</summary>
         public int Target_ItemID = -1;
@@ -85,18 +95,15 @@ namespace SideLoader
         {
             if (SL.PacksLoaded)
             {
+                SL.LogWarning("Applying an Item Template AFTER SL.OnPacksLoaded has been called. This is not recommended, use SL.BeforePacksLoaded instead.");
                 ApplyToItem();
             }
             else
             {
                 if (ShouldApplyLate)
-                {
-                    SL.INTERNAL_ApplyLateItems += ApplyToItem;
-                }
+                    SL.PendingLateItems.Add(this);
                 else
-                {
-                    SL.INTERNAL_ApplyItems += ApplyToItem;
-                }
+                    SL.PendingItems.Add(this);
             }
         }
 
@@ -105,12 +112,10 @@ namespace SideLoader
         /// </summary>
         public void ApplyToItem()
         {
-            var item = ResourcesPrefabManager.Instance.GetItemPrefab(New_ItemID);
-            if (!item)
-            {
-                SL.LogError($"Could not find an item with the ID {New_ItemID}! Maybe you are trying to apply before calling CustomItems.CreateCustomItem?");
-                return;
-            }
+            if (this.New_ItemID <= 0)
+                this.New_ItemID = this.Target_ItemID;
+
+            var item = CustomItems.CreateCustomItem(this);
 
             ApplyToItem(item);
 
