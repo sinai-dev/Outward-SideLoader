@@ -122,11 +122,11 @@ namespace SideLoader
             // ====== Invoke Callbacks ======
 
             // apply custom statuses and imbues first
-            new TemplateDependancySolver<SL_StatusEffect, string>().ApplyTemplates(PendingStatuses);
-            new TemplateDependancySolver<SL_ImbueEffect, int>().ApplyTemplates(PendingImbues);
+            new DependancySolver<SL_StatusEffect, string>().ApplyTemplates(PendingStatuses);
+            new DependancySolver<SL_ImbueEffect, int>().ApplyTemplates(PendingImbues);
 
             // apply early items
-            var itemSolver = new TemplateDependancySolver<SL_Item, int>();
+            var itemSolver = new DependancySolver<SL_Item, int>();
             itemSolver.ApplyTemplates(PendingItems);
 
             // apply recipes

@@ -10,13 +10,13 @@ using SideLoader.Model;
 namespace SideLoader
 {
     [SL_Serialized]
-    public class SL_ImbueEffect : IPrefabTemplate<int>
+    public class SL_ImbueEffect : IPrefabTemplate<SL_ImbueEffect, int>
     {
         public bool IsCreatingNewID => this.NewStatusID > 0 && this.NewStatusID != this.TargetStatusID;
         public bool DoesTargetExist => ResourcesPrefabManager.Instance.GetEffectPreset(this.TargetStatusID);
 
         public int TargetID => this.TargetStatusID;
-        public int NewID => this.NewStatusID;
+        public int AppliedID => this.NewStatusID;
 
         public void CreatePrefab() => this.ApplyTemplate();
 

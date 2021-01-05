@@ -11,19 +11,33 @@ using SideLoader.Model;
 namespace SideLoader
 {
     [SL_Serialized]
-    public class SL_Item : IPrefabTemplate<int>
+    public class SL_Item : IPrefabTemplate<SL_Item, int>
     {
         // IPrefabTemplate implementation
 
-        public bool IsCreatingNewID => this.New_ItemID > 0 && this.New_ItemID != this.Target_ItemID;
-        public bool DoesTargetExist => ResourcesPrefabManager.Instance.GetItemPrefab(this.Target_ItemID);
+        [XmlIgnore] public bool IsCreatingNewID => this.New_ItemID > 0 && this.New_ItemID != this.Target_ItemID;
+        [XmlIgnore] public bool DoesTargetExist => ResourcesPrefabManager.Instance.GetItemPrefab(this.Target_ItemID);
 
-        public int TargetID => this.Target_ItemID;
-        public int NewID => this.New_ItemID;
+        [XmlIgnore] public int TargetID => this.Target_ItemID;
+        [XmlIgnore] public int AppliedID => IsCreatingNewID ? this.New_ItemID : this.Target_ItemID;
 
         public void CreatePrefab() => ApplyToItem();
 
         // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+        internal static readonly Dictionary<int, List<Action<Item>>> s_initCallbacks = new Dictionary<int, List<Action<Item>>>();
+
+        /// <summary>
+        /// Invoked after an instance of an Item based off this template calls its StartInit() method during gameplay.
+        /// </summary>
+        /// <param name="callback">Your callback, invoked for an instance of the item on Init. The Item argument is the Item instance.</param>
+        public void OnInstanceStart(Action<Item> callback)
+        {
+            if (s_initCallbacks.ContainsKey(this.AppliedID))
+                s_initCallbacks[this.AppliedID].Add(callback);
+            else
+                s_initCallbacks.Add(this.AppliedID, new List<Action<Item>> { callback });
+        }
 
         /// <summary> [NOT SERIALIZED] The name of the SLPack this custom item template comes from (or is using).
         /// If defining from C#, you can set this to the name of the pack you want to load assets from.</summary>
@@ -358,6 +372,5 @@ namespace SideLoader
                 SpecialFemaleItemVisuals = SL_ItemVisual.ParseVisualToTemplate(item, VisualPrefabType.SpecialVisualPrefabFemale, ResourcesPrefabManager.Instance.GetItemVisualPrefab(item.SpecialVisualPrefabFemalePath).GetComponent<ItemVisual>());
                 SpecialFemaleItemVisuals.Type = VisualPrefabType.SpecialVisualPrefabFemale;
             }
-        }
-    }
+        }    }
 }

@@ -47,7 +47,7 @@
     <Compile Include="Helpers\References.cs" />
     <Compile Include="Helpers\UnityHelpers.cs" />
     <Compile Include="Hooks.cs" />
-    <Compile Include="Model\TemplateDependancySolver.cs" />
+    <Compile Include="Model\DependancySolver.cs" />
     <Compile Include="Model\Effect\Conditions\SL_InBoundsCondition.cs" />
     <Compile Include="Model\Effect\Conditions\SL_InstrumentClose.cs" />
     <Compile Include="Model\Effect\Conditions\SL_InTownOrCityCondition.cs" />

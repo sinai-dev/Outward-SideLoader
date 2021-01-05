@@ -6,14 +6,14 @@ using System.Threading.Tasks;
 
 namespace SideLoader.Model
 {
-    public interface IPrefabTemplate<T>
+    public interface IPrefabTemplate<T, U>
     {
         bool IsCreatingNewID { get; }
         bool DoesTargetExist { get; }
 
         void CreatePrefab();
 
-        T TargetID { get; }
-        T NewID { get; }
+        U TargetID { get; }
+        U AppliedID { get; }
     }
 }

@@ -12,13 +12,13 @@ using UnityEngine;
 namespace SideLoader
 {
     [SL_Serialized]
-    public class SL_StatusEffect : IPrefabTemplate<string>
+    public class SL_StatusEffect : IPrefabTemplate<SL_StatusEffect, string>
     {
         public bool IsCreatingNewID => !string.IsNullOrEmpty(this.StatusIdentifier) && this.StatusIdentifier != this.TargetStatusIdentifier;
         public bool DoesTargetExist => ResourcesPrefabManager.Instance.GetStatusEffectPrefab(this.TargetStatusIdentifier);
 
         public string TargetID => this.TargetStatusIdentifier;
-        public string NewID => this.StatusIdentifier;
+        public string AppliedID => this.StatusIdentifier;
 
         public void CreatePrefab() => this.ApplyTemplate();
 

@@ -40,9 +40,25 @@ namespace SideLoader.Hooks
     [HarmonyPatch(typeof(Item), "Start")]
     public class Item_Start
     {
-        public static void Postfix(ref string ___m_toLogString)
+        public static void Postfix(Item __instance, ref string ___m_toLogString)
         {
             ___m_toLogString = Serializer.ReplaceInvalidChars(___m_toLogString);
+
+            if (SL_Item.s_initCallbacks.TryGetValue(__instance.ItemID, out List<Action<Item>> invocationList))
+            {
+                foreach (var listener in invocationList)
+                {
+                    try
+                    {
+                        listener.Invoke(__instance);
+                    }
+                    catch (Exception e)
+                    {
+                        SL.LogWarning($"Exception invoking callback for Item.Start() on {__instance.Name}");
+                        SL.LogInnerException(e);
+                    }
+                }
+            }
         }
     }
 
@@ -61,7 +77,7 @@ namespace SideLoader.Hooks
         {
             if (__exception != null)
             {
-                SL.Log("Exception on ResourcesPrefabManager.Load!");
+                SL.Log("Exception on ResourcesPrefabManager.Load: " + __exception.GetType().FullName);
                 SL.Log(__exception.Message);
                 SL.Log(__exception.StackTrace);
             }
