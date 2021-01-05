@@ -14,13 +14,12 @@
   </a>  
 </p>
 
-## Install [![Version](https://img.shields.io/badge/BepInEx-5.4.1-green.svg)](https://github.com/BepInEx/BepInEx)
+## Install [![Version](https://img.shields.io/badge/BepInEx-5.4.5-green.svg)](https://github.com/BepInEx/BepInEx)
 
 * [How To Install](https://sinai-dev.github.io/OSLDocs/#/GettingStarted/Installation)
 
 ## Documentation
 * <b>[SideLoader Docs](https://sinai-dev.github.io/OSLDocs/#/)</b>
-* <B>NOTE:</B> Docs currently not yet updated for version 3.0!
 
 ## Credits
 Written by Sinai.
