@@ -8,14 +8,6 @@ namespace SideLoader.Model
 {
     public class DependancySolver<T, U> where T : IPrefabTemplate<U>
     {
-        internal struct Dependency
-        {
-            public T Template;
-            public T DependsOn;
-
-            public Dependency(T template, T dependency) { Template = template; DependsOn = dependency; }
-        }
-
         public void ApplyTemplates(List<T> allTemplates)
         {
             if (allTemplates == null || !allTemplates.Any())
