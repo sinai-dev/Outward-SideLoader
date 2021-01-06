@@ -85,44 +85,38 @@ namespace SideLoader
         /// <param name="behaviour">Desired EffectBehaviour</param>
         public Transform ApplyToTransform(Transform parent, EditBehaviours behaviour)
         {
-            var transform = new GameObject(this.TransformName).transform;
-            transform.parent = parent;
+            Transform transform;
+            if (parent.Find(this.TransformName) is Transform found)
+                transform = found;
+            else
+            {
+                transform = new GameObject(this.TransformName).transform;
+                transform.parent = parent;
+            }
 
             if (this.Position != null)
-            {
                 transform.localPosition = (Vector3)this.Position;
-            }
             if (this.Rotation != null)
-            {
                 transform.localRotation = Quaternion.Euler((Vector3)this.Rotation);
-            }
             if (this.Scale != null)
-            {
                 transform.localScale = (Vector3)this.Scale;
-            }
 
             // apply effects
             if (this.Effects != null)
             {
                 foreach (var effect in this.Effects)
-                {
                     effect.ApplyToTransform(transform);
-                }
             }
 
             // apply conditions
             if (this.EffectConditions != null)
             {
                 foreach (var condition in this.EffectConditions)
-                {
                     condition.ApplyToTransform(transform);
-                }
             }
 
             if (ChildEffects != null)
-            {
                 ApplyTransformList(transform, ChildEffects, behaviour);
-            }
 
             return transform;
         }
@@ -135,30 +129,20 @@ namespace SideLoader
             };
 
             if (transform.localPosition != Vector3.zero)
-            {
                 holder.Position = transform.localPosition;
-            }
             if (transform.localRotation.eulerAngles != Vector3.zero)
-            {
                 holder.Rotation = transform.localRotation.eulerAngles;
-            }
             if (transform.localScale != Vector3.one)
-            {
                 holder.Scale = transform.localScale;
-            }
 
             var slEffects = new List<SL_Effect>();
             foreach (Effect effect in transform.GetComponents<Effect>())
             {
                 if (!effect.enabled)
-                {
                     continue;
-                }
 
                 if (SL_Effect.ParseEffect(effect) is SL_Effect slEffect)
-                {
                     slEffects.Add(slEffect);
-                }
             }
             holder.Effects = slEffects.ToArray();
 
@@ -166,14 +150,10 @@ namespace SideLoader
             foreach (EffectCondition condition in transform.GetComponents<EffectCondition>())
             {
                 if (!condition.enabled)
-                {
                     continue;
-                }
 
                 if (SL_EffectCondition.ParseCondition(condition) is SL_EffectCondition slCondition)
-                {
                     slConditions.Add(slCondition);
-                }
             }
             holder.EffectConditions = slConditions.ToArray();
 
@@ -181,17 +161,12 @@ namespace SideLoader
             foreach (Transform child in transform)
             {
                 if (child.name == "ExplosionFX" || child.name == "ProjectileFX")
-                {
-                    // visual effects, we cant serialize these yet.
                     continue;
-                }
 
                 var transformHolder = ParseTransform(child);
 
                 if (transformHolder.HasContent)
-                {
                     children.Add(transformHolder);
-                }
             }
             holder.ChildEffects = children.ToArray();
 

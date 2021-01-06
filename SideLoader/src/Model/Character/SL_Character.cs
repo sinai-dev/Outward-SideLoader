@@ -111,9 +111,15 @@ namespace SideLoader
 
             if (!string.IsNullOrEmpty(this.SceneToSpawn))
             {
-                CustomCharacters.INTERNAL_SpawnCharacters += SafeSpawn;
+                CustomCharacters.INTERNAL_SpawnCharacters += SceneSpawnIfValid;
             }
+
+            OnPrepare();
+
+            SL.Log("Prepared SL_Character '" + Name + "' (" + UID + ")");
         }
+
+        internal virtual void OnPrepare() { }
 
         internal void INTERNAL_OnSpawn(Character character, string extraRpcData)
         {
@@ -131,7 +137,7 @@ namespace SideLoader
             SL.TryInvoke(OnSaveApplied, character, extraRpcData);
         }
 
-        internal void SafeSpawn()
+        internal void SceneSpawnIfValid()
         {
             if (PhotonNetwork.isNonMasterClientInRoom || SceneManagerHelper.ActiveSceneName != this.SceneToSpawn)
                 return;
@@ -162,7 +168,7 @@ namespace SideLoader
         /// Applies this template to a character. Some parts of the template are only applied by the host, while others are applied by any client.
         /// Ideally this method should be called by all clients via RPC (which is the case if you just use the Spawn() method).
         /// </summary>
-        public void ApplyToCharacter(Character character)
+        public virtual void ApplyToCharacter(Character character)
         {
             // set name
             if (Name != null)
@@ -219,7 +225,7 @@ namespace SideLoader
             character.gameObject.SetActive(true);
         }
 
-        public void SetStats(Character character)
+        public virtual void SetStats(Character character)
         {
             if (character.GetComponent<PlayerCharacterStats>())
                 CustomCharacters.FixStats(character);
@@ -401,7 +407,7 @@ namespace SideLoader
 
                 hairVisuals = visuals.InstantiateVisuals(presets.Hairs[_hairStyleIndex].transform, visuals.transform).GetComponent<ArmorVisuals>();
 
-                At.SetProperty(hairVisuals, "DefaultHairVisuals", visuals);
+                At.SetProperty(visuals, "DefaultHairVisuals", hairVisuals);
 
                 if (!hairVisuals.gameObject.activeSelf)
                 {

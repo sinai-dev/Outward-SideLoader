@@ -61,6 +61,7 @@ namespace SideLoader
         internal static readonly List<SL_Recipe> PendingRecipes = new List<SL_Recipe>();
         internal static readonly List<SL_EnchantmentRecipe> PendingEnchantments = new List<SL_EnchantmentRecipe>();
         internal static readonly List<SL_Item> PendingLateItems = new List<SL_Item>();
+        internal static readonly List<SL_Character> PendingCharacters = new List<SL_Character>();
 
         // ======== Scene Change Event ========
 
@@ -138,6 +139,10 @@ namespace SideLoader
 
             // apply late items
             itemSolver.ApplyTemplates(PendingLateItems);
+
+            // apply characters
+            foreach (var character in PendingCharacters)
+                character.Prepare();
 
             if (firstSetup)
             {

@@ -79,13 +79,13 @@ namespace SideLoader
                 At.SetField(eStats, "m_baseHealthRegenBonus", (float)this.Health_Regen);
 
             if (this.BarrierProtection != null)
-                At.SetField(eStats, "", (float)this.BarrierProtection);
+                At.SetField(eStats, "m_baseBarrierProtection", (float)this.BarrierProtection);
 
             if (this.GlobalStatusEffectResistance != null)
                 At.SetField(eStats, "m_baseStatusEffectResistance", (float)this.GlobalStatusEffectResistance);
 
             if (this.StaminaRegenModifier != null)
-                At.SetField(eStats, "", this.StaminaRegenModifier);
+                At.SetField(eStats, "m_baseStaminaRegen", this.StaminaRegenModifier);
         }
 
         public override void SerializeStats(ItemStats stats)

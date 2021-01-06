@@ -362,11 +362,9 @@ namespace SideLoader
             {
                 if (Serializer.LoadFromXml(filePath) is SL_Character template)
                 {
-                    SL.Log("Serialized SL_Character '" + template.Name + "'");
-
+                    SL.Log("Serialized SL_Character " + template.Name + " (" + template.UID + ")");
                     CharacterTemplates.Add(template.UID, template);
-
-                    template.Prepare();
+                    SL.PendingCharacters.Add(template);
                 }
             }
         }
