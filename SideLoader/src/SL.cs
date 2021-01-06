@@ -12,7 +12,7 @@ namespace SideLoader
     /// <summary>SideLoader's public-facing core class.</summary>
     public class SL
     {
-        public static SL Instance;
+        public static SL Instance; // hello world
 
         public SL()
         {
