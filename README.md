@@ -11,7 +11,11 @@
   <img src="https://img.shields.io/github/downloads/sinai-dev/Outward-SideLoader/total.svg" /> 
   <a href="https://www.nexusmods.com/outward/mods/96">
     <img src="https://img.shields.io/badge/NexusMods-red?link=https://www.nexusmods.com/outward/mods/96" />
-  </a>  
+  </a>
+  <a href="https://discord.gg/zKyfGmy7TR">
+    <img src="https://img.shields.io/badge/Discord-chat-blue?style=social&logo=discord" />
+  </a>
+  
 </p>
 
 ## Install [![Version](https://img.shields.io/badge/BepInEx-5.4.5-green.svg)](https://github.com/BepInEx/BepInEx)
