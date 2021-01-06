@@ -287,10 +287,15 @@ namespace SideLoader.Hooks
     public class SaveInstance_Save
     {
         [HarmonyPostfix]
-        public static void Postfix()
+        public static void Postfix(SaveInstance __instance)
         {
-            CustomCharacters.SaveCharacters();
+            var worldhost = CharacterManager.Instance.GetWorldHostCharacter();
+            var character = __instance.CharSave.CharacterUID;
 
+            if (character != worldhost.UID)
+                return;
+
+            CustomCharacters.SaveCharacters();
         }
     }
 
