@@ -29,16 +29,25 @@ namespace SideLoader
                 return;
             }
 
-            (component as AddStatusEffect).BaseChancesToContract = this.ChanceToContract;
-            (component as AddStatusEffect).Status = status;
+            var comp = component as AddStatusEffect;
+            comp.Status = status;
+            comp.NoDealer = this.NoDealer;
+            comp.BaseChancesToContract = this.ChanceToContract;
+            comp.AffectController = this.AffectController;
+            comp.AdditionalLevel = this.AdditionalLevel;
         }
 
         public override void SerializeEffect<T>(T effect)
         {
-            if ((effect as AddStatusEffect).Status)
+            var comp = effect as AddStatusEffect;
+
+            if (comp.Status)
             {
-                StatusEffect = (effect as AddStatusEffect).Status.IdentifierName;
-                ChanceToContract = (effect as AddStatusEffect).BaseChancesToContract;
+                StatusEffect = comp.Status.IdentifierName;
+                ChanceToContract = comp.BaseChancesToContract;
+                AffectController = comp.AffectController;
+                AdditionalLevel = comp.AdditionalLevel;
+                NoDealer = comp.NoDealer;
             }
         }
     }
