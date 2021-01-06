@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace SideLoader.Model
 {
-    public interface IPrefabTemplate<T, U>
+    public interface IPrefabTemplate<U>
     {
         bool IsCreatingNewID { get; }
         bool DoesTargetExist { get; }

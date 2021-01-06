@@ -11,7 +11,7 @@ using SideLoader.Model;
 namespace SideLoader
 {
     [SL_Serialized]
-    public class SL_Item : IPrefabTemplate<SL_Item, int>
+    public class SL_Item : IPrefabTemplate<int>
     {
         // IPrefabTemplate implementation
 

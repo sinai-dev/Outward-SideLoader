@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace SideLoader.Model
 {
-    public class DependancySolver<T, U> where T : IPrefabTemplate<T, U>
+    public class DependancySolver<T, U> where T : IPrefabTemplate<U>
     {
         internal struct Dependency
         {

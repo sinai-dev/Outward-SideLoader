@@ -35,7 +35,7 @@ namespace SideLoader.Hooks
 
     #endregion
 
-    #region Item gameobject name bugfix
+    #region Item Start hook
 
     [HarmonyPatch(typeof(Item), "Start")]
     public class Item_Start
