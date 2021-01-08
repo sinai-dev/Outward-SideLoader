@@ -122,7 +122,7 @@
     <Compile Include="Model\Item\ItemExtension\SL_WeaponCharger.cs" />
     <Compile Include="Model\Item\ItemExtension\SL_WeaponLoadout.cs" />
     <Compile Include="Model\Item\ItemExtension\SL_WeaponLoadoutItem.cs" />
-    <Compile Include="Model\Item\ItemVisual\SL_ArmorVisual.cs" />
+    <Compile Include="Model\Item\ItemVisual\SL_ArmorVisuals.cs" />
     <Compile Include="Model\Item\ItemVisual\SL_ItemVisual.cs" />
     <Compile Include="Model\Recipe\SL_EnchantmentRecipe.cs" />
     <Compile Include="Model\Scene\SL_Scene.cs" />

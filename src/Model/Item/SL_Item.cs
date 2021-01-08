@@ -28,15 +28,15 @@ namespace SideLoader
         internal static readonly Dictionary<int, List<Action<Item>>> s_initCallbacks = new Dictionary<int, List<Action<Item>>>();
 
         /// <summary>
-        /// Invoked after an instance of an Item based off this template calls its StartInit() method during gameplay.
+        /// The OnInstanceStart event is called when an Item with this template's applied ID is created or loaded during gameplay.
         /// </summary>
-        /// <param name="callback">Your callback, invoked for an instance of the item on Init. The Item argument is the Item instance.</param>
-        public void OnInstanceStart(Action<Item> callback)
+        /// <param name="listener">Your callback. The Item argument is the Item instance.</param>
+        public void AddOnInstanceStartListener(Action<Item> listener)
         {
             if (s_initCallbacks.ContainsKey(this.AppliedID))
-                s_initCallbacks[this.AppliedID].Add(callback);
+                s_initCallbacks[this.AppliedID].Add(listener);
             else
-                s_initCallbacks.Add(this.AppliedID, new List<Action<Item>> { callback });
+                s_initCallbacks.Add(this.AppliedID, new List<Action<Item>> { listener });
         }
 
         /// <summary> [NOT SERIALIZED] The name of the SLPack this custom item template comes from (or is using).
@@ -370,5 +370,11 @@ namespace SideLoader
                 SpecialFemaleItemVisuals = SL_ItemVisual.ParseVisualToTemplate(item, VisualPrefabType.SpecialVisualPrefabFemale, ResourcesPrefabManager.Instance.GetItemVisualPrefab(item.SpecialVisualPrefabFemalePath).GetComponent<ItemVisual>());
                 SpecialFemaleItemVisuals.Type = VisualPrefabType.SpecialVisualPrefabFemale;
             }
-        }    }
+        }
+
+        // Legacy
+
+        [Obsolete("Use 'AddOnInstanceStartListener' instead (renamed)")]
+        public void OnInstanceStart(Action<Item> callback) => AddOnInstanceStartListener(callback);
+    }
 }

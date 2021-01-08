@@ -13,8 +13,9 @@ namespace SideLoader
     [SL_Serialized]
     public class SL_SkillTree
     {
+        [XmlIgnore] public Sprite Sigil;
+
         public string Name;
-        public Sprite Sigil;
         public List<SL_SkillRow> SkillRows = new List<SL_SkillRow>();
 
         public string UID;

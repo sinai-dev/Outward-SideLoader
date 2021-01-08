@@ -39,6 +39,9 @@ namespace SideLoader
         public EditBehaviours EffectBehaviour = EditBehaviours.Override;
         public SL_EffectTransform[] Effects;
 
+        /// <summary>
+        /// Call this to apply your template at Awake or BeforePacksLoaded.
+        /// </summary>
         public void Apply()
         {
             if (SL.PacksLoaded)
@@ -50,7 +53,7 @@ namespace SideLoader
                 SL.PendingImbues.Add(this);
         }
 
-        public void ApplyTemplate()
+        internal void ApplyTemplate()
         {
             if (this.NewStatusID <= 0)
                 this.NewStatusID = this.TargetStatusID;
