@@ -101,15 +101,13 @@ namespace SideLoader
         public void ApplyTemplateToItem() => Apply();
 
         /// <summary>
-        /// The normal (and safest) way to apply the template. 
-        /// If SL.PacksLoaded = true this will apply the template immediately.
-        /// Otherwise it uses a callback to apply later.
+        /// The normal (and safest) way to apply the template. Call this some time before or at SL.BeforePacksLoaded.
         /// </summary>
         public void Apply()
         {
             if (SL.PacksLoaded)
             {
-                SL.LogWarning("Applying an Item Template AFTER SL.OnPacksLoaded has been called. This is not recommended, use SL.BeforePacksLoaded instead.");
+                SL.LogWarning("Applying an Item Template AFTER SL.OnPacksLoaded has been called. This is not recommended, use SL.BeforePacksLoaded at the latest instead.");
                 ApplyToItem();
             }
             else
@@ -122,7 +120,7 @@ namespace SideLoader
         }
 
         /// <summary>
-        /// Tries to apply the template immediately, with the template's New_ItemID.
+        /// Tries to apply the template immediately, with the template's New_ItemID (or Target_ItemID if none set)
         /// </summary>
         public void ApplyToItem()
         {

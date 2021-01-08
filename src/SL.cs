@@ -11,7 +11,7 @@ namespace SideLoader
 {
     public class SL
     {
-        public static SL Instance;
+        public static SL Instance { get; private set; }
 
         public SL()
         {
@@ -30,6 +30,11 @@ namespace SideLoader
         // SL Packs
         internal static Dictionary<string, SLPack> Packs = new Dictionary<string, SLPack>();
 
+        /// <summary>
+        /// Get an SLPack from a provided SLPack folder name.
+        /// </summary>
+        /// <param name="name">The folder name, either `Mods\SideLoader\{Name}\` or `BepInEx\plugins\{Name}\SideLoader\`</param>
+        /// <returns>The SLPack instance, if one was loaded with that name.</returns>
         public static SLPack GetSLPack(string name)
         {
             Packs.TryGetValue(name, out SLPack pack);

@@ -23,10 +23,12 @@ namespace SideLoader
         /// Use this to cleanup a custom character. This will send out an RPC.
         /// </summary>
         /// <param name="character">The Character to destroy.</param>
-        public static void DestroyCharacterRPC(Character character)
-        {
-            SLRPCManager.Instance.DestroyCharacter(character.UID);
-        }
+        public static void DestroyCharacterRPC(Character character) => SLRPCManager.Instance.DestroyCharacter(character.UID);
+        /// <summary>
+        /// Use this to cleanup a custom character. This will send out an RPC.
+        /// </summary>
+        /// <param name="UID">The UID of the Character to destroy.</param>
+        public static void DestroyCharacterRPC(string UID) => SLRPCManager.Instance.DestroyCharacter(UID);
 
         /// <summary>
         /// Spawns a custom character and applies the template. Optionally provide a manual spawn position and Character UID.
