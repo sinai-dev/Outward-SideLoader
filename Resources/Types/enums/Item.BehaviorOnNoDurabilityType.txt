@@ -1,4 +1,0 @@
-NotSet
-DoNothing
-Destroy
-Replace
