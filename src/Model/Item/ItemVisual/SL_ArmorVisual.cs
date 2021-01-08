@@ -11,7 +11,7 @@ namespace SideLoader
         public bool? HideFace;
         public bool? HideHair;
 
-        public override void ApplyItemVisualSettings(ItemVisual itemVisual, Transform actualVisuals)
+        internal override void ApplyItemVisualSettings(ItemVisual itemVisual, Transform actualVisuals)
         {
             base.ApplyItemVisualSettings(itemVisual, actualVisuals);
 
