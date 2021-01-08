@@ -11,11 +11,11 @@ namespace SideLoader
     [SL_Serialized]
     public class SL_Material
     {
-        /// <summary>The name of the Material (private set).</summary>
+        /// <summary>The name of the Material (readonly).</summary>
         [XmlIgnore]
         public string Name { get; private set; }
 
-        /// <summary>The Shader to use for the Material.</summary>
+        /// <summary>The Shader to use for the Material. Should be the same value use by Shader.Find()</summary>
         public string ShaderName;
 
         /// <summary>Shader Keywords to enable.</summary>
@@ -59,21 +59,13 @@ namespace SideLoader
                         try
                         {
                             if (prop is FloatProp fProp)
-                            {
                                 mat.SetFloat(prop.Name, fProp.Value);
-                            }
                             else if (prop is ColorProp cProp)
-                            {
                                 mat.SetColor(prop.Name, cProp.Value);
-                            }
                             else if (prop is VectorProp vProp)
-                            {
                                 mat.SetVector(prop.Name, vProp.Value);
-                            }
                             else
-                            {
                                 SL.Log("Cannot set ShaderProp of type: " + prop.GetType());
-                            }
                         }
                         catch (Exception e)
                         {
@@ -83,9 +75,7 @@ namespace SideLoader
                         }
                     }
                     else
-                    {
                         SL.Log("Trying to set ShaderProperty " + prop.Name + " but this material does not have such a property!");
-                    }
                 }
             }
         }

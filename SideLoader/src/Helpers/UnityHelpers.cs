@@ -108,6 +108,7 @@ namespace SideLoader.Helpers
             var comp = transform.gameObject.AddComponent<T>();
 
             At.CopyProperties(comp, component, null, true);
+            At.CopyFields(comp, component, null, true);
 
             return comp as T;
         }

@@ -8,6 +8,9 @@ using SideLoader.Helpers;
 
 namespace SideLoader
 {
+    /// <summary>
+    /// Used internally by SideLoader.
+    /// </summary>
     public struct CustomSpawnInfo
     {
         public SL_Character Template;

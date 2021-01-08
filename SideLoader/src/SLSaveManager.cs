@@ -16,11 +16,12 @@ namespace SideLoader
         public static string GetSaveFolderForWorldHost()
         {
             var player = CharacterManager.Instance.GetFirstLocalCharacter();
+            var host = CharacterManager.Instance.GetWorldHostCharacter();
 
-            if (!player)
+            if (!player || !host || player != host)
                 return null;
 
-            var ret = $@"{SAVEDATA_FOLDER}\{player.UID.ToString()}";
+            var ret = $@"{SAVEDATA_FOLDER}\{player.UID}";
 
             // Create the base folder structure for this player character
             if (!Directory.Exists(ret))

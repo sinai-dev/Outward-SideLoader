@@ -11,38 +11,62 @@ using SideLoader.Helpers;
 
 namespace SideLoader
 {
-    /// <summary>SideLoader's manger class for Custom Item Visuls. Contains useful methods for managing item visuals.</summary>
+    /// <summary>SideLoader's helper class for Custom Item Visuls.</summary>
     public class CustomItemVisuals
     {
-        /// <summary> Custom Item Visual prefabs (including retexture-only) </summary>
+        /// <summary>
+        /// Used internally for managing custom item visuals for the ResourcesPrefabManager.
+        /// </summary>
+        public class ItemVisualsLink
+        {
+            /// <summary>
+            /// Returns the linked ItemVisuals for the provided VisualPrefabType (if any), otherwise null.
+            /// </summary>
+            /// <param name="type">The type of Visual Prefab you want.</param>
+            /// <returns>The linked Transform, or null.</returns>
+            public Transform GetVisuals(VisualPrefabType type)
+            {
+                switch (type)
+                {
+                    case VisualPrefabType.VisualPrefab: return ItemVisuals;
+                    case VisualPrefabType.SpecialVisualPrefabDefault: return ItemSpecialVisuals;
+                    case VisualPrefabType.SpecialVisualPrefabFemale: return ItemSpecialFemaleVisuals;
+                    default: return null;
+                }
+            }
+
+            public Sprite ItemIcon;
+            public Sprite SkillTreeIcon;
+
+            public Transform ItemVisuals;
+            public Transform ItemSpecialVisuals;
+            public Transform ItemSpecialFemaleVisuals;
+        }
+
         private static readonly Dictionary<int, ItemVisualsLink> ItemVisuals = new Dictionary<int, ItemVisualsLink>();
 
-        // Match anything up to " (" 
+        // Regex: Match anything up to " (" 
         private static readonly Regex materialRegex = new Regex(@".+?(?= \()");
+
+        #region Main public API
 
         /// <summary>
         /// Returns the true name of the given material name (removes "(Clone)" and "(Instance)", etc)
         /// </summary>
-        public static string GetSafeMaterialName(string origName)
-        {
-            return materialRegex.Match(origName).Value;
-        }
+        public static string GetSafeMaterialName(string origName) => materialRegex.Match(origName).Value;
 
         public static ItemVisualsLink GetItemVisualLink(Item item)
         {
             if (ItemVisuals.ContainsKey(item.ItemID))
-            {
                 return ItemVisuals[item.ItemID];
-            }
+
             return null;
         }
 
         public static ItemVisualsLink GetOrAddVisualLink(Item item)
         {
             if (!ItemVisuals.ContainsKey(item.ItemID))
-            {
                 ItemVisuals.Add(item.ItemID, new ItemVisualsLink());
-            }
 
             var link = ItemVisuals[item.ItemID];
 
@@ -107,8 +131,6 @@ namespace SideLoader
                 case VisualPrefabType.SpecialVisualPrefabFemale:
                     prefab = ResourcesPrefabManager.Instance.GetItemVisualPrefab(item.SpecialVisualPrefabFemalePath);
                     break;
-                default:
-                    break;
             }
             return prefab;
         }
@@ -121,27 +143,24 @@ namespace SideLoader
             if (!prefab)
             {
                 if (logging)
-                {
                     SL.Log("Error, no VisualPrefabType defined or could not find visual prefab of that type!");
-                }
                 return null;
             }
 
-            return CloneVisualPrefab(item, prefab.gameObject, type, logging);
+            return CloneAndSetVisuals(item, prefab.gameObject, type);
         }
 
         /// <summary>
         /// Clones the provided 'prefab' GameObject, and sets it to the provided Item and VisualPrefabType.
         /// </summary>
         /// <param name="item">The Item to apply to.</param>
-        /// <param name="prefab">The visual prefab to clone and set.</param>
+        /// <param name="newPrefab">The visual prefab to clone and set.</param>
         /// <param name="type">The Type of VisualPrefab you are setting.</param>
-        /// <param name="logging">Whether to log errors or not.</param>
         /// <returns>The cloned gameobject.</returns>
-        public static GameObject CloneVisualPrefab(Item item, GameObject prefab, VisualPrefabType type, bool logging = false)
+        public static GameObject CloneAndSetVisuals(Item item, GameObject newPrefab, VisualPrefabType type)
         {
             // Clone the visual prefab 
-            var newVisuals = UnityEngine.Object.Instantiate(prefab.gameObject);
+            var newVisuals = UnityEngine.Object.Instantiate(newPrefab.gameObject);
             newVisuals.SetActive(false);
             UnityEngine.Object.DontDestroyOnLoad(newVisuals);
 
@@ -184,13 +203,9 @@ namespace SideLoader
         public static void TryApplyCustomTextures(string texturesFolder, Item item)
         {
             if (Directory.Exists(texturesFolder))
-            {
                 ApplyTexturesFromFolder(texturesFolder, item);
-            }
             else
-            {
                 SL.Log("Directory does not exist: " + texturesFolder);
-            }
         }
 
         /// <summary>
@@ -228,14 +243,34 @@ namespace SideLoader
             ApplyIconsByName(sprites, item);
 
             var textures = GetTexturesFromFolder(dir, out Dictionary<string, SL_Material> slMaterials);
-            ApplyTexturesByName(textures, slMaterials, item);
+            ApplyTexAndMats(textures, slMaterials, item);
         }
+
+        /// <summary>
+        /// Sets the provided sprites to the item. The list (of 1 or 2 length) should contain either/or: the main item icon called "icon", and the skill tree icon called "skillicon".
+        /// </summary>
+        /// <param name="icons">A list of 1 or 2 length. Item icons should be called "icon", and skill tree icons should be called "skillicon".</param>
+        /// <param name="item">The item to set to.</param>
+        public static void ApplyIconsByName(Sprite[] icons, Item item)
+        {
+            foreach (var sprite in icons)
+            {
+                if (sprite.name.ToLower() == "icon")
+                    SetSpriteLink(item, sprite, false);
+                else if (sprite.name.ToLower() == "skillicon")
+                    SetSpriteLink(item, sprite, true);
+            }
+        }
+
+        #endregion
+
+        #region Main internal API
 
         /// <summary>
         /// Gets an array of the Materials on the given visual prefab type for the given item.
         /// These are actual references to the Materials, not a copy like Unity's Renderer.Materials[]
         /// </summary>
-        public static Material[] GetMaterials(Item item, VisualPrefabType type)
+        internal static Material[] GetMaterials(Item item, VisualPrefabType type)
         {
             Transform prefab = null;
             if (ItemVisuals.ContainsKey(item.ItemID))
@@ -251,24 +286,19 @@ namespace SideLoader
                         prefab = link.ItemSpecialFemaleVisuals; break;
                 }
             }
+
             if (!prefab)
-            {
                 prefab = GetOrigItemVisuals(item, type);
-            }
 
             if (prefab)
             {
                 var mats = new List<Material>();
 
                 foreach (var skinnedMesh in prefab.GetComponentsInChildren<SkinnedMeshRenderer>())
-                {
                     mats.AddRange(skinnedMesh.materials);
-                }
 
                 foreach (var mesh in prefab.GetComponentsInChildren<MeshRenderer>())
-                {
                     mats.AddRange(mesh.materials);
-                }
 
                 return mats.ToArray();
             }
@@ -277,7 +307,97 @@ namespace SideLoader
             return null;
         }
 
-        // ========= asset bundle item textures =========
+        /// <summary>
+        /// Applies textures to the item using the provided dictionary.
+        /// </summary>
+        /// <param name="textures">Key: Material names (with GetSafeMaterialName), Value: List of Textures to apply, names should match the shader layers of the material.</param>
+        /// <param name="slMaterials">[OPTIONAL] Key: Material names with GetSafeMaterialName, Value: SL_Material template to apply.</param>
+        /// <param name="item">The item to apply to</param>
+        internal static void ApplyTexAndMats(Dictionary<string, List<Texture2D>> textures, Dictionary<string, SL_Material> slMaterials, Item item)
+        {
+            if (slMaterials == null)
+            {
+                slMaterials = new Dictionary<string, SL_Material>();
+            }
+
+            // apply to mats
+            for (int i = 0; i < 3; i++)
+            {
+                var prefabtype = (VisualPrefabType)i;
+
+                if (!ItemVisuals.ContainsKey(item.ItemID) || !ItemVisuals[item.ItemID].GetVisuals(prefabtype))
+                {
+                    var prefab = CloneVisualPrefab(item, prefabtype, false);
+                    if (!prefab)
+                    {
+                        continue;
+                    }
+                }
+
+                var mats = GetMaterials(item, prefabtype);
+
+                if (mats == null || mats.Length < 1)
+                {
+                    continue;
+                }
+
+                foreach (var mat in mats)
+                {
+                    var matname = GetSafeMaterialName(mat.name).ToLower();
+
+                    // apply the SL_material template first (set shader, etc)
+                    SL_Material matHolder = null;
+                    if (slMaterials.ContainsKey(matname))
+                    {
+                        matHolder = slMaterials[matname];
+                        matHolder.ApplyToMaterial(mat);
+                    }
+                    else if (!textures.ContainsKey(matname))
+                        continue;
+
+                    // build list of actual shader layer names.
+                    // Key: ToLower(), Value: original.
+                    Dictionary<string, string> layersToLower = new Dictionary<string, string>();
+                    foreach (var layer in mat.GetTexturePropertyNames())
+                        layersToLower.Add(layer.ToLower(), layer);
+
+                    // set actual textures
+                    foreach (var tex in textures[matname])
+                    {
+                        try
+                        {
+                            if (mat.HasProperty(tex.name))
+                            {
+                                mat.SetTexture(tex.name, tex);
+                                SL.Log("Set texture " + tex.name + " on " + matname);
+                            }
+                            else if (layersToLower.ContainsKey(tex.name))
+                            {
+                                var realname = layersToLower[tex.name];
+                                mat.SetTexture(realname, tex);
+                                SL.Log("Set texture " + realname + " on " + matname);
+                            }
+                            else
+                                SL.Log("Couldn't find a shader property called " + tex.name + "!");
+                        }
+                        catch
+                        {
+                            SL.Log("Exception setting texture " + tex.name + " on material!");
+                        }
+                    }
+
+                    // finalize texture settings after they've been applied
+                    if (matHolder != null)
+                    {
+                        matHolder.ApplyTextureSettings(mat);
+                    }
+                }
+            }
+        }
+
+        #endregion
+
+        #region AssetBundle item textures
 
         /// <summary>
         /// Searches the provided AssetBundle for folders in the expected format, and applies textures to the corresponding Item.
@@ -317,41 +437,29 @@ namespace SideLoader
                     if (tex.name.Contains("icon"))
                     {
                         if (!icons.ContainsKey(id))
-                        {
                             icons.Add(id, new List<Sprite>());
-                        }
 
                         Sprite sprite;
                         if (tex.name.Contains("skill"))
-                        {
                             sprite = CustomTextures.CreateSprite(tex, CustomTextures.SpriteBorderTypes.SkillTreeIcon);
-                        }
                         else
-                        {
                             sprite = CustomTextures.CreateSprite(tex, CustomTextures.SpriteBorderTypes.ItemIcon);
-                        }
+
                         icons[id].Add(sprite);
                     }
                     else // is not an icon
                     {
                         var mat = "";
                         if (splitPath[2] == "textures")
-                        {
                             mat = splitPath[3];
-                        }
                         else
-                        {
                             mat = splitPath[2];
-                        }
 
                         if (!itemTextures.ContainsKey(id))
-                        {
                             itemTextures.Add(id, new Dictionary<string, List<Texture2D>>());
-                        }
+
                         if (!itemTextures[id].ContainsKey(mat))
-                        {
                             itemTextures[id].Add(mat, new List<Texture2D>());
-                        }
 
                         itemTextures[id][mat].Add(tex);
                     }
@@ -372,22 +480,20 @@ namespace SideLoader
             foreach (var entry in itemTextures)
             {
                 if (ResourcesPrefabManager.Instance.GetItemPrefab(entry.Key) is Item item)
-                {
-                    ApplyTexturesByName(entry.Value, null, item);
-                }
+                    ApplyTexAndMats(entry.Value, null, item);
             }
 
             // Apply icons
             foreach (var entry in icons)
             {
                 if (ResourcesPrefabManager.Instance.GetItemPrefab(entry.Key) is Item item)
-                {
                     ApplyIconsByName(entry.Value.ToArray(), item);
-                }
             }
         }
 
-        // ====== getting textures from folder ===========
+        #endregion
+
+        #region Folder loading IO
 
         public static Sprite[] GetIconsFromFolder(string dir)
         {
@@ -482,124 +588,9 @@ namespace SideLoader
             return textures;
         }
 
-        // ========= setting textures on item =========
+        #endregion
 
-        /// <summary>
-        /// Sets the provided sprites to the item. The list (of 1 or 2 length) should contain either/or: the main item icon called "icon", and the skill tree icon called "skillicon".
-        /// </summary>
-        /// <param name="icons">A list of 1 or 2 length. Item icons should be called "icon", and skill tree icons should be called "skillicon".</param>
-        /// <param name="item">The item to set to.</param>
-        public static void ApplyIconsByName(Sprite[] icons, Item item)
-        {
-            foreach (var sprite in icons)
-            {
-                if (sprite.name.ToLower() == "icon")
-                {
-                    SetSpriteLink(item, sprite, false);
-                }
-                else if (sprite.name.ToLower() == "skillicon")
-                {
-                    SetSpriteLink(item, sprite, true);
-                }
-            }
-        }
-
-        /// <summary>
-        /// Applies textures to the item using the provided dictionary.
-        /// </summary>
-        /// <param name="textures">Key: Material names (with GetSafeMaterialName), Value: List of Textures to apply, names should match the shader layers of the material.</param>
-        /// <param name="slMaterials">[OPTIONAL] Key: Material names with GetSafeMaterialName, Value: SL_Material template to apply.</param>
-        /// <param name="item">The item to apply to</param>
-        public static void ApplyTexturesByName(Dictionary<string, List<Texture2D>> textures, Dictionary<string, SL_Material> slMaterials, Item item)
-        {
-            if (slMaterials == null)
-            {
-                slMaterials = new Dictionary<string, SL_Material>();
-            }
-
-            // apply to mats
-            for (int i = 0; i < 3; i++)
-            {
-                var prefabtype = (VisualPrefabType)i;
-
-                if (!ItemVisuals.ContainsKey(item.ItemID) || !ItemVisuals[item.ItemID].GetVisuals(prefabtype))
-                {
-                    var prefab = CloneVisualPrefab(item, prefabtype, false);
-                    if (!prefab)
-                    {
-                        continue;
-                    }
-                }
-
-                var mats = GetMaterials(item, prefabtype);
-
-                if (mats == null || mats.Length < 1)
-                {
-                    continue;
-                }
-
-                foreach (var mat in mats)
-                {
-                    var matname = GetSafeMaterialName(mat.name).ToLower();
-
-                    // apply the SL_material template first (set shader, etc)
-                    SL_Material matHolder = null;
-                    if (slMaterials.ContainsKey(matname))
-                    {
-                        matHolder = slMaterials[matname];
-                        matHolder.ApplyToMaterial(mat);
-                    }
-                    else if (!textures.ContainsKey(matname))
-                    {
-                        continue;
-                    }
-
-                    // build list of actual shader layer names.
-                    // Key: ToLower(), Value: original.
-                    Dictionary<string, string> layersToLower = new Dictionary<string, string>();
-                    foreach (var layer in mat.GetTexturePropertyNames())
-                    {
-                        layersToLower.Add(layer.ToLower(), layer);
-                    }
-
-                    // set actual textures
-                    foreach (var tex in textures[matname])
-                    {
-                        try
-                        {
-                            if (mat.HasProperty(tex.name))
-                            {
-                                mat.SetTexture(tex.name, tex);
-                                SL.Log("Set texture " + tex.name + " on " + matname);
-                            }                            
-                            else if (layersToLower.ContainsKey(tex.name))
-                            {
-                                var realname = layersToLower[tex.name];
-                                mat.SetTexture(realname, tex);
-                                SL.Log("Set texture " + realname + " on " + matname);
-                            }
-                            else
-                            {
-                                SL.Log("Couldn't find a shader property called " + tex.name + "!");
-                            }
-                        }
-                        catch
-                        {
-                            SL.Log("Exception setting texture " + tex.name + " on material!");
-                        }
-                    }
-
-                    // finalize texture settings after they've been applied
-                    if (matHolder != null)
-                    {
-                        matHolder.ApplyTextureSettings(mat);
-                    }
-                }
-            }
-        }
-
-
-        // ******************* FOR SAVING ITEM TEXTURES/MATERIALS *******************
+        #region Saving textures IO
 
         /// <summary>
         /// Saves textures from an Item to a directory.
@@ -651,7 +642,6 @@ namespace SideLoader
             }
         }
 
-        // Internal. Called by function above.
         private static void SaveMaterialTextures(Material mat, string dir)
         {
             if (!Directory.Exists(dir))
@@ -668,33 +658,6 @@ namespace SideLoader
             }
         }
 
-        /// <summary>
-        /// Used internally for managing custom item visuals for the ResourcesPrefabManager.
-        /// </summary>
-        public class ItemVisualsLink
-        {
-            /// <summary>
-            /// Returns the linked ItemVisuals for the provided VisualPrefabType (if any), otherwise null.
-            /// </summary>
-            /// <param name="type">The type of Visual Prefab you want.</param>
-            /// <returns>The linked Transform, or null.</returns>
-            public Transform GetVisuals(VisualPrefabType type)
-            {
-                switch (type)
-                {
-                    case VisualPrefabType.VisualPrefab: return ItemVisuals; 
-                    case VisualPrefabType.SpecialVisualPrefabDefault: return ItemSpecialVisuals;
-                    case VisualPrefabType.SpecialVisualPrefabFemale: return ItemSpecialFemaleVisuals;
-                    default: return null;
-                }
-            }
-
-            public Sprite ItemIcon;
-            public Sprite SkillTreeIcon;
-
-            public Transform ItemVisuals;
-            public Transform ItemSpecialVisuals;
-            public Transform ItemSpecialFemaleVisuals;
-        }
+        #endregion
     }
 }

@@ -6,6 +6,7 @@ using System.Text;
 using UnityEngine;
 using System.IO;
 using UnityEngine.UI;
+using SLShaderDict = System.Collections.Generic.Dictionary<string, System.Collections.Generic.Dictionary<string, SideLoader.CustomTextures.ShaderPropType>>;
 
 namespace SideLoader
 {
@@ -46,10 +47,7 @@ namespace SideLoader
             GenTex
         }
 
-        /// <summary>
-        /// Used internally.
-        /// </summary>
-        public static void Init()
+        internal static void Init()
         {
             QualitySettings.masterTextureLimit = 0;
 
@@ -153,7 +151,6 @@ namespace SideLoader
             return _newTex;
         }
 
-        internal delegate void d_Blit2(IntPtr source, IntPtr dest);
         public static Texture2D ForceReadTexture(Texture2D tex)
         {
             try
@@ -261,9 +258,9 @@ namespace SideLoader
         /// <summary>
         /// Get the Properties for the Shader on the provided material.
         /// </summary>
-        /// <param name="m">The material to get properties for.</param>
+        /// <param name="mat">The material to get properties for.</param>
         /// <returns>If supported, the list of Shader Properties.</returns>
-        public static List<SL_Material.ShaderProperty> GetProperties(Material m)
+        public static List<SL_Material.ShaderProperty> GetProperties(Material mat)
         {
             var list = new List<SL_Material.ShaderProperty>();
 
@@ -273,13 +270,13 @@ namespace SideLoader
                 return list;
             }
 
-            if (ShaderPropertyDicts.ContainsKey(m.shader.name))
+            if (ShaderPropertyDicts.ContainsKey(mat.shader.name))
             {
-                var dict = ShaderPropertyDicts[m.shader.name];
+                var dict = ShaderPropertyDicts[mat.shader.name];
 
                 if (dict == null)
                 {
-                    SL.Log("ShaderProperties for material " + m.shader.name + " is in main dict, but Property Dict is null");
+                    SL.Log("ShaderProperties for material " + mat.shader.name + " is in main dict, but Property Dict is null");
                     return list;
                 }
                 else
@@ -292,21 +289,21 @@ namespace SideLoader
                                 list.Add(new SL_Material.ColorProp()
                                 {
                                     Name = entry.Key,
-                                    Value = m.GetColor(entry.Key)
+                                    Value = mat.GetColor(entry.Key)
                                 });
                                 break;
                             case ShaderPropType.Float:
                                 list.Add(new SL_Material.FloatProp()
                                 {
                                     Name = entry.Key,
-                                    Value = m.GetFloat(entry.Key)
+                                    Value = mat.GetFloat(entry.Key)
                                 });
                                 break;
                             case ShaderPropType.Vector:
                                 list.Add(new SL_Material.VectorProp()
                                 {
                                     Name = entry.Key,
-                                    Value = m.GetVector(entry.Key)
+                                    Value = mat.GetVector(entry.Key)
                                 });
                                 break;
                         }
@@ -315,7 +312,7 @@ namespace SideLoader
             }
             else
             {
-                SL.Log("Shader GetProperties not supported: " + m.shader.name);
+                //SL.Log("Shader GetProperties not supported: " + mat.shader.name);
             }
 
             return list;
@@ -327,7 +324,7 @@ namespace SideLoader
         /// <summary>
         /// Keys: see the CustomTextures.CUSTOM_ const strings, Values: Shader Property names and types.
         /// </summary>
-        private static readonly Dictionary<string, Dictionary<string, ShaderPropType>> ShaderPropertyDicts = new Dictionary<string, Dictionary<string, ShaderPropType>>()
+        private static readonly SLShaderDict ShaderPropertyDicts = new SLShaderDict()
         {
             {
                 CUSTOM_MAINSET_MAINSTANDARD,      

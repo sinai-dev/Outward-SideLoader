@@ -9,7 +9,6 @@ using SideLoader.Model;
 
 namespace SideLoader
 {
-    /// <summary>SideLoader's public-facing core class.</summary>
     public class SL
     {
         public static SL Instance;
@@ -31,8 +30,6 @@ namespace SideLoader
         // SL Packs
         internal static Dictionary<string, SLPack> Packs = new Dictionary<string, SLPack>();
 
-        internal static Dictionary<int, Skill> s_customSkills = new Dictionary<int, Skill>();
-
         public static SLPack GetSLPack(string name)
         {
             Packs.TryGetValue(name, out SLPack pack);
@@ -40,7 +37,7 @@ namespace SideLoader
         }
 
         /// <summary>Have SL Packs been loaded yet?</summary>
-        public static bool PacksLoaded { get; private set; } = false;
+        public static bool PacksLoaded { get; internal set; } = false;
 
         /// <summary>Invoked before packs are loaded and applied, but after ResouresPrefabManager 
         /// is loaded.</summary>
@@ -80,7 +77,7 @@ namespace SideLoader
             TryInvoke(OnSceneLoaded);
         }
 
-        // ======== SL Packs Setup ========
+        // ======== SL Setup ========
 
         internal static void Setup(bool firstSetup = true)
         {
@@ -95,60 +92,7 @@ namespace SideLoader
             else
                 Reset();
 
-            // ====== Read SL Packs ======
-
-            // 'BepInEx\plugins\...' packs:
-            foreach (var dir in Directory.GetDirectories(PLUGINS_FOLDER))
-            {
-                var name = Path.GetFileName(dir);
-
-                var slFolder = dir + @"\SideLoader";
-                if (Directory.Exists(slFolder))
-                    SLPack.TryLoadPack(name, false, !firstSetup);
-            }
-
-            // 'Mods\SideLoader\...' packs:
-            foreach (var dir in Directory.GetDirectories(SL_FOLDER))
-            {
-                if (dir == GENERATED_FOLDER || dir == INTERNAL_FOLDER || dir == SLSaveManager.SAVEDATA_FOLDER)
-                {
-                    // not a real SLPack
-                    continue;
-                }
-
-                var name = Path.GetFileName(dir);
-                SLPack.TryLoadPack(name, true, !firstSetup);
-            }
-
-            // ====== Invoke Callbacks ======
-
-            // apply custom statuses and imbues first
-            new DependancySolver<SL_StatusEffect, string>().ApplyTemplates(PendingStatuses);
-            new DependancySolver<SL_ImbueEffect, int>().ApplyTemplates(PendingImbues);
-
-            // apply early items
-            var itemSolver = new DependancySolver<SL_Item, int>();
-            itemSolver.ApplyTemplates(PendingItems);
-
-            // apply recipes
-            foreach (var recipe in PendingRecipes)
-                recipe.ApplyRecipe();
-
-            foreach (var enchant in PendingEnchantments)
-                enchant.Apply();
-
-            // apply late items
-            itemSolver.ApplyTemplates(PendingLateItems);
-
-            // apply characters
-            foreach (var character in PendingCharacters)
-                character.Prepare();
-
-            if (firstSetup)
-            {
-                foreach (var pack in Packs.Values)
-                    pack.TryApplyItemTextureBundles();
-            }
+            SLPack.LoadAllSLPacks(firstSetup);
 
             PacksLoaded = true;
             Log("SideLoader Setup Finished");
@@ -187,11 +131,13 @@ namespace SideLoader
         {
             // Reset packs
             Packs.Clear();
-            s_customSkills.Clear();
+            SL_Skill.s_customSkills.Clear();
 
             // Clear textures dictionary
             CustomTextures.Textures.Clear();
         }
+
+        // ==================== Helpers ==================== //
 
         public static void TryInvoke(MulticastDelegate _delegate, params object[] args)
         {

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Xml.Serialization;
+using HarmonyLib;
 using SideLoader.Helpers;
 using UnityEngine;
 
@@ -43,11 +44,11 @@ namespace SideLoader
         /// <param name="item">The Item to set to.</param>
         public void ApplyToItem(Item item)
         {
-            if (CustomItemVisuals.GetOrigItemVisuals(item, Type) is Transform prefab)
+            if (CustomItemVisuals.GetOrigItemVisuals(item, Type) is Transform origPrefab)
             {
                 bool setPrefab = false;
                 
-                // Check for SLPack Prefabs first
+                // Check for AssetBundle Prefabs first
                 if (!string.IsNullOrEmpty(Prefab_SLPack) && SL.Packs.ContainsKey(Prefab_SLPack))
                 {
                     var pack = SL.Packs[this.Prefab_SLPack];
@@ -55,11 +56,14 @@ namespace SideLoader
                     if (pack.AssetBundles.ContainsKey(Prefab_AssetBundle))
                     {
                         var newVisuals = pack.AssetBundles[Prefab_AssetBundle].LoadAsset<GameObject>(Prefab_Name);
-                        prefab = SetCustomVisualPrefab(item, this.Type, newVisuals.transform, prefab).transform;
+
+                        origPrefab = SetCustomVisualPrefab(item, this.Type, newVisuals.transform, origPrefab).transform;
+
+                        SL.Log("Loaded custom visual prefab: " + newVisuals.name);
                         setPrefab = true;
                     }
                 }
-                // Check for ResourcesPrefabPath.
+                // Not using AssetBundle, check for ResourcesPrefabPath.
                 else if (!string.IsNullOrEmpty(ResourcesPrefabPath))
                 {
                     // Only set this if the user has defined a different value than what exists on the item.
@@ -76,11 +80,7 @@ namespace SideLoader
 
                     if (!set)
                     {
-                        // get visuals by GetOrigItemVIsuals? May as well just save the ID then?
-                        //var id = ResourcesPrefabPath.Substring(ResourcesPrefabPath.LastIndexOf('/'), 7);
-                        //var orig = CustomItemVisuals.GetOrigItemVisuals(ResourcesPrefabManager.Instance.GetItemPrefab(id), Type);
-
-                        // If another SL Item modifies these visuals, we will be getting the modified version...
+                        // Get the original visual prefab to clone from
                         var orig = ResourcesPrefabManager.Instance.GetItemVisualPrefab(ResourcesPrefabPath);
 
                         if (!orig)
@@ -89,7 +89,7 @@ namespace SideLoader
                         }
                         else
                         {
-                            CustomItemVisuals.CloneVisualPrefab(item, orig.gameObject, Type, true);
+                            CustomItemVisuals.CloneAndSetVisuals(item, orig.gameObject, Type);
 
                             switch (Type)
                             {
@@ -109,41 +109,36 @@ namespace SideLoader
                 // If we didn't change the Visual Prefab in any way, clone the original to avoid conflicts.
                 if (!setPrefab)
                 {
-                    prefab = CustomItemVisuals.CloneVisualPrefab(item, Type).transform;
+                    origPrefab = CustomItemVisuals.CloneVisualPrefab(item, Type).transform;
                 }
 
                 // Get the actual visuals (for weapons and a lot of items, this is not the base prefab).
-                Transform actualVisuals = prefab.transform;
-                if (prefab.childCount > 0)
+                Transform actualVisuals = origPrefab.transform;
+                if (this.Type == VisualPrefabType.VisualPrefab)
                 {
-                    foreach (Transform child in prefab)
+                    if (origPrefab.childCount > 0)
                     {
-                        if (child.gameObject.activeSelf && child.GetComponent<BoxCollider>() && child.GetComponent<MeshRenderer>())
+                        foreach (Transform child in origPrefab)
                         {
-                            actualVisuals = child;
-                            break;
+                            if (child.gameObject.activeSelf && child.GetComponent<BoxCollider>() && child.GetComponent<MeshRenderer>())
+                            {
+                                actualVisuals = child;
+                                break;
+                            }
                         }
                     }
                 }
 
                 if (actualVisuals)
                 {
-                    var visualComp = prefab.GetComponent<ItemVisual>();
+                    var visualComp = origPrefab.GetComponent<ItemVisual>();
 
-                    ApplyToVisuals(visualComp, actualVisuals);
+                    ApplyItemVisualSettings(visualComp, actualVisuals);
                 }
             }
         }
 
-        /// <summary>
-        /// Sets a CUSTOM visual prefab to an Item. Don't use this for transmogs.
-        /// </summary>
-        /// <param name="item">The Item to set to.</param>
-        /// <param name="type">The Type of visual prefab you are setting.</param>
-        /// <param name="newVisuals">The new CUSTOM visual prefab.</param>
-        /// <param name="oldVisuals">The original visual prefab.</param>
-        /// <returns></returns>
-        public GameObject SetCustomVisualPrefab(Item item, VisualPrefabType type, Transform newVisuals, Transform oldVisuals)
+        internal GameObject SetCustomVisualPrefab(Item item, VisualPrefabType type, Transform newVisuals, Transform oldVisuals)
         {
             SL.Log($"Setting the {type} for {item.Name}");
 
@@ -172,12 +167,25 @@ namespace SideLoader
                         break;
                     }
                 }
+
+                basePrefab.name = visualModel.name;
+                CustomItemVisuals.SetVisualPrefabLink(item, basePrefab, type);
+
+                SL.Log("Setup visual prefab link: " + item.Name + " -> " + basePrefab.name);
+
+                return basePrefab;
             }
             else
             {
                 if (!visualModel.GetComponent<ItemVisual>() && basePrefab.GetComponent<ItemVisual>() is ItemVisual itemVisual)
                 {
-                    UnityHelpers.GetCopyOf(itemVisual, visualModel.transform);
+                    if (itemVisual is ArmorVisuals)
+                    { 
+                        var armorV = visualModel.AddComponent<ArmorVisuals>();
+                        armorV.ArmorExtras = new ArmorVisualExtra[0];
+                    }
+                    else
+                        visualModel.AddComponent<ItemVisual>();
                 }
 
                 visualModel.transform.position = basePrefab.transform.position;
@@ -187,21 +195,14 @@ namespace SideLoader
                 // we no longer need the clone for these visuals. we should clean it up.
                 UnityEngine.Object.DestroyImmediate(basePrefab.gameObject);
 
-                basePrefab = visualModel;
+                CustomItemVisuals.SetVisualPrefabLink(item, visualModel, type);
+                SL.Log("Setup visual prefab link: " + item.Name + " -> " + visualModel.name);
+
+                return visualModel;
             }
-
-            //At.SetValue(basePrefab.transform, typeof(Item), item, type.ToString());
-            CustomItemVisuals.SetVisualPrefabLink(item, basePrefab, type);
-
-            return basePrefab;
         }
 
-        /// <summary>
-        /// Applies the values to the ItemVisual component itself.
-        /// </summary>
-        /// <param name="itemVisual">The ItemVisual to apply to.</param>
-        /// <param name="visuals">The visual prefab you want to set to.</param>
-        public virtual void ApplyToVisuals(ItemVisual itemVisual, Transform visuals)
+        internal virtual void ApplyItemVisualSettings(ItemVisual itemVisual, Transform visuals)
         {
             SL.Log($"Applying ItemVisuals settings to " + visuals.name);
 

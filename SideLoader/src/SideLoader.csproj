@@ -46,7 +46,6 @@
     <Compile Include="Helpers\ForceUnlockCursor.cs" />
     <Compile Include="Helpers\References.cs" />
     <Compile Include="Helpers\UnityHelpers.cs" />
-    <Compile Include="Hooks.cs" />
     <Compile Include="Model\Character\SL_CharacterTrainer.cs" />
     <Compile Include="Model\DependancySolver.cs" />
     <Compile Include="Model\Effect\Conditions\SL_InBoundsCondition.cs" />
@@ -82,6 +81,14 @@
     <Compile Include="Model\Item\Misc\SL_Instrument.cs" />
     <Compile Include="Model\Item\Misc\SL_Throwable.cs" />
     <Compile Include="Model\Item\Skill\SL_PistolSkill.cs" />
+    <Compile Include="Patches\AudioPatches.cs" />
+    <Compile Include="Patches\CharacterPatches.cs" />
+    <Compile Include="Patches\CorePatch.cs" />
+    <Compile Include="Patches\DebugPatches.cs" />
+    <Compile Include="Patches\ItemPatches.cs" />
+    <Compile Include="Patches\ScenePatches.cs" />
+    <Compile Include="Patches\ShooterPatches.cs" />
+    <Compile Include="Patches\StatusPatches.cs" />
     <Compile Include="SLSaveManager.cs" />
     <Compile Include="Model\Character\CustomSpawnInfo.cs" />
     <Compile Include="Model\Character\CharSaveType.cs" />
@@ -234,14 +241,14 @@
     <Compile Include="Custom\CustomCharacters.cs" />
     <Compile Include="Custom\CustomItems.cs" />
     <Compile Include="Model\SkillTree\SL_SkillTree.cs" />
-    <Compile Include="Serializer.cs" />
+    <Compile Include="Model\Serializer.cs" />
     <Compile Include="Model\Item\Misc\SL_RecipeItem.cs" />
     <Compile Include="SLPack.cs" />
     <Compile Include="Custom\CustomScenes.cs" />
     <Compile Include="Custom\CustomTextures.cs" />
     <Compile Include="SLPlugin.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="SLGUI.cs" />
+    <Compile Include="SLMenu\SLMenu.cs" />
     <Compile Include="Helpers\At.cs" />
   </ItemGroup>
   <ItemGroup>

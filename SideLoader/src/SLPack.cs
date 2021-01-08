@@ -5,6 +5,7 @@ using System.Text;
 using UnityEngine;
 using System.IO;
 using SideLoader.Helpers;
+using SideLoader.Model;
 
 namespace SideLoader
 {
@@ -13,8 +14,68 @@ namespace SideLoader
     /// </summary>
     public class SLPack
     {
+        #region STATIC
+
         // used internally to manage assetbundles
         internal static Dictionary<string, AssetBundle> s_allLoadedAssetBundles = new Dictionary<string, AssetBundle>();
+
+        internal static void LoadAllSLPacks(bool firstSetup)
+        {
+            // 'BepInEx\plugins\...' packs:
+            foreach (var dir in Directory.GetDirectories(SL.PLUGINS_FOLDER))
+            {
+                var name = Path.GetFileName(dir);
+
+                var slFolder = dir + @"\SideLoader";
+                if (Directory.Exists(slFolder))
+                    SLPack.TryLoadPack(name, false, !firstSetup);
+            }
+
+            // 'Mods\SideLoader\...' packs:
+            foreach (var dir in Directory.GetDirectories(SL.SL_FOLDER))
+            {
+                if (dir == SL.GENERATED_FOLDER || dir == SL.INTERNAL_FOLDER || dir == SLSaveManager.SAVEDATA_FOLDER)
+                {
+                    // not a real SLPack
+                    continue;
+                }
+
+                var name = Path.GetFileName(dir);
+                SLPack.TryLoadPack(name, true, !firstSetup);
+            }
+
+            // apply custom statuses and imbues first
+            new DependancySolver<SL_StatusEffect, string>()
+                .ApplyTemplates(SL.PendingStatuses);
+            new DependancySolver<SL_ImbueEffect, int>()
+                .ApplyTemplates(SL.PendingImbues);
+
+            // apply early items
+            var itemSolver = new DependancySolver<SL_Item, int>();
+            itemSolver.ApplyTemplates(SL.PendingItems);
+
+            // apply recipes
+            foreach (var recipe in SL.PendingRecipes)
+                recipe.ApplyRecipe();
+
+            foreach (var enchant in SL.PendingEnchantments)
+                enchant.Apply();
+
+            // apply late items
+            itemSolver.ApplyTemplates(SL.PendingLateItems);
+
+            // apply characters
+            foreach (var character in SL.PendingCharacters)
+                character.Prepare();
+
+            if (firstSetup)
+            {
+                foreach (var pack in SL.Packs.Values)
+                    pack.TryApplyItemTextureBundles();
+            }
+        }
+
+        #endregion
 
         /// <summary>The FolderName of this SLPack</summary>
         public string Name { get; private set; }

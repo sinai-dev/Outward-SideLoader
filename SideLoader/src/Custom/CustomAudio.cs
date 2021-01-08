@@ -31,9 +31,7 @@ namespace SideLoader
             }
             
             if (ReplacedClips.Contains(sound))
-            {
-                SL.Log("The Sound clip '" + sound + "' has already been replaced, replacing again...");
-            }
+                SL.Log($"The Sound clip '{sound}' has already been replaced, replacing again...");
 
             try
             {
@@ -41,7 +39,7 @@ namespace SideLoader
             }
             catch (Exception e)
             {
-                SL.LogError("Exception replacing clip " + sound + ".\r\nMessage: " + e.Message + "\r\nStack: " + e.StackTrace);
+                SL.LogError($"Exception replacing clip '{sound}'.\r\nMessage: {e.Message}\r\nStack: {e.StackTrace});
             }
         }
 
@@ -49,7 +47,7 @@ namespace SideLoader
         {
             if (!_newClip)
             {
-                SL.LogWarning("The replacement clip for " + _sound.ToString() + " is null");
+                SL.LogWarning($"The replacement clip for '{_sound}' is null");
                 return;
             }
 
@@ -72,28 +70,24 @@ namespace SideLoader
         {
             var fullPath = @"file://" + Path.GetFullPath(path);
 
-            using (UnityWebRequest www = UnityWebRequestMultimedia.GetAudioClip(fullPath, AudioType.WAV))
+            using (var www = UnityWebRequestMultimedia.GetAudioClip(fullPath, AudioType.WAV))
             {
                 SL.Log("Loading audio clip " + path);
 
                 www.SendWebRequest();
 
                 while (!www.isDone)
-                {
                     yield return null;
-                }
 
                 if (www.error != null)
                 {
-                    SL.Log(www.error);
+                    SL.Log($"Could not load clip: {www.error}");
                     yield break;
                 }
 
                 var name = Path.GetFileNameWithoutExtension(path);
                 var clip = DownloadHandlerAudioClip.GetContent(www);
                 GameObject.DontDestroyOnLoad(clip);
-
-                SL.Log("Loaded audio clip " + name);
 
                 if (pack != null)
                 {

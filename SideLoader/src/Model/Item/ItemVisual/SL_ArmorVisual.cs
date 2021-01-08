@@ -11,20 +11,17 @@ namespace SideLoader
         public bool? HideFace;
         public bool? HideHair;
 
-        public override void ApplyToVisuals(ItemVisual itemVisual, Transform actualVisuals)
+        public override void ApplyItemVisualSettings(ItemVisual itemVisual, Transform actualVisuals)
         {
-            base.ApplyToVisuals(itemVisual, actualVisuals);
+            base.ApplyItemVisualSettings(itemVisual, actualVisuals);
 
             var armorVisuals = itemVisual as ArmorVisuals;
 
             if (this.HideFace != null)
-            {
                 armorVisuals.HideFace = (bool)HideFace;
-            }
+
             if (this.HideHair != null)
-            {
                 armorVisuals.HideHair = (bool)HideHair;
-            }
         }
 
         public override void SerializeItemVisuals(ItemVisual itemVisual)

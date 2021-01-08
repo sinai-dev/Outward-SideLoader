@@ -9,6 +9,8 @@ namespace SideLoader
 {
     public class SL_Skill : SL_Item
     {
+        internal static Dictionary<int, Skill> s_customSkills = new Dictionary<int, Skill>();
+
         public float? Cooldown;
         public float? StaminaCost;
         public float? ManaCost;

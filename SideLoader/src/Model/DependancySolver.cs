@@ -13,24 +13,26 @@ namespace SideLoader.Model
             if (allTemplates == null || !allTemplates.Any())
                 return;
 
-            // first, pick templates where the target ID already exists
+            List<T> sorted;
 
-            var sorted = allTemplates.Where(it => it.DoesTargetExist).ToList();
-
-            // then from remaining, sort to resolve dependancies on custom items
-
+            // Check if there are any actual dependencies
             var dependencies = allTemplates.Where(it => !it.DoesTargetExist).ToList();
 
             if (dependencies.Any())
             {
+                // Toplogical sort dependencies and full list.
                 if (!TopologicalSort(allTemplates, dependencies, out List<T> resolved))
                 {
+                    // sort returning false means some templates weren't resolved.
+                    // these will still exist in the "dependencies" list.
                     foreach (var template in dependencies)
                         SL.LogWarning("A template targeting ID '" + template.TargetID + "' could not be resolved! This may be a circular dependency.");
                 }
 
                 sorted = resolved;
             }
+            else
+                sorted = allTemplates; // we had no dependencies
 
             foreach (var template in sorted)
             {

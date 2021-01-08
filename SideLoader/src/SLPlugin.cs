@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using HarmonyLib;
 using BepInEx;
-using SideLoader.GUI;
+using SideLoader.UI;
 using BepInEx.Logging;
 using System.Collections.Generic;
 

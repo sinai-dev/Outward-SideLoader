@@ -9,7 +9,7 @@ using System.Diagnostics;
 using SideLoader.Helpers;
 using UnityEngine.SceneManagement;
 
-namespace SideLoader.GUI
+namespace SideLoader.UI
 {
     public class SLGUI : MonoBehaviour
     {

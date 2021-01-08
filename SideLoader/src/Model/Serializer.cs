@@ -25,25 +25,32 @@ namespace SideLoader
     /// </summary>
     public class Serializer
     {
-        /// <summary>
-        /// SideLoader.dll AppDomain reference.
-        /// </summary>
-        public static Assembly SL_Assembly => m_slAssembly ?? (m_slAssembly = Assembly.GetExecutingAssembly());
+        internal static Assembly SL_Assembly => m_slAssembly ?? (m_slAssembly = Assembly.GetExecutingAssembly());
         private static Assembly m_slAssembly;
 
-        /// <summary>
-        /// The Assembly-Csharp.dll AppDomain reference.
-        /// </summary>
-        public static Assembly Game_Assembly => m_gameAssembly ?? (m_gameAssembly = typeof(Item).Assembly);
+        internal static Assembly Game_Assembly => m_gameAssembly ?? (m_gameAssembly = typeof(Item).Assembly);
         private static Assembly m_gameAssembly;
 
-        /// <summary>
-        /// List of SL_Type classes (types marked as SL_Serialized).
-        /// </summary>
-        public static Type[] SLTypes => m_slTypes ?? GetSLTypes();
+        internal static Type[] SLTypes => m_slTypes ?? GetSLTypes();
         private static Type[] m_slTypes;
 
         private static readonly Dictionary<Type, XmlSerializer> m_xmlCache = new Dictionary<Type, XmlSerializer>();
+
+        internal static Type[] GetSLTypes()
+        {
+            var list = new List<Type>();
+
+            foreach (var type in SL_Assembly.GetTypes())
+            {
+                if (type.GetCustomAttributes(typeof(SL_Serialized), true).Length > 0)
+                    list.Add(type);
+            }
+
+            return m_slTypes = list.ToArray();
+        }
+
+        /// <summary>Remove invalid filename characters from a string</summary>
+        public static string ReplaceInvalidChars(string s) => string.Join("_", s.Split(Path.GetInvalidFileNameChars()));
 
         /// <summary>
         /// Use this to get and cache an XmlSerializer for the provided Type, this will include all SL_Types as the extraTypes.
@@ -53,9 +60,7 @@ namespace SideLoader
         public static XmlSerializer GetXmlSerializer(Type type)
         {
             if (!m_xmlCache.ContainsKey(type))
-            {
                 m_xmlCache.Add(type, new XmlSerializer(type, SLTypes));
-            }
 
             return m_xmlCache[type];
         }
@@ -79,50 +84,15 @@ namespace SideLoader
             try
             {
                 ret = Game_Assembly.GetType(name);
-                if (ret == null) throw new Exception("Null");
+                if (ret == null) throw new Exception();
             }
             catch
             {
                 if (logging)
-                {
                     SL.Log($"Could not get Game_Assembly Type '{name}'");
-                }
             }
 
             s_typeConversions.Add(_slType, ret);
-
-            return ret;
-        }
-
-        /// <summary>
-        /// Pass a Game Class type (eg, Item) and get the corresponding SideLoader class (eg, SL_Item).
-        /// </summary>
-        /// <param name="_gameType">Eg, typeof(Item)</param>
-        /// <param name="logging">If you want to log debug messages.</param>
-        private static Type GetSLType(Type _gameType, bool logging = true)
-        {
-            //if (s_typeConversions.ContainsKey(_gameType))
-            //    return s_typeConversions[_gameType];
-
-            var name = $"SideLoader.SL_{_gameType.Name}";
-
-            Type ret = null;
-            try
-            {
-                ret = SL_Assembly.GetType(name);
-                if (ret == null) throw new Exception("Null");
-            }
-            catch (Exception e)
-            {
-                if (logging)
-                {
-                    SL.Log($"Could not get SL_Assembly Type '{name}'");
-                    SL.Log(e.Message);
-                    SL.Log(e.StackTrace);
-                }
-            }
-
-            //s_typeConversions.Add(_gameType, ret);
 
             return ret;
         }
@@ -141,11 +111,9 @@ namespace SideLoader
             if (s_typeConversions.ContainsKey(key))
                 return s_typeConversions[key];
 
-            if (GetSLType(gameType, false) is Type slType && !slType.IsAbstract)
+            if (SL_Assembly.GetType($"SideLoader.SL_{gameType.Name}") is Type slType && !slType.IsAbstract)
             {
-                if (!s_typeConversions.ContainsKey(key))
-                    s_typeConversions.Add(key, slType);
-
+                s_typeConversions.Add(key, slType);
                 return slType;
             }
             else
@@ -240,25 +208,6 @@ namespace SideLoader
 
                 return null;
             }
-        }
-
-        internal static Type[] GetSLTypes()
-        {
-            var list = new List<Type>();
-
-            foreach (var type in SL_Assembly.GetTypes())
-            {
-                if (type.GetCustomAttributes(typeof(SL_Serialized), true).Length > 0)
-                    list.Add(type);
-            }
-
-            return m_slTypes = list.ToArray();
-        }
-
-        /// <summary>Remove invalid filename characters from a string</summary>
-        public static string ReplaceInvalidChars(string s)
-        {
-            return string.Join("_", s.Split(Path.GetInvalidFileNameChars()));
         }
     }
 }

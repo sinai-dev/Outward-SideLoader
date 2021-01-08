@@ -12,16 +12,11 @@ using SideLoader.Helpers;
 namespace SideLoader
 {
     /// <summary>
-    /// SideLoader's manager class for Custom Items. Contains useful methods for the creation, mangement and destruction  of SL_Items.
+    /// SideLoader's helper class for Custom Items.
     /// </summary>
     public class CustomItems
     {
-        /// <summary>Cached ORIGINAL Item Prefabs (not modified)</summary>
         private static readonly Dictionary<int, Item> OrigItemPrefabs = new Dictionary<int, Item>();
-
-        // ================================================================================ //
-        /*                                  Public Helpers                                  */
-        // ================================================================================ //
 
         /// <summary> Will return the true original prefab for this Item ID. </summary>
         public static Item GetOriginalItemPrefab(int ItemID)
