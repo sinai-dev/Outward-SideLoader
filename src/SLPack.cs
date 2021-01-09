@@ -19,29 +19,48 @@ namespace SideLoader
         // used internally to manage assetbundles
         internal static Dictionary<string, AssetBundle> s_allLoadedAssetBundles = new Dictionary<string, AssetBundle>();
 
-        internal static void LoadAllSLPacks(bool firstSetup)
+        internal static void ApplyAllSLPacks(bool firstSetup)
         {
             // 'BepInEx\plugins\...' packs:
-            foreach (var dir in Directory.GetDirectories(SL.PLUGINS_FOLDER))
+            var directories = Directory.GetDirectories(SL.PLUGINS_FOLDER);
+            for (int i = 0; i < directories.Length; i++)
             {
+                var dir = directories[i];
                 var name = Path.GetFileName(dir);
 
                 var slFolder = dir + @"\SideLoader";
                 if (Directory.Exists(slFolder))
-                    SLPack.TryLoadPack(name, false, !firstSetup);
+                {
+                    try
+                    {
+                        SLPack.TryLoadPack(name, false, !firstSetup);
+                    }
+                    catch (Exception e)
+                    {
+                        SL.Log("Exception loading pack: " + slFolder);
+                        SL.LogInnerException(e);
+                    }
+                }
             }
 
             // 'Mods\SideLoader\...' packs:
-            foreach (var dir in Directory.GetDirectories(SL.SL_FOLDER))
+            directories = Directory.GetDirectories(SL.SL_FOLDER);
+            for (int i = 0; i < directories.Length; i++)
             {
+                var dir = directories[i];
                 if (dir == SL.GENERATED_FOLDER || dir == SL.INTERNAL_FOLDER || dir == SLSaveManager.SAVEDATA_FOLDER)
-                {
-                    // not a real SLPack
                     continue;
-                }
 
                 var name = Path.GetFileName(dir);
-                SLPack.TryLoadPack(name, true, !firstSetup);
+                try
+                {
+                    SLPack.TryLoadPack(name, true, !firstSetup);
+                }
+                catch (Exception e)
+                {
+                    SL.Log("Exception loading pack: SideLoader\\" + name);
+                    SL.LogInnerException(e);
+                }
             }
 
             // apply custom statuses and imbues first
@@ -55,23 +74,66 @@ namespace SideLoader
             itemSolver.ApplyTemplates(SL.PendingItems);
 
             // apply recipes
-            foreach (var recipe in SL.PendingRecipes)
-                recipe.ApplyRecipe();
-
-            foreach (var enchant in SL.PendingEnchantments)
-                enchant.Apply();
+            for (int i = 0; i < SL.PendingRecipes.Count; i++)
+            {
+                var recipe = SL.PendingRecipes[i];
+                try
+                {
+                    recipe.ApplyRecipe();
+                }
+                catch (Exception e)
+                {
+                    SL.LogWarning("Exception applying recipe: " + recipe.UID);
+                    SL.LogInnerException(e);
+                }
+            }
+            for (int i = 0; i < SL.PendingEnchantments.Count; i++)
+            {
+                var enchant = SL.PendingEnchantments[i];
+                try
+                {
+                    enchant.ApplyTemplate();
+                }
+                catch (Exception e)
+                {
+                    SL.LogWarning("Exception loading Enchantment " + enchant.Name + " (" + enchant.EnchantmentID + ")");
+                    SL.LogInnerException(e);
+                }
+            }
 
             // apply late items
             itemSolver.ApplyTemplates(SL.PendingLateItems);
 
             // apply characters
-            foreach (var character in SL.PendingCharacters)
-                character.Prepare();
+            for (int i = 0; i < SL.PendingCharacters.Count; i++)
+            {
+                var character = SL.PendingCharacters[i];
+                try
+                {
+                    character.Prepare();
+                }
+                catch (Exception e)
+                {
+                    SL.LogWarning("Exception loading Character " + character.UID);
+                    SL.LogInnerException(e);
+                }
+            }
 
             if (firstSetup)
             {
-                foreach (var pack in SL.Packs.Values)
-                    pack.TryApplyItemTextureBundles();
+                for (int i = 0; i < SL.Packs.Count; i++)
+                {
+                    var pack = SL.Packs.ElementAt(i).Value;
+                    try
+                    {
+                        pack.TryApplyItemTextureBundles();
+                    }
+                    catch (Exception ex)
+                    {
+                        SL.LogWarning("Exception appylying AssetBundle Item Textures from pack " + pack.Name);
+                        SL.LogInnerException(ex);
+                    }
+                }
             }
         }
 

@@ -16,8 +16,7 @@ namespace SideLoader.Patches
             if (__exception != null)
             {
                 SL.Log("Exception on ResourcesPrefabManager.Load: " + __exception.GetType().FullName);
-                SL.Log(__exception.Message);
-                SL.Log(__exception.StackTrace);
+                SL.LogInnerException(__exception);
             }
 
             SL.Setup();

@@ -53,7 +53,7 @@ namespace SideLoader
                 SL.PendingEnchantments.Add(this);
         }
 
-        private void ApplyTemplate()
+        internal void ApplyTemplate()
         {
             SL.Log($"Applying Enchantment Recipe, ID: {this.EnchantmentID}, Name: {this.Name}");
 

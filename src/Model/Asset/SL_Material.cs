@@ -33,7 +33,7 @@ namespace SideLoader
 
             if (!string.IsNullOrEmpty(this.ShaderName) && Shader.Find(this.ShaderName) is Shader shader)
             {
-                SL.Log("Set material shader to " + shader.name);
+                //SL.Log("Set material shader to " + shader.name);
                 mat.shader = shader;
             }
 

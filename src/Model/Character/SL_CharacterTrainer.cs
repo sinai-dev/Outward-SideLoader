@@ -22,6 +22,9 @@ namespace SideLoader
         {
             if (this.SkillTree != null)
                 m_skillTree = this.SkillTree.CreateBaseSchool(true);
+
+            // TODO set sprite sigil from file path
+            //var path = 
         }
 
         public override void ApplyToCharacter(Character trainer)

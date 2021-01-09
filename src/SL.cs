@@ -97,7 +97,7 @@ namespace SideLoader
             else
                 Reset();
 
-            SLPack.LoadAllSLPacks(firstSetup);
+            SLPack.ApplyAllSLPacks(firstSetup);
 
             PacksLoaded = true;
             Log("SideLoader Setup Finished");

@@ -13,6 +13,9 @@ namespace SideLoader
     [SL_Serialized]
     public class SL_Character
     {
+        /// <summary>[Not Serialized] The name of the SLPack used to load certain assets from. Not required.</summary>
+        [XmlIgnore] public string SLPackName { get; set; }
+
         /// <summary> This event will be executed locally by ALL clients via RPC. Use this for any custom local setup that you need.
         /// <list type="bullet">The character is the Character your template was applied to.</list>
         /// <list type="bullet">The string is the optional extraRpcData provided when you spawned the character.</list>
