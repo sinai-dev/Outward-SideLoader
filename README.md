@@ -20,7 +20,7 @@
 
 ## Install [![Version](https://img.shields.io/badge/BepInEx-5.4.5-green.svg)](https://github.com/BepInEx/BepInEx)
 
-* [How To Install](https://sinai-dev.github.io/OSLDocs/#/GettingStarted/Installation)
+* [How To Install](https://sinai-dev.github.io/OSLDocs/#/Main/Installation)
 
 ## Documentation
 * <b>[SideLoader Docs](https://sinai-dev.github.io/OSLDocs/#/)</b>
