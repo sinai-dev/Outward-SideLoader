@@ -20,12 +20,12 @@
     <DebugSymbols>false</DebugSymbols>
     <DebugType>none</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>..\..\Release\BepInEx\plugins\</OutputPath>
+    <OutputPath>..\Release\BepInEx\plugins\</OutputPath>
     <DefineConstants>
     </DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <DocumentationFile>..\..\Release\BepInEx\plugins\SideLoader.xml</DocumentationFile>
+    <DocumentationFile>D:\source\Outward\SideLoader\Release\BepInEx\plugins\SideLoader.xml</DocumentationFile>
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
@@ -78,6 +78,7 @@
     <Compile Include="Model\Item\Building\SL_ConstructionPhase.cs" />
     <Compile Include="Model\Item\ItemExtension\SL_BasicDeployable.cs" />
     <Compile Include="Model\Item\ItemExtension\SL_BuildingUpgrade.cs" />
+    <Compile Include="Model\Item\Misc\SL_EnchantmentRecipeItem.cs" />
     <Compile Include="Model\Item\Misc\SL_Instrument.cs" />
     <Compile Include="Model\Item\Misc\SL_Throwable.cs" />
     <Compile Include="Model\Item\Skill\SL_PistolSkill.cs" />
@@ -308,7 +309,7 @@
       <Private>False</Private>
     </Reference>
     <Reference Include="UnityEngine.AudioModule">
-      <HintPath>..\..\..\..\..\Steam\steamapps\common\Outward\Outward_Data\Managed\UnityEngine.AudioModule.dll</HintPath>
+      <HintPath>..\..\..\..\Steam\steamapps\common\Outward\Outward_Data\Managed\UnityEngine.AudioModule.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="UnityEngine.CoreModule">

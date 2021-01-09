@@ -207,21 +207,13 @@ namespace SideLoader
             SL.Log($"Applying ItemVisuals settings to " + visuals.name);
 
             if (Position != null)
-            {
                 visuals.localPosition = (Vector3)Position;
-            }
             if (Rotation != null)
-            {
                 visuals.eulerAngles = (Vector3)Rotation;
-            }
             if (PositionOffset != null)
-            {
                 visuals.localPosition += (Vector3)PositionOffset;
-            }
             if (RotationOffset != null)
-            {
                 visuals.eulerAngles += (Vector3)RotationOffset;
-            }            
         }
 
         public static SL_ItemVisual ParseVisualToTemplate(Item item, VisualPrefabType type, ItemVisual itemVisual)

@@ -390,6 +390,8 @@ namespace SideLoader
             float start = Time.realtimeSinceStartup;
             SL.Log("Replacing active textures.");
 
+            int replaced = 0;
+
             // ============ Materials ============
 
             var list = Resources.FindObjectsOfTypeAll<Material>();
@@ -401,8 +403,10 @@ namespace SideLoader
                 {
                     if (mat.GetTexture(layer) is Texture tex && Textures.ContainsKey(tex.name))
                     {
-                        SL.Log("Replacing layer " + layer + " on material " + mat.name);
+                        // SL.Log("Replacing layer " + layer + " on material " + mat.name);
                         mat.SetTexture(layer, Textures[tex.name]);
+
+                        replaced++;
                     }
                 }
             }
@@ -422,7 +426,7 @@ namespace SideLoader
 
             var time = Math.Round(1000f * (Time.realtimeSinceStartup - start), 2);
 
-            SL.Log("Finished replacing textures, took " + time + " ms");
+            SL.Log($"Replaced {replaced} textures, took {time} ms");
         }
     }
 }

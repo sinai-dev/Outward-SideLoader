@@ -18,7 +18,10 @@ namespace SideLoader
         public int TargetID => this.TargetStatusID;
         public int AppliedID => this.NewStatusID;
 
-        public void CreatePrefab() => this.ApplyTemplate();
+        public void CreatePrefab() => this.Internal_Create();
+
+        /// <summary>Invoked when this template is applied during SideLoader's start or hot-reload.</summary>
+        public event Action<ImbueEffectPreset> OnTemplateApplied;
 
         /// <summary> [NOT SERIALIZED] The name of the SLPack this custom item template comes from (or is using).
         /// If defining from C#, you can set this to the name of the pack you want to load assets from.</summary>
@@ -53,7 +56,13 @@ namespace SideLoader
                 SL.PendingImbues.Add(this);
         }
 
-        internal void ApplyTemplate()
+        private void Internal_Create()
+        {
+            var imbue = ApplyTemplate();
+            this.OnTemplateApplied?.Invoke(imbue);
+        }
+
+        internal ImbueEffectPreset ApplyTemplate()
         {
             if (this.NewStatusID <= 0)
                 this.NewStatusID = this.TargetStatusID;
@@ -77,6 +86,8 @@ namespace SideLoader
             }
 
             SL_EffectTransform.ApplyTransformList(preset.transform, Effects, EffectBehaviour);
+
+            return preset;
         }
 
         public static SL_ImbueEffect ParseImbueEffect(ImbueEffectPreset imbue)

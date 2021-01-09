@@ -43,7 +43,7 @@ namespace SideLoader.Patches
     public class GAM_ReplaceClip
     {
         [HarmonyPrefix]
-        public static bool Prefix(GlobalAudioManager.Sounds _sound, AudioClip _newCLip)
+        public static bool Prefix(GlobalAudioManager.Sounds _sound)
         {
             if (CustomAudio.ReplacedClips.Contains(_sound))
             {

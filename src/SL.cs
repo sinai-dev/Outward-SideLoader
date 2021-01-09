@@ -135,6 +135,7 @@ namespace SideLoader
         internal static void Reset()
         {
             // Reset packs
+            PacksLoaded = false;
             Packs.Clear();
             SL_Skill.s_customSkills.Clear();
 

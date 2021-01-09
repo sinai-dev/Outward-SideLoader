@@ -170,7 +170,10 @@ namespace SideLoader
             SL.Log("Reading SLPack " + pack.Name);
 
             // order is somewhat important.
-            pack.LoadAssetBundles();
+            
+            if (!hotReload)
+                pack.LoadAssetBundles();
+
             pack.LoadAudioClips();
             pack.LoadTexture2D();
 

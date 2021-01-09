@@ -20,9 +20,12 @@ namespace SideLoader
         public string TargetID => this.TargetStatusIdentifier;
         public string AppliedID => this.StatusIdentifier;
 
-        public void CreatePrefab() => this.ApplyTemplate();
+        public void CreatePrefab() => this.Internal_Create();
 
         // ~~~~~~~~~~~~~~~~~~~~
+
+        /// <summary>Invoked when this template is applied during SideLoader's start or hot-reload.</summary>
+        public event Action<StatusEffect> OnTemplateApplied;
 
         /// <summary> [NOT SERIALIZED] The name of the SLPack this custom status template comes from (or is using).
         /// If defining from C#, you can set this to the name of the pack you want to load assets from.</summary>
@@ -80,7 +83,13 @@ namespace SideLoader
                 SL.PendingStatuses.Add(this);
         }
 
-        internal virtual void ApplyTemplate()
+        internal void Internal_Create()
+        {
+            var status = ApplyTemplate();
+            OnTemplateApplied?.Invoke(status);
+        }
+
+        internal virtual StatusEffect ApplyTemplate()
         {
             if (string.IsNullOrEmpty(this.StatusIdentifier))
                 this.StatusIdentifier = this.TargetStatusIdentifier;
@@ -221,6 +230,8 @@ namespace SideLoader
 
             // fix StatusData for the new effects
             CompileEffectsToData(status);
+
+            return status;
         }
 
         // There is no opposite of Effect.SetValue (you'd think it would be Effect.CompileData, but no...), so we have to do this manually.

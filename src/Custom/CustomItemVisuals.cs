@@ -369,13 +369,13 @@ namespace SideLoader
                             if (mat.HasProperty(tex.name))
                             {
                                 mat.SetTexture(tex.name, tex);
-                                SL.Log("Set texture " + tex.name + " on " + matname);
+                                //SL.Log("Set texture " + tex.name + " on " + matname);
                             }
                             else if (layersToLower.ContainsKey(tex.name))
                             {
                                 var realname = layersToLower[tex.name];
                                 mat.SetTexture(realname, tex);
-                                SL.Log("Set texture " + realname + " on " + matname);
+                                //SL.Log("Set texture " + realname + " on " + matname);
                             }
                             else
                                 SL.Log("Couldn't find a shader property called " + tex.name + "!");

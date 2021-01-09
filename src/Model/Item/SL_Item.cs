@@ -21,7 +21,7 @@ namespace SideLoader
         [XmlIgnore] public int TargetID => this.Target_ItemID;
         [XmlIgnore] public int AppliedID => IsCreatingNewID ? this.New_ItemID : this.Target_ItemID;
 
-        public void CreatePrefab() => ApplyToItem();
+        public void CreatePrefab() => Internal_Create();
 
         // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -38,6 +38,9 @@ namespace SideLoader
             else
                 s_initCallbacks.Add(this.AppliedID, new List<Action<Item>> { listener });
         }
+
+        /// <summary>Invoked when this template is applied during SideLoader's start or hot-reload.</summary>
+        public event Action<Item> OnTemplateApplied;
 
         /// <summary> [NOT SERIALIZED] The name of the SLPack this custom item template comes from (or is using).
         /// If defining from C#, you can set this to the name of the pack you want to load assets from.</summary>
@@ -97,9 +100,6 @@ namespace SideLoader
         public SL_ItemVisual SpecialItemVisuals;
         public SL_ItemVisual SpecialFemaleItemVisuals;
 
-        [Obsolete("Use SL_Item.Apply() instead (renamed).")]
-        public void ApplyTemplateToItem() => Apply();
-
         /// <summary>
         /// The normal (and safest) way to apply the template. Call this some time before or at SL.BeforePacksLoaded.
         /// </summary>
@@ -107,8 +107,8 @@ namespace SideLoader
         {
             if (SL.PacksLoaded)
             {
-                SL.LogWarning("Applying an Item Template AFTER SL.OnPacksLoaded has been called. This is not recommended, use SL.BeforePacksLoaded at the latest instead.");
-                ApplyToItem();
+                //SL.LogWarning("Applying an Item Template AFTER SL.OnPacksLoaded has been called. This is not recommended, use SL.BeforePacksLoaded at the latest instead.");
+                Internal_Create();
             }
             else
             {
@@ -119,10 +119,7 @@ namespace SideLoader
             }
         }
 
-        /// <summary>
-        /// Tries to apply the template immediately, with the template's New_ItemID (or Target_ItemID if none set)
-        /// </summary>
-        public void ApplyToItem()
+        internal void Internal_Create()
         {
             if (this.New_ItemID <= 0)
                 this.New_ItemID = this.Target_ItemID;
@@ -132,10 +129,12 @@ namespace SideLoader
             ApplyToItem(item);
 
             item.IsPrefab = true;
+
+            this.OnTemplateApplied?.Invoke(item);
         }
 
         /// <summary>
-        /// Applies the template immediately to the provided Item.
+        /// Applies the template immediately to the provided Item. Calling this directly will NOT invoke OnTemplateApplied.
         /// </summary>
         public virtual void ApplyToItem(Item item)
         {
@@ -373,6 +372,9 @@ namespace SideLoader
         }
 
         // Legacy
+
+        [Obsolete("Use SL_Item.Apply() instead (renamed).")]
+        public void ApplyTemplateToItem() => Apply();
 
         [Obsolete("Use 'AddOnInstanceStartListener' instead (renamed)")]
         public void OnInstanceStart(Action<Item> callback) => AddOnInstanceStartListener(callback);

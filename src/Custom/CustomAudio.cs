@@ -39,7 +39,7 @@ namespace SideLoader
             }
             catch (Exception e)
             {
-                SL.LogError($"Exception replacing clip '{sound}'.\r\nMessage: {e.Message}\r\nStack: {e.StackTrace});
+                SL.LogError($"Exception replacing clip '{sound}'.\r\nMessage: {e.Message}\r\nStack: {e.StackTrace}");
             }
         }
 

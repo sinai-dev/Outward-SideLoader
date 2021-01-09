@@ -17,7 +17,7 @@ namespace SideLoader.Patches
             if (___m_allSkills == null)
                 ___m_allSkills = ResourcesPrefabManager.Instance.EDITOR_GetPlayerSkillPrefabs();
 
-            foreach (var skill in SL.s_customSkills)
+            foreach (var skill in SL_Skill.s_customSkills)
             {
                 if (!___m_allSkills.Contains(skill.Value))
                 {
@@ -32,7 +32,7 @@ namespace SideLoader.Patches
             DT_SkillDisplayCheat ___m_skillDisplayTemplate, CharacterUI ___m_characterUI, List<int> ___m_knownSkillDisplay,
             List<int> ___m_unknownSkillDisplay, RectTransform ___m_knownSkillHolder, RectTransform ___m_unknownSkillHolder)
         {
-            foreach (var skill in SL.s_customSkills)
+            foreach (var skill in SL_Skill.s_customSkills)
             {
                 if (!skill.Value)
                     continue;
