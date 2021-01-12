@@ -108,11 +108,13 @@ namespace SideLoader
                 }
                 recipe.CompatibleEquipments.CompatibleEquipments = equipList.ToArray();
             }
+            else
+                recipe.CompatibleEquipments.CompatibleEquipments = new EnchantmentRecipe.IngredientData[0];
 
-            recipe.TimeOfDay = this.TimeOfDay;
-            recipe.Region = this.Areas;
+            recipe.TimeOfDay = this.TimeOfDay ?? new Vector2[0];
+            recipe.Region = this.Areas ?? new AreaManager.AreaEnum[0];
+            recipe.Temperature = this.Temperature ?? new TemperatureSteps[0];
             recipe.WindAltarActivated = this.WindAltarActivated;
-            recipe.Temperature = this.Temperature;
 
             if (!string.IsNullOrEmpty(this.QuestEventUID))
             {
@@ -132,12 +134,16 @@ namespace SideLoader
                 }
                 recipe.Weather = list.ToArray();
             }
+            else
+                recipe.Weather = new EnchantmentRecipe.WeaterCondition[0];
 
             // ========== Create actual Enchantment effects prefab ==========
 
             var enchantmentObject = new GameObject(this.EnchantmentID + "_" + this.Name);
             GameObject.DontDestroyOnLoad(enchantmentObject);
             var enchantment = enchantmentObject.AddComponent<Enchantment>();
+
+            At.SetField<EffectPreset>(enchantment, "m_StatusEffectID", this.EnchantmentID);
 
             SetLocalization(this, out enchantment.CustomDescLocKey);
 

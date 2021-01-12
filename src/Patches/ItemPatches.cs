@@ -54,7 +54,16 @@ namespace SideLoader.Patches
         }
     }
 
-
+    [HarmonyPatch(typeof(LocalizationManager), "GetItemName", new Type[] { typeof(int) })]
+    public class LocalizationManager_GetItemName
+    {
+        [HarmonyPostfix]
+        public static void Postfix(ref string __result, int _itemID)
+        {
+            if (CustomItems.s_customLocalizations.ContainsKey(_itemID))
+                __result = CustomItems.s_customLocalizations[_itemID][0];
+        }
+    }
 
     [HarmonyPatch(typeof(Item), "Description", MethodType.Getter)]
     public class Item_get_Description
