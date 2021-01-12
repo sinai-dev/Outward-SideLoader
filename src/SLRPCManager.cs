@@ -41,15 +41,15 @@ namespace SideLoader
         /// <summary>
         /// Internal RPC call used by CustomCharacters.CreateCharacter. This is essentially a link to the CustomCharacters.SpawnCharacterCoroutine method.
         /// </summary>
-        public void SpawnCharacter(string charUID, int viewID, string name, string visualData, bool addCombatAI, string spawnCallbackUID, string extraRpcData)
+        public void SpawnCharacter(string charUID, int viewID, string name, string visualData, string spawnCallbackUID, string extraRpcData)
         {
-            this.photonView.RPC(nameof(RPC_SpawnCharacter), PhotonTargets.All, charUID, viewID, name, visualData, addCombatAI, spawnCallbackUID, extraRpcData);
+            this.photonView.RPC(nameof(RPC_SpawnCharacter), PhotonTargets.All, charUID, viewID, name, visualData, spawnCallbackUID, extraRpcData);
         }
 
         [PunRPC]
-        internal void RPC_SpawnCharacter(string charUID, int viewID, string name, string visualData, bool addCombatAI, string spawnCallbackUID, string extraRpcData)
+        internal void RPC_SpawnCharacter(string charUID, int viewID, string name, string visualData, string spawnCallbackUID, string extraRpcData)
         {
-            SLPlugin.Instance.StartCoroutine(CustomCharacters.SpawnCharacterCoroutine(charUID, viewID, name, visualData, addCombatAI, spawnCallbackUID, extraRpcData));
+            SLPlugin.Instance.StartCoroutine(CustomCharacters.SpawnCharacterCoroutine(charUID, viewID, name, visualData, spawnCallbackUID, extraRpcData));
         }
 
         /// <summary>

@@ -20,7 +20,7 @@ namespace SideLoader
         /// <list type="bullet">The character is the Character your template was applied to.</list>
         /// <list type="bullet">The string is the optional extraRpcData provided when you spawned the character.</list>
         /// </summary>
-        public event System.Action<Character, string> OnSpawn;
+        public event Action<Character, string> OnSpawn;
 
         /// <summary>
         /// This event is invoked locally when save data is loaded and applied to a character using this template. 
@@ -28,7 +28,7 @@ namespace SideLoader
         /// <list type="bullet">The character is the Character your template was applied to.</list>
         /// <list type="bullet">The string is the optional extraRpcData provided when you spawned the character.</list>
         /// </summary>
-        public event System.Action<Character, string> OnSaveApplied;
+        public event Action<Character, string> OnSaveApplied;
 
         /// <summary>Determines how this character will be saved.</summary>
         public CharSaveType SaveType;
@@ -42,20 +42,19 @@ namespace SideLoader
         public string SceneToSpawn;
         /// <summary>For Scene-type characters, the Vector3 position to spawn at.</summary>
         public Vector3 SpawnPosition;
-
-        /// <summary>Whether or not to add basic Combat AI to the character.</summary>
-        public bool AddCombatAI;
-        /// <summary>If combat AI enabled, can the character dodge?</summary>
-        public bool? CanDodge;
-        /// <summary>If combat AI enabled, can the character block?</summary>
-        public bool? CanBlock;
+        /// <summary>For Scene-type characters, the Vector3 eulerAngles rotation to spawn with.</summary>
+        public Vector3 SpawnRotation;
 
         /// <summary>Faction to set for the Character.</summary>
         public Character.Factions? Faction = Character.Factions.NONE;
 
+        /// <summary>Optional, manually define the factions this character can target (if has Combat AI)</summary>
+        public Character.Factions[] TargetableFactions;
+
         /// <summary>Visual Data to set for the character.</summary>
         public VisualData CharacterVisualsData;
 
+        // ~~~~~~~~~~ equipment ~~~~~~~~~~
         /// <summary>Item ID for Weapon</summary>
         public int? Weapon_ID;
         /// <summary>Item ID for Shield</summary>
@@ -69,30 +68,33 @@ namespace SideLoader
         /// <summary>Item ID for Backpack</summary>
         public int? Backpack_ID;
 
-        // TODO pouch items (loot)
-
-        // TODO lootableondeath (and maybe SL_DropTable eventually)
-
-        // stats
+        // ~~~~~~~~~~ stats ~~~~~~~~~~
         [XmlIgnore] private const string SL_STAT_ID = "SL_Stat";
 
-        /// <summary>Base max health stat, default 100.</summary>
+        /// <summary>Base max Health stat, default 100.</summary>
         public float? Health = 100;
-        /// <summary>Base health regen stat, default 0.</summary>
+        /// <summary>Base Health regen stat, default 0.</summary>
         public float? HealthRegen = 0f;
-        /// <summary>Base impact resist stat, default 0.</summary>
+        /// <summary>BaseImpact resist stat, default 0.</summary>
         public float? ImpactResist = 0;
-        /// <summary>Base protection stat, default 0.</summary>
+        /// <summary>Base Protection stat, default 0.</summary>
         public float? Protection = 0;
+        /// <summary>Base Barrier stat, default 0.</summary>
+        public float? Barrier = 0;
         /// <summary>Base damage resists, default all 0.</summary>
         public float[] Damage_Resists = new float[6] { 0f, 0f, 0f, 0f, 0f, 0f };
         /// <summary>Base damage bonuses, default all 0.</summary>
         public float[] Damage_Bonus = new float[6] { 0f, 0f, 0f, 0f, 0f, 0f };
 
-        /// <summary>
-        /// List of Status or Status Family Tags this character is immune to (eg Bleeding, Poison, Burning)
-        /// </summary>
+        /// <summary>List of Status or Status Family Tags this character is immune to (eg Bleeding, Poison, Burning)</summary>
         public List<string> Status_Immunity = new List<string>();
+
+        // ~~~~~~~~~~ AI States ~~~~~~~~~~
+        public SL_CharacterAI AI;
+        
+        [Obsolete("Use SL_Character.AI instead")] [XmlIgnore] public bool AddCombatAI;
+        [Obsolete("Use SL_Character.AI instead")] [XmlIgnore] public bool? CanDodge;
+        [Obsolete("Use SL_Character.AI instead")] [XmlIgnore] public bool? CanBlock;
 
         /// <summary>
         /// Prepares callbacks. Only do this after you have set the UID! This is called by SLPack.LoadCharacters().
@@ -145,7 +147,7 @@ namespace SideLoader
             if (PhotonNetwork.isNonMasterClientInRoom || SceneManagerHelper.ActiveSceneName != this.SceneToSpawn)
                 return;
 
-            Spawn(this.SpawnPosition);
+            Spawn(this.SpawnPosition, this.SpawnRotation);
         }
 
         /// <summary>
@@ -155,6 +157,16 @@ namespace SideLoader
         /// <param name="characterUID">Optional custom character UID for dynamic spawns</param>
         /// <param name="extraRpcData">Optional extra RPC data to send.</param>
         public Character Spawn(Vector3 position, string characterUID = null, string extraRpcData = null)
+            => Spawn(position, Vector3.zero, characterUID, extraRpcData);
+
+        /// <summary>
+        /// Calls CustomCharacters.SpawnCharacter with this template.
+        /// </summary>
+        /// <param name="position">Spawn position for character. eg, template.SpawnPosition.</param>
+        /// <param name="rotation">Rotation to spawn with, eg template.SpawnRotation</param>
+        /// <param name="characterUID">Optional custom character UID for dynamic spawns</param>
+        /// <param name="extraRpcData">Optional extra RPC data to send.</param>
+        public Character Spawn(Vector3 position, Vector3 rotation, string characterUID = null, string extraRpcData = null)
         {
             characterUID = characterUID ?? this.UID;
 
@@ -164,7 +176,7 @@ namespace SideLoader
                 return existing;
             }
 
-            return CustomCharacters.SpawnCharacter(this, position, characterUID, extraRpcData).GetComponent<Character>();
+            return CustomCharacters.SpawnCharacter(this, position, rotation, characterUID, extraRpcData).GetComponent<Character>();
         }
 
         /// <summary>
@@ -208,22 +220,20 @@ namespace SideLoader
             }
 
             // AI
-            if (this.AddCombatAI && character.GetComponent<CharacterAI>() is CharacterAI ai)
-            {
-                foreach (var state in ai.AiStates)
-                {
-                    if (state is AISCombat aisCombat)
-                    {
-                        if (CanDodge != null)
-                            aisCombat.CanDodge = (bool)CanDodge;
-                        if (CanBlock != null)
-                            aisCombat.CanBlock = (bool)CanBlock;
-                    }
-                }
-            }
+            if (this.AI != null && !PhotonNetwork.isNonMasterClientInRoom)
+                this.AI.Apply(character);
 
             // stats
             SetStats(character);
+
+            if (this.TargetableFactions != null)
+            {
+                var targeting = character.GetComponent<TargetingSystem>();
+                if (targeting)
+                    targeting.TargetableFactions = this.TargetableFactions;
+                else
+                    SL.LogWarning("SL_Character: Could not get TargetingSystem component!");
+            }
 
             character.gameObject.SetActive(true);
         }
@@ -260,6 +270,12 @@ namespace SideLoader
             {
                 var m_damageProtection = (Stat[])At.GetField(stats, "m_damageProtection");
                 m_damageProtection[0].AddStack(new StatStack(SL_STAT_ID, (float)Protection), false);
+            }
+
+            if (this.Barrier != null)
+            {
+                var m_barrier = (Stat)At.GetField(stats, "m_barrierStat");
+                m_barrier.AddStack(new StatStack(SL_STAT_ID, (float)Barrier), false);
             }
 
             if (Damage_Resists != null)
@@ -342,6 +358,7 @@ namespace SideLoader
             {
                 // disable default visuals
                 visuals.transform.Find("HeadWhiteMaleA")?.gameObject.SetActive(false);
+                ((ArmorVisuals)At.GetField(visuals, "m_defaultHeadVisuals"))?.gameObject.SetActive(false);
                 visuals.transform.Find("MBody0")?.gameObject.SetActive(false);
                 visuals.transform.Find("MFeet0")?.gameObject.SetActive(false);
 
@@ -368,10 +385,13 @@ namespace SideLoader
                 // apply the visuals
                 var equipped = (ArmorVisuals[])At.GetField(visuals, "m_editorEquippedVisuals");
 
-                if ((!equipped[0] || !equipped[0].HideFace) && (!equipped[1] || !equipped[1].HideFace))
+                bool hideface = (equipped[0] && equipped[0].HideFace) || (equipped[1] && equipped[1].HideFace);
+                bool hidehair = (equipped[0] && equipped[0].HideHair) || (equipped[1] && equipped[1].HideHair);
+
+                if (!hideface)
                     visuals.LoadCharacterCreationHead(data.SkinIndex, (int)data.Gender, data.HeadVariationIndex);
 
-                if ((!equipped[0] || !equipped[0].HideHair) && (!equipped[1] || !equipped[1].HideHair))
+                if (!hidehair)
                     ApplyHairVisuals(visuals, data.HairStyleIndex, data.HairColorIndex);
 
                 if (!equipped[1])

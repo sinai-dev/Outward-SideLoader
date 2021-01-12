@@ -23,130 +23,50 @@ namespace SideLoader
         /// Use this to cleanup a custom character. This will send out an RPC.
         /// </summary>
         /// <param name="character">The Character to destroy.</param>
-        public static void DestroyCharacterRPC(Character character) => SLRPCManager.Instance.DestroyCharacter(character.UID);
+        public static void DestroyCharacterRPC(Character character) 
+            => SLRPCManager.Instance.DestroyCharacter(character.UID);
+
         /// <summary>
         /// Use this to cleanup a custom character. This will send out an RPC.
         /// </summary>
         /// <param name="UID">The UID of the Character to destroy.</param>
-        public static void DestroyCharacterRPC(string UID) => SLRPCManager.Instance.DestroyCharacter(UID);
+        public static void DestroyCharacterRPC(string UID) 
+            => SLRPCManager.Instance.DestroyCharacter(UID);
+
+        // ============ Spawning ============
+
+        [Obsolete("addCombatAI is no longer part of CustomCharacters. Use an SL_Character template instead.")]
+        public static GameObject SpawnCharacter(Vector3 position, string uid, string name = "SL_Character", bool addCombatAI = false, string extraRpcData = null)
+           => InternalSpawn(position, Vector3.zero, uid, name, null, null, extraRpcData);
+
+        [Obsolete("addCombatAI is no longer part of CustomCharacters. Use an SL_Character template instead.")]
+        public static GameObject SpawnCharacter(Vector3 pos, Vector3 rotation, string uid, string name = "SL_Character", bool addCombatAI = false, string extraRpcData = null)
+            => InternalSpawn(pos, rotation, uid, name, null, uid, extraRpcData);
 
         /// <summary>
         /// Spawns a custom character and applies the template. Optionally provide a manual spawn position and Character UID.
         /// The OnSpawn callback is based on the Template UID. You should have already called template.Prepare() before calling this.
         /// </summary>
         /// <param name="template">The SL_Character template containing most of the main information</param>
-        /// <param name="position">Optional manual spawn position, otherwise just provide the template.SpawnPosition</param>
+        /// <param name="position">Optional manual spawn position, otherwise just use the template.SpawnPosition</param>
         /// <param name="characterUID">Optional manual character UID, if dynamically spawning multiple from one template.</param>
         /// <param name="extraRpcData">Optional extra RPC data to send with the spawn.</param>
-        /// <returns></returns>
+        /// <returns>The GameObject of your new character</returns>
         public static GameObject SpawnCharacter(SL_Character template, Vector3 position, string characterUID = null, string extraRpcData = null)
-        {
-            characterUID = characterUID ?? template.UID;
-
-            return SpawnCharacter(position, characterUID, template.Name, template.CharacterVisualsData?.ToString(),
-                template.AddCombatAI, template.UID, extraRpcData
-            );
-        }
+            => SpawnCharacter(template, position, Vector3.zero, characterUID, extraRpcData);
 
         /// <summary>
-        /// Simple helper to create a generic character without any template.
+        /// Spawns a custom character and applies the template. Optionally provide a manual spawn position and Character UID.
+        /// The OnSpawn callback is based on the Template UID. You should have already called template.Prepare() before calling this.
         /// </summary>
-        /// <param name="pos">The spawn position for the character.</param>
-        /// <param name="uid">The UID for the character.</param>
-        /// <param name="name">Name for the character.</param>
-        /// <param name="addCombatAI">Whether to add a generic combat AI to the character</param>
-        /// <param name="extraRpcData">Optional extra RPC data to send.</param>
-        /// <returns>Your custom character (instantly for Host)</returns>
-        public static GameObject SpawnCharacter(Vector3 pos, string uid, string name = "SL_Character", bool addCombatAI = false, 
-            string extraRpcData = null)
-        {
-            return SpawnCharacter(pos, uid, name, null, addCombatAI, uid, extraRpcData);
-        }
-
-        /// <summary>
-        /// Instantiates a new human character with the attributes provided. Only one client should call this.
-        /// This is the main SpawnCharacter method, called by the other SpawnCharacter methods.
-        /// </summary>
-        /// <param name="_position">The spawn position for the character.</param>
-        /// <param name="_UID">The UID for the character.</param>
-        /// <param name="_name">The Name of your custom character.</param>
-        /// <param name="spawnCallbackUID">Optional, the SL_Character template UID which will be used to invoke the OnSpawn callback.</param>
-        /// <param name="addCombatAI">Whether to add basic combat AI to the character</param>
-        /// <param name="visualData">Optional visual data (network data). Use SL_Character.VisualData.ToString().</param>
-        /// <param name="extraRpcData">Optional extra RPC data to send with the spawn</param>
-        /// <returns>The custom character (instantly for executing client)</returns>
-        public static GameObject SpawnCharacter(Vector3 _position, string _UID, string _name, string visualData = null, 
-            bool addCombatAI = false, string spawnCallbackUID = null, string extraRpcData = null)
-        {
-            SL.Log($"Spawning character '{_name}', _UID: {_UID}, spawnCallbackUID: {spawnCallbackUID}");
-
-            try
-            {
-                GameObject prefab;
-                Character character;
-
-                var args = new object[]
-                    {
-                        (int)CharacterManager.CharacterInstantiationTypes.Temporary,
-                        "NewPlayerPrefab",
-                        _UID,
-                        string.Empty // dont send a creator UID, otherwise it links the current summon (used by Conjure Ghost)
-                    };
-
-                prefab = PhotonNetwork.InstantiateSceneObject("_characters/NewPlayerPrefab", _position, Quaternion.identity, 0, args);
-                prefab.SetActive(false);
-
-                character = prefab.GetComponent<Character>();
-
-                character.SetUID(_UID);
-
-                //FixStats(prefab.GetComponent<Character>());
-
-                //var viewID = sceneView > 0 ? sceneView : PhotonNetwork.AllocateSceneViewID();
-                var viewID = PhotonNetwork.AllocateSceneViewID();
-
-                if (string.IsNullOrEmpty(spawnCallbackUID))
-                    spawnCallbackUID = _UID;
-
-                prefab.SetActive(true);
-
-                SLRPCManager.Instance.SpawnCharacter(_UID, viewID, _name, visualData, addCombatAI, spawnCallbackUID, extraRpcData);
-
-                return prefab;
-            }
-            catch (Exception e)
-            {
-                SL.Log("Exception spawning character: " + e.ToString());
-                return null;
-            }
-        }
-
-        /// <summary>
-        /// Helper to add basic combat AI to a Character.
-        /// </summary>
-        public static CharacterAI SetupBasicAI(Character _char)
-        {
-            if (_char.GetComponent<CharacterAI>() is CharacterAI comp)
-            {
-                SL.Log($"This character '{_char.Name}' is already a CharacterAI!");
-                return comp;
-            }
-
-            // add required components for AIs (no setup required)
-            _char.gameObject.AddComponent<NavMeshAgent>();
-            _char.gameObject.AddComponent<AISquadMember>();
-            _char.gameObject.AddComponent<EditorCharacterAILoadAI>();
-
-            // add our basic AIStatesPrefab to a CharacterAI component. This is the prefab set up by SetupBasicAIPrefab(), below.
-            CharacterAI charAI = _char.gameObject.AddComponent<CharacterAI>();
-            At.SetField(charAI, "m_character", _char);
-            charAI.AIStatesPrefab = BasicAIPrefab.GetComponent<AIRoot>();
-
-            // initialize the AI States (not entirely necessary, but helpful if we want to do something with the AI immediately after)
-            At.Invoke(charAI, "GetAIStates", null);
-
-            return charAI;
-        }
+        /// <param name="template">The SL_Character template containing most of the main information</param>
+        /// <param name="position">Optional manual spawn position, otherwise just use the template.SpawnPosition</param>
+        /// <param name="rotation">Optional manual rotation to spawn with, otherwise just use the template.SpawnRotation.</param>
+        /// <param name="characterUID">Optional manual character UID, if dynamically spawning multiple from one template.</param>
+        /// <param name="extraRpcData">Optional extra RPC data to send with the spawn.</param>
+        /// <returns>Your custom character</returns>
+        public static GameObject SpawnCharacter(SL_Character template, Vector3 position, Vector3 rotation, string characterUID = null, string extraRpcData = null)
+            => InternalSpawn(position, rotation, characterUID ?? template.UID, template.Name, template.CharacterVisualsData?.ToString(), template.UID, extraRpcData);
 
         // ==================== Internal ====================
 
@@ -158,6 +78,8 @@ namespace SideLoader
         internal static event Action INTERNAL_SpawnCharacters;
 
         public static bool WasLastAreaReset { get; internal set; }
+
+        // public static bool IsRealScene(Scene scene) => true; // CustomScenes.IsRealScene(scene);
 
         internal static void InvokeSpawnCharacters()
         {
@@ -172,23 +94,6 @@ namespace SideLoader
                 SLPlugin.Instance.StartCoroutine(TryLoadSaveData());
         }
 
-        private static GameObject m_basicAIPrefab;
-        internal static GameObject BasicAIPrefab
-        {
-            get
-            {
-                if (!m_basicAIPrefab)
-                    SetupBasicAIPrefab();
-
-                return m_basicAIPrefab;
-            }
-        }
-
-        internal void Awake()
-        {
-            SetupBasicAIPrefab();
-        }
-
         internal static void AddActiveCharacter(CustomSpawnInfo info)
         {
             if (!ActiveCharacters.Contains(info))
@@ -200,10 +105,52 @@ namespace SideLoader
             SLRPCManager.Instance.photonView.RPC(nameof(SLRPCManager.RPC_RequestCharacters), PhotonTargets.MasterClient);
         }
 
-        // public static bool IsRealScene(Scene scene) => true; // CustomScenes.IsRealScene(scene);
+        // Main internal spawn method
+        internal static GameObject InternalSpawn(Vector3 position, Vector3 rotation, string UID, string name, string visualData = null, string spawnCallbackUID = null, string extraRpcData = null)
+        {
+            SL.Log($"Spawning character '{name}', _UID: {UID}, spawnCallbackUID: {spawnCallbackUID}");
 
-        internal static IEnumerator SpawnCharacterCoroutine(string charUID, int viewID, string name, string visualData,
-            bool addCombatAI, string spawnCallbackUID, string extraRpcData)
+            try
+            {
+                GameObject prefab;
+                Character character;
+
+                var args = new object[]
+                {
+                    (int)CharacterManager.CharacterInstantiationTypes.Temporary,
+                    "NewPlayerPrefab",
+                    UID,
+                    string.Empty // dont send a creator UID, otherwise it links the current summon (used by Conjure Ghost)
+                };
+
+                prefab = PhotonNetwork.InstantiateSceneObject("_characters/NewPlayerPrefab", position, Quaternion.Euler(rotation), 0, args);
+                prefab.SetActive(false);
+
+                character = prefab.GetComponent<Character>();
+
+                character.SetUID(UID);
+
+                //FixStats(prefab.GetComponent<Character>());
+
+                var viewID = PhotonNetwork.AllocateSceneViewID();
+
+                if (string.IsNullOrEmpty(spawnCallbackUID))
+                    spawnCallbackUID = UID;
+
+                prefab.SetActive(true);
+
+                SLRPCManager.Instance.SpawnCharacter(UID, viewID, name, visualData, spawnCallbackUID, extraRpcData);
+
+                return prefab;
+            }
+            catch (Exception e)
+            {
+                SL.Log("Exception spawning character: " + e.ToString());
+                return null;
+            }
+        }
+
+        internal static IEnumerator SpawnCharacterCoroutine(string charUID, int viewID, string name, string visualData, string spawnCallbackUID, string extraRpcData)
         {
             // get character from manager
             Character character = CharacterManager.Instance.GetCharacter(charUID);
@@ -230,8 +177,8 @@ namespace SideLoader
             if (!string.IsNullOrEmpty(visualData))
                 SLPlugin.Instance.StartCoroutine(SL_Character.SetVisuals(character, visualData));
 
-            if (addCombatAI) // && !localSpawn)
-                SetupBasicAI(character);
+            //if (addCombatAI) // && !localSpawn)
+            //    SetupBasicAI(character);
 
             // invoke OnSpawn callback
             if (Templates.ContainsKey(spawnCallbackUID))
@@ -515,133 +462,6 @@ namespace SideLoader
             At.SetField(stats, "m_healthRegen", new Stat(0f));
             At.SetField(stats, "m_manaRegen", new Stat(0f));
             At.SetField(stats, "m_statusEffectsNaturalImmunity", new TagSourceSelector[0]);
-        }
-
-        #endregion
-
-        #region Enemy AI (WIP)
-
-        /// <summary>
-        /// This is a completely custom AI States setup from scratch. It copies the Summoned Ghost AI.
-        /// </summary>
-        private static void SetupBasicAIPrefab()
-        {
-            // Check if we've already set up the Prefab...
-            if (m_basicAIPrefab)
-            {
-                return;
-            }
-
-            var _AIStatesPrefab = new GameObject("AIRoot").AddComponent<AIRoot>();
-            _AIStatesPrefab.gameObject.SetActive(false);
-
-            // -- create base state objects --
-
-            // state 1: Wander
-            var wanderState = new GameObject("1_Wander").AddComponent<AISWander>();
-            wanderState.transform.parent = _AIStatesPrefab.transform;
-
-            // state 2: Suspicious
-            var susState = new GameObject("2_Suspicious").AddComponent<AISSuspicious>();
-            susState.transform.parent = _AIStatesPrefab.transform;
-
-            //state 3: alert
-            var alertState = new GameObject("3_Alert").AddComponent<AISSuspicious>();
-            alertState.transform.parent = _AIStatesPrefab.transform;
-
-            //state 4: Combat
-            var combatState = new GameObject("4_Combat").AddComponent<AISCombatMelee>();
-            combatState.transform.parent = _AIStatesPrefab.transform;
-
-            // ---- setup actual state parameters and links ----
-
-            // setup 1 - Wander
-
-            wanderState.SpeedModif = 1.1f; // set custom state speed
-            wanderState.ContagionRange = 20f;
-
-            var wanderDetection = new GameObject("Detection").AddComponent<AICEnemyDetection>();
-            wanderDetection.transform.parent = wanderState.transform;
-            var wanderDetectEffects = new GameObject("DetectEffects").AddComponent<AIESwitchState>();
-            wanderDetectEffects.ToState = susState;
-            wanderDetectEffects.transform.parent = wanderDetection.transform;
-            wanderDetection.DetectEffectsTrans = wanderDetectEffects.transform;
-
-            //setup 2 - Suspicious
-
-            susState.SpeedModif = 1.75f;
-            susState.SuspiciousDuration = 5f;
-            susState.Range = 30;
-            susState.WanderFar = true;
-            susState.TurnModif = 0.9f;
-
-            var susEnd = new GameObject("EndSuspiciousEffects").AddComponent<AIESwitchState>();
-            susEnd.ToState = wanderState;
-            var sheathe = susEnd.gameObject.AddComponent<AIESheathe>();
-            sheathe.Sheathed = true;
-            susEnd.transform.parent = susState.transform;
-            susState.EndSuspiciousEffectsTrans = susEnd.transform;
-
-            var susDetection = new GameObject("Detection").AddComponent<AICEnemyDetection>();
-            susDetection.transform.parent = susState.transform;
-            var susDetectEffects = new GameObject("DetectEffects").AddComponent<AIESwitchState>();
-            susDetectEffects.ToState = combatState;
-            susDetectEffects.transform.parent = susDetection.transform;
-            susDetection.DetectEffectsTrans = susDetectEffects.transform;
-            var susSuspiciousEffects = new GameObject("SuspiciousEffects").AddComponent<AIESwitchState>();
-            susSuspiciousEffects.ToState = alertState;
-            susSuspiciousEffects.transform.parent = susDetection.transform;
-            susDetection.SuspiciousEffectsTrans = susSuspiciousEffects.transform;
-
-            // setup 3 - alert
-
-            alertState.SpeedModif = 1.75f;
-
-            var alertEnd = new GameObject("EndSuspiciousEffects").AddComponent<AIESwitchState>();
-            alertEnd.ToState = susState;
-            var alertsheathe = alertEnd.gameObject.AddComponent<AIESheathe>();
-            alertsheathe.Sheathed = true;
-            alertEnd.transform.parent = alertState.transform;
-            alertState.EndSuspiciousEffectsTrans = alertEnd.transform;
-
-            var alertDetection = new GameObject("Detection").AddComponent<AICEnemyDetection>();
-            alertDetection.transform.parent = alertState.transform;
-            var alertDetectEffects = new GameObject("DetectEffects").AddComponent<AIESwitchState>();
-            alertDetectEffects.ToState = combatState;
-            alertDetectEffects.transform.parent = alertDetection.transform;
-            alertDetection.DetectEffectsTrans = alertDetectEffects.transform;
-
-            // setup 4 - Combat
-
-            combatState.ChargeTime = new Vector2(4, 8);
-            combatState.TargetVulnerableChargeTimeMult = 0.5f;
-            combatState.ChargeAttackRangeMult = 1;
-            combatState.ChargeAttackTimeToAttack = 0.4f;
-            combatState.ChargeStartRangeMult = new Vector2(0.8f, 3.0f);
-            combatState.AttackPatterns = new AttackPattern[]
-            {
-                new AttackPattern { ID = 0, Chance = 20, Range = new Vector2(0.9f, 2.5f), Attacks = new AttackPattern.AtkTypes[] { AttackPattern.AtkTypes.Normal } },
-                new AttackPattern { ID = 1, Chance = 15, Range = new Vector2(0.0f, 2.9f), Attacks = new AttackPattern.AtkTypes[] { AttackPattern.AtkTypes.Normal, AttackPattern.AtkTypes.Normal } },
-                new AttackPattern { ID = 2, Chance = 30, Range = new Vector2(0.0f, 1.5f), Attacks = new AttackPattern.AtkTypes[] { AttackPattern.AtkTypes.Special }},
-                new AttackPattern { ID = 3, Chance = 30, Range = new Vector2(0.0f, 1.5f), Attacks = new AttackPattern.AtkTypes[] { AttackPattern.AtkTypes.Normal, AttackPattern.AtkTypes.Special }},
-                new AttackPattern { ID = 4, Chance = 30, Range = new Vector2(0.0f, 1.3f), Attacks = new AttackPattern.AtkTypes[] { AttackPattern.AtkTypes.Normal, AttackPattern.AtkTypes.Normal, AttackPattern.AtkTypes.Special }}
-            };
-            combatState.SpeedModifs = new float[] { 0.8f, 1.3f, 1.7f };
-            combatState.ChanceToAttack = 75;
-            combatState.KnowsUnblockable = true;
-            combatState.DodgeCooldown = 3f;
-            combatState.CanBlock = true;
-            combatState.CanDodge = true;
-
-            var combatDetect = new GameObject("Detection").AddComponent<AICEnemyDetection>();
-            combatDetect.transform.parent = combatState.transform;
-            var combatEnd = new GameObject("EndCombatEffects").AddComponent<AIESwitchState>();
-            combatEnd.ToState = wanderState;
-            combatEnd.transform.parent = combatState.transform;
-
-            m_basicAIPrefab = _AIStatesPrefab.gameObject;
-            GameObject.DontDestroyOnLoad(m_basicAIPrefab);
-            m_basicAIPrefab.SetActive(false);
         }
 
         #endregion

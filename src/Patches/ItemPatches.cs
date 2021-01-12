@@ -18,6 +18,9 @@ namespace SideLoader.Patches
         {
             ___m_toLogString = Serializer.ReplaceInvalidChars(___m_toLogString);
 
+            if (!SL.PacksLoaded)
+                return;
+
             if (SL_Item.s_initCallbacks.TryGetValue(__instance.ItemID, out List<Action<Item>> invocationList))
             {
                 foreach (var listener in invocationList)

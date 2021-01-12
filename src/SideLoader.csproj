@@ -46,6 +46,7 @@
     <Compile Include="Helpers\ForceUnlockCursor.cs" />
     <Compile Include="Helpers\References.cs" />
     <Compile Include="Helpers\UnityHelpers.cs" />
+    <Compile Include="Model\Character\SL_CharacterAI.cs" />
     <Compile Include="Model\Character\SL_CharacterTrainer.cs" />
     <Compile Include="Model\DependancySolver.cs" />
     <Compile Include="Model\Effect\Conditions\SL_InBoundsCondition.cs" />
