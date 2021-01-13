@@ -115,13 +115,20 @@ namespace SideLoader
             }
 
             if (!string.IsNullOrEmpty(this.SceneToSpawn))
-            {
                 CustomCharacters.INTERNAL_SpawnCharacters += SceneSpawnIfValid;
-            }
 
             OnPrepare();
 
             SL.Log("Prepared SL_Character '" + Name + "' (" + UID + ")");
+        }
+
+        public void Unregister()
+        {
+            if (CustomCharacters.Templates.ContainsKey(this.UID))
+                CustomCharacters.Templates.Remove(this.UID);
+
+            if (!string.IsNullOrEmpty(this.SceneToSpawn))
+                CustomCharacters.INTERNAL_SpawnCharacters -= SceneSpawnIfValid;
         }
 
         internal virtual void OnPrepare() { }
@@ -133,8 +140,6 @@ namespace SideLoader
             ApplyToCharacter(character);
 
             SL.TryInvoke(OnSpawn, character, extraRpcData);
-
-            character.gameObject.SetActive(true);
         }
 
         internal void INTERNAL_OnSaveApplied(Character character, string extraRpcData)
@@ -221,7 +226,10 @@ namespace SideLoader
 
             // AI
             if (this.AI != null && !PhotonNetwork.isNonMasterClientInRoom)
+            {
+                SL.Log("SL_Character AI is " + this.AI.GetType().FullName + ", applying...");
                 this.AI.Apply(character);
+            }
 
             // stats
             SetStats(character);
@@ -385,8 +393,8 @@ namespace SideLoader
                 // apply the visuals
                 var equipped = (ArmorVisuals[])At.GetField(visuals, "m_editorEquippedVisuals");
 
-                bool hideface = (equipped[0] && equipped[0].HideFace) || (equipped[1] && equipped[1].HideFace);
-                bool hidehair = (equipped[0] && equipped[0].HideHair) || (equipped[1] && equipped[1].HideHair);
+                bool hideface = equipped[0] && equipped[0].HideFace;
+                bool hidehair = equipped[0] && equipped[0].HideHair;
 
                 if (!hideface)
                     visuals.LoadCharacterCreationHead(data.SkinIndex, (int)data.Gender, data.HeadVariationIndex);

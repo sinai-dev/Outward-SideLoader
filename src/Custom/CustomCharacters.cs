@@ -174,9 +174,6 @@ namespace SideLoader
             // set name
             character.name = $"{name}_{charUID}";
 
-            if (!string.IsNullOrEmpty(visualData))
-                SLPlugin.Instance.StartCoroutine(SL_Character.SetVisuals(character, visualData));
-
             //if (addCombatAI) // && !localSpawn)
             //    SetupBasicAI(character);
 
@@ -189,6 +186,9 @@ namespace SideLoader
             }
 
             character.gameObject.SetActive(true);
+
+            if (!string.IsNullOrEmpty(visualData))
+                SLPlugin.Instance.StartCoroutine(SL_Character.SetVisuals(character, visualData));
 
             // fix Photon View component
             if (character.gameObject.GetComponent<PhotonView>() is PhotonView view)

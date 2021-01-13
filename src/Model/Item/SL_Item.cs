@@ -214,6 +214,8 @@ namespace SideLoader
                 }
 
                 StatsHolder.ApplyToItem(stats);
+
+                At.SetField(item, "m_stats", stats);
             }
 
             if (this.ItemExtensions != null)
@@ -224,6 +226,8 @@ namespace SideLoader
             SL_EffectTransform.ApplyTransformList(item.transform, this.EffectTransforms, this.EffectBehaviour);
 
             ApplyItemVisuals(item);
+
+
         }
 
         /// <summary>
