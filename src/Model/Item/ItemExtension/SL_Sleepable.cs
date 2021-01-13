@@ -8,6 +8,7 @@ namespace SideLoader
 {
     public class SL_Sleepable : SL_ItemExtension
     {
+        public string RestStatusIdentifier;
         public bool? AffectFoodDrink;
         public int? AmbushReduction;
         public int? Capacity;
@@ -24,6 +25,13 @@ namespace SideLoader
         public override void ApplyToComponent<T>(T component)
         {
             var comp = component as Sleepable;
+
+            if (!string.IsNullOrEmpty(this.RestStatusIdentifier))
+            {
+                var status = ResourcesPrefabManager.Instance.GetStatusEffectPrefab(this.RestStatusIdentifier);
+                if (status)
+                    At.SetField(comp, "m_restEffect", status);
+            }
 
             if (this.AffectFoodDrink != null)
             {
@@ -90,6 +98,11 @@ namespace SideLoader
             this.ManaPreservationModifier = comp.ManaPreservationModifier;
             this.Rejuvenate = comp.Rejuvenate;
             this.StaminaRecuperationModifier = comp.StaminaRecuperationModifier;
+
+            if (comp.ResetEffect)
+            {
+                this.RestStatusIdentifier = comp.ResetEffect.IdentifierName;
+            }
         }
     }
 }
