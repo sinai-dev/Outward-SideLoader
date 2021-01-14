@@ -1,4 +1,5 @@
 ﻿using HarmonyLib;
+using SideLoader.SaveData;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,23 +8,6 @@ using System.Threading.Tasks;
 
 namespace SideLoader.Patches
 {
-    // Save custom characters when game does a save
-    [HarmonyPatch(typeof(SaveInstance), nameof(SaveInstance.Save))]
-    public class SaveInstance_Save
-    {
-        [HarmonyPostfix]
-        public static void Postfix(SaveInstance __instance)
-        {
-            var worldhost = CharacterManager.Instance.GetWorldHostCharacter();
-            var character = __instance.CharSave.CharacterUID;
-
-            if (character != worldhost.UID)
-                return;
-
-            CustomCharacters.SaveCharacters();
-        }
-    }
-
     // Just catches a harmless null ref exception, hiding it until I figure out a cleaner fix
     [HarmonyPatch(typeof(Character), "ProcessOnEnable")]
     public class Character_ProcessOnEnable
@@ -58,7 +42,7 @@ namespace SideLoader.Patches
         }
     }
 
-    // Like the last patch, we sneak into when the game should have destroyed previous scene characters to cleanup there.
+    // sneak into when the game should have destroyed previous scene characters to cleanup there.
     [HarmonyPatch(typeof(CharacterManager), "ClearNonPersitentCharacters")]
     [HarmonyPatch(typeof(NetworkLevelLoader), "StartConnectionCoroutine")]
     [HarmonyPatch(typeof(NetworkLevelLoader), "HostLost")]

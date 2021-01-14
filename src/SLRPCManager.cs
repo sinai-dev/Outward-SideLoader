@@ -8,6 +8,7 @@ using HarmonyLib;
 using System.Reflection;
 using SideLoader.Helpers;
 using Photon;
+using SideLoader.SaveData;
 
 namespace SideLoader
 {
@@ -89,7 +90,7 @@ namespace SideLoader
         public void RPC_RequestCharacters()
         {
             // use the local save to capture the current spawned characters info
-            CustomCharacters.SaveCharacters();
+            SLCharacterSaveManager.SaveCharacters();
 
             // destroy current spawns
             CustomCharacters.CleanupCharacters();

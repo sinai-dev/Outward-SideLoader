@@ -47,6 +47,12 @@ namespace SideLoader
                 ExtraRPCData = this.ExtraRPCData,
             };
 
+            if (character.GetComponentInChildren<AISWander>() is AISWander aiWander) 
+            {
+                if (aiWander.FollowTransform && aiWander.FollowTransform.GetComponentInChildren<Character>() is Character followTarget)
+                    data.FollowTargetUID = followTarget.UID.ToString();
+            }
+
             try 
             {
                 data.Health = character.Health;

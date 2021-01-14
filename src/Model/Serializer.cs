@@ -154,6 +154,29 @@ namespace SideLoader
             file.Close();
         }
 
+        public static string GetBaseTypeOfXmlDocument(string path)
+        {
+            // First we have to find out what kind of Type this xml was serialized as.
+            string typeName = "";
+            using (XmlReader reader = XmlReader.Create(path))
+            {
+                while (reader.Read()) // just get the first element (root) then break.
+                {
+                    if (reader.NodeType == XmlNodeType.Element)
+                    {
+                        // the real type might be saved as an attribute
+                        if (!string.IsNullOrEmpty(reader.GetAttribute("type")))
+                            typeName = reader.GetAttribute("type");
+                        else
+                            typeName = reader.Name;
+                        break;
+                    }
+                }
+            }
+
+            return typeName;
+        }
+
         /// <summary>
         /// Load an SL_Type object from XML.
         /// </summary>
@@ -167,23 +190,7 @@ namespace SideLoader
 
             try
             {
-                // First we have to find out what kind of Type this xml was serialized as.
-                string typeName = "";
-                using (XmlReader reader = XmlReader.Create(path))
-                {
-                    while (reader.Read()) // just get the first element (root) then break.
-                    {
-                        if (reader.NodeType == XmlNodeType.Element)
-                        {
-                            // the real type might be saved as an attribute
-                            if (!string.IsNullOrEmpty(reader.GetAttribute("type")))
-                                typeName = reader.GetAttribute("type");
-                            else
-                                typeName = reader.Name;
-                            break;
-                        }
-                    }
-                }
+                var typeName = GetBaseTypeOfXmlDocument(path);
 
                 if (!string.IsNullOrEmpty(typeName) && SL_Assembly.GetType($"SideLoader.{typeName}") is Type type)
                 {

@@ -54,7 +54,10 @@
     <Compile Include="Model\Effect\Conditions\SL_InTownOrCityCondition.cs" />
     <Compile Include="Model\Effect\Conditions\SL_NoSameShooterBlastInProximity.cs" />
     <Compile Include="Model\Effect\Conditions\SL_PrePackDeployableCondition.cs" />
+    <Compile Include="Model\Effect\Effects\Custom\ICustomComponent.cs" />
+    <Compile Include="Model\Effect\Effects\Custom\ICustomEffect.cs" />
     <Compile Include="Model\Effect\Effects\Affects\SL_AffectStatusEffectBuildUpResistance.cs" />
+    <Compile Include="Model\Effect\Effects\Custom\SL_SpawnSLCharacter.cs" />
     <Compile Include="Model\Effect\Effects\SL_AddAbsorbHealth.cs" />
     <Compile Include="Model\Effect\Effects\SL_AddAllStatusEffectBuildUp.cs" />
     <Compile Include="Model\Effect\Effects\SL_AddChargeInstrument.cs" />
@@ -88,10 +91,12 @@
     <Compile Include="Patches\CorePatch.cs" />
     <Compile Include="Patches\DebugPatches.cs" />
     <Compile Include="Patches\ItemPatches.cs" />
+    <Compile Include="Patches\SavePatches.cs" />
     <Compile Include="Patches\ScenePatches.cs" />
     <Compile Include="Patches\ShooterPatches.cs" />
     <Compile Include="Patches\StatusPatches.cs" />
-    <Compile Include="SLSaveManager.cs" />
+    <Compile Include="SaveData\SLCharacterSaveManager.cs" />
+    <Compile Include="SaveData\SLSaveManager.cs" />
     <Compile Include="Model\Character\CustomSpawnInfo.cs" />
     <Compile Include="Model\Character\CharSaveType.cs" />
     <Compile Include="Model\Character\SL_CharacterSaveData.cs" />
@@ -128,6 +133,7 @@
     <Compile Include="Model\Item\ItemVisual\SL_ItemVisual.cs" />
     <Compile Include="Model\Recipe\SL_EnchantmentRecipe.cs" />
     <Compile Include="Model\Scene\SL_Scene.cs" />
+    <Compile Include="SaveData\PlayerSaveExtension.cs" />
     <Compile Include="SL.cs" />
     <Compile Include="SLRPCManager.cs" />
     <Compile Include="Model\Effect\Conditions\SL_ShooterPosStatusEffect.cs" />

@@ -38,6 +38,9 @@ namespace SideLoader
         /// <summary>The display name for this character.</summary>
         public string Name;
 
+        /// <summary>If true, the character will be automatically destroyed when it dies.</summary>
+        public bool DestroyOnDeath;
+
         /// <summary>For Scene-type characters, the Scene Name to spawn in (referring to scene build names).</summary>
         public string SceneToSpawn;
         /// <summary>For Scene-type characters, the Vector3 position to spawn at.</summary>
@@ -197,9 +200,12 @@ namespace SideLoader
                 At.SetField(character, "m_name", Name);
             }
 
-            // host stuff
+            // if host
             if (!PhotonNetwork.isNonMasterClientInRoom)
             {
+                if (this.DestroyOnDeath)
+                    character.OnDeath += () => { SLPlugin.Instance.StartCoroutine(DestroyOnDeathCoroutine(character)); };
+
                 // set faction
                 if (Faction != null)
                     character.ChangeFaction((Character.Factions)Faction);
@@ -244,6 +250,13 @@ namespace SideLoader
             }
 
             character.gameObject.SetActive(true);
+        }
+
+        private IEnumerator DestroyOnDeathCoroutine(Character character)
+        {
+            yield return new WaitForSeconds(2.0f);
+
+            CustomCharacters.DestroyCharacterRPC(character);
         }
 
         public virtual void SetStats(Character character)

@@ -29,20 +29,13 @@ namespace SideLoader
         {
             get
             {
-                if ((Effects != null && Effects.Length > 0) || (EffectConditions != null && EffectConditions.Length > 0))
-                {
+                if (Effects?.Length > 0 || EffectConditions?.Length > 0)
                     return true;
-                }
 
                 if (ChildEffects != null)
                 {
-                    foreach (var child in ChildEffects)
-                    {
-                        if (child.HasContent)
-                        {
-                            return true;
-                        }
-                    }
+                    if (ChildEffects.Where(it => it.HasContent).Any())
+                        return true;
                 }
 
                 return false;
@@ -58,21 +51,15 @@ namespace SideLoader
         public static void ApplyTransformList(Transform parent, SL_EffectTransform[] transformsToApply, EditBehaviours behaviour)
         {
             if (behaviour == EditBehaviours.Destroy)
-            {
                 UnityHelpers.DestroyChildren(parent);
-            }
 
             if (transformsToApply == null)
-            {
                 return;
-            }
 
             foreach (var child in transformsToApply)
             {
                 if (behaviour == EditBehaviours.Override && parent.Find(child.TransformName) is Transform existing)
-                {
                     UnityEngine.Object.DestroyImmediate(existing.gameObject);
-                }
 
                 child.ApplyToTransform(parent, behaviour);
             }

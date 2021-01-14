@@ -22,11 +22,15 @@ namespace SideLoader
         /// <summary>Adds and applies this effect to the provided Transform.</summary>
         public Effect ApplyToTransform(Transform t)
         {
-            var type = this.GetType();
+            Type componentType;
+            if (this is ICustomEffect)
+                componentType = (this as ICustomEffect).ComponentModel;
+            else
+                componentType = Serializer.GetGameType(this.GetType());
 
-            if (Serializer.GetGameType(type) is Type game_type)
+            if (componentType != null)
             {
-                var comp = t.gameObject.AddComponent(game_type) as Effect;
+                var comp = t.gameObject.AddComponent(componentType) as Effect;
 
                 // set base fields
                 comp.Delay = this.Delay;
@@ -39,7 +43,7 @@ namespace SideLoader
             }
             else
             {
-                SL.Log("Could not get Game type for SL_Type: " + type.FullName);
+                SL.Log("Could not get Game type for SL_Type: " + this.ToString());
                 return null;
             }
         }
@@ -49,11 +53,15 @@ namespace SideLoader
         /// <summary>Serialize an effect and get the equivalent SL_Effect.</summary>
         public static SL_Effect ParseEffect(Effect effect)
         {
-            var type = effect.GetType();
+            Type slType;
+            if (effect is ICustomComponent)
+                slType = (effect as ICustomComponent).SLTemplateModel;
+            else
+                slType = Serializer.GetBestSLType(effect.GetType());
 
-            if (Serializer.GetBestSLType(type) is Type sl_type && !sl_type.IsAbstract)
+            if (slType != null && !slType.IsAbstract)
             {
-                var holder = Activator.CreateInstance(sl_type) as SL_Effect;
+                var holder = Activator.CreateInstance(slType) as SL_Effect;
                 holder.Delay = effect.Delay;
                 holder.OverrideCategory = effect.OverrideEffectCategory;
                 holder.SyncType = effect.SyncType;
@@ -63,7 +71,7 @@ namespace SideLoader
             }
             else
             {
-                SL.Log(type + " is not supported yet, sorry!");
+                SL.Log(effect.ToString() + " is not supported yet, sorry!");
                 return null;
             }
         }

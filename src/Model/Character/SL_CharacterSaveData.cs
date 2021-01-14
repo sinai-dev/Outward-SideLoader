@@ -16,6 +16,8 @@ namespace SideLoader
         public string CharacterUID;
         public string TemplateUID;
 
+        public string FollowTargetUID;
+
         public Vector3 Forward;
         public Vector3 Position;
 
@@ -39,18 +41,19 @@ namespace SideLoader
         {
             yield return new WaitForSeconds(0.5f);
 
-            if (this.SaveType == CharSaveType.Follower)
-                character.transform.position = CharacterManager.Instance.GetFirstLocalCharacter().transform.position;
-            else
-                character.transform.position = this.Position;
+            if (!string.IsNullOrEmpty(FollowTargetUID))
+            {
+                var followTarget = CharacterManager.Instance.GetCharacter(FollowTargetUID);
+                var aisWander = character.GetComponentInChildren<AISWander>();
+                if (followTarget && aisWander)
+                    aisWander.FollowTransform = followTarget.transform;
+            }
 
+            character.transform.position = this.Position;
             character.transform.forward = this.Forward;
 
-            var stats = character.GetComponent<CharacterStats>();
-            if (stats)
-            {
+            if (character.GetComponent<CharacterStats>() is CharacterStats stats)
                 stats.SetHealth(this.Health);
-            }
 
             if (this.StatusData != null)
             {
