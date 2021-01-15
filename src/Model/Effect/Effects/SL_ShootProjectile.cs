@@ -205,7 +205,7 @@ namespace SideLoader
 
         private static bool m_initDone = false;
 
-        public static Dictionary<ProjectilePrefabs, GameObject> ProjectilePrefabCache = new Dictionary<ProjectilePrefabs, GameObject>();
+        internal static Dictionary<ProjectilePrefabs, GameObject> ProjectilePrefabCache = new Dictionary<ProjectilePrefabs, GameObject>();
 
         public static GameObject GetProjectilePrefab(ProjectilePrefabs name)
         {

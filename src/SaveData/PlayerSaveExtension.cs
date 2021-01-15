@@ -1,10 +1,12 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Serialization;
+using UnityEngine;
 
 namespace SideLoader.SaveData
 {
@@ -13,8 +15,87 @@ namespace SideLoader.SaveData
     {
         // ~~~~~~ Static ~~~~~~
 
-        [XmlIgnore] internal static readonly HashSet<PlayerSaveExtension> s_registeredModels = new HashSet<PlayerSaveExtension>();
+        [XmlIgnore] internal static readonly HashSet<Type> s_registeredModels = new HashSet<Type>();
 
+        internal static void LoadExtensionTypes()
+        {
+            foreach (var asm in AppDomain.CurrentDomain.GetAssemblies())
+            {
+                try
+                {
+                    foreach (var type in asm.GetExportedTypes()
+                                            .Where(it => !it.IsAbstract
+                                                      && typeof(PlayerSaveExtension).IsAssignableFrom(it)
+                                                      && !s_registeredModels.Contains(it)))
+                    {
+                        s_registeredModels.Add(type);
+                    }     
+                }
+                catch (Exception ex)
+                {
+                    SL.Log("Exception getting PlayerSaveExtension types from assembly " + asm.FullName);
+                    SL.LogInnerException(ex);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Helper to manually try to load the saved data for an extension of type T, with the given character UID.
+        /// </summary>
+        /// <typeparam name="T">The type of PlayerSaveExtension you're looking for</typeparam>
+        /// <param name="characterUID">The saved character's UID</param>
+        /// <returns>The loaded extension data, if found, otherwise null.</returns>
+        public static T TryLoadExtension<T>(string characterUID) where T : PlayerSaveExtension
+        {
+            if (string.IsNullOrEmpty(characterUID))
+                throw new ArgumentNullException("characterUID");
+
+            var filePath = SLSaveManager.GetSaveFolderForCharacter(characterUID)
+                          + "\\" + SLSaveManager.CUSTOM_FOLDER + $@"\{typeof(T).FullName}.xml";
+
+            T ret = null;
+            if (File.Exists(filePath))
+            {
+                var serializer = Serializer.GetXmlSerializer(typeof(T));
+                using (var file = File.OpenRead(filePath))
+                {
+                    ret = (T)serializer.Deserialize(file);
+                }
+            }
+            else
+                SL.LogWarning("No extension data found at '" + filePath + "'");
+
+            return ret;
+        }
+
+        /// <summary>
+        /// Helper to manually save a PlayerSaveExtension of type T to the given character UID folder.
+        /// </summary>
+        /// <typeparam name="T">The type of extension you want to save.</typeparam>
+        /// <param name="characterUID">The character UID you want to save to</param>
+        /// <param name="extension">The extension data to save</param>
+        public static void TrySaveExtension<T>(string characterUID, T extension) where T : PlayerSaveExtension
+        {
+            if (extension == null)
+                throw new ArgumentNullException("extension");
+
+            if (string.IsNullOrEmpty(characterUID))
+                throw new ArgumentNullException("characterUID");
+
+            var filePath = SLSaveManager.GetSaveFolderForCharacter(characterUID)
+                          + "\\" + SLSaveManager.CUSTOM_FOLDER + $@"\{typeof(T).FullName}.xml";
+
+            if (File.Exists(filePath))
+                File.Delete(filePath);
+
+            var serializer = Serializer.GetXmlSerializer(typeof(T));
+            using (var file = File.Create(filePath))
+            {
+                serializer.Serialize(file, extension);
+            }
+        }
+
+        // Internal load all extensions
         internal static void LoadExtensions(Character character)
         {
             var dir = SLSaveManager.GetSaveFolderForCharacter(character)
@@ -24,12 +105,12 @@ namespace SideLoader.SaveData
 
             foreach (var file in Directory.GetFiles(dir))
             {
-                var typename = Serializer.GetBaseTypeOfXmlDocument(file);
+                var typename = Path.GetFileNameWithoutExtension(file);
 
-                var model = s_registeredModels.FirstOrDefault(it => it.GetType().Name == typename);
-                if (model != null)
+                var type = s_registeredModels.FirstOrDefault(it => it.FullName == typename);
+                if (type != null)
                 {
-                    var serializer = Serializer.GetXmlSerializer(model.GetType());
+                    var serializer = Serializer.GetXmlSerializer(type);
                     using (var xml = File.OpenRead(file))
                     {
                         try
@@ -51,6 +132,7 @@ namespace SideLoader.SaveData
             }
         }
 
+        // Internal save all extensions
         internal static void SaveAllExtensions(Character character)
         {
             var baseDir = SLSaveManager.GetSaveFolderForCharacter(character)
@@ -58,12 +140,25 @@ namespace SideLoader.SaveData
 
             bool isWorldHost = character.UID == CharacterManager.Instance.GetWorldHostCharacter()?.UID;
 
-            foreach (var model in s_registeredModels)
+            foreach (var type in s_registeredModels)
             {
-                var newModel = (PlayerSaveExtension)Activator.CreateInstance(model.GetType());
-                newModel.SaveDataFromCharacter(character, isWorldHost);
+                PlayerSaveExtension model;
 
-                Serializer.SaveToXml(baseDir, newModel.GetType().FullName, newModel);
+                var path = baseDir + type.FullName + ".xml";
+                if (File.Exists(path))
+                {
+                    using (var file = File.OpenRead(path))
+                    {
+                        var serializer = Serializer.GetXmlSerializer(type);
+                        model = (PlayerSaveExtension)serializer.Deserialize(file);
+                    }
+                }
+                else
+                    model = (PlayerSaveExtension)Activator.CreateInstance(type);
+
+                model.SaveDataFromCharacter(character, isWorldHost);
+
+                Serializer.SaveToXml(baseDir, model.GetType().FullName, model);
             }
         }
 
@@ -72,17 +167,14 @@ namespace SideLoader.SaveData
         public abstract void ApplyLoadedSave(Character character, bool isWorldHost);
         public abstract void Save(Character character, bool isWorldHost);
 
-        public void Prepare()
-        {
-            // register to data models
-            if (!s_registeredModels.Contains(this))
-                s_registeredModels.Add(this);
-            else
-                SL.LogWarning("Trying to register an SL_CustomCharSaveData twice: " + this.GetType().FullName);
-        }
-
         internal void LoadSaveData(Character character, bool isWorldHost)
         {
+            SLPlugin.Instance.StartCoroutine(DelayedLoadCoroutine(character, isWorldHost));
+        }
+
+        private IEnumerator DelayedLoadCoroutine(Character character, bool isWorldHost)
+        {
+            yield return new WaitForSeconds(1.0f);
             try
             {
                 ApplyLoadedSave(character, isWorldHost);
@@ -106,5 +198,8 @@ namespace SideLoader.SaveData
                 SL.LogInnerException(ex);
             }
         }
+
+        [Obsolete("No longer required, defining the class is enough.")]
+        public void Prepare() { }
     }
 }

@@ -169,7 +169,7 @@ namespace SideLoader
 
         private static bool m_initDone = false;
 
-        private static readonly Dictionary<VFXPrefabs, GameObject> VfxPrefabCache = new Dictionary<VFXPrefabs, GameObject>();
+        internal static readonly Dictionary<VFXPrefabs, GameObject> VfxPrefabCache = new Dictionary<VFXPrefabs, GameObject>();
 
         public static GameObject GetVfxSystem(VFXPrefabs name)
         {
@@ -190,13 +190,14 @@ namespace SideLoader
                 return;
             }
 
-            foreach (var vfx in Resources.FindObjectsOfTypeAll<VFXSystem>())
+            var vfxSystems = Resources.FindObjectsOfTypeAll<VFXSystem>();
+            foreach (var vfx in vfxSystems)
             {
                 var name = GetVFXSystemEnum(vfx);
 
                 if (name == VFXPrefabs.NONE)
                 {
-                    SL.Log("Couldn't parse vfx prefab to enum: " + vfx.name);
+                    SL.Log("Couldn't parse vfx prefab to enum: " + vfx.transform.GetGameObjectPath());
                 }
                 else if (!VfxPrefabCache.ContainsKey(name))
                 {

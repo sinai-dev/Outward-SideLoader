@@ -27,8 +27,11 @@ namespace SideLoader
 
         public override void SerializeEffect<T>(T component)
         {
-            Invert = (component as PassiveSkillCondition).Inverse;
-            ReqSkillID = (component as PassiveSkillCondition).PassiveSkill.ItemID;
+            var comp = component as PassiveSkillCondition;
+            
+            Invert = (comp.Invert && !comp.Inverse) || (!comp.Invert && comp.Inverse);
+
+            ReqSkillID = comp.PassiveSkill.ItemID;
         }
     }
 }

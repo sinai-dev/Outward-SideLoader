@@ -63,79 +63,6 @@ namespace SideLoader
                     SL.LogInnerException(e);
                 }
             }
-
-            // apply custom statuses and imbues first
-            new DependancySolver<SL_StatusEffect, string>()
-                .ApplyTemplates(SL.PendingStatuses);
-            new DependancySolver<SL_ImbueEffect, int>()
-                .ApplyTemplates(SL.PendingImbues);
-
-            // apply early items
-            var itemSolver = new DependancySolver<SL_Item, int>();
-            itemSolver.ApplyTemplates(SL.PendingItems);
-
-            // apply recipes
-            for (int i = 0; i < SL.PendingRecipes.Count; i++)
-            {
-                var recipe = SL.PendingRecipes[i];
-                try
-                {
-                    recipe.ApplyRecipe();
-                }
-                catch (Exception e)
-                {
-                    SL.LogWarning("Exception applying recipe: " + recipe.UID);
-                    SL.LogInnerException(e);
-                }
-            }
-            for (int i = 0; i < SL.PendingEnchantments.Count; i++)
-            {
-                var enchant = SL.PendingEnchantments[i];
-                try
-                {
-                    enchant.ApplyTemplate();
-                }
-                catch (Exception e)
-                {
-                    SL.LogWarning("Exception loading Enchantment " + enchant.Name + " (" + enchant.EnchantmentID + ")");
-                    SL.LogInnerException(e);
-                }
-            }
-
-            // apply late items
-            itemSolver.ApplyTemplates(SL.PendingLateItems);
-
-            // apply characters
-            for (int i = 0; i < SL.PendingCharacters.Count; i++)
-            {
-                var character = SL.PendingCharacters[i];
-                try
-                {
-                    character.Prepare();
-                }
-                catch (Exception e)
-                {
-                    SL.LogWarning("Exception loading Character " + character.UID);
-                    SL.LogInnerException(e);
-                }
-            }
-
-            if (firstSetup)
-            {
-                for (int i = 0; i < SL.Packs.Count; i++)
-                {
-                    var pack = SL.Packs.ElementAt(i).Value;
-                    try
-                    {
-                        pack.TryApplyItemTextureBundles();
-                    }
-                    catch (Exception ex)
-                    {
-                        SL.LogWarning("Exception appylying AssetBundle Item Textures from pack " + pack.Name);
-                        SL.LogInnerException(ex);
-                    }
-                }
-            }
         }
 
         #endregion
@@ -179,6 +106,7 @@ namespace SideLoader
             Items,
             Recipes,
             StatusEffects,
+            StatusFamilies,
             Texture2D,
         }
 
@@ -240,6 +168,7 @@ namespace SideLoader
             pack.LoadAudioClips();
             pack.LoadTexture2D();
 
+            pack.LoadStatusFamilies();
             pack.LoadCustomStatuses();
 
             pack.LoadCustomItems();
@@ -307,29 +236,63 @@ namespace SideLoader
             }
         }
 
-        // Note: Does NOT load Pngs from the CustomItems/*/Textures/ folders
-        // That is done on CustomItem.ApplyTemplateToItem, those textures are not stored in the dictionary.
+        // Note: only loads textures in the Texture2D folder.
         private void LoadTexture2D()
         {
             if (!Directory.Exists(GetSubfolderPath(SubFolders.Texture2D)))
                 return;
 
-            foreach (var texPath in Directory.GetFiles(GetSubfolderPath(SubFolders.Texture2D), "*.png"))
+            var dir = GetSubfolderPath(SubFolders.Texture2D);
+            foreach (var texPath in Directory.GetFiles(dir, "*.png"))
             {
-                var texture = CustomTextures.LoadTexture(texPath, false, false);
-                var name = Path.GetFileNameWithoutExtension(texPath);
+                LoadTexture(texPath, true);
 
-                // add to the Texture2D dict for this pack
+                var localDir = dir + @"\Local";
+                if (Directory.Exists(localDir))
+                {
+                    foreach (var localTex in Directory.GetFiles(localDir, "*.png"))
+                        LoadTexture(localTex, false);
+                }
+            }
+        }
+
+        private void LoadTexture(string texPath, bool addGlobal)
+        {
+            var texture = CustomTextures.LoadTexture(texPath, false, false);
+            var name = Path.GetFileNameWithoutExtension(texPath);
+
+            // add to the Texture2D dict for this pack
+            if (Texture2D.ContainsKey(name))
+                SL.LogWarning("Trying to load two textures with the same name into the same SLPack: " + name);
+            else
                 Texture2D.Add(name, texture);
 
+            if (addGlobal)
+            {
                 // add to the global Tex replacements dict
                 if (CustomTextures.Textures.ContainsKey(name))
                 {
-                    SL.Log("CustomTextures: A Texture already exists in the global list called " + name + "! Overwriting with this one...");
+                    SL.Log("Custom Texture2Ds: A Texture already exists in the global list called " + name + "! Overwriting with this one...");
                     CustomTextures.Textures[name] = texture;
                 }
                 else
                     CustomTextures.Textures.Add(name, texture);
+            }
+        }
+
+        private void LoadStatusFamilies()
+        {
+            var dir = GetSubfolderPath(SubFolders.StatusFamilies);
+            if (!Directory.Exists(dir))
+                return;
+
+            if (Directory.Exists(dir))
+            {
+                foreach (var file in Directory.GetFiles(dir, "*.xml"))
+                {
+                    if (Serializer.LoadFromXml(file) is SL_StatusEffectFamily template)
+                        template.Apply();
+                }
             }
         }
 
@@ -489,7 +452,9 @@ namespace SideLoader
             {
                 if (Serializer.LoadFromXml(filePath) is SL_Character template)
                 {
-                    SL.Log("Serialized SL_Character " + template.Name + " (" + template.UID + ")");
+                    //SL.Log("Serialized SL_Character " + template.Name + " (" + template.UID + ")");
+
+                    template.SLPackName = this.Name;
                     CharacterTemplates.Add(template.UID, template);
                     SL.PendingCharacters.Add(template);
                 }

@@ -6,6 +6,8 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using BepInEx;
 using SideLoader.Model;
+using SideLoader.SaveData;
+using System.Linq;
 
 namespace SideLoader
 {
@@ -26,6 +28,8 @@ namespace SideLoader
 
         public const string _GENERATED = "_GENERATED";
         public const string _INTERNAL = "_INTERNAL";
+
+        internal static Transform s_cloneHolder;
 
         // SL Packs
         internal static Dictionary<string, SLPack> Packs = new Dictionary<string, SLPack>();
@@ -59,6 +63,7 @@ namespace SideLoader
         // custom template lists
         internal static readonly List<SL_Item> PendingItems = new List<SL_Item>();
         internal static readonly List<SL_StatusEffect> PendingStatuses = new List<SL_StatusEffect>();
+        internal static readonly List<SL_StatusEffectFamily> PendingStatusFamilies = new List<SL_StatusEffectFamily>();
         internal static readonly List<SL_ImbueEffect> PendingImbues = new List<SL_ImbueEffect>();
         internal static readonly List<SL_Recipe> PendingRecipes = new List<SL_Recipe>();
         internal static readonly List<SL_EnchantmentRecipe> PendingEnchantments = new List<SL_EnchantmentRecipe>();
@@ -86,6 +91,11 @@ namespace SideLoader
 
         internal static void Setup(bool firstSetup = true)
         {
+            s_cloneHolder = new GameObject("SL_CloneHolder").transform;
+            GameObject.DontDestroyOnLoad(s_cloneHolder.gameObject);
+
+            PlayerSaveExtension.LoadExtensionTypes();
+
             if (firstSetup)
             {
                 SLRPCManager.Setup();
@@ -95,10 +105,47 @@ namespace SideLoader
                 TryInvoke(BeforePacksLoaded);
             }
             else
-                Reset();
-
+                ResetForHotReload();
+            
+            // Load SL Packs
             SLPack.ApplyAllSLPacks(firstSetup);
 
+            // create status families
+            foreach (var family in PendingStatusFamilies)
+                family.ApplyTemplate();
+
+            // apply custom statuses and imbues first
+            new DependancySolver<SL_StatusEffect, string>()
+                .ApplyTemplates(PendingStatuses);
+
+            new DependancySolver<SL_ImbueEffect, int>()
+                .ApplyTemplates(PendingImbues);
+
+            // apply early items
+            var itemSolver = new DependancySolver<SL_Item, int>();
+            itemSolver.ApplyTemplates(PendingItems);
+
+            // apply recipes
+            for (int i = 0; i < PendingRecipes.Count; i++)
+                PendingRecipes[i].ApplyRecipe();
+            
+            for (int i = 0; i < PendingEnchantments.Count; i++)
+                PendingEnchantments[i].ApplyTemplate();
+
+            // apply late items
+            itemSolver.ApplyTemplates(PendingLateItems);
+
+            // apply characters
+            for (int i = 0; i < PendingCharacters.Count; i++)
+                PendingCharacters[i].Prepare();
+
+            if (firstSetup)
+            {
+                foreach (var pack in SL.Packs)
+                    pack.Value.TryApplyItemTextureBundles();
+            }
+
+            // Invoke OnPacksLoaded and cleanup
             PacksLoaded = true;
             Log("SideLoader Setup Finished");
             Log("-------------------------");
@@ -109,6 +156,8 @@ namespace SideLoader
                 Log("Finished invoking OnPacksLoaded.");
             }
 
+            PendingStatusFamilies.Clear();
+            PendingCharacters.Clear();
             PendingImbues.Clear();
             PendingItems.Clear();
             PendingLateItems.Clear();
@@ -130,9 +179,20 @@ namespace SideLoader
             SL_ShootBlast.BuildBlastsDictionary();
             SL_ShootProjectile.BuildProjectileDictionary();
             SL_PlayVFX.BuildPrefabDictionary();
+
+            foreach (var vfx in SL_ShootProjectile.ProjectilePrefabCache.Values)
+                vfx.transform.parent = SL.s_cloneHolder;
+
+            foreach (var vfx in SL_PlayVFX.VfxPrefabCache.Values)
+                vfx.transform.parent = SL.s_cloneHolder;
+
+            foreach (var vfx in SL_ShootBlast.BlastPrefabCache.Values)
+                vfx.transform.parent = SL.s_cloneHolder;
+
+            SL.Log("Built FX prefab dictionaries");
         }
 
-        internal static void Reset()
+        internal static void ResetForHotReload()
         {
             // Reset packs
             PacksLoaded = false;

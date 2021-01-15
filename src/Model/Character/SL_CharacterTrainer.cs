@@ -21,10 +21,12 @@ namespace SideLoader
         internal override void OnPrepare()
         {
             if (this.SkillTree != null)
-                m_skillTree = this.SkillTree.CreateBaseSchool(true);
+            {
+                if (string.IsNullOrEmpty(SkillTree.SLPackName))
+                    SkillTree.SLPackName = this.SLPackName;
 
-            // TODO set sprite sigil from file path
-            //var path = 
+                m_skillTree = this.SkillTree.CreateBaseSchool(true);
+            }
         }
 
         public override void ApplyToCharacter(Character trainer)

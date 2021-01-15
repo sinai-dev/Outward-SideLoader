@@ -20,6 +20,8 @@ namespace SideLoader
             comp.Follow = this.Follow;
             comp.MinPitch = this.MinPitch;
             comp.MaxPitch = this.MaxPitch;
+
+            comp.gameObject.transform.ResetLocal();
         }
 
         public override void SerializeEffect<T>(T effect)

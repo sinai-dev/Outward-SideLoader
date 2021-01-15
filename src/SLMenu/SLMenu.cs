@@ -245,7 +245,17 @@ namespace SideLoader.UI
             
             if (comp.StatusIcon)
                 CustomTextures.SaveIconAsPNG(comp.StatusIcon, folder);
-            
+
+            if (comp is LevelStatusEffect levelComp)
+            {
+                for (int i = 0; i < levelComp.StatusLevelData.Length; i++)
+                {
+                    var data = levelComp.StatusLevelData[i];
+                    if (data != null && data.Icon)
+                        CustomTextures.SaveIconAsPNG(data.Icon, folder, $"icon{i + 2}");
+                }
+            }
+
             Destroy(tempObj);
         }
 

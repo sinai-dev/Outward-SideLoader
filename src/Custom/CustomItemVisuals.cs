@@ -623,6 +623,18 @@ namespace SideLoader
             if (item is Skill skill && skill.SkillTreeIcon)
                 CustomTextures.SaveIconAsPNG(skill.SkillTreeIcon, dir, "skillicon");
 
+            if (item is LevelAttackSkill levelAtkSkill)
+            {
+                var stages = (LevelAttackSkill.SkillStage[])At.GetField(levelAtkSkill, "m_skillStages");
+                int idx = 1;
+                foreach (var stage in stages)
+                {
+                    idx++;
+                    if (stage.StageIcon)
+                        CustomTextures.SaveIconAsPNG(stage.StageIcon, dir, $"icon{idx}");
+                }
+            }
+
             for (int i = 0; i < 3; i++)
             {
                 //SL.Log("Checking materials (" + ((VisualPrefabType)i) + ")");

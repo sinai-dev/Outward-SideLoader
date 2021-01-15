@@ -226,8 +226,6 @@ namespace SideLoader
             SL_EffectTransform.ApplyTransformList(item.transform, this.EffectTransforms, this.EffectBehaviour);
 
             ApplyItemVisuals(item);
-
-
         }
 
         /// <summary>

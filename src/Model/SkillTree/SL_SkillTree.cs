@@ -13,12 +13,23 @@ namespace SideLoader
     [SL_Serialized]
     public class SL_SkillTree
     {
+        /// <summary>The name of the SLPack used to load certain assets from (eg if using SigilIconName)</summary>
+        [XmlIgnore] public string SLPackName;
+
+        /// <summary>Can be used to directly set the Sigil, and not use the SLPackName/SigilIconName fields. </summary>
         [XmlIgnore] public Sprite Sigil;
 
-        public string Name;
-        public List<SL_SkillRow> SkillRows = new List<SL_SkillRow>();
+        /// <summary>If SLPackName is set, SideLoader will look for a Texture2D (in your Texture2D or Texture2D\Local folder) 
+        /// with this name (without .png) and use that for the sigil icon.</summary>
+        public string SigilIconName;
 
+        /// <summary>Displayed Skill Tree name</summary>
+        public string Name;
+        /// <summary>The unique identifier for this skill tree, eg "com.me.mymod"</summary>
         public string UID;
+
+        /// <summary>The actual skill tree rows </summary>
+        public List<SL_SkillRow> SkillRows = new List<SL_SkillRow>();
 
         [XmlIgnore]
         private GameObject m_object;
@@ -58,7 +69,25 @@ namespace SideLoader
 
             // set the sprite
             if (this.Sigil)
+            {
                 school.SchoolSigil = this.Sigil;
+            }
+            else if (!string.IsNullOrEmpty(this.SigilIconName) && !string.IsNullOrEmpty(this.SLPackName))
+            {
+                var pack = SL.GetSLPack(this.SLPackName);
+                if (pack != null)
+                {
+                    if (pack.Texture2D.TryGetValue(this.SigilIconName, out Texture2D sigilTex))
+                    {
+                        var sprite = CustomTextures.CreateSprite(sigilTex);
+                        school.SchoolSigil = sprite;
+                    }
+                    else
+                        SL.LogWarning("Applying an SL_SkillTree, could not find any loaded Texture by the name of '" + this.SigilIconName + "'");
+                }
+                else
+                    SL.LogWarning("Applying an SL_SkillSchool, could not find any loaded SLPack with the name '" + this.SLPackName + "'");
+            }
 
             // add it to the game's skill tree holder.
             var list = (At.GetField(SkillTreeHolder.Instance, "m_skillTrees") as SkillSchool[]).ToList();

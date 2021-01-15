@@ -25,9 +25,11 @@ namespace SideLoader.SaveData
             return GetSaveFolderForCharacter(player);
         }
 
-        public static string GetSaveFolderForCharacter(Character character)
+        public static string GetSaveFolderForCharacter(Character character) => GetSaveFolderForCharacter(character.UID);
+
+        public static string GetSaveFolderForCharacter(string UID)
         {
-            var ret = $@"{SAVEDATA_FOLDER}\{character.UID}";
+            var ret = $@"{SAVEDATA_FOLDER}\{UID}";
 
             // Create the base folder structure for this player character (does nothing if already exists)
             Directory.CreateDirectory(ret);

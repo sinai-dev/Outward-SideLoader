@@ -117,8 +117,8 @@ namespace SideLoader
 
             if (transform.localPosition != Vector3.zero)
                 holder.Position = transform.localPosition;
-            if (transform.localRotation.eulerAngles != Vector3.zero)
-                holder.Rotation = transform.localRotation.eulerAngles;
+            if (transform.localEulerAngles != Vector3.zero)
+                holder.Rotation = transform.localEulerAngles;
             if (transform.localScale != Vector3.one)
                 holder.Scale = transform.localScale;
 

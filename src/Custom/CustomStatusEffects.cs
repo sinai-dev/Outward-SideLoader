@@ -70,7 +70,7 @@ namespace SideLoader
                 At.SetField(preset, "m_StatusEffectID", template.NewStatusID);
             }
 
-            StatusEffect newEffect;
+            StatusEffect status;
 
             if (template.TargetStatusIdentifier == template.StatusIdentifier)
             {
@@ -84,61 +84,60 @@ namespace SideLoader
                     OrigStatusEffects.Add(template.TargetStatusIdentifier, cached);
                 }
 
-                newEffect = original;
+                status = original;
             }
             else
             {
                 // instantiate original and use that as newEffect
-                newEffect = GameObject.Instantiate(original.gameObject).GetComponent<StatusEffect>();
-                newEffect.gameObject.SetActive(false);
+                status = GameObject.Instantiate(original.gameObject).GetComponent<StatusEffect>();
+                status.gameObject.SetActive(false);
 
                 // Set Status identifier
-                At.SetField(newEffect, "m_identifierName", template.StatusIdentifier);
+                At.SetField(status, "m_identifierName", template.StatusIdentifier);
 
-                if (preset)
+                if (preset && template.NewStatusID > 0)
                     At.SetField(preset, "m_StatusEffectID", template.NewStatusID);
 
                 // Fix localization
                 GetStatusLocalization(original, out string name, out string desc);
-                SetStatusLocalization(newEffect, name, desc);
+                SetStatusLocalization(status, name, desc);
 
                 // Fix status data and stack
-                At.SetField(newEffect, "m_statusStack", null);
-                At.SetField(newEffect, "m_amplifiedStatus", null);
+                At.SetField(status, "m_statusStack", null);
+                At.SetField(status, "m_amplifiedStatus", null);
             }
 
-            int presetID = newEffect.GetComponent<EffectPreset>()?.PresetID ?? -1;
+            var gameType = Serializer.GetGameType(template.GetType());
+            if (gameType != status.GetType())
+            {
+                UnityHelpers.FixComponentType(gameType, status);
+            }
 
+            int presetID = status.GetComponent<EffectPreset>()?.PresetID ?? -1;
             var id = "";
             if (presetID > 0)
                 id += presetID + "_";
-            newEffect.gameObject.name = id + newEffect.IdentifierName;
+            status.gameObject.name = id + status.IdentifierName;
 
             // fix RPM_STATUS_EFFECTS dictionary
-            if (!References.RPM_STATUS_EFFECTS.ContainsKey(newEffect.IdentifierName))
-                References.RPM_STATUS_EFFECTS.Add(newEffect.IdentifierName, newEffect);
+            if (!References.RPM_STATUS_EFFECTS.ContainsKey(status.IdentifierName))
+                References.RPM_STATUS_EFFECTS.Add(status.IdentifierName, status);
             else
-                References.RPM_STATUS_EFFECTS[newEffect.IdentifierName] = newEffect;
+                References.RPM_STATUS_EFFECTS[status.IdentifierName] = status;
 
             // fix RPM_Presets dictionary
             if (template.NewStatusID > 0)
             {
                 if (!References.RPM_EFFECT_PRESETS.ContainsKey(template.NewStatusID))
-                    References.RPM_EFFECT_PRESETS.Add(template.NewStatusID, newEffect.GetComponent<EffectPreset>());
+                    References.RPM_EFFECT_PRESETS.Add(template.NewStatusID, status.GetComponent<EffectPreset>());
                 else
-                    References.RPM_EFFECT_PRESETS[template.NewStatusID] = newEffect.GetComponent<EffectPreset>();
+                    References.RPM_EFFECT_PRESETS[template.NewStatusID] = status.GetComponent<EffectPreset>();
             }
 
             // Always do this
-            GameObject.DontDestroyOnLoad(newEffect.gameObject);
+            GameObject.DontDestroyOnLoad(status.gameObject);
 
-            //// Apply template
-            //if (SL.PacksLoaded)
-            //    template.ApplyTemplate();
-            //else
-            //    SL.INTERNAL_ApplyStatuses += template.ApplyTemplate;
-
-            return newEffect;
+            return status;
         }
 
         /// <summary>

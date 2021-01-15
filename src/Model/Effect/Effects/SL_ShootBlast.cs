@@ -173,7 +173,7 @@ namespace SideLoader
 
         private static bool m_initDone = false;
 
-        private static readonly Dictionary<BlastPrefabs, GameObject> BlastPrefabCache = new Dictionary<BlastPrefabs, GameObject>();
+        internal static readonly Dictionary<BlastPrefabs, GameObject> BlastPrefabCache = new Dictionary<BlastPrefabs, GameObject>();
 
         public static GameObject GetBlastPrefab(BlastPrefabs name)
         {

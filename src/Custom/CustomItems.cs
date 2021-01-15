@@ -62,6 +62,8 @@ namespace SideLoader
 
             Item item;
 
+            original.transform.ResetLocal();
+
             // modifying an existing item
             if (newID == cloneTargetID)
             {

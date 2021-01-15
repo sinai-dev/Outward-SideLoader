@@ -57,6 +57,8 @@
     <Compile Include="Model\Effect\Effects\Custom\ICustomComponent.cs" />
     <Compile Include="Model\Effect\Effects\Custom\ICustomEffect.cs" />
     <Compile Include="Model\Effect\Effects\Affects\SL_AffectStatusEffectBuildUpResistance.cs" />
+    <Compile Include="Model\Effect\Effects\Custom\SL_PlayAnimation.cs" />
+    <Compile Include="Model\Effect\Effects\Custom\SL_PlayTimedVFX.cs" />
     <Compile Include="Model\Effect\Effects\Custom\SL_SpawnSLCharacter.cs" />
     <Compile Include="Model\Effect\Effects\SL_AddAbsorbHealth.cs" />
     <Compile Include="Model\Effect\Effects\SL_AddAllStatusEffectBuildUp.cs" />
@@ -85,7 +87,13 @@
     <Compile Include="Model\Item\Misc\SL_EnchantmentRecipeItem.cs" />
     <Compile Include="Model\Item\Misc\SL_Instrument.cs" />
     <Compile Include="Model\Item\Misc\SL_Throwable.cs" />
+    <Compile Include="Model\Item\Skill\SL_LevelAttackSkill.cs" />
+    <Compile Include="Model\Item\Skill\SL_LevelPassiveSkill.cs" />
     <Compile Include="Model\Item\Skill\SL_PistolSkill.cs" />
+    <Compile Include="Model\Status\SL_Disease.cs" />
+    <Compile Include="Model\Status\SL_LeechStatus.cs" />
+    <Compile Include="Model\Status\SL_LevelStatusEffect.cs" />
+    <Compile Include="Model\Status\StatusFamily\SL_StatusEffectFamily.cs" />
     <Compile Include="Patches\AudioPatches.cs" />
     <Compile Include="Patches\CharacterPatches.cs" />
     <Compile Include="Patches\CorePatch.cs" />
