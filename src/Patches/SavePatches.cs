@@ -16,7 +16,10 @@ namespace SideLoader.Patches
         public static void Postfix(SaveInstance __instance)
         {
             var worldhost = CharacterManager.Instance.GetWorldHostCharacter();
-            var character = __instance.CharSave.CharacterUID;
+            var character = __instance.CharSave?.CharacterUID;
+
+            if (!worldhost || string.IsNullOrEmpty(character))
+                return;
 
             if (character == worldhost.UID)
                 SLCharacterSaveManager.SaveCharacters();

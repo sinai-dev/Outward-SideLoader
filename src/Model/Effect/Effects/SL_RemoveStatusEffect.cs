@@ -8,28 +8,37 @@ namespace SideLoader
 {
     public class SL_RemoveStatusEffect : SL_Effect
     {
-        public string Status_Name = "";
-        public string Status_Tag = "";
         public RemoveStatusEffect.RemoveTypes CleanseType;
+        public string SelectorValue;
+
+        /// <summary>[OBSOLETE] Use SelectorValue instead.</summary>
+        public string Status_Name;
+        /// <summary>[OBSOLETE] Use SelectorValue instead.</summary>
+        public string Status_Tag;
 
         public override void ApplyToComponent<T>(T component)
         {
             var comp = component as RemoveStatusEffect;
 
+            if (!string.IsNullOrEmpty(this.Status_Name))
+                this.SelectorValue = this.Status_Name;
+            else if (!string.IsNullOrEmpty(this.Status_Tag))
+                this.SelectorValue = this.Status_Tag;
+
             comp.CleanseType = this.CleanseType;
 
             if (this.CleanseType == RemoveStatusEffect.RemoveTypes.StatusNameContains)
             {
-                comp.StatusName = this.Status_Name;
+                comp.StatusName = this.SelectorValue;
             }
             else if (this.CleanseType == RemoveStatusEffect.RemoveTypes.StatusSpecific)
             {
-                var status = ResourcesPrefabManager.Instance.GetStatusEffectPrefab(this.Status_Name);
+                var status = ResourcesPrefabManager.Instance.GetStatusEffectPrefab(this.SelectorValue);
                 comp.StatusEffect = status;
             }
-            else if (this.CleanseType == RemoveStatusEffect.RemoveTypes.StatusType && !string.IsNullOrEmpty(this.Status_Tag))
+            else if (this.CleanseType == RemoveStatusEffect.RemoveTypes.StatusType && !string.IsNullOrEmpty(this.SelectorValue))
             {
-                var tag = CustomItems.GetTag(this.Status_Tag);
+                var tag = CustomItems.GetTag(this.SelectorValue);
                 if (tag != Tag.None)
                 {
                     comp.StatusType = new TagSourceSelector(tag);
@@ -37,7 +46,7 @@ namespace SideLoader
             }
             else if (this.CleanseType == RemoveStatusEffect.RemoveTypes.StatusFamily)
             {
-                var family = StatusEffectFamilyLibrary.Instance.GetStatusEffect(this.Status_Name);
+                var family = StatusEffectFamilyLibrary.Instance.GetStatusEffect(this.SelectorValue);
                 if (family != null)
                 {
                     comp.StatusFamily = new StatusEffectFamilySelector()
@@ -58,16 +67,16 @@ namespace SideLoader
             {
                 case RemoveStatusEffect.RemoveTypes.StatusSpecific:
                     if (comp.StatusEffect)
-                        Status_Name = comp.StatusEffect.IdentifierName;
+                        SelectorValue = comp.StatusEffect.IdentifierName;
                     break;
                 case RemoveStatusEffect.RemoveTypes.StatusFamily:
-                        Status_Name = comp.StatusFamily?.SelectorValue;
+                    SelectorValue = comp.StatusFamily?.SelectorValue;
                     break;
                 case RemoveStatusEffect.RemoveTypes.StatusType:
-                    Status_Name = comp.StatusType?.Tag.TagName;
+                    SelectorValue = comp.StatusType?.Tag.TagName;
                     break;
                 case RemoveStatusEffect.RemoveTypes.StatusNameContains:
-                    Status_Name = comp.StatusName;
+                    SelectorValue = comp.StatusName;
                     break;
             }
         }

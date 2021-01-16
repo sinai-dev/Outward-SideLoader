@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace SideLoader
 {
@@ -20,6 +21,8 @@ namespace SideLoader
 
             int origMax = (int)At.GetField(comp, "m_maxLevel");
             int newMax = MaxLevel ?? origMax;
+
+            At.SetField(comp, "m_maxLevel", newMax);
 
             Sprite[] origIcons = new Sprite[origMax - 1];
 
