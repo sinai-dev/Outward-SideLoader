@@ -15,11 +15,15 @@ namespace SideLoader
     
         public EffectCondition ApplyToTransform(Transform transform)
         {
-            var type = this.GetType();
+            Type componentType;
+            if (this is ICustomModel iModel)
+                componentType = iModel.GameModel;
+            else
+                componentType = Serializer.GetGameType(this.GetType());
 
-            if (Serializer.GetGameType(type) is Type game_type)
+            if (componentType != null)
             {
-                var comp = transform.gameObject.AddComponent(game_type) as EffectCondition;
+                var comp = transform.gameObject.AddComponent(componentType) as EffectCondition;
                 comp.Invert = this.Invert;
 
                 ApplyToComponent(comp);
@@ -28,7 +32,7 @@ namespace SideLoader
             }
             else
             {
-                SL.Log("Could not get Game type for SL_type: " + type);
+                SL.Log("Could not get Game type for SL_type: " + this.ToString());
                 return null;
             }
         }
@@ -37,11 +41,15 @@ namespace SideLoader
 
         public static SL_EffectCondition ParseCondition(EffectCondition component)
         {
-            var type = component.GetType();
+            Type slType;
+            if (component is ICustomModel iModel)
+                slType = iModel.SLTemplateModel;
+            else
+                slType = Serializer.GetBestSLType(component.GetType());
 
-            if (Serializer.GetBestSLType(type) is Type sl_type)
+            if (slType != null && !slType.IsAbstract)
             {
-                var holder = Activator.CreateInstance(sl_type) as SL_EffectCondition;
+                var holder = Activator.CreateInstance(slType) as SL_EffectCondition;
 
                 holder.Invert = component.Invert;
 
@@ -50,7 +58,7 @@ namespace SideLoader
             }
             else
             {
-                SL.Log(type + " is not supported yet, sorry!");
+                SL.Log(component.ToString() + " is not supported yet, sorry!");
                 return null;
             }
         }

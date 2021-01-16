@@ -9,9 +9,10 @@ using UnityEngine;
 
 namespace SideLoader
 {
-    public class SL_SpawnSLCharacter : SL_Effect, ICustomEffect
+    public class SL_SpawnSLCharacter : SL_Effect, ICustomModel
     {
-        [XmlIgnore] public Type ComponentModel => typeof(SpawnSLCharacter);
+        public Type SLTemplateModel => typeof(SL_SpawnSLCharacter);
+        public Type GameModel => typeof(SpawnSLCharacter);
 
         /// <summary>The SL_Character.UID you want to spawn.</summary>
         public string SLCharacter_UID;
@@ -46,9 +47,10 @@ namespace SideLoader
         }
     }
 
-    public class SpawnSLCharacter : Effect, ICustomComponent
+    public class SpawnSLCharacter : Effect, ICustomModel
     {
         public Type SLTemplateModel => typeof(SL_SpawnSLCharacter);
+        public Type GameModel => typeof(SpawnSLCharacter);
 
         public string SLCharacter_UID;
         public bool GenerateRandomUIDForSpawn;

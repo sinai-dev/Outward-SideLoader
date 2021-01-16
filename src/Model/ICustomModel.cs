@@ -6,8 +6,9 @@ using System.Threading.Tasks;
 
 namespace SideLoader
 {
-    public interface ICustomComponent
+    public interface ICustomModel
     {
         Type SLTemplateModel { get; }
+        Type GameModel { get; }
     }
 }

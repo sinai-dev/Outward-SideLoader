@@ -15,16 +15,24 @@ namespace SideLoader.Patches
         [HarmonyPostfix]
         public static void Postfix(SaveInstance __instance)
         {
-            var worldhost = CharacterManager.Instance.GetWorldHostCharacter();
-            var character = __instance.CharSave?.CharacterUID;
+            try
+            {
+                if (__instance.CharSave == null || string.IsNullOrEmpty(__instance.CharSave.CharacterUID))
+                    return;
 
-            if (!worldhost || string.IsNullOrEmpty(character))
-                return;
+                var worldhost = CharacterManager.Instance?.GetWorldHostCharacter();
+                var charUID = __instance.CharSave.CharacterUID;
 
-            if (character == worldhost.UID)
-                SLCharacterSaveManager.SaveCharacters();
+                if (worldhost && charUID == worldhost.UID)
+                    SLCharacterSaveManager.SaveCharacters();
 
-            PlayerSaveExtension.SaveAllExtensions(CharacterManager.Instance.GetCharacter(character));
+                PlayerSaveExtension.SaveAllExtensions(CharacterManager.Instance.GetCharacter(charUID));
+            }
+            catch (Exception ex)
+            {
+                SL.LogWarning("Exception on SaveInstance.Save!");
+                SL.LogInnerException(ex);
+            }
         }
     }
 
@@ -36,7 +44,15 @@ namespace SideLoader.Patches
         [HarmonyPostfix]
         public static void Postfix(Character _character)
         {
-            PlayerSaveExtension.LoadExtensions(_character);
+            try
+            {
+                PlayerSaveExtension.LoadExtensions(_character);
+            }
+            catch (Exception ex)
+            {
+                SL.LogWarning("Exception on CharacterSaveInstanceHolder.ApplyLoadedSvaeToChar!");
+                SL.LogInnerException(ex);
+            }
         }
     }
 }

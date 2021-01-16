@@ -49,13 +49,14 @@
     <Compile Include="Model\Character\SL_CharacterAI.cs" />
     <Compile Include="Model\Character\SL_CharacterTrainer.cs" />
     <Compile Include="Model\DependancySolver.cs" />
+    <Compile Include="Model\Effect\Conditions\Custom\SL_HasHealthCondition.cs" />
     <Compile Include="Model\Effect\Conditions\SL_InBoundsCondition.cs" />
     <Compile Include="Model\Effect\Conditions\SL_InstrumentClose.cs" />
     <Compile Include="Model\Effect\Conditions\SL_InTownOrCityCondition.cs" />
     <Compile Include="Model\Effect\Conditions\SL_NoSameShooterBlastInProximity.cs" />
     <Compile Include="Model\Effect\Conditions\SL_PrePackDeployableCondition.cs" />
-    <Compile Include="Model\Effect\Effects\Custom\ICustomComponent.cs" />
-    <Compile Include="Model\Effect\Effects\Custom\ICustomEffect.cs" />
+    <Compile Include="Model\Effect\Effects\Custom\SL_AffectCurrentHealth.cs" />
+    <Compile Include="Model\ICustomModel.cs" />
     <Compile Include="Model\Effect\Effects\Affects\SL_AffectStatusEffectBuildUpResistance.cs" />
     <Compile Include="Model\Effect\Effects\Custom\SL_PlayAnimation.cs" />
     <Compile Include="Model\Effect\Effects\Custom\SL_PlayTimedVFX.cs" />

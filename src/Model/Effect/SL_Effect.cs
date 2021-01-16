@@ -23,8 +23,8 @@ namespace SideLoader
         public Effect ApplyToTransform(Transform t)
         {
             Type componentType;
-            if (this is ICustomEffect)
-                componentType = (this as ICustomEffect).ComponentModel;
+            if (this is ICustomModel iModel)
+                componentType = iModel.GameModel;
             else
                 componentType = Serializer.GetGameType(this.GetType());
 
@@ -54,8 +54,8 @@ namespace SideLoader
         public static SL_Effect ParseEffect(Effect effect)
         {
             Type slType;
-            if (effect is ICustomComponent)
-                slType = (effect as ICustomComponent).SLTemplateModel;
+            if (effect is ICustomModel iModel)
+                slType = iModel.SLTemplateModel;
             else
                 slType = Serializer.GetBestSLType(effect.GetType());
 

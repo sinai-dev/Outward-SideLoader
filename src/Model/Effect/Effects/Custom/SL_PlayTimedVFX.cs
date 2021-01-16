@@ -8,9 +8,10 @@ using UnityEngine;
 
 namespace SideLoader
 {
-    public class SL_PlayTimedVFX : SL_PlayVFX, ICustomEffect
+    public class SL_PlayTimedVFX : SL_PlayVFX, ICustomModel
     {
-        public Type ComponentModel => typeof(PlayTimedVFX);
+        public Type SLTemplateModel => typeof(SL_PlayTimedVFX);
+        public Type GameModel => typeof(PlayTimedVFX);
 
         /// <summary>
         /// Delay after which the PlayVFX will be force-stopped.
@@ -32,9 +33,10 @@ namespace SideLoader
         }
     }
 
-    public class PlayTimedVFX : PlayVFX, ICustomComponent
+    public class PlayTimedVFX : PlayVFX, ICustomModel
     {
         public Type SLTemplateModel => typeof(SL_PlayTimedVFX);
+        public Type GameModel => typeof(PlayTimedVFX);
 
         public float AutoStopTime;
 

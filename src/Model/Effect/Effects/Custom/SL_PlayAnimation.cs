@@ -8,9 +8,10 @@ using UnityEngine;
 
 namespace SideLoader
 {
-    public class SL_PlayAnimation : SL_Effect, ICustomEffect
+    public class SL_PlayAnimation : SL_Effect, ICustomModel
     {
-        public Type ComponentModel => typeof(PlayAnimationEffect);
+        public Type GameModel => typeof(PlayAnimationEffect);
+        public Type SLTemplateModel => typeof(SL_PlayAnimation);
 
         /// <summary>The animation you want to play</summary>
         public Character.SpellCastType Animation;
@@ -40,8 +41,9 @@ namespace SideLoader
         }
     }
 
-    public class PlayAnimationEffect : Effect, ICustomComponent
+    public class PlayAnimationEffect : Effect, ICustomModel
     {
+        public Type GameModel => typeof(PlayAnimationEffect);
         public Type SLTemplateModel => typeof(SL_PlayAnimation);
 
         public Character.SpellCastType Animation;

@@ -11,19 +11,26 @@ namespace SideLoader
         public float AffectQuantity;
         public bool IsModifier;
         public float AffectQuantityAI;
+        public bool InformSourceCharacter;
 
         public override void ApplyToComponent<T>(T component)
         {
-            (component as AffectHealth).AffectQuantity = this.AffectQuantity;
-            (component as AffectHealth).AffectQuantityOnAI = this.AffectQuantityAI;
-            (component as AffectHealth).IsModifier = this.IsModifier;
+            var comp = component as AffectHealth;
+
+            comp.AffectQuantity = this.AffectQuantity;
+            comp.AffectQuantityOnAI = this.AffectQuantityAI;
+            comp.IsModifier = this.IsModifier;
+            comp.InformSourceCharacter = this.InformSourceCharacter;
         }
 
         public override void SerializeEffect<T>(T effect)
         {
-            AffectQuantity = (effect as AffectHealth).AffectQuantity;
-            AffectQuantityAI = (effect as AffectHealth).AffectQuantityOnAI;
-            IsModifier = (effect as AffectHealth).IsModifier;
+            var comp = effect as AffectHealth;
+
+            AffectQuantity = comp.AffectQuantity;
+            AffectQuantityAI = comp.AffectQuantityOnAI;
+            IsModifier = comp.IsModifier;
+            InformSourceCharacter = comp.InformSourceCharacter;
         }
     }
 }
