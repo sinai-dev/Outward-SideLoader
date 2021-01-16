@@ -36,7 +36,7 @@ namespace SideLoader
                 var status = ResourcesPrefabManager.Instance.GetStatusEffectPrefab(this.SelectorValue);
                 comp.StatusEffect = status;
             }
-            else if (this.CleanseType == RemoveStatusEffect.RemoveTypes.StatusType && !string.IsNullOrEmpty(this.SelectorValue))
+            else if (this.CleanseType == RemoveStatusEffect.RemoveTypes.StatusType)
             {
                 var tag = CustomItems.GetTag(this.SelectorValue);
                 if (tag != Tag.None)
