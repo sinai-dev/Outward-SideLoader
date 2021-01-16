@@ -26,9 +26,17 @@ namespace SideLoader
         /// This event is invoked locally when save data is loaded and applied to a character using this template. 
         /// Use this to do any custom setup you might need there.
         /// <list type="bullet">The character is the Character your template was applied to.</list>
-        /// <list type="bullet">The string is the optional extraRpcData provided when you spawned the character.</list>
+        /// <list type="bullet">The first string is the optional extraRpcData provided when you spawned the character.</list>
+        /// <list type="bullet">The second string is the optional extra save data from your OnCharacterBeingSaved method, if used.</list>
         /// </summary>
-        public event Action<Character, string> OnSaveApplied;
+        public event Action<Character, string, string> OnSaveApplied;
+
+        /// <summary>
+        /// Invoked when the character is being saved.
+        /// <list type="bullet">The (in) character is the character being saved</list>
+        /// <list type="bullet">The (out) string is your extra save data you want to keep.</list>
+        /// </summary>
+        public event Func<Character, string> OnCharacterBeingSaved;
 
         /// <summary>Determines how this character will be saved.</summary>
         public CharSaveType SaveType;
@@ -134,30 +142,6 @@ namespace SideLoader
                 CustomCharacters.INTERNAL_SpawnCharacters -= SceneSpawnIfValid;
         }
 
-        internal virtual void OnPrepare() { }
-
-        internal void INTERNAL_OnSpawn(Character character, string extraRpcData)
-        {
-            character.gameObject.SetActive(false);
-
-            ApplyToCharacter(character);
-
-            SL.TryInvoke(OnSpawn, character, extraRpcData);
-        }
-
-        internal void INTERNAL_OnSaveApplied(Character character, string extraRpcData)
-        {
-            SL.TryInvoke(OnSaveApplied, character, extraRpcData);
-        }
-
-        internal void SceneSpawnIfValid()
-        {
-            if (PhotonNetwork.isNonMasterClientInRoom || SceneManagerHelper.ActiveSceneName != this.SceneToSpawn)
-                return;
-
-            Spawn(this.SpawnPosition, this.SpawnRotation);
-        }
-
         /// <summary>
         /// Calls CustomCharacters.SpawnCharacter with this template.
         /// </summary>
@@ -185,6 +169,47 @@ namespace SideLoader
             }
 
             return CustomCharacters.SpawnCharacter(this, position, rotation, characterUID, extraRpcData).GetComponent<Character>();
+        }
+
+        internal virtual void OnPrepare() { }
+
+        internal void INTERNAL_OnSpawn(Character character, string extraRpcData)
+        {
+            character.gameObject.SetActive(false);
+
+            ApplyToCharacter(character);
+
+            SL.TryInvoke(OnSpawn, character, extraRpcData);
+        }
+
+        internal void INTERNAL_OnSaveApplied(Character character, string extraRpcData, string extraSaveData)
+        {
+            SL.TryInvoke(OnSaveApplied, character, extraRpcData, extraSaveData);
+        }
+
+        internal string INTERNAL_OnPrepareSave(Character character)
+        {
+            string ret = null;
+
+            try
+            {
+                ret = OnCharacterBeingSaved?.Invoke(character);
+            }
+            catch (Exception e)
+            {
+                SL.LogWarning("Exception invoking OnCharacterBeingSaved for template '" + this.UID + "'");
+                SL.LogInnerException(e);
+            }
+
+            return ret;
+        }
+
+        internal void SceneSpawnIfValid()
+        {
+            if (PhotonNetwork.isNonMasterClientInRoom || SceneManagerHelper.ActiveSceneName != this.SceneToSpawn)
+                return;
+
+            Spawn(this.SpawnPosition, this.SpawnRotation);
         }
 
         /// <summary>

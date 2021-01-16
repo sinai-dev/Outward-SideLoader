@@ -110,7 +110,7 @@ namespace SideLoader
             var gameType = Serializer.GetGameType(template.GetType());
             if (gameType != status.GetType())
             {
-                UnityHelpers.FixComponentType(gameType, status);
+                status = (StatusEffect)UnityHelpers.FixComponentType(gameType, status);
             }
 
             int presetID = status.GetComponent<EffectPreset>()?.PresetID ?? -1;

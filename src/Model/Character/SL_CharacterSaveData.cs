@@ -25,6 +25,7 @@ namespace SideLoader
         public string[] StatusData;
 
         public string ExtraRPCData;
+        public string ExtraSaveData;
 
         public void ApplyToCharacter(Character character)
         {
@@ -79,7 +80,7 @@ namespace SideLoader
                 }
             }
 
-            template.INTERNAL_OnSaveApplied(character, this.ExtraRPCData);
+            template.INTERNAL_OnSaveApplied(character, this.ExtraRPCData, this.ExtraSaveData);
         }
     }
 }

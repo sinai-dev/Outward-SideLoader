@@ -48,22 +48,27 @@ namespace SideLoader
         public float? Lifespan;
         public float? RefreshRate;
 
+        public bool? Purgeable;
+
         public int? Priority;
 
-        public string AmplifiedStatusIdentifier;
+        public bool? IgnoreBarrier;
 
         public float? BuildupRecoverySpeed;
         public bool? IgnoreBuildupIfApplied;
 
-        public bool? DisplayedInHUD;
-        public bool? IsHidden;
-        public bool? IsMalusEffect;
+        public string AmplifiedStatusIdentifier;
 
         public string ComplicationStatusIdentifier;
         public string RequiredStatusIdentifier;
         public bool? RemoveRequiredStatus;
+
         public bool? NormalizeDamageDisplay;
-        public bool? IgnoreBarrier;
+        public bool? DisplayedInHUD;
+        public bool? IsHidden;
+        public bool? IsMalusEffect;
+        
+        public int? DelayedDestroyTime;
 
         public StatusEffect.ActionsOnHit? ActionOnHit;
 
@@ -71,7 +76,7 @@ namespace SideLoader
         public SL_StatusEffectFamily BindFamily;
         public string ReferenceFamilyUID;
 
-        public string EffectTypeTag;
+        //public string EffectTypeTag;
         public string[] Tags;
 
         public bool? PlayFXOnActivation;
@@ -133,6 +138,12 @@ namespace SideLoader
             if (this.Priority != null)
                 At.SetField(status, "m_priority", (int)this.Priority);
 
+            if (this.Purgeable != null)
+                At.SetField(status, "m_purgeable", (bool)this.Purgeable);
+
+            if (this.DelayedDestroyTime != null)
+                status.DelayedDestroyTime = (int)this.DelayedDestroyTime;
+
             if (BuildupRecoverySpeed != null)
                 status.BuildUpRecoverSpeed = (float)BuildupRecoverySpeed;
 
@@ -183,15 +194,8 @@ namespace SideLoader
                     SL.Log("StatusEffect.ApplyTemplate - could not find AmplifiedStatusIdentifier " + this.AmplifiedStatusIdentifier);
             }
 
-            if (this.EffectTypeTag != null)
-            {
-                var tag = CustomTags.GetTag(this.EffectTypeTag);
-                At.SetField(status, "m_effectType", tag);
-            }
-            else if (IsCreatingNewID)
-            {
+            if (IsCreatingNewID)
                 At.SetField(status, "m_effectType", new TagSourceSelector(Tag.None));
-            }
 
             if (Tags != null)
             {
@@ -429,6 +433,9 @@ namespace SideLoader
             this.VFXInstantiationType = status.FxInstantiation;
 
             this.Priority = (int)At.GetField(status, "m_priority");
+
+            this.DelayedDestroyTime = status.DelayedDestroyTime;
+            this.Purgeable = status.Purgeable;
 
             CustomStatusEffects.GetStatusLocalization(status, out Name, out Description);
 

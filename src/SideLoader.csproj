@@ -82,6 +82,7 @@
     <Compile Include="Model\Item\Building\SL_Building.cs" />
     <Compile Include="Model\Item\Building\SL_BuildingRequirement.cs" />
     <Compile Include="Model\Item\Building\SL_ConstructionPhase.cs" />
+    <Compile Include="Model\Item\ItemContainer\SL_ItemContainer.cs" />
     <Compile Include="Model\Item\ItemExtension\SL_BasicDeployable.cs" />
     <Compile Include="Model\Item\ItemExtension\SL_BuildingUpgrade.cs" />
     <Compile Include="Model\Item\Misc\SL_EnchantmentRecipeItem.cs" />

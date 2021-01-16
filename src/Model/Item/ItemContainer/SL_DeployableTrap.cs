@@ -6,7 +6,7 @@ using SideLoader.Helpers;
 
 namespace SideLoader
 {
-    public class SL_DeployableTrap : SL_Item
+    public class SL_DeployableTrap : SL_ItemContainer
     {
         public override bool ShouldApplyLate => true;
 

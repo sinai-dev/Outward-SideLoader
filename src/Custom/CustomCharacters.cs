@@ -45,7 +45,7 @@ namespace SideLoader
             => InternalSpawn(pos, rotation, uid, name, null, uid, extraRpcData);
 
         /// <summary>
-        /// Spawns a custom character and applies the template. Optionally provide a manual spawn position and Character UID.
+        /// Spawns a custom character and applies the template.
         /// The OnSpawn callback is based on the Template UID. You should have already called template.Prepare() before calling this.
         /// </summary>
         /// <param name="template">The SL_Character template containing most of the main information</param>
@@ -57,12 +57,12 @@ namespace SideLoader
             => SpawnCharacter(template, position, Vector3.zero, characterUID, extraRpcData);
 
         /// <summary>
-        /// Spawns a custom character and applies the template. Optionally provide a manual spawn position and Character UID.
+        /// Spawns a custom character and applies the template.
         /// The OnSpawn callback is based on the Template UID. You should have already called template.Prepare() before calling this.
         /// </summary>
         /// <param name="template">The SL_Character template containing most of the main information</param>
-        /// <param name="position">Optional manual spawn position, otherwise just use the template.SpawnPosition</param>
-        /// <param name="rotation">Optional manual rotation to spawn with, otherwise just use the template.SpawnRotation.</param>
+        /// <param name="position">Spawn position for the character</param>
+        /// <param name="rotation">Rotation for the character</param>
         /// <param name="characterUID">Optional manual character UID, if dynamically spawning multiple from one template.</param>
         /// <param name="extraRpcData">Optional extra RPC data to send with the spawn.</param>
         /// <returns>Your custom character</returns>

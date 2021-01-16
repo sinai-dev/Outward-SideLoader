@@ -45,6 +45,7 @@ namespace SideLoader
                 Forward = character.transform.forward,
                 Position = character.transform.position,
                 ExtraRPCData = this.ExtraRPCData,
+                ExtraSaveData = template.INTERNAL_OnPrepareSave(character),
             };
 
             if (character.GetComponentInChildren<AISWander>() is AISWander aiWander) 

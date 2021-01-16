@@ -59,6 +59,8 @@ namespace SideLoader
         /// <summary>Use this to safely make changes to a scene when it is truly loaded. (All players 
         /// loaded, gameplay may not yet be resumed).</summary>
         public static event Action OnSceneLoaded;
+        /// <summary>This event is invoked when gameplay actually resumes after a scene is loaded.</summary>
+        public static event Action OnGameplayResumedAfterLoading;
 
         // custom template lists
         internal static readonly List<SL_Item> PendingItems = new List<SL_Item>();
@@ -85,6 +87,16 @@ namespace SideLoader
                 yield return null;
 
             TryInvoke(OnSceneLoaded);
+
+            SLPlugin.Instance.StartCoroutine(WaitForGameplayResumed());
+        }
+
+        private IEnumerator WaitForGameplayResumed()
+        {
+            while (NetworkLevelLoader.Instance.IsGameplayPaused)
+                yield return null;
+
+            TryInvoke(OnGameplayResumedAfterLoading);
         }
 
         // ======== SL Setup ========
