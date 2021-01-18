@@ -179,7 +179,7 @@ namespace SideLoader.Inspectors.Reflection
             if (Value == null)
             {
                 if (m_cachedChangeableTypes == null)
-                    m_cachedChangeableTypes = At.GetChangeableTypes(this.FallbackType);
+                    m_cachedChangeableTypes = At.GetInheritedTypes(this.FallbackType);
 
                 if (m_cachedChangeableTypes.Count > 1)
                     BeginConfirmCreate();

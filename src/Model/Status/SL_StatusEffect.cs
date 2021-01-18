@@ -27,6 +27,8 @@ namespace SideLoader
         public IContentTemplate ParseToTemplate(object content) => ParseStatusEffect(content as StatusEffect);
         public object GetContentFromID(object id)
         {
+            if (string.IsNullOrEmpty((string)id))
+                return null;
             References.RPM_STATUS_EFFECTS.TryGetValue((string)id, out StatusEffect ret);
             return ret;
         }

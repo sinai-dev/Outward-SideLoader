@@ -18,23 +18,6 @@ namespace SideLoader.Inspectors.Reflection
 
         public SLPack RefPack;
 
-        //public string SubfolderName
-        //{
-        //    get => m_subfolderInput?.text;
-        //    set 
-        //    {
-        //        m_subfolderInput.text = value;
-        //    }
-        //}
-        //public string Filename
-        //{
-        //    get => m_filenameInput?.text;
-        //    set
-        //    {
-        //        m_filenameInput.text = value;
-        //    }
-        //}
-
         internal void UpdateFullPathText()
         {
             var path = $@"<b>XML Path:</b> ";
@@ -67,8 +50,8 @@ namespace SideLoader.Inspectors.Reflection
             Template.SerializedFilename = origFile;
             Template.SerializedSubfolderName = origSub;
             Template.SerializedSLPackName = origPack;
-            //this.SubfolderName = origSub;
-            //this.Filename = origFile;
+
+            UpdateFullPathText();
         }
 
         internal override void CopyValuesFrom(object data)

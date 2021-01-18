@@ -24,6 +24,8 @@ namespace SideLoader
         public IContentTemplate ParseToTemplate(object content) => ParseRecipe(content as Recipe);
         public object GetContentFromID(object id)
         {
+            if (string.IsNullOrEmpty((string)id))
+                return null;
             References.ALL_RECIPES.TryGetValue((string)id, out Recipe ret);
             return ret;
         }

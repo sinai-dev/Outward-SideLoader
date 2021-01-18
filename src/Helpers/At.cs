@@ -25,7 +25,7 @@ namespace SideLoader
 
         internal static readonly Dictionary<Type, List<Type>> s_cachedTypeInheritance = new Dictionary<Type, List<Type>>();
 
-        internal static List<Type> GetChangeableTypes(Type baseType)
+        internal static List<Type> GetInheritedTypes(Type baseType)
         {
             if (!s_cachedTypeInheritance.ContainsKey(baseType))
             {

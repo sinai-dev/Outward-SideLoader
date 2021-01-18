@@ -327,7 +327,7 @@ namespace SideLoader.Inspectors.Reflection
             addRowLayout.minHeight = 25;
             addRowLayout.flexibleHeight = 0;
 
-            var inherited = At.GetChangeableTypes(this.m_baseEntryType);
+            var inherited = At.GetInheritedTypes(this.m_baseEntryType);
             if (inherited.Count > 1)
             {
                 m_typeDrop = new TypeTreeDropdown(m_baseEntryType, addRowObj, m_baseEntryType, (Type val) => 

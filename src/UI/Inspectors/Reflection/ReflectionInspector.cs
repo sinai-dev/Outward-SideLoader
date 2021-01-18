@@ -417,7 +417,7 @@ namespace SideLoader.Inspectors
                 }
             }
 
-            if (At.GetChangeableTypes(baseType).Count <= 1)
+            if (At.GetInheritedTypes(baseType).Count <= 1)
                 return;
 
             var drop = new TypeTreeDropdown(baseType, parent, m_targetType, (Type val) => 

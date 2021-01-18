@@ -27,6 +27,9 @@ namespace SideLoader
         public IContentTemplate ParseToTemplate(object content) => ParseItemToTemplate(content as Item);
         public object GetContentFromID(object id)
         {
+            if (string.IsNullOrEmpty((string)id))
+                return null;
+
             References.RPM_ITEM_PREFABS.TryGetValue((string)id, out Item ret);
             return ret;
         }

@@ -47,8 +47,8 @@ namespace SideLoader
         }
         public void CreateContent() => this.ApplyTemplate();
 
-        public string SLPackName;
-        public string m_serializedFilename;
+        [XmlIgnore] public string SLPackName;
+        [XmlIgnore] internal string m_serializedFilename;
 
         public int EnchantmentID;
         public string Name;
