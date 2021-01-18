@@ -11,6 +11,7 @@ using SideLoader.Helpers;
 using System.IO;
 using SideLoader.Model;
 using UnityEngine.EventSystems;
+using SideLoader.Model.Status;
 
 namespace SideLoader.Inspectors
 {
@@ -35,7 +36,7 @@ namespace SideLoader.Inspectors
 
         private Dropdown m_slPackDropdown;
         private Text m_slPackDropdownLabel;
-        private Text m_slPackLabel;
+        //private Text m_slPackLabel;
 
         private GameObject m_pageContent;
 
@@ -47,7 +48,7 @@ namespace SideLoader.Inspectors
 
         private GameObject m_generateObj;
         private Dropdown m_genDropdown;
-        internal InputField m_genenratorInput;
+        internal InputField m_generatorTargetInput;
         //internal int m_lastInputCaretPos;
 
         internal ContentAutoCompleter AutoCompleter;
@@ -60,7 +61,7 @@ namespace SideLoader.Inspectors
 
         public void UseAutocomplete(string idToUse)
         {
-            m_genenratorInput.text = idToUse;
+            m_generatorTargetInput.text = idToUse;
             //AutoCompleter.ClearAutocompletes();
             AutoCompleter.m_mainObj.SetActive(false);
         }
@@ -119,6 +120,18 @@ namespace SideLoader.Inspectors
             }
         }
 
+        internal bool CanSelectedTypeBeInSubfolder()
+        {
+            var temp = (IContentTemplate)Activator.CreateInstance(m_currentGeneratorType);
+            return temp.TemplateAllowedInSubfolder;
+        }
+
+        internal bool CanSelectedTypeCloneFromTarget()
+        {
+            var temp = (IContentTemplate)Activator.CreateInstance(m_currentGeneratorType);
+            return temp.CanParseContent;
+        }
+
         internal void ClearPackEntryButtons()
         {
             foreach (Transform child in m_pageContent.transform)
@@ -130,12 +143,12 @@ namespace SideLoader.Inspectors
             if (val < 1 || val > SL.Packs.Count)
             {
                 RefreshLoadedSLPacks();
-                m_slPackLabel.text = $"No pack selected...";
+                //m_slPackLabel.text = $"No pack selected...";
                 return;
             }
 
-            m_currentPack = SL.Packs.ElementAt(val -1).Value;
-            m_slPackLabel.text = $"<b>Inspecting:</b> {m_currentPack.Name}";
+            m_currentPack = SL.Packs.ElementAt(val - 1).Value;
+            //m_slPackLabel.text = $"<b>Inspecting:</b> {m_currentPack.Name}";
 
             m_scrollObj.gameObject.SetActive(true);
             m_generateObj.gameObject.SetActive(true);
@@ -185,12 +198,12 @@ namespace SideLoader.Inspectors
 
             RefreshLoadedSLPacks();
 
-            for (int i = 0; i < SL.Packs.Count; i++)
+            for (int i = 0; i < m_slPackDropdown.options.Count; i++)
             {
-                var pack = SL.Packs.ElementAt(i).Value;
-                if (pack.Name == name)
+                var opt = m_slPackDropdown.options[i];
+                if (opt.text == name)
                 {
-                    SetSLPackFromDowndown(i);
+                    m_slPackDropdown.value = i;
                     break;
                 }
             }
@@ -275,6 +288,17 @@ namespace SideLoader.Inspectors
             leftGroup.childForceExpandWidth = true;
             leftGroup.childForceExpandHeight = false;
 
+            ConstructTopArea(leftPane);
+
+            ConstructListView(leftPane);
+
+            ConstructGenerator(leftPane);
+
+            RefreshLoadedSLPacks();
+        }
+
+        private void ConstructTopArea(GameObject leftPane)
+        {
             GameObject titleObj = UIFactory.CreateLabel(leftPane, TextAnchor.UpperLeft);
             Text titleLabel = titleObj.GetComponent<Text>();
             titleLabel.text = "Active SL Packs";
@@ -338,23 +362,14 @@ namespace SideLoader.Inspectors
 
             m_slPackDropdownLabel = m_slPackDropdown.transform.Find("Label").GetComponent<Text>();
             m_slPackDropdownLabel.text = "Choose an SLPack...";
+            m_slPackDropdownLabel.fontSize = 16;
+            m_slPackDropdownLabel.color = Color.cyan;
 
             m_slPackDropdown.onValueChanged.AddListener(SetSLPackFromDowndown);
+        }
 
-            GameObject selectedSLPackTextObj = UIFactory.CreateLabel(leftPane, TextAnchor.MiddleLeft);
-            m_slPackLabel = selectedSLPackTextObj.GetComponent<Text>();
-            m_slPackLabel.text = "No pack selected...";
-            m_slPackLabel.fontSize = 15;
-            m_slPackLabel.horizontalOverflow = HorizontalWrapMode.Overflow;
-
-            LayoutElement textLayout = selectedSLPackTextObj.gameObject.AddComponent<LayoutElement>();
-            textLayout.minWidth = 210;
-            textLayout.flexibleWidth = 120;
-            textLayout.minHeight = 20;
-            textLayout.flexibleHeight = 0;
-
-            // ====== List view ======
-
+        private void ConstructListView(GameObject leftPane)
+        {
             var subfolderDropObj = UIFactory.CreateDropdown(leftPane, out Dropdown subDrop);
             var subdropLayout = subfolderDropObj.AddComponent<LayoutElement>();
             subdropLayout.minHeight = 25;
@@ -385,9 +400,10 @@ namespace SideLoader.Inspectors
             });
 
             m_scrollObj = UIFactory.CreateScrollView(leftPane, out m_pageContent, out SliderScrollbar scroller, new Color(0.1f, 0.1f, 0.1f));
+        }
 
-            // ======= Generate template area =======
-
+        private void ConstructGenerator(GameObject leftPane)
+        {
             m_generateObj = UIFactory.CreateVerticalGroup(leftPane, new Color(0.1f, 0.1f, 0.1f));
 
             var genLabelObj = UIFactory.CreateLabel(m_generateObj, TextAnchor.MiddleLeft);
@@ -395,14 +411,11 @@ namespace SideLoader.Inspectors
             genText.text = "Template Generator";
             genText.fontSize = 16;
 
+            // Generator dropdown type
+            // (callback added below)
             var genDropObj = UIFactory.CreateDropdown(m_generateObj, out m_genDropdown);
-            var dropLayout = genDropObj.AddComponent<LayoutElement>();
-            dropLayout.minHeight = 25;
-            m_genDropdown.onValueChanged.AddListener((int val) =>
-            {
-                m_currentGeneratorType = s_templateTypes[val];
-            });
-
+            var genDropLayout = genDropObj.AddComponent<LayoutElement>();
+            genDropLayout.minHeight = 25;
             var genGroupLayout = m_generateObj.AddComponent<LayoutElement>();
             genGroupLayout.minHeight = 50;
             genGroupLayout.flexibleWidth = 9999;
@@ -412,18 +425,43 @@ namespace SideLoader.Inspectors
             genGroup.padding = new RectOffset(3, 3, 3, 3);
             genGroup.spacing = 5;
 
-            var generateInputObj = UIFactory.CreateInputField(m_generateObj, 14, 3, 0, typeof(AutoCompleteInputField));
-            generateInputObj.name = "AutoCompleterInput";
-            m_genenratorInput = generateInputObj.GetComponent<AutoCompleteInputField>();
-            (m_genenratorInput.placeholder as Text).text = "Clone target ID (if valid)";
-            var genLayout = m_genenratorInput.gameObject.AddComponent<LayoutElement>();
-            genLayout.minHeight = 25;
+            // Generator input field for target
+            var targetInputFieldObj = UIFactory.CreateInputField(m_generateObj, 14, 3, 0, typeof(AutoCompleteInputField));
+            targetInputFieldObj.name = "AutoCompleterInput";
+            m_generatorTargetInput = targetInputFieldObj.GetComponent<AutoCompleteInputField>();
+            (m_generatorTargetInput.placeholder as Text).text = "Clone target ID";
+            var genTargetLayout = m_generatorTargetInput.gameObject.AddComponent<LayoutElement>();
+            genTargetLayout.minHeight = 25;
 
-            m_genenratorInput.onValueChanged.AddListener((string val) =>
+            m_generatorTargetInput.onValueChanged.AddListener((string val) =>
             {
                 UpdateAutocompletes();
             });
 
+            // subfolder input field
+            var subfolderInputObj = UIFactory.CreateInputField(m_generateObj);
+            var subfolderLayout = subfolderInputObj.AddComponent<LayoutElement>();
+            subfolderLayout.minHeight = 25;
+            var subfolderInput = subfolderInputObj.GetComponent<InputField>();
+            (subfolderInput.placeholder as Text).text = "Subfolder (blank for auto)";
+
+            // add this generator callback now that subfolder has been declared
+            m_genDropdown.onValueChanged.AddListener((int val) =>
+            {
+                m_currentGeneratorType = s_templateTypes[val];
+
+                targetInputFieldObj.SetActive(CanSelectedTypeCloneFromTarget());
+                subfolderInputObj.SetActive(CanSelectedTypeBeInSubfolder());
+            });
+
+            // name input
+            var nameInputObj = UIFactory.CreateInputField(m_generateObj);
+            var nameLayout = nameInputObj.AddComponent<LayoutElement>();
+            nameLayout.minHeight = 25;
+            var nameInput = nameInputObj.GetComponent<InputField>();
+            (nameInput.placeholder as Text).text = "Filename (blank for auto)";
+
+            // generate button
             var genBtnObj = UIFactory.CreateButton(m_generateObj, new Color(0.15f, 0.45f, 0.15f));
             var genBtnLayout = genBtnObj.AddComponent<LayoutElement>();
             genBtnLayout.minHeight = 25;
@@ -439,16 +477,14 @@ namespace SideLoader.Inspectors
                 var newTemplate = (IContentTemplate)Activator.CreateInstance(this.m_currentGeneratorType);
                 if (newTemplate.CanParseContent)
                 {
-                    var content = newTemplate.GetContentFromID(m_genenratorInput.text);
+                    var content = newTemplate.GetContentFromID(m_generatorTargetInput.text);
                     if (content != null && newTemplate.ParseToTemplate(content) is IContentTemplate parsed)
                     {
-                        // todo check if content is assignable from desired type.
-
                         newTemplate = parsed;
                     }
-                    else
+                    else if (!newTemplate.DoesTargetExist)
                     {
-                        SL.LogWarning("Could not find any content from target ID '" + m_genenratorInput.text);
+                        SL.LogWarning("Could not find any content from target ID '" + m_generatorTargetInput.text + "'");
                         newTemplate = null;
                     }
                 }
@@ -456,16 +492,24 @@ namespace SideLoader.Inspectors
                 if (newTemplate != null)
                 {
                     newTemplate.SerializedSLPackName = m_currentPack.Name;
-                    newTemplate.SerializedSubfolderName = newTemplate.DefaultTemplateName;
-                    newTemplate.SerializedFilename = newTemplate.DefaultTemplateName;
+
+                    var subname = newTemplate.DefaultTemplateName;
+                    if (!string.IsNullOrEmpty(subfolderInput.text))
+                        subname = subfolderInput.text;
+
+                    var name = newTemplate.DefaultTemplateName;
+                    if (!string.IsNullOrEmpty(nameInput.text))
+                        name = nameInput.text;
+
+                    newTemplate.SerializedSubfolderName = subname;
+                    newTemplate.SerializedFilename = name;
+
                     InspectorManager.Instance.Inspect(newTemplate, m_currentPack);
                 }
             });
 
             var genBtnText = genBtnObj.GetComponentInChildren<Text>();
             genBtnText.text = "Create Template";
-
-            RefreshLoadedSLPacks();
         }
 
         internal void AddSLPackTemplateButton(IContentTemplate template)

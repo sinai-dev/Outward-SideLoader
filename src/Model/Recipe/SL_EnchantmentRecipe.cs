@@ -22,7 +22,10 @@ namespace SideLoader
         public IContentTemplate ParseToTemplate(object content) => SerializeEnchantment(content as EnchantmentRecipe);
         public object GetContentFromID(object id)
         {
-            References.ENCHANTMENT_RECIPES.TryGetValue(int.Parse(id.ToString()), out EnchantmentRecipe ret);
+            if (!int.TryParse(id.ToString(), out int parsed))
+                return null;
+
+            References.ENCHANTMENT_RECIPES.TryGetValue(parsed, out EnchantmentRecipe ret);
             return (IContentTemplate)ret;
         }
 

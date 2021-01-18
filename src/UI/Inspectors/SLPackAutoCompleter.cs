@@ -159,7 +159,7 @@ namespace SideLoader.Inspectors
 
         public void CheckAutocomplete()
         {
-            var genInput = SLPackListView.Instance.m_genenratorInput;
+            var genInput = SLPackListView.Instance.m_generatorTargetInput;
             string input = genInput.text.Trim();
 
             var genType = SLPackListView.Instance.m_currentGeneratorType;
@@ -290,7 +290,7 @@ namespace SideLoader.Inspectors
         {
             try
             {
-                var m_genInput = SLPackListView.Instance.m_genenratorInput;
+                var m_genInput = SLPackListView.Instance.m_generatorTargetInput;
 
                 if (!m_genInput)
                     return;

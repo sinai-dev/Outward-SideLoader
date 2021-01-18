@@ -7,6 +7,7 @@ using BepInEx;
 using BepInEx.Logging;
 using System.Collections.Generic;
 using SideLoader.UI;
+using SideLoader.UI.Modules;
 
 namespace SideLoader
 {
@@ -77,23 +78,15 @@ namespace SideLoader
 
         public static void Log(string log, SL.LogLevel level)
         {
-            if (Instance != null)
-            {
-                Instance.Logger.Log((LogLevel)level, log);
-            }
-            else
-            {
-                log = $"[SideLoader] {log}";
-                switch (level)
-                {
-                    case SL.LogLevel.Message:
-                        SL.Log(log); break;
-                    case SL.LogLevel.Warning:
-                        SL.LogWarning(log); break;
-                    case SL.LogLevel.Error:
-                        SL.LogError(log); break;
-                }
-            }
+            Instance.Logger.Log((LogLevel)level, log);
+
+            string color = ColorUtility.ToHtmlStringRGB(Color.white);
+            if (level == SL.LogLevel.Warning)
+                color = ColorUtility.ToHtmlStringRGB(Color.yellow);
+            else if (level == SL.LogLevel.Error)
+                color = ColorUtility.ToHtmlStringRGB(Color.red);
+
+            DebugConsole.Log(log, color);
         }
     }
 }

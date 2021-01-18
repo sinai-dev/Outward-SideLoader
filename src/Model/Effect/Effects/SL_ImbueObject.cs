@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace SideLoader
 {
-    public class SL_ImbueObject : SL_Effect
+    public abstract class SL_ImbueObject : SL_Effect
     {
         public float Lifespan;
         public int ImbueEffect_Preset_ID;

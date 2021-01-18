@@ -12,38 +12,42 @@ namespace SideLoader.Inspectors.Reflection
 {
     public class TemplateInspector : ReflectionInspector
     {
-        public override string TabLabel => $" <color=cyan>[T]</color> {this.Filename} ({base.TabLabel})";
+        public override string TabLabel => $" <color=cyan>[T]</color> {this.Template.SerializedFilename} ({base.TabLabel})";
 
         internal IContentTemplate Template;
 
         public SLPack RefPack;
 
-        public string SubfolderName
-        {
-            get => m_subfolderInput?.text;
-            set 
-            {
-                m_subfolderInput.text = value;
-            }
-        }
-        public string Filename
-        {
-            get => m_filenameInput?.text;
-            set
-            {
-                m_filenameInput.text = value;
-            }
-        }
+        //public string SubfolderName
+        //{
+        //    get => m_subfolderInput?.text;
+        //    set 
+        //    {
+        //        m_subfolderInput.text = value;
+        //    }
+        //}
+        //public string Filename
+        //{
+        //    get => m_filenameInput?.text;
+        //    set
+        //    {
+        //        m_filenameInput.text = value;
+        //    }
+        //}
 
         internal void UpdateFullPathText()
         {
-            var path = $@"Saving/Loading at: <b><color=cyan>{RefPack.Name}</color></b>\{Template.SLPackSubfolder}\";
+            var path = $@"<b>XML Path:</b> ";
 
-            string sub = "";
-            if (!string.IsNullOrEmpty(this.SubfolderName))
-                sub = SubfolderName + "\\";
+            if (RefPack.InMainSLFolder)
+                path += $@"Mods\SideLoader\{RefPack.Name}\{Template.SLPackSubfolder}\";
+            else
+                path += $@"BepInEx\plugins\{RefPack.Name}\SideLoader\{Template.SLPackSubfolder}\";
 
-            m_fullPathLabel.text = $@"{path}{sub}{Filename}.xml";
+            if (!string.IsNullOrEmpty(this.Template.SerializedSubfolderName))
+                path += $@"{Template.SerializedSubfolderName}\";
+
+            m_fullPathLabel.text = $@"{path}{Template.SerializedFilename}.xml";
         }
 
         public TemplateInspector(object target, SLPack pack) : base(target)
@@ -55,45 +59,37 @@ namespace SideLoader.Inspectors.Reflection
         internal override void ChangeType(Type newType)
         {
             var origPack = RefPack.Name;
-            var origSub = this.SubfolderName;
-            var origFile = this.Filename;
+            var origSub = this.Template.SerializedFilename;
+            var origFile = this.Template.SerializedSubfolderName;
 
             base.ChangeType(newType);
 
             Template.SerializedFilename = origFile;
             Template.SerializedSubfolderName = origSub;
             Template.SerializedSLPackName = origPack;
-            this.SubfolderName = origSub;
-            this.Filename = origFile;
+            //this.SubfolderName = origSub;
+            //this.Filename = origFile;
         }
 
         internal override void CopyValuesFrom(object data)
         {
             var origPack = RefPack.Name;
-            var origSub = this.SubfolderName;
-            var origFile = this.Filename;
+            var origSub = this.Template.SerializedFilename;
+            var origFile = this.Template.SerializedSubfolderName;
 
             At.CopyFields(Target, data, null, true);
 
             Template.SerializedFilename = origFile;
             Template.SerializedSubfolderName = origSub;
             Template.SerializedSLPackName = origPack;
-            this.SubfolderName = origSub;
-            this.Filename = origFile;
+            //this.SubfolderName = origSub;
+            //this.Filename = origFile;
 
             UpdateValues();
         }
 
-        //internal override void ChangeTarget(object newTarget)
-        //{
-        //    Template = newTarget as IContentTemplate;
-
-        //    base.ChangeTarget(newTarget);
-        //}
-
-        internal InputField m_subfolderInput;
-        internal InputField m_filenameInput;
-        //internal InputField m_fullPathInput;
+        //internal InputField m_subfolderInput;
+        //internal InputField m_filenameInput;
         internal Text m_fullPathLabel;
 
         public void ConstructTemplateUI()
@@ -115,51 +111,51 @@ namespace SideLoader.Inspectors.Reflection
                 left = 4
             };
 
-            // ========= Subfolder/Filename row =========
+            //// ========= Subfolder/Filename row =========
 
-            var pathInputRowObj = UIFactory.CreateHorizontalGroup(vertGroupObj, new Color(1,1,1,0));
-            var pathGroup = pathInputRowObj.GetComponent<HorizontalLayoutGroup>();
-            pathGroup.childForceExpandWidth = true;
-            pathGroup.spacing = 5;
+            //var pathInputRowObj = UIFactory.CreateHorizontalGroup(vertGroupObj, new Color(1,1,1,0));
+            //var pathGroup = pathInputRowObj.GetComponent<HorizontalLayoutGroup>();
+            //pathGroup.childForceExpandWidth = true;
+            //pathGroup.spacing = 5;
 
-            if (Template.TemplateAllowedInSubfolder)
-            {
-                var subLabelObj = UIFactory.CreateLabel(pathInputRowObj, TextAnchor.MiddleRight);
-                var subLabelLayout = subLabelObj.AddComponent<LayoutElement>();
-                subLabelLayout.minHeight = 24;
-                subLabelLayout.minWidth = 130;
-                subLabelLayout.flexibleWidth = 0;
-                var subText = subLabelObj.GetComponent<Text>();
-                subText.text = "Subfolder Name:";
+            //if (Template.TemplateAllowedInSubfolder)
+            //{
+            //    var subLabelObj = UIFactory.CreateLabel(pathInputRowObj, TextAnchor.MiddleRight);
+            //    var subLabelLayout = subLabelObj.AddComponent<LayoutElement>();
+            //    subLabelLayout.minHeight = 24;
+            //    subLabelLayout.minWidth = 130;
+            //    subLabelLayout.flexibleWidth = 0;
+            //    var subText = subLabelObj.GetComponent<Text>();
+            //    subText.text = "Subfolder Name:";
 
-                var subInputObj = UIFactory.CreateInputField(pathInputRowObj);
-                var subLayout = subInputObj.AddComponent<LayoutElement>();
-                subLayout.minHeight = 24;
-                subLayout.flexibleWidth = 9999;
-                var subField = subInputObj.GetComponent<InputField>();
-                subField.image.color = new Color(0.2f, 0.2f, 0.2f);
-                (subField.placeholder as Text).text = @"Optional subfolder (used for textures/icons), eg. 'MySubfolderName'";
-                m_subfolderInput = subField;
-                subField.onValueChanged.AddListener((string val) => { UpdateFullPathText(); });
-            }
+            //    var subInputObj = UIFactory.CreateInputField(pathInputRowObj);
+            //    var subLayout = subInputObj.AddComponent<LayoutElement>();
+            //    subLayout.minHeight = 24;
+            //    subLayout.flexibleWidth = 9999;
+            //    var subField = subInputObj.GetComponent<InputField>();
+            //    subField.image.color = new Color(0.2f, 0.2f, 0.2f);
+            //    (subField.placeholder as Text).text = @"Optional subfolder (used for textures/icons), eg. 'MySubfolderName'";
+            //    m_subfolderInput = subField;
+            //    subField.onValueChanged.AddListener((string val) => { UpdateFullPathText(); });
+            //}
 
-            var nameLabelObj = UIFactory.CreateLabel(pathInputRowObj, TextAnchor.MiddleRight);
-            var nameLabelLayout = nameLabelObj.AddComponent<LayoutElement>();
-            nameLabelLayout.minHeight = 24;
-            nameLabelLayout.minWidth = 90;
-            nameLabelLayout.flexibleWidth = 0;
-            var nameText = nameLabelObj.GetComponent<Text>();
-            nameText.text = "File Name:";
+            //var nameLabelObj = UIFactory.CreateLabel(pathInputRowObj, TextAnchor.MiddleRight);
+            //var nameLabelLayout = nameLabelObj.AddComponent<LayoutElement>();
+            //nameLabelLayout.minHeight = 24;
+            //nameLabelLayout.minWidth = 90;
+            //nameLabelLayout.flexibleWidth = 0;
+            //var nameText = nameLabelObj.GetComponent<Text>();
+            //nameText.text = "File Name:";
 
-            var nameInputObj = UIFactory.CreateInputField(pathInputRowObj);
-            var nameLayout = nameInputObj.AddComponent<LayoutElement>();
-            nameLayout.minHeight = 24;
-            nameLayout.flexibleWidth = 9999;
-            var nameField = nameInputObj.GetComponent<InputField>();
-            nameField.image.color = new Color(0.2f, 0.2f, 0.2f);
-            (nameField.placeholder as Text).text = @"Template file name, eg. 'MyTemplate'";
-            m_filenameInput = nameField;
-            nameField.onValueChanged.AddListener((string val) => { UpdateFullPathText(); });
+            //var nameInputObj = UIFactory.CreateInputField(pathInputRowObj);
+            //var nameLayout = nameInputObj.AddComponent<LayoutElement>();
+            //nameLayout.minHeight = 24;
+            //nameLayout.flexibleWidth = 9999;
+            //var nameField = nameInputObj.GetComponent<InputField>();
+            //nameField.image.color = new Color(0.2f, 0.2f, 0.2f);
+            //(nameField.placeholder as Text).text = @"Template file name, eg. 'MyTemplate'";
+            //m_filenameInput = nameField;
+            //nameField.onValueChanged.AddListener((string val) => { UpdateFullPathText(); });
 
             // ========= Full path Row =========
 
@@ -210,18 +206,15 @@ namespace SideLoader.Inspectors.Reflection
 
                 var directory = RefPack.GetSubfolderPath(Template.SLPackSubfolder);
 
-                if (Template.TemplateAllowedInSubfolder && !string.IsNullOrEmpty(this.SubfolderName))
+                if (Template.TemplateAllowedInSubfolder && !string.IsNullOrEmpty(this.Template.SerializedSubfolderName))
                 {
-                    SubfolderName = Serializer.ReplaceInvalidChars(SubfolderName);
-                    directory += $@"\{this.SubfolderName}";
+                    directory += $@"\{this.Template.SerializedSubfolderName}";
                 }
 
                 if (!Directory.Exists(directory))
                     Directory.CreateDirectory(directory);
 
-                Filename = Serializer.ReplaceInvalidChars(Filename);
-
-                Serializer.SaveToXml(directory, this.Filename, Target);
+                Serializer.SaveToXml(directory, this.Template.SerializedFilename, Target);
             });
 
             var loadBtnObj = UIFactory.CreateButton(saveLoadRowObj, new Color(0.5f, 0.3f, 0.2f));
@@ -240,15 +233,12 @@ namespace SideLoader.Inspectors.Reflection
 
                 var directory = RefPack.GetSubfolderPath(Template.SLPackSubfolder);
 
-                if (Template.TemplateAllowedInSubfolder && !string.IsNullOrEmpty(this.SubfolderName))
+                if (Template.TemplateAllowedInSubfolder && !string.IsNullOrEmpty(this.Template.SerializedSubfolderName))
                 {
-                    SubfolderName = Serializer.ReplaceInvalidChars(SubfolderName);
-                    directory += $@"\{this.SubfolderName}";
+                    directory += $@"\{this.Template.SerializedSubfolderName}";
                 }
 
-                Filename = Serializer.ReplaceInvalidChars(Filename);
-
-                var path = directory + "\\" + Filename + ".xml";
+                var path = directory + "\\" + Template.SerializedFilename + ".xml";
                 if (!File.Exists(path))
                 {
                     SL.LogWarning("No file exists at " + path);

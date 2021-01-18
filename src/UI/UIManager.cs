@@ -50,8 +50,7 @@ namespace SideLoader.UI
             // Force refresh of anchors
             Canvas.ForceUpdateCanvases();
 
-            // todo disable menu on start
-
+            ShowMenu = false;
         }
 
         public static void OnSceneChange()

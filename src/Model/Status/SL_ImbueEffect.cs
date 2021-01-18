@@ -24,7 +24,10 @@ namespace SideLoader
         public IContentTemplate ParseToTemplate(object content) => ParseImbueEffect(content as ImbueEffectPreset);
         public object GetContentFromID(object id)
         {
-            References.RPM_EFFECT_PRESETS.TryGetValue(int.Parse(id.ToString()), out EffectPreset ret);
+            if (!int.TryParse(id.ToString(), out int parsed))
+                return null;
+
+            References.RPM_EFFECT_PRESETS.TryGetValue(parsed, out EffectPreset ret);
             return (IContentTemplate)ret;
         }
 

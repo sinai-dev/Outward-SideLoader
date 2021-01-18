@@ -65,14 +65,8 @@ namespace SideLoader.Inspectors
             inspector.ParentMember = parentMember;
             inspector.Init();
 
-            if (inspector is TemplateInspector tInspector 
-                && obj is IContentTemplate template)
-            {
-                if (template.TemplateAllowedInSubfolder)
-                    tInspector.SubfolderName = template.SerializedSubfolderName;
-
-                tInspector.Filename = template.SerializedFilename;
-            }
+            if (inspector is TemplateInspector tInspector)
+                tInspector.UpdateFullPathText();
 
             m_currentInspectors.Add(inspector);
             SetInspectorTab(inspector);
