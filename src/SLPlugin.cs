@@ -4,9 +4,9 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using HarmonyLib;
 using BepInEx;
-using SideLoader.UI;
 using BepInEx.Logging;
 using System.Collections.Generic;
+using SideLoader.UI;
 
 namespace SideLoader
 {
@@ -48,20 +48,26 @@ namespace SideLoader
 
             CustomTextures.Init();
 
+            /* Setup keybinding */
+
+            CustomKeybindings.AddAction(UIManager.MENU_TOGGLE_KEY, KeybindingsCategory.CustomKeybindings);
+
             /* Setup Behaviour gameobject */
 
-            var obj = new GameObject("SideLoader_Behaviour");
-            GameObject.DontDestroyOnLoad(obj);
-            obj.hideFlags = HideFlags.HideAndDontSave;
+            //var obj = new GameObject("SideLoader_Behaviour");
+            //GameObject.DontDestroyOnLoad(obj);
+            //obj.hideFlags = HideFlags.HideAndDontSave;
 
             /* Add Behaviour Components */
-            obj.AddComponent<SLGUI>();
+            //obj.AddComponent<SLGUI>();
         }
 
         // ========== Update ==========
 
         internal void Update()
         {
+            UIManager.Update();
+
             Helpers.ForceUnlockCursor.UpdateCursorControl();
 
             //CustomScenes.Update();

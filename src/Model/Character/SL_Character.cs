@@ -6,15 +6,48 @@ using System.Text;
 using UnityEngine;
 using System.Xml.Serialization;
 using SideLoader.Helpers;
+using SideLoader.Model;
 
 namespace SideLoader
 {
     /// <summary>SideLoader's wrapper for Custom Characters.</summary>
     [SL_Serialized]
-    public class SL_Character
+    public class SL_Character : IContentTemplate<string>
     {
+        [XmlIgnore] public string DefaultTemplateName => "Untitled Character";
+        [XmlIgnore] public bool IsCreatingNewID => true;
+        [XmlIgnore] public bool DoesTargetExist => true;
+        [XmlIgnore] public string TargetID => this.UID;
+        [XmlIgnore] public string AppliedID => this.UID;
+        [XmlIgnore] public SLPack.SubFolders SLPackSubfolder => SLPack.SubFolders.Characters;
+        [XmlIgnore] public bool TemplateAllowedInSubfolder => false;
+
+        [XmlIgnore] public bool CanParseContent => false;
+        public IContentTemplate ParseToTemplate(object _) => throw new NotImplementedException();
+        public object GetContentFromID(object id) => throw new NotImplementedException();
+
+        [XmlIgnore] public string SerializedSLPackName
+        {
+            get => SLPackName;
+            set => SLPackName = value;
+        }
+        [XmlIgnore] public string SerializedSubfolderName
+        {
+            get => null;
+            set { }
+        }
+        [XmlIgnore] public string SerializedFilename
+        {
+            get => m_serializedFilename;
+            set => m_serializedFilename = value;
+        }
+
+        public void CreateContent() => this.Prepare();
+
         /// <summary>[Not Serialized] The name of the SLPack used to load certain assets from. Not required.</summary>
         [XmlIgnore] public string SLPackName { get; set; }
+
+        internal string m_serializedFilename;
 
         /// <summary> This event will be executed locally by ALL clients via RPC. Use this for any custom local setup that you need.
         /// <list type="bullet">The character is the Character your template was applied to.</list>
@@ -400,6 +433,8 @@ namespace SideLoader
                 visuals = character.GetComponentInChildren<CharacterVisuals>(true);
             }
 
+            yield return new WaitForSeconds(0.5f);
+
             if (visuals)
             {
                 // disable default visuals
@@ -429,10 +464,16 @@ namespace SideLoader
                 At.SetField(visuals, "m_skinMat", mat);
 
                 // apply the visuals
-                var equipped = (ArmorVisuals[])At.GetField(visuals, "m_editorEquippedVisuals");
+                var hideface = false;
+                var hidehair = false;
 
-                bool hideface = equipped[0] && equipped[0].HideFace;
-                bool hidehair = equipped[0] && equipped[0].HideHair;
+                if (visuals.ActiveVisualsHead)
+                {
+                    hideface = visuals.ActiveVisualsHead.HideFace;
+                    hidehair = visuals.ActiveVisualsHead.HideHair;
+                }
+
+                SL.Log("hideface: " + hideface);
 
                 if (!hideface)
                     visuals.LoadCharacterCreationHead(data.SkinIndex, (int)data.Gender, data.HeadVariationIndex);
@@ -440,10 +481,10 @@ namespace SideLoader
                 if (!hidehair)
                     ApplyHairVisuals(visuals, data.HairStyleIndex, data.HairColorIndex);
 
-                if (!equipped[1])
+                if (!visuals.ActiveVisualsBody)
                     visuals.LoadCharacterCreationBody((int)data.Gender, data.SkinIndex);
 
-                if (!equipped[2])
+                if (!visuals.ActiveVisualsFoot)
                     visuals.LoadCharacterCreationBoots((int)data.Gender, data.SkinIndex);
             }
             else

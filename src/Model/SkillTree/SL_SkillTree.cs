@@ -7,6 +7,7 @@ using UnityEngine;
 using System.Xml.Serialization;
 using UnityEngine.SceneManagement;
 using SideLoader.Helpers;
+using SideLoader.Model;
 
 namespace SideLoader
 {

@@ -8,6 +8,7 @@ using BepInEx;
 using SideLoader.Model;
 using SideLoader.SaveData;
 using System.Linq;
+using SideLoader.UI;
 
 namespace SideLoader
 {
@@ -166,6 +167,9 @@ namespace SideLoader
             {
                 TryInvoke(OnPacksLoaded);
                 Log("Finished invoking OnPacksLoaded.");
+
+                /* Setup UI */
+                UIManager.Init();
             }
 
             PendingStatusFamilies.Clear();

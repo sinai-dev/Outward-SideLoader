@@ -7,6 +7,8 @@ using System.IO;
 using SideLoader.Helpers;
 using SideLoader.Model;
 using SideLoader.SaveData;
+using SideLoader.Model.Status;
+using System.Collections;
 
 namespace SideLoader
 {
@@ -68,7 +70,7 @@ namespace SideLoader
         #endregion
 
         /// <summary>The FolderName of this SLPack</summary>
-        public string Name { get; private set; }
+        public string Name { get; internal set; }
 
         /// <summary>
         /// Used internally to track where this SL Pack was loaded from.
@@ -90,9 +92,39 @@ namespace SideLoader
         public Dictionary<string, Texture2D> Texture2D = new Dictionary<string, Texture2D>();
         /// <summary>AudioClips loaded from the WAV files in the `AudioClip\` folder. Dictionary Key is the file name (without ".wav")</summary>
         public Dictionary<string, AudioClip> AudioClips = new Dictionary<string, AudioClip>();
-        
-        /// <summary>SL_Characters loaded from the `Characters\` folder. Dictionary Key is the SL_Character.UID value.</summary>
+        /// <summary>SL_Characters loaded from the `Characters\` folder. Dictionary Key is the file name without xml.</summary>
         public Dictionary<string, SL_Character> CharacterTemplates = new Dictionary<string, SL_Character>();
+
+        public Dictionary<string, SL_Item> ItemTemplates = new Dictionary<string, SL_Item>();
+        public Dictionary<string, SL_StatusBase> StatusTemplates = new Dictionary<string, SL_StatusBase>();
+        public Dictionary<string, SL_Recipe> RecipeTemplates = new Dictionary<string, SL_Recipe>();
+        public Dictionary<string, SL_EnchantmentRecipe> EnchantmentTemplates = new Dictionary<string, SL_EnchantmentRecipe>();
+        public Dictionary<string, SL_StatusEffectFamily> StatusFamilyTemplates = new Dictionary<string, SL_StatusEffectFamily>();
+
+        public IDictionary GetContentForSubfolder(SubFolders folder)
+        {
+            switch (folder)
+            {
+                case SubFolders.StatusEffects:
+                    return StatusTemplates;
+                case SubFolders.Items:
+                    return ItemTemplates;
+                case SubFolders.AssetBundles:
+                    return AssetBundles;
+                case SubFolders.AudioClip:
+                    return AudioClips;
+                case SubFolders.Characters:
+                    return CharacterTemplates;
+                case SubFolders.Enchantments:
+                    return EnchantmentTemplates;
+                case SubFolders.Recipes:
+                    return RecipeTemplates;
+                case SubFolders.StatusFamilies:
+                    return StatusFamilyTemplates;
+            }
+
+            throw new NotImplementedException(folder.ToString());
+        }
 
         /// <summary>
         /// The supported sub-folders in an SL Pack. 
@@ -291,7 +323,12 @@ namespace SideLoader
                 foreach (var file in Directory.GetFiles(dir, "*.xml"))
                 {
                     if (Serializer.LoadFromXml(file) is SL_StatusEffectFamily template)
+                    {
                         template.Apply();
+                        template.SLPackName = Name;
+                        template.m_serializedFilename = Path.GetFileNameWithoutExtension(file);
+                        this.StatusFamilyTemplates.Add(template.UID, template);
+                    }
                 }
             }
         }
@@ -320,19 +357,23 @@ namespace SideLoader
             // apply templates
             foreach (var entry in dict)
             {
-                var template = Serializer.LoadFromXml(entry.Key);
+                var template = Serializer.LoadFromXml(entry.Key) as SL_StatusBase;
+
+                template.m_serializedFilename = Path.GetFileNameWithoutExtension(entry.Key);
 
                 if (template is SL_StatusEffect statusTemplate)
                 {
                     statusTemplate.SLPackName = Name;
                     statusTemplate.SubfolderName = entry.Value;
-                    statusTemplate.Apply();                 
+                    statusTemplate.Apply();
+                    this.StatusTemplates.Add(statusTemplate.AppliedID, statusTemplate);
                 }
                 else if (template is SL_ImbueEffect imbueTemplate)
                 {
                     imbueTemplate.SLPackName = Name;
                     imbueTemplate.SubfolderName = entry.Value;
                     imbueTemplate.Apply();
+                    this.StatusTemplates.Add(imbueTemplate.AppliedID.ToString(), imbueTemplate);
                 }
                 else
                 {
@@ -391,7 +432,9 @@ namespace SideLoader
                         {
                             itemHolder.SubfolderName = entry.Value;
                             itemHolder.SLPackName = Name;
+                            itemHolder.m_serializedFilename = Path.GetFileNameWithoutExtension(entry.Key);
                             itemHolder.Apply();
+                            this.ItemTemplates.Add(itemHolder.AppliedID.ToString(), itemHolder);
                         }
                     }
                     catch (Exception e)
@@ -435,7 +478,12 @@ namespace SideLoader
             foreach (var recipePath in Directory.GetFiles(path))
             {
                 if (Serializer.LoadFromXml(recipePath) is SL_Recipe recipeHolder)
+                {
                     SL.PendingRecipes.Add(recipeHolder);
+                    recipeHolder.m_serializedFilename = Path.GetFileNameWithoutExtension(recipePath);
+                    recipeHolder.SLPackName = this.Name;
+                    this.RecipeTemplates.Add(recipeHolder.UID, recipeHolder);
+                }
             }
         }
 
@@ -455,6 +503,7 @@ namespace SideLoader
                     //SL.Log("Serialized SL_Character " + template.Name + " (" + template.UID + ")");
 
                     template.SLPackName = this.Name;
+                    template.m_serializedFilename = Path.GetFileNameWithoutExtension(filePath);
                     CharacterTemplates.Add(template.UID, template);
                     SL.PendingCharacters.Add(template);
                 }
@@ -474,7 +523,11 @@ namespace SideLoader
                 try
                 {
                     if (Serializer.LoadFromXml(filePath) is SL_EnchantmentRecipe template)
+                    {
+                        template.m_serializedFilename = Path.GetFileNameWithoutExtension(filePath);
+                        this.EnchantmentTemplates.Add(template.EnchantmentID.ToString(), template);
                         template.Apply();
+                    }
                 }
                 catch
                 {

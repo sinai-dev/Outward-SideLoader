@@ -1,14 +1,52 @@
-﻿using System;
+﻿using SideLoader.Model;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Xml.Serialization;
 using UnityEngine;
 
 namespace SideLoader
 {
-    [SL_Serialized]
-    public partial class SL_EnchantmentRecipe
+    public class SL_EnchantmentRecipe : IContentTemplate<int>
     {
+        [XmlIgnore] public string DefaultTemplateName => "Untitled EnchantmentRecipe";
+        [XmlIgnore] public bool IsCreatingNewID => true;
+        [XmlIgnore] public bool DoesTargetExist => true;
+        [XmlIgnore] public int TargetID => this.EnchantmentID;
+        [XmlIgnore] public int AppliedID => this.EnchantmentID;
+        [XmlIgnore] public SLPack.SubFolders SLPackSubfolder => SLPack.SubFolders.Enchantments;
+        [XmlIgnore] public bool TemplateAllowedInSubfolder => false;
+
+        [XmlIgnore] public bool CanParseContent => true;
+        public IContentTemplate ParseToTemplate(object content) => SerializeEnchantment(content as EnchantmentRecipe);
+        public object GetContentFromID(object id)
+        {
+            References.ENCHANTMENT_RECIPES.TryGetValue(int.Parse(id.ToString()), out EnchantmentRecipe ret);
+            return (IContentTemplate)ret;
+        }
+
+        [XmlIgnore]
+        public string SerializedSLPackName
+        {
+            get => SLPackName;
+            set => SLPackName = value;
+        }
+        [XmlIgnore] public string SerializedSubfolderName
+        {
+            get => null;
+            set { }
+        }
+        [XmlIgnore] public string SerializedFilename
+        {
+            get => m_serializedFilename;
+            set => m_serializedFilename = value;
+        }
+        public void CreateContent() => this.ApplyTemplate();
+
+        public string SLPackName;
+        public string m_serializedFilename;
+
         public int EnchantmentID;
         public string Name;
         public string Description;
@@ -255,8 +293,10 @@ namespace SideLoader
 
         // ======== Serializing Enchantment into a Template =========
 
-        public static SL_EnchantmentRecipe SerializeEnchantment(EnchantmentRecipe recipe, Enchantment enchantment)
+        public static SL_EnchantmentRecipe SerializeEnchantment(EnchantmentRecipe recipe)
         {
+            var enchantment = ResourcesPrefabManager.Instance.GetEnchantmentPrefab(recipe.ResultID);
+
             var template = new SL_EnchantmentRecipe
             {
                 Name = enchantment.Name,

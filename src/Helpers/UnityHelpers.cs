@@ -8,6 +8,14 @@ namespace SideLoader.Helpers
 {
     public static class UnityHelpers
     {
+        public static bool IsNullOrDestroyed(this object obj, bool _ = false)
+        {
+            if (obj is UnityEngine.Object uObj)
+                return !uObj;
+            else
+                return obj == null;
+        }
+
         /// <summary> Small helper for destroying all children on a given Transform 't'. Uses DestroyImmediate(). </summary>
         /// <param name="t">The transform whose children you want to destroy.</param>
         /// <param name="destroyContent">If true, will destroy children called "Content" (used for Bags)</param>

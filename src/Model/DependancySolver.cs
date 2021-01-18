@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace SideLoader.Model
 {
-    public class DependancySolver<T, U> where T : IPrefabTemplate<U>
+    public class DependancySolver<T, U> where T : IContentTemplate<U>
     {
         public void ApplyTemplates(List<T> allTemplates)
         {
@@ -38,7 +38,7 @@ namespace SideLoader.Model
             {
                 try
                 {
-                    template.CreatePrefab();
+                    template.CreateContent();
                 }
                 catch (Exception e)
                 {

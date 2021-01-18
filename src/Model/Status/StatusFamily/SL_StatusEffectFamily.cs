@@ -1,15 +1,49 @@
 ﻿using SideLoader.Helpers;
+using SideLoader.Model;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml.Serialization;
 
 namespace SideLoader
 {
     [SL_Serialized]
-    public class SL_StatusEffectFamily
+    public class SL_StatusEffectFamily : IContentTemplate<string>
     {
+        [XmlIgnore] public string TargetID => this.UID;
+        [XmlIgnore] public string AppliedID => this.UID;
+        [XmlIgnore] public bool IsCreatingNewID => true;
+        [XmlIgnore] public bool DoesTargetExist => true;
+        [XmlIgnore] public SLPack.SubFolders SLPackSubfolder => SLPack.SubFolders.StatusFamilies;
+        [XmlIgnore] public bool TemplateAllowedInSubfolder => false;
+        [XmlIgnore] public string DefaultTemplateName => this.UID;
+
+        [XmlIgnore] public bool CanParseContent => false;
+        public IContentTemplate ParseToTemplate(object _) => throw new NotImplementedException();
+        public object GetContentFromID(object id)
+        {
+            return StatusEffectFamilyLibrary.Instance.StatusEffectFamilies.FirstOrDefault(it => it.UID == (string)id);
+        }
+
+        [XmlIgnore] public string SerializedSLPackName {
+            get => SLPackName; set => SLPackName = value;
+        }
+        [XmlIgnore] public string SerializedSubfolderName
+        {
+            get => null;
+            set { }
+        }
+        [XmlIgnore] public string SerializedFilename {
+            get => m_serializedFilename; set => m_serializedFilename = value;
+        }
+
+        internal string SLPackName;
+        internal string m_serializedFilename;
+
+        public void CreateContent() => CreateFamily();
+
         public string UID;
         public string Name;
 

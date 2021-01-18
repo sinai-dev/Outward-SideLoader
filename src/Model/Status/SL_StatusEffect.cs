@@ -7,21 +7,46 @@ using System.Reflection;
 using System.Xml.Serialization;
 using SideLoader.Helpers;
 using SideLoader.Model;
+using SideLoader.Model.Status;
 using SideLoader.SaveData;
 using UnityEngine;
 
 namespace SideLoader
 {
-    [SL_Serialized]
-    public class SL_StatusEffect : IPrefabTemplate<string>
+    public class SL_StatusEffect : SL_StatusBase, IContentTemplate<string>
     {
-        public bool IsCreatingNewID => !string.IsNullOrEmpty(this.StatusIdentifier) && this.StatusIdentifier != this.TargetStatusIdentifier;
-        public bool DoesTargetExist => ResourcesPrefabManager.Instance.GetStatusEffectPrefab(this.TargetStatusIdentifier);
+        [XmlIgnore] public string DefaultTemplateName => $"{this.AppliedID}";
+        [XmlIgnore] public bool IsCreatingNewID => !string.IsNullOrEmpty(this.StatusIdentifier) && this.StatusIdentifier != this.TargetStatusIdentifier;
+        [XmlIgnore] public bool DoesTargetExist => ResourcesPrefabManager.Instance.GetStatusEffectPrefab(this.TargetStatusIdentifier);
+        [XmlIgnore] public string TargetID => this.TargetStatusIdentifier;
+        [XmlIgnore] public string AppliedID => this.StatusIdentifier;
+        [XmlIgnore] public SLPack.SubFolders SLPackSubfolder => SLPack.SubFolders.StatusEffects;
+        [XmlIgnore] public bool TemplateAllowedInSubfolder => true;
 
-        public string TargetID => this.TargetStatusIdentifier;
-        public string AppliedID => this.StatusIdentifier;
+        [XmlIgnore] public bool CanParseContent => true;
+        public IContentTemplate ParseToTemplate(object content) => ParseStatusEffect(content as StatusEffect);
+        public object GetContentFromID(object id)
+        {
+            References.RPM_STATUS_EFFECTS.TryGetValue((string)id, out StatusEffect ret);
+            return ret;
+        }
 
-        public void CreatePrefab() => this.Internal_Create();
+        [XmlIgnore] public string SerializedSLPackName 
+        {
+            get => SLPackName; 
+            set => SLPackName = value;
+        }
+        [XmlIgnore] public string SerializedSubfolderName 
+        {
+            get => SubfolderName; 
+            set => SubfolderName = value;
+        }
+        [XmlIgnore] public string SerializedFilename 
+        {
+            get => m_serializedFilename; 
+            set => m_serializedFilename = value;
+        }
+        public void CreateContent() => this.Internal_Create();
 
         // ~~~~~~~~~~~~~~~~~~~~
 

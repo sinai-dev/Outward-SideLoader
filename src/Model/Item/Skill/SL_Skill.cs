@@ -87,10 +87,10 @@ namespace SideLoader
                 skill.RequiredItems = list.ToArray();
             }
 
+            var activationConditions = new List<Skill.ActivationCondition>();
+
             if (skill.transform.childCount > 0)
             {
-                var activationConditions = new List<Skill.ActivationCondition>();
-
                 foreach (Transform child in skill.transform)
                 {
                     if (child.name.Contains("Activation"))
@@ -101,23 +101,29 @@ namespace SideLoader
                             {
                                 Condition = condition
                             };
-                            if (string.IsNullOrEmpty((string)At.GetField(skillCondition, "m_messageLocKey")))
-                            {
-                                At.SetField(skillCondition, "m_messageLocKey", "Notification_Action_Invalid");
-                            }
+
+                            // Todo: do this properly. There's no easy way to get the right loc.
+                            string msgLoc;
+                            if (condition is WindAltarActivatedCondition)
+                                msgLoc = "Notification_Skill_WindAltarRequired";
+                            else
+                                msgLoc = "Notification_Skill_RequirementsNotMet";
+
+                            At.SetField(skillCondition, "m_messageLocKey", msgLoc);
+
                             activationConditions.Add(skillCondition);
                         }
                     }
                 }
-
-                At.SetField(skill, "m_additionalConditions", activationConditions.ToArray());
             }
 
-            // Add to SideLoader's internal dictionary of custom skills (for F3 menu fix)
-            if (SL_Skill.s_customSkills.ContainsKey(skill.ItemID))
-                SL_Skill.s_customSkills[skill.ItemID] = skill;
+            At.SetField(skill, "m_additionalConditions", activationConditions.ToArray());
+
+            // Add to internal dictionary of custom skills (for F3 menu fix)
+            if (s_customSkills.ContainsKey(skill.ItemID))
+                s_customSkills[skill.ItemID] = skill;
             else
-                SL_Skill.s_customSkills.Add(skill.ItemID, skill);
+                s_customSkills.Add(skill.ItemID, skill);
         }
 
         public override void SerializeItem(Item item)

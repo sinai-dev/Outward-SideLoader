@@ -11,7 +11,45 @@ namespace SideLoader
     {
         public static readonly BF FLAGS = BF.Public | BF.Instance | BF.NonPublic | BF.Static;
 
+        public static object TryCreateDefault(Type type)
+        {
+            object value;
+            if (type == typeof(string))
+                value = string.Empty;
+            else if (type.IsArray)
+                value = Array.CreateInstance(type.GetElementType(), 0);
+            else
+                value = Activator.CreateInstance(type);
+            return value;
+        }
+
+        public static List<Type> GetInheritedTypes(Type type)
+        {
+            throw new NotImplementedException("TODO");
+        }
+
         // ============ Main public API ============
+
+        /// <summary>
+        /// Helper to get a Type by providing the 'Type.FullName'.
+        /// </summary>
+        /// <param name="fullName">The full name, eg "System.String"</param>
+        /// <returns>The type, if found.</returns>
+        public static Type GetTypeByName(string fullName)
+        {
+            foreach (var asm in AppDomain.CurrentDomain.GetAssemblies())
+            {
+                foreach (var type in asm.GetExportedTypes())
+                {
+                    if (type.FullName == fullName)
+                    {
+                        return type;
+                    }
+                }
+            }
+
+            return null;
+        }
 
         /// <summary>Helper to set an instance value on a non-static class. Use SetFieldStatic for Static Classes.</summary>
         /// <typeparam name="T">The declaring class with the field in it.</typeparam>

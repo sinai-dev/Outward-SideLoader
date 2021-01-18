@@ -8,7 +8,6 @@ namespace SideLoader
 {
     public class SL_WeaponDamage : SL_PunctualDamage
     {
-        // todo
         public DamageType.Types OverrideType;
 
         public bool ForceOnlyLeftHand;

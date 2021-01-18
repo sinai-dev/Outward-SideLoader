@@ -6,19 +6,45 @@ using System.Xml.Serialization;
 using UnityEngine;
 using System.IO;
 using SideLoader.Model;
+using SideLoader.Model.Status;
 
 namespace SideLoader
 {
-    [SL_Serialized]
-    public class SL_ImbueEffect : IPrefabTemplate<int>
+    public class SL_ImbueEffect : SL_StatusBase, IContentTemplate<int>
     {
-        public bool IsCreatingNewID => this.NewStatusID > 0 && this.NewStatusID != this.TargetStatusID;
-        public bool DoesTargetExist => ResourcesPrefabManager.Instance.GetEffectPreset(this.TargetStatusID);
+        [XmlIgnore] public string DefaultTemplateName => $"{this.AppliedID}_{this.Name}";
+        [XmlIgnore] public bool IsCreatingNewID => this.NewStatusID > 0 && this.NewStatusID != this.TargetStatusID;
+        [XmlIgnore] public bool DoesTargetExist => ResourcesPrefabManager.Instance.GetEffectPreset(this.TargetStatusID);
+        [XmlIgnore] public int TargetID => this.TargetStatusID;
+        [XmlIgnore] public int AppliedID => this.NewStatusID;
+        [XmlIgnore] public SLPack.SubFolders SLPackSubfolder => SLPack.SubFolders.StatusEffects;
+        [XmlIgnore] public bool TemplateAllowedInSubfolder => true;
 
-        public int TargetID => this.TargetStatusID;
-        public int AppliedID => this.NewStatusID;
+        [XmlIgnore] public bool CanParseContent => true;
+        public IContentTemplate ParseToTemplate(object content) => ParseImbueEffect(content as ImbueEffectPreset);
+        public object GetContentFromID(object id)
+        {
+            References.RPM_EFFECT_PRESETS.TryGetValue(int.Parse(id.ToString()), out EffectPreset ret);
+            return (IContentTemplate)ret;
+        }
 
-        public void CreatePrefab() => this.Internal_Create();
+        [XmlIgnore] public string SerializedSLPackName
+        {
+            get => SLPackName;
+            set => SLPackName = value;
+        }
+        [XmlIgnore] public string SerializedSubfolderName 
+        {
+            get => SubfolderName; 
+            set => SubfolderName = value;
+        }
+        [XmlIgnore] public string SerializedFilename 
+        {
+            get => m_serializedFilename; 
+            set => m_serializedFilename = value;
+        }
+
+        public void CreateContent() => this.Internal_Create();
 
         /// <summary>Invoked when this template is applied during SideLoader's start or hot-reload.</summary>
         public event Action<ImbueEffectPreset> OnTemplateApplied;

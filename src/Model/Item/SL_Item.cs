@@ -11,17 +11,43 @@ using SideLoader.Model;
 namespace SideLoader
 {
     [SL_Serialized]
-    public class SL_Item : IPrefabTemplate<int>
+    public class SL_Item : IContentTemplate<int>
     {
         // IPrefabTemplate implementation
 
+        [XmlIgnore] public string DefaultTemplateName => $"{this.AppliedID}_{this.Name}";
         [XmlIgnore] public bool IsCreatingNewID => this.New_ItemID > 0 && this.New_ItemID != this.Target_ItemID;
         [XmlIgnore] public bool DoesTargetExist => ResourcesPrefabManager.Instance.GetItemPrefab(this.Target_ItemID);
-
         [XmlIgnore] public int TargetID => this.Target_ItemID;
         [XmlIgnore] public int AppliedID => IsCreatingNewID ? this.New_ItemID : this.Target_ItemID;
+        [XmlIgnore] public SLPack.SubFolders SLPackSubfolder => SLPack.SubFolders.Items;
+        [XmlIgnore] public bool TemplateAllowedInSubfolder => true;
 
-        public void CreatePrefab() => Internal_Create();
+        [XmlIgnore] public bool CanParseContent => true;
+        public IContentTemplate ParseToTemplate(object content) => ParseItemToTemplate(content as Item);
+        public object GetContentFromID(object id)
+        {
+            References.RPM_ITEM_PREFABS.TryGetValue((string)id, out Item ret);
+            return ret;
+        }
+
+        [XmlIgnore] public string SerializedSLPackName
+        {
+            get => SLPackName; 
+            set => SLPackName = value;
+        }
+        [XmlIgnore] public string SerializedSubfolderName 
+        {
+            get => SubfolderName; 
+            set => SubfolderName = value;
+        }
+        [XmlIgnore] public string SerializedFilename 
+        {
+            get => m_serializedFilename; 
+            set => m_serializedFilename = value;
+        }
+
+        public void CreateContent() => Internal_Create();
 
         // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -47,6 +73,7 @@ namespace SideLoader
         [XmlIgnore] public string SLPackName;
         /// <summary> [NOT SERIALIZED] The name of the folder this custom item is using for textures (MyPack/Items/[SubfolderName]/Textures/).</summary>
         [XmlIgnore] public string SubfolderName;
+        internal string m_serializedFilename;
 
         [XmlIgnore] public virtual bool ShouldApplyLate => false;
 

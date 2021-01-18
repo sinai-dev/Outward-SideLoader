@@ -79,7 +79,7 @@
     <Compile Include="Model\Effect\Effects\SL_WeaponDamageProjectileWeapon.cs" />
     <Compile Include="Model\Effect\Effects\SL_WeaponDamageStatusOnKill.cs" />
     <Compile Include="Model\Effect\Effects\SL_WeaponDamageTargetHealth.cs" />
-    <Compile Include="Model\IPrefabTemplate.cs" />
+    <Compile Include="Model\IContentTemplate.cs" />
     <Compile Include="Model\Item\Building\SL_Building.cs" />
     <Compile Include="Model\Item\Building\SL_BuildingRequirement.cs" />
     <Compile Include="Model\Item\Building\SL_ConstructionPhase.cs" />
@@ -95,6 +95,7 @@
     <Compile Include="Model\Status\SL_Disease.cs" />
     <Compile Include="Model\Status\SL_LeechStatus.cs" />
     <Compile Include="Model\Status\SL_LevelStatusEffect.cs" />
+    <Compile Include="Model\Status\SL_StatusBase.cs" />
     <Compile Include="Model\Status\StatusFamily\SL_StatusEffectFamily.cs" />
     <Compile Include="Patches\AudioPatches.cs" />
     <Compile Include="Patches\CharacterPatches.cs" />
@@ -145,6 +146,46 @@
     <Compile Include="Model\Scene\SL_Scene.cs" />
     <Compile Include="SaveData\PlayerSaveExtension.cs" />
     <Compile Include="SL.cs" />
+    <Compile Include="UI\Inspectors\Reflection\InteractiveValue\InteractiveNullable.cs" />
+    <Compile Include="UI\Inspectors\SLPackAutoCompleter.cs" />
+    <Compile Include="UI\Inspectors\SLPack\ChildList.cs" />
+    <Compile Include="UI\Inspectors\SLPack\ComponentList.cs" />
+    <Compile Include="UI\Inspectors\SLPack\GameObjectControls.cs" />
+    <Compile Include="UI\Inspectors\SLPack\GameObjectInspector.cs" />
+    <Compile Include="UI\Inspectors\InspectorBase.cs" />
+    <Compile Include="UI\Inspectors\InspectorManager.cs" />
+    <Compile Include="UI\Inspectors\Reflection\CacheObject\CacheEnumerated.cs" />
+    <Compile Include="UI\Inspectors\Reflection\CacheObject\CacheField.cs" />
+    <Compile Include="UI\Inspectors\Reflection\CacheObject\CacheMember.cs" />
+    <Compile Include="UI\Inspectors\Reflection\CacheObject\CacheMethod.cs" />
+    <Compile Include="UI\Inspectors\Reflection\CacheObject\CacheObjectBase.cs" />
+    <Compile Include="UI\Inspectors\Reflection\CacheObject\CachePaired.cs" />
+    <Compile Include="UI\Inspectors\Reflection\CacheObject\CacheProperty.cs" />
+    <Compile Include="UI\Inspectors\Reflection\TemplateInspector.cs" />
+    <Compile Include="UI\Inspectors\Reflection\InteractiveValue\InteractiveBool.cs" />
+    <Compile Include="UI\Inspectors\Reflection\InteractiveValue\InteractiveDictionary.cs" />
+    <Compile Include="UI\Inspectors\Reflection\InteractiveValue\InteractiveEnum.cs" />
+    <Compile Include="UI\Inspectors\Reflection\InteractiveValue\InteractiveEnumerable.cs" />
+    <Compile Include="UI\Inspectors\Reflection\InteractiveValue\InteractiveFlags.cs" />
+    <Compile Include="UI\Inspectors\Reflection\InteractiveValue\InteractiveNumber.cs" />
+    <Compile Include="UI\Inspectors\Reflection\InteractiveValue\InteractiveString.cs" />
+    <Compile Include="UI\Inspectors\Reflection\InteractiveValue\InteractiveUnityStruct.cs" />
+    <Compile Include="UI\Inspectors\Reflection\InteractiveValue\InteractiveValue.cs" />
+    <Compile Include="UI\Inspectors\Reflection\ReflectionInspector.cs" />
+    <Compile Include="UI\Inspectors\Reflection\StaticInspector.cs" />
+    <Compile Include="UI\Inspectors\SLPackListView.cs" />
+    <Compile Include="UI\MainMenu.cs" />
+    <Compile Include="UI\Modules\DebugConsole.cs" />
+    <Compile Include="UI\Modules\HomePage.cs" />
+    <Compile Include="UI\Modules\PageThree.cs" />
+    <Compile Include="UI\Modules\PageTwo.cs" />
+    <Compile Include="UI\PanelDragger.cs" />
+    <Compile Include="UI\Shared\InputFieldScroller.cs" />
+    <Compile Include="UI\Shared\PageHandler.cs" />
+    <Compile Include="UI\Shared\SliderScrollbar.cs" />
+    <Compile Include="UI\UIFactory.cs" />
+    <Compile Include="UI\UIManager.cs" />
+    <Compile Include="UI\UISyntaxHighlight.cs" />
     <Compile Include="SLRPCManager.cs" />
     <Compile Include="Model\Effect\Conditions\SL_ShooterPosStatusEffect.cs" />
     <Compile Include="Model\Effect\Effects\Affects\SL_AffectCorruption.cs" />
@@ -266,7 +307,7 @@
     <Compile Include="Custom\CustomTextures.cs" />
     <Compile Include="SLPlugin.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="SLMenu\SLMenu.cs" />
+    <Compile Include="UI\SLMenu.cs" />
     <Compile Include="Helpers\At.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -300,6 +341,10 @@
     </Reference>
     <Reference Include="Rewired_Core">
       <HintPath>..\..\..\..\..\Steam\steamapps\common\Outward\Outward_Data\Managed\Rewired_Core.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Rewired_Windows">
+      <HintPath>..\..\..\..\Steam\steamapps\common\Outward\Outward_Data\Managed\Rewired_Windows.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="System" />

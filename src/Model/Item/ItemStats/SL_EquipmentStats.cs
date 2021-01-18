@@ -17,6 +17,7 @@ namespace SideLoader
 
         public float? Stamina_Use_Penalty;
         public float? Mana_Use_Modifier;
+        public float? Mana_Regen;
         public float? Movement_Penalty;
 
         public float? Pouch_Bonus;
@@ -56,7 +57,10 @@ namespace SideLoader
             
             if (this.Mana_Use_Modifier != null)
                 At.SetField(eStats, "m_manaUseModifier", (float)this.Mana_Use_Modifier);
-            
+
+            if (this.Mana_Regen != null)
+                At.SetField(eStats, "m_baseManaRegenBonus", (float)this.Mana_Regen);
+
             if (this.Movement_Penalty != null)
                 At.SetField(eStats, "m_movementPenalty", (float)this.Movement_Penalty);
             
@@ -99,7 +103,8 @@ namespace SideLoader
                 Impact_Resistance = eStats.ImpactResistance;
                 Damage_Protection = eStats.GetDamageProtection(DamageType.Types.Physical);
                 Stamina_Use_Penalty = eStats.StaminaUsePenalty;
-                Mana_Use_Modifier = (float)At.GetField(stats as EquipmentStats, "m_manaUseModifier");
+                Mana_Use_Modifier = eStats.ManaUseModifier;
+                Mana_Regen = eStats.ManaRegenBonus;
                 Movement_Penalty = eStats.MovementPenalty;
                 Pouch_Bonus = eStats.PouchCapacityBonus;
                 Heat_Protection = eStats.HeatProtection;
