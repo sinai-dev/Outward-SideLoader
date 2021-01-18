@@ -19,22 +19,6 @@ namespace SideLoader.Inspectors.Reflection
 
         public override bool WantInspectBtn => false;
 
-        //public override void OnValueUpdated()
-        //{
-        //    base.OnValueUpdated();
-        //}
-
-        //public override void OnException(CacheMember member)
-        //{
-        //    base.OnException(member); 
-
-        //    if (m_subContentConstructed && m_hiddenObj.gameObject.activeSelf)
-        //        m_hiddenObj.gameObject.SetActive(false);
-
-        //    m_labelLayout.minWidth = 200;
-        //    m_labelLayout.flexibleWidth = 5000;
-        //}
-
         public override void RefreshUIForValue()
         {
             if (Value == null || !Owner.HasEvaluated)
@@ -127,7 +111,7 @@ namespace SideLoader.Inspectors.Reflection
             var hiddenLayout = m_hiddenObj.AddComponent<LayoutElement>();
             hiddenLayout.minHeight = 25;
             hiddenLayout.flexibleHeight = 500;
-            hiddenLayout.minWidth = 250;
+            hiddenLayout.minWidth = 125;
             hiddenLayout.flexibleWidth = 9000;
             var hiddenGroup = m_hiddenObj.AddComponent<HorizontalLayoutGroup>();
             hiddenGroup.childForceExpandWidth = true;
@@ -174,6 +158,8 @@ namespace SideLoader.Inspectors.Reflection
             {
                 m_valueInput.readOnly = true;
             }
+
+            m_createDestroyBtn?.transform.SetAsLastSibling();
 
             RefreshUIForValue();
         }

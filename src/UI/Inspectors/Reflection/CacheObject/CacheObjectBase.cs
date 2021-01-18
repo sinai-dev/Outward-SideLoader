@@ -62,7 +62,7 @@ namespace SideLoader.Inspectors.Reflection
             {
                 IValue.OnDestroy();
                 CreateIValue(value, FallbackType);
-                m_subContent.SetActive(false);
+                m_subContent?.SetActive(false);
             }
 
             IValue.OnValueUpdated();

@@ -49,6 +49,7 @@ namespace SideLoader.Inspectors.Reflection
                 SubIValue.m_mainContentParent = this.m_mainContentParent;
                 SubIValue.m_subContentParent = this.m_subContentParent;
                 SubIValue.ConstructUI(m_valueContent, m_uiSubGroupParent);
+                m_createDestroyBtn.transform.SetAsLastSibling();
             }
 
             SubIValue?.OnValueUpdated();
@@ -85,6 +86,7 @@ namespace SideLoader.Inspectors.Reflection
                 SubIValue.m_subContentParent = this.m_subContentParent;
 
                 SubIValue.ConstructUI(m_valueContent, m_uiSubGroupParent);
+                m_createDestroyBtn.transform.SetAsLastSibling();
             }
             else
             {

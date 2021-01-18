@@ -43,10 +43,10 @@ namespace SideLoader
                 weapon.SpecialIsZoom = (bool)this.SpecialIsZoom;
 
             if (this.HealthLeechRatio != null)
-                weapon.BaseMaxHealthAbsorbRatio = (float)this.HealthLeechRatio;
+                weapon.BaseHealthAbsorbRatio = (float)this.HealthLeechRatio;
 
             if (this.HealthBurnLeechRatio != null)
-                weapon.BaseHealthAbsorbRatio = (float)this.HealthBurnLeechRatio;
+                weapon.BaseMaxHealthAbsorbRatio = (float)this.HealthBurnLeechRatio;
 
             if (this.IgnoreHalfResistances != null)
                 weapon.IgnoreHalfResistances = (bool)this.IgnoreHalfResistances;
@@ -63,6 +63,8 @@ namespace SideLoader
             SwingSound = weapon.SwingSoundType;
             SpecialIsZoom = weapon.SpecialIsZoom;
             IgnoreHalfResistances = weapon.IgnoreHalfResistances;
+            HealthBurnLeechRatio = weapon.BaseMaxHealthAbsorbRatio;
+            HealthLeechRatio = weapon.BaseHealthAbsorbRatio;
         }
     }
 }

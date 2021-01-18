@@ -8,6 +8,7 @@ using UnityEngine.UI;
 using SideLoader.Helpers;
 using SideLoader.UI;
 using System.Collections;
+using SideLoader.UI.Inspectors.Reflection;
 
 namespace SideLoader.Inspectors.Reflection
 {
@@ -115,6 +116,14 @@ namespace SideLoader.Inspectors.Reflection
                 RefreshUIForValue();
         }
 
+        internal void SetValueFromThis()
+        {
+            this.Owner.SetValue();
+            this.OnValueUpdated();
+            RefreshElementsAfterUpdate();
+            UpdateCreateDestroyBtnState();
+        }
+
         public virtual void OnException(CacheMember member)
         {
             if (m_UIConstructed)
@@ -163,13 +172,22 @@ namespace SideLoader.Inspectors.Reflection
             }
         }
 
+        internal List<Type> m_cachedChangeableTypes;
+
         internal virtual void OnCreateDestroyClicked()
         {
             if (Value == null)
             {
-                // todo use dropdown type (if valid)
-                Value = At.TryCreateDefault(FallbackType);
-                SetValueFromThis();
+                if (m_cachedChangeableTypes == null)
+                    m_cachedChangeableTypes = At.GetChangeableTypes(this.FallbackType);
+
+                if (m_cachedChangeableTypes.Count > 1)
+                    BeginConfirmCreate();
+                else
+                {
+                    Value = At.TryCreateDefault(FallbackType);
+                    SetValueFromThis();
+                }
             }
             else
             {
@@ -177,12 +195,27 @@ namespace SideLoader.Inspectors.Reflection
             }
         }
 
-        internal void SetValueFromThis()
+        internal virtual void UpdateCreateDestroyBtnState()
         {
-            this.Owner.SetValue();
-            this.OnValueUpdated();
-            RefreshElementsAfterUpdate();
-            UpdateCreateDestroyBtnState();
+            if (!WantCreateDestroyBtn || this.Owner is CacheEnumerated)
+                return;
+
+            if (Value != null) // destroying value
+            {
+                m_createDestroyBtn.GetComponentInChildren<Text>().text = "X";
+                var colors = m_createDestroyBtn.colors;
+                colors.normalColor = new Color(0.45f, 0.15f, 0.15f);
+                colors.pressedColor = new Color(0.45f, 0.15f, 0.15f);
+                m_createDestroyBtn.colors = colors;
+            }
+            else // creating new value
+            {
+                m_createDestroyBtn.GetComponentInChildren<Text>().text = "+";
+                var colors = m_createDestroyBtn.colors;
+                colors.normalColor = new Color(0.15f, 0.45f, 0.15f);
+                colors.pressedColor = new Color(0.15f, 0.45f, 0.15f);
+                m_createDestroyBtn.colors = colors;
+            }
         }
 
         internal void BeginConfirmDestroy()
@@ -215,7 +248,7 @@ namespace SideLoader.Inspectors.Reflection
             confirmLayout.minHeight = 25;
             var confirmText = confirmBtnObj.GetComponentInChildren<Text>();
             confirmText.text = "Delete";
-            
+
             var cancelBtn = cancelBtnObj.GetComponent<Button>();
             cancelBtn.onClick.AddListener(() =>
             {
@@ -223,7 +256,7 @@ namespace SideLoader.Inspectors.Reflection
             });
 
             var confirmBtn = confirmBtnObj.GetComponent<Button>();
-            confirmBtn.onClick.AddListener(() => 
+            confirmBtn.onClick.AddListener(() =>
             {
                 Value = null;
 
@@ -249,26 +282,75 @@ namespace SideLoader.Inspectors.Reflection
             }
         }
 
-        internal virtual void UpdateCreateDestroyBtnState()
+        internal void BeginConfirmCreate()
         {
-            if (!WantCreateDestroyBtn || this.Owner is CacheEnumerated)
-                return;
+            bool subWasActive = m_subContentParent?.gameObject.activeSelf ?? false;
 
-            if (Value != null)
+            var wasActiveGOs = new List<GameObject>();
+            foreach (Transform child in m_valueContent.transform)
             {
-                m_createDestroyBtn.GetComponentInChildren<Text>().text = "X";
-                var colors = m_createDestroyBtn.colors;
-                colors.normalColor = new Color(0.45f, 0.15f, 0.15f);
-                colors.pressedColor = new Color(0.45f, 0.15f, 0.15f);
-                m_createDestroyBtn.colors = colors;
+                if (!child.gameObject.activeSelf)
+                    continue;
+
+                wasActiveGOs.Add(child.gameObject);
+                child.gameObject.SetActive(false);
             }
-            else
+
+            if (m_subContentConstructed && subWasActive)
+                m_subContentParent.gameObject.SetActive(false);
+
+            Type selectedType = m_cachedChangeableTypes[0];
+            var drop = new TypeTreeDropdown(FallbackType, m_valueContent, Value?.GetType() ?? FallbackType, (Type val) => 
             {
-                m_createDestroyBtn.GetComponentInChildren<Text>().text = "+";
-                var colors = m_createDestroyBtn.colors;
-                colors.normalColor = new Color(0.15f, 0.45f, 0.15f);
-                colors.pressedColor = new Color(0.15f, 0.45f, 0.15f);
-                m_createDestroyBtn.colors = colors;
+                selectedType = val;
+            });
+
+            var cancelBtnObj = UIFactory.CreateButton(m_valueContent, new Color(0.2f, 0.2f, 0.2f));
+            var cancelLayout = cancelBtnObj.AddComponent<LayoutElement>();
+            cancelLayout.minWidth = 80;
+            cancelLayout.minHeight = 25;
+            var cancelText = cancelBtnObj.GetComponentInChildren<Text>();
+            cancelText.text = "< Cancel";
+
+            var confirmBtnObj = UIFactory.CreateButton(m_valueContent, new Color(0.1f, 0.4f, 0.1f));
+            var confirmLayout = confirmBtnObj.AddComponent<LayoutElement>();
+            confirmLayout.minWidth = 80;
+            confirmLayout.minHeight = 25;
+            var confirmText = confirmBtnObj.GetComponentInChildren<Text>();
+            confirmText.text = "Create";
+
+            var cancelBtn = cancelBtnObj.GetComponent<Button>();
+            cancelBtn.onClick.AddListener(() =>
+            {
+                Close(false);
+            });
+
+            var confirmBtn = confirmBtnObj.GetComponent<Button>();
+            confirmBtn.onClick.AddListener(() =>
+            {
+                Value = At.TryCreateDefault(selectedType);
+                SetValueFromThis();
+
+                if (m_subContentParent.gameObject.activeSelf)
+                    m_subContentParent.gameObject.SetActive(false);
+
+                SetValueFromThis();
+                Close(true);
+            });
+
+            void Close(bool created)
+            {
+                GameObject.Destroy(cancelBtnObj);
+                GameObject.Destroy(confirmBtnObj);
+                GameObject.Destroy(drop.m_uiContent);
+
+                foreach (var obj in wasActiveGOs)
+                    obj.SetActive(true);
+
+                if (created)
+                    OnValueUpdated();
+                else if (subWasActive)
+                    m_subContentParent.gameObject.SetActive(true);
             }
         }
 
@@ -380,6 +462,8 @@ namespace SideLoader.Inspectors.Reflection
         {
             m_UIConstructed = true;
 
+            m_subContentParent = subGroup;
+
             m_valueContent = UIFactory.CreateHorizontalGroup(parent, new Color(1, 1, 1, 0));
             m_valueContent.name = "InteractiveValue.ValueContent";
             var mainRect = m_valueContent.GetComponent<RectTransform>();
@@ -396,23 +480,6 @@ namespace SideLoader.Inspectors.Reflection
             mainLayout.minWidth = 175;
             mainLayout.minHeight = 25;
             mainLayout.flexibleHeight = 0;
-
-            if (WantCreateDestroyBtn && !(this.Owner is CacheEnumerated))
-            {
-                // make create/destroy button
-                var m_btnObj = UIFactory.CreateButton(m_valueContent, new Color(0.15f, 0.45f, 0.15f));
-                var btnLayout = m_btnObj.AddComponent<LayoutElement>();
-                btnLayout.minWidth = 25;
-                btnLayout.minHeight = 25;
-
-                m_btnObj.transform.SetAsFirstSibling();
-
-                var btnText = btnLayout.GetComponentInChildren<Text>();
-                btnText.text = "+";
-
-                m_createDestroyBtn = m_btnObj.GetComponent<Button>();
-                m_createDestroyBtn.onClick.AddListener(OnCreateDestroyClicked);
-            }
 
             // subcontent expand button
             if (HasSubContent)
@@ -464,7 +531,22 @@ namespace SideLoader.Inspectors.Reflection
             labelLayout.flexibleWidth = 9000;
             labelLayout.minHeight = 25;
 
-            m_subContentParent = subGroup;
+            if (WantCreateDestroyBtn && !(this.Owner is CacheEnumerated))
+            {
+                // make create/destroy button
+                var m_btnObj = UIFactory.CreateButton(m_valueContent, new Color(0.15f, 0.45f, 0.15f));
+                var btnLayout = m_btnObj.AddComponent<LayoutElement>();
+                btnLayout.minWidth = 25;
+                btnLayout.minHeight = 25;
+
+                //m_btnObj.transform.SetAsFirstSibling();
+
+                var btnText = btnLayout.GetComponentInChildren<Text>();
+                btnText.text = "+";
+
+                m_createDestroyBtn = m_btnObj.GetComponent<Button>();
+                m_createDestroyBtn.onClick.AddListener(OnCreateDestroyClicked);
+            }
         }
 
 #endregion

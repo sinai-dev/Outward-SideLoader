@@ -110,6 +110,7 @@ namespace SideLoader.Inspectors.Reflection
             rowGroup.padding.left = 5;
             rowGroup.padding.right = 2;
             rowGroup.spacing = 4;
+            rowGroup.childForceExpandWidth = false;
 
             var destroyBtnObj = UIFactory.CreateButton(m_rowObj, new Color(0.45f, 0.15f, 0.15f));
             var destroyLayout = destroyBtnObj.AddComponent<LayoutElement>();

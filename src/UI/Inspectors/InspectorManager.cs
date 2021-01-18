@@ -78,29 +78,6 @@ namespace SideLoader.Inspectors
             SetInspectorTab(inspector);
         }
 
-        //public void Inspect(Type type)
-        //{
-        //    if (type == null)
-        //    { 
-        //        SL.LogWarning("The provided type was null!");
-        //        return;
-        //    }
-
-        //    foreach (var tab in m_currentInspectors.Where(x => x is StaticInspector))
-        //    {
-        //        if (ReferenceEquals(tab.Target as Type, type))
-        //        {
-        //            SetInspectorTab(tab);
-        //            return;
-        //        }
-        //    }
-
-        //    var inspector = new StaticInspector(type);
-
-        //    m_currentInspectors.Add(inspector);
-        //    SetInspectorTab(inspector);
-        //}
-
         public void SetInspectorTab(InspectorBase inspector)
         {
             MainMenu.Instance.SetPage(HomePage.Instance);
@@ -145,6 +122,7 @@ namespace SideLoader.Inspectors
             mainLayout.flexibleHeight = 9000;
             mainLayout.preferredWidth = 620;
             mainLayout.flexibleWidth = 9000;
+            mainObj.name = "Editor/Inspector obj";
 
             var mainGroup = mainObj.GetComponent<VerticalLayoutGroup>();
             mainGroup.childForceExpandHeight = true;
@@ -167,7 +145,7 @@ namespace SideLoader.Inspectors
 
             var inspectorTitle = UIFactory.CreateLabel(topRowObj, TextAnchor.MiddleLeft);
             Text title = inspectorTitle.GetComponent<Text>();
-            title.text = "Inspector";
+            title.text = "Template Editor";
             title.fontSize = 20;
             var titleLayout = inspectorTitle.AddComponent<LayoutElement>();
             titleLayout.minHeight = 30;
@@ -227,39 +205,7 @@ namespace SideLoader.Inspectors
             invisGroup.padding.left = 2;
             invisGroup.padding.right = 2;
             invisGroup.spacing = 10;
-
-            //// inspect under mouse button
-            //AddMouseInspectButton(topRowObj, MouseInspector.MouseInspectMode.UI);
-            //AddMouseInspectButton(topRowObj, MouseInspector.MouseInspectMode.World);
         }
-
-        //private static void AddMouseInspectButton(GameObject topRowObj, MouseInspector.MouseInspectMode mode)
-        //{
-        //    var inspectObj = UIFactory.CreateButton(topRowObj);
-        //    var inspectLayout = inspectObj.AddComponent<LayoutElement>();
-        //    inspectLayout.minWidth = 120;
-        //    inspectLayout.flexibleWidth = 0;
-
-        //    var inspectText = inspectObj.GetComponentInChildren<Text>();
-        //    inspectText.text = "Mouse Inspect";
-        //    inspectText.fontSize = 13;
-
-        //    if (mode == MouseInspector.MouseInspectMode.UI)
-        //        inspectText.text += " (UI)";
-
-        //    var inspectBtn = inspectObj.GetComponent<Button>();
-        //    var inspectColors = inspectBtn.colors;
-        //    inspectColors.normalColor = new Color(0.2f, 0.2f, 0.2f);
-        //    inspectBtn.colors = inspectColors;
-
-        //    inspectBtn.onClick.AddListener(OnInspectMouseClicked);
-
-        //    void OnInspectMouseClicked()
-        //    {
-        //        MouseInspector.Mode = mode;
-        //        MouseInspector.StartInspect();
-        //    }
-        //}
 
 #endregion
     }

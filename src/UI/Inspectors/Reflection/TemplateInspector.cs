@@ -52,6 +52,38 @@ namespace SideLoader.Inspectors.Reflection
             RefPack = pack;
         }
 
+        internal override void ChangeType(Type newType)
+        {
+            var origPack = RefPack.Name;
+            var origSub = this.SubfolderName;
+            var origFile = this.Filename;
+
+            base.ChangeType(newType);
+
+            Template.SerializedFilename = origFile;
+            Template.SerializedSubfolderName = origSub;
+            Template.SerializedSLPackName = origPack;
+            this.SubfolderName = origSub;
+            this.Filename = origFile;
+        }
+
+        internal override void CopyValuesFrom(object data)
+        {
+            var origPack = RefPack.Name;
+            var origSub = this.SubfolderName;
+            var origFile = this.Filename;
+
+            At.CopyFields(Target, data, null, true);
+
+            Template.SerializedFilename = origFile;
+            Template.SerializedSubfolderName = origSub;
+            Template.SerializedSLPackName = origPack;
+            this.SubfolderName = origSub;
+            this.Filename = origFile;
+
+            UpdateValues();
+        }
+
         //internal override void ChangeTarget(object newTarget)
         //{
         //    Template = newTarget as IContentTemplate;
@@ -225,30 +257,13 @@ namespace SideLoader.Inspectors.Reflection
 
                 if (Serializer.LoadFromXml(path) is IContentTemplate loadedData)
                 {
-                    SL.Log("Loaded xml, replacing template with " + loadedData.GetType());
+                    var loadedType = loadedData.GetType();
+                    SL.Log("Loaded xml, replacing template with " + loadedType);
 
-                    var origPack = RefPack.Name;
-                    var origSub = this.SubfolderName;
-                    var origFile = this.Filename;
+                    if (loadedType != m_targetType)
+                        ChangeType(loadedType);
 
-                    At.CopyFields(Template, loadedData, null, true);
-
-                    Template.SerializedFilename = origFile;
-                    Template.SerializedSubfolderName = origSub;
-                    Template.SerializedSLPackName = origPack;
-
-                    m_targetType = Template.GetType();
-                    m_targetTypeShortName = UISyntaxHighlight.ParseFullSyntax(m_targetType, false);
-
-                    GameObject.Destroy(this.Content);
-                    Init();
-                    SetActive();
-                    RefreshDisplay();
-
-                    this.SubfolderName = origSub;
-                    this.Filename = origFile;
-
-                    // this.ChangeTarget(template);
+                    CopyValuesFrom(loadedData);
                 }
             });
         }

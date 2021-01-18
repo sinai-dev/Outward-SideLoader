@@ -10,6 +10,9 @@ using System.Reflection;
 using SideLoader.UI;
 using UnityEngine.UI;
 using System.Xml.Serialization;
+using SideLoader.Model;
+using SideLoader.UI.Inspectors.Reflection;
+using System.Collections;
 
 namespace SideLoader.Inspectors
 {
@@ -87,24 +90,47 @@ namespace SideLoader.Inspectors
             m_targetTypeShortName = UISyntaxHighlight.ParseFullSyntax(m_targetType, false);
         }
 
-        //internal virtual void ChangeTarget(object newTarget)
-        //{
-        //    if (newTarget == null)
-        //    {
-        //        SL.LogWarning("New target is null - not changing");
-        //        return;
-        //    }
+        internal virtual void ChangeType(Type newType)
+        {
+            var newInstance = Activator.CreateInstance(newType);
 
-        //    this.Target = newTarget;
+            At.CopyFields(newInstance, Target, null, true);
+            Target = newInstance;
+            if (this is TemplateInspector ti)
+                ti.Template = Target as IContentTemplate;
 
-        //    m_targetType = newTarget.GetType();
-        //    m_targetTypeShortName = UISyntaxHighlight.ParseFullSyntax(m_targetType, false);
+            if (this.ParentMember is CacheField cacheField)
+            {
+                cacheField.IValue.Value = Target;
+                cacheField.SetValue();
+                cacheField.UpdateValue();
+            }
 
-        //    GameObject.Destroy(this.Content);
-        //    Init();
+            m_targetType = Target.GetType();
+            m_targetTypeShortName = UISyntaxHighlight.ParseFullSyntax(m_targetType, false);
 
-        //    SL.Log("Done init");
-        //}
+            GameObject.Destroy(this.Content);
+            Init();
+            SLPlugin.Instance.StartCoroutine(DelayedRecreateFix());
+        }
+
+        private IEnumerator DelayedRecreateFix()
+        {
+            yield return new WaitForSeconds(0.2f);
+
+            this.Content.SetActive(false);
+            SetActive();
+
+            Update();
+            m_widthUpdateWanted = true;
+        }
+
+        internal virtual void CopyValuesFrom(object data)
+        {
+            At.CopyFields(Target, data, null, true);
+
+            UpdateValues();
+        }
 
         public virtual void Init()
         {
@@ -137,8 +163,6 @@ namespace SideLoader.Inspectors
         {
             RefreshDisplay();
         }
-
-        //internal bool IsBlacklisted(MethodInfo method) => bl_memberNameStartsWith.Any(it => method.Name.StartsWith(it));
 
         internal string GetSig(MemberInfo member) => $"{member.DeclaringType.Name}.{member.Name}";
         internal string AppendArgsToSig(ParameterInfo[] args)
@@ -221,25 +245,14 @@ namespace SideLoader.Inspectors
             }
         }
 
-        //private void OnMemberFilterClicked(MemberTypes type, Button button)
-        //{
-        //    if (m_lastActiveMemButton)
-        //    {
-        //        var lastColors = m_lastActiveMemButton.colors;
-        //        lastColors.normalColor = new Color(0.2f, 0.2f, 0.2f);
-        //        m_lastActiveMemButton.colors = lastColors;
-        //    }
-
-        //    m_memberFilter = type;
-        //    m_lastActiveMemButton = button;
-
-        //    var colors = m_lastActiveMemButton.colors;
-        //    colors.normalColor = new Color(0.2f, 0.6f, 0.2f);
-        //    m_lastActiveMemButton.colors = colors;
-
-        //    FilterMembers(null, true);
-        //    m_sliderScroller.m_slider.value = 1f;
-        //}
+        public void UpdateValues()
+        {
+            foreach (var member in m_allMembers)
+            {
+                if (member == null) continue;
+                member.UpdateValue();
+            }
+        }
 
         public void FilterMembers(string nameFilter = null, bool force = false)
         {
@@ -250,18 +263,6 @@ namespace SideLoader.Inspectors
 
             foreach (var mem in m_allMembers)
             {
-                //// membertype filter
-                //if (m_memberFilter != MemberTypes.All && mem.MemInfo.MemberType != m_memberFilter)
-                //    continue;
-
-                //if (this is InstanceInspector ii && ii.m_scopeFilter != MemberScopes.All)
-                //{
-                //    if (mem.IsStatic && ii.m_scopeFilter != MemberScopes.Static)
-                //        continue;
-                //    else if (!mem.IsStatic && ii.m_scopeFilter != MemberScopes.Instance)
-                //        continue;
-                //}
-
                 // name filter
                 if (!string.IsNullOrEmpty(nameFilter) && !mem.NameForFiltering.Contains(nameFilter))
                     continue;
@@ -311,12 +312,16 @@ namespace SideLoader.Inspectors
             foreach (var cache in m_displayedMembers)
             {
                 if (cache == null)
-                    break;
-
-                var width = cache.GetMemberLabelWidth(m_scrollContentRect);
-
-                if (width > labelWidth)
-                    labelWidth = width;
+                    continue;
+                try
+                {
+                    var width = cache.GetMemberLabelWidth(m_scrollContentRect);
+                    if (width > labelWidth)
+                        labelWidth = width;
+                }
+                catch
+                {
+                }
             }
 
             float valueWidth = m_scrollContentRect.rect.width - labelWidth - 20;
@@ -324,8 +329,8 @@ namespace SideLoader.Inspectors
             foreach (var cache in m_displayedMembers)
             {
                 if (cache == null)
-                    break;
-                cache.SetWidths(labelWidth, valueWidth);
+                    continue;
+                try { cache.SetWidths(labelWidth, valueWidth); } catch { }
             }
         }
 
@@ -385,12 +390,42 @@ namespace SideLoader.Inspectors
             typeDisplayLayout.minHeight = 25;
             typeDisplayLayout.flexibleWidth = 5000;
 
+            ConstructTypeChanger(nameRowObj);
+
             if (this is TemplateInspector)
                 (this as TemplateInspector).ConstructTemplateUI();
 
             ConstructFilterArea();
 
             //ConstructUpdateRow();
+        }
+
+        private void ConstructTypeChanger(GameObject parent)
+        {
+            Type baseType;
+            if (this.ParentMember is CacheField cacheField)
+                baseType = cacheField.FallbackType;
+            else
+            {
+                baseType = this.m_targetType;
+                while (baseType.BaseType != null 
+                    && typeof(IContentTemplate).IsAssignableFrom(baseType.BaseType)
+                    && !baseType.BaseType.IsAbstract 
+                    && !baseType.BaseType.IsInterface)
+                {
+                    baseType = baseType.BaseType;
+                }
+            }
+
+            if (At.GetChangeableTypes(baseType).Count <= 1)
+                return;
+
+            var drop = new TypeTreeDropdown(baseType, parent, m_targetType, (Type val) => 
+            {
+                // todo confirm
+                if (val != m_targetType)
+                    ChangeType(val);
+            });
         }
 
         internal void ConstructFilterArea()
@@ -457,121 +492,9 @@ namespace SideLoader.Inspectors
             var updateBtn = updateButtonObj.GetComponent<Button>();
             updateBtn.onClick.AddListener(() =>
             {
-                foreach (var member in m_displayedMembers)
-                {
-                    if (member == null) break;
-                    member.UpdateValue();
-                }
-                //bool orig = m_autoUpdate;
-                //m_autoUpdate = true;
-                //Update();
-                //if (!orig) m_autoUpdate = orig;
+                UpdateValues();
             });
-
-            //// membertype filter
-
-            //var memberFilterRowObj = UIFactory.CreateHorizontalGroup(filterAreaObj, new Color(1, 1, 1, 0));
-            //var memFilterGroup = memberFilterRowObj.GetComponent<HorizontalLayoutGroup>();
-            //memFilterGroup.childForceExpandHeight = false;
-            //memFilterGroup.childForceExpandWidth = false;
-            //memFilterGroup.childControlWidth = true;
-            //memFilterGroup.childControlHeight = true;
-            //memFilterGroup.spacing = 5;
-            //var memFilterLayout = memberFilterRowObj.AddComponent<LayoutElement>();
-            //memFilterLayout.minHeight = 25;
-            //memFilterLayout.flexibleHeight = 0;
-            //memFilterLayout.flexibleWidth = 5000;
-
-            //var memLabelObj = UIFactory.CreateLabel(memberFilterRowObj, TextAnchor.MiddleLeft);
-            //var memLabelLayout = memLabelObj.AddComponent<LayoutElement>();
-            //memLabelLayout.minWidth = 100;
-            //memLabelLayout.minHeight = 25;
-            //memLabelLayout.flexibleWidth = 0;
-            //var memLabelText = memLabelObj.GetComponent<Text>();
-            //memLabelText.text = "Filter members:";
-            //memLabelText.color = Color.grey;
-
-            //AddFilterButton(memberFilterRowObj, MemberTypes.All);
-            //AddFilterButton(memberFilterRowObj, MemberTypes.Method);
-            //AddFilterButton(memberFilterRowObj, MemberTypes.Property, true);
-            //AddFilterButton(memberFilterRowObj, MemberTypes.Field);
-
-            //// Instance filters
-
-            //if (this is InstanceInspector)
-            //{
-            //    (this as InstanceInspector).ConstructInstanceFilters(filterAreaObj);
-            //}
         }
-
-        //private void AddFilterButton(GameObject parent, MemberTypes type, bool setEnabled = false)
-        //{
-        //    var btnObj = UIFactory.CreateButton(parent, new Color(0.2f, 0.2f, 0.2f));
-
-        //    var btnLayout = btnObj.AddComponent<LayoutElement>();
-        //    btnLayout.minHeight = 25;
-        //    btnLayout.minWidth = 70;
-
-        //    var text = btnObj.GetComponentInChildren<Text>();
-        //    text.text = type.ToString();
-
-        //    var btn = btnObj.GetComponent<Button>();
-
-        //    btn.onClick.AddListener(() => { OnMemberFilterClicked(type, btn); });
-
-        //    var colors = btn.colors;
-        //    colors.highlightedColor = new Color(0.3f, 0.7f, 0.3f);
-
-        //    if (setEnabled)
-        //    {
-        //        colors.normalColor = new Color(0.2f, 0.6f, 0.2f);
-        //        m_memberFilter = type;
-        //        m_lastActiveMemButton = btn;
-        //    }
-
-        //    btn.colors = colors;
-        //}
-
-        //internal void ConstructUpdateRow()
-        //{
-        //    var optionsRowObj = UIFactory.CreateHorizontalGroup(Content, new Color(1, 1, 1, 0));
-        //    var optionsLayout = optionsRowObj.AddComponent<LayoutElement>();
-        //    optionsLayout.minHeight = 25;
-        //    var optionsGroup = optionsRowObj.GetComponent<HorizontalLayoutGroup>();
-        //    optionsGroup.childForceExpandHeight = true;
-        //    optionsGroup.childForceExpandWidth = false;
-        //    optionsGroup.childAlignment = TextAnchor.MiddleLeft;
-        //    optionsGroup.spacing = 10;
-
-        //    m_updateRowObj = optionsRowObj;
-
-        //    // update button
-
-        //    var updateButtonObj = UIFactory.CreateButton(optionsRowObj, new Color(0.2f, 0.2f, 0.2f));
-        //    var updateBtnLayout = updateButtonObj.AddComponent<LayoutElement>();
-        //    updateBtnLayout.minWidth = 110;
-        //    updateBtnLayout.flexibleWidth = 0;
-        //    var updateText = updateButtonObj.GetComponentInChildren<Text>();
-        //    updateText.text = "Update Values";
-        //    var updateBtn = updateButtonObj.GetComponent<Button>();
-        //    updateBtn.onClick.AddListener(() =>
-        //    {
-        //        bool orig = m_autoUpdate;
-        //        m_autoUpdate = true;
-        //        Update();
-        //        if (!orig) m_autoUpdate = orig;
-        //    });
-
-        //    // auto update
-
-        //    var autoUpdateObj = UIFactory.CreateToggle(optionsRowObj, out Toggle autoUpdateToggle, out Text autoUpdateText);
-        //    var autoUpdateLayout = autoUpdateObj.AddComponent<LayoutElement>();
-        //    autoUpdateLayout.minWidth = 150;
-        //    autoUpdateLayout.minHeight = 25;
-        //    autoUpdateText.text = "Auto-update?";
-        //    autoUpdateToggle.isOn = false;
-        //    autoUpdateToggle.onValueChanged.AddListener((bool val) => { m_autoUpdate = val; });
-        //}
         
         internal void ConstructMemberList()
         {

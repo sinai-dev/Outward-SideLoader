@@ -98,7 +98,7 @@ namespace SideLoader.Inspectors
             tabGroup.childForceExpandWidth = true;
             tabGroup.childControlWidth = true;
             var tabLayout = tabGroupObj.AddComponent<LayoutElement>();
-            tabLayout.minWidth = 185;
+            tabLayout.minWidth = 250;
             tabLayout.flexibleWidth = 0;
             tabGroupObj.AddComponent<Mask>();
 

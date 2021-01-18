@@ -23,9 +23,30 @@ namespace SideLoader
             return value;
         }
 
-        public static List<Type> GetInheritedTypes(Type type)
+        internal static readonly Dictionary<Type, List<Type>> s_cachedTypeInheritance = new Dictionary<Type, List<Type>>();
+
+        internal static List<Type> GetChangeableTypes(Type baseType)
         {
-            throw new NotImplementedException("TODO");
+            if (!s_cachedTypeInheritance.ContainsKey(baseType))
+            {
+                var set = new HashSet<Type>();
+
+                if (!baseType.IsAbstract && !baseType.IsInterface)
+                    set.Add(baseType);
+
+                foreach (var asm in AppDomain.CurrentDomain.GetAssemblies())
+                {
+                    foreach (var t in asm.GetExportedTypes().Where(t => !t.IsAbstract && !t.IsInterface))
+                    {
+                        if (baseType.IsAssignableFrom(t) && !set.Contains(t))
+                            set.Add(t);
+                    }
+                }
+
+                s_cachedTypeInheritance.Add(baseType, set.ToList());
+            }
+            
+            return s_cachedTypeInheritance[baseType];
         }
 
         // ============ Main public API ============

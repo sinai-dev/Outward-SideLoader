@@ -1,6 +1,7 @@
 ﻿using SideLoader.Inspectors;
 using SideLoader.UI;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -31,10 +32,81 @@ namespace SideLoader.Inspectors
     {
         public override void OnSelect(BaseEventData eventData)
         {
+            if (m_selectCoroutine != null)
+            {
+                StopCoroutine(m_selectCoroutine);
+                m_selectCoroutine = null;
+            }
+
             base.OnSelect(eventData);
 
             SLPackListView.Instance.UpdateAutocompletes();
-            SLPackListView.Instance.AutoCompleter.Update();
+
+            m_selectCoroutine = StartCoroutine(SelectCoroutine());
+        }
+
+        private Coroutine m_selectCoroutine;
+        private bool m_wasDeselected;
+
+        public override void OnDeselect(BaseEventData eventData)
+        {
+            base.OnDeselect(eventData);
+            m_wasDeselected = true;
+        }
+
+        private IEnumerator SelectCoroutine()
+        {
+            yield return new WaitForEndOfFrame();
+            yield return new WaitForSeconds(0.5f);
+
+            float timeOffAutocompleter = 0f;
+            while (timeOffAutocompleter < 0.1f)
+            {
+                yield return new WaitForEndOfFrame();
+
+                if (Input.GetMouseButton(0) || Input.GetMouseButton(1))
+                {
+                    var data = new PointerEventData(null) { position = Input.mousePosition };
+                    var casters = Resources.FindObjectsOfTypeAll<GraphicRaycaster>();
+                    var list = new List<RaycastResult>();
+                    bool forceBreak = false;
+                    bool anyHits = false;
+                    foreach (var caster in casters)
+                    {
+                        if (list.Any())
+                            list.Clear();
+                        caster.Raycast(data, list);
+                        if (list.Any(it => it.gameObject))
+                        {
+                            anyHits = true;
+                            var result = list.Where(it => it.gameObject).First();
+                            if (!result.gameObject.transform.GetGameObjectPath().Contains("AutoCompleter"))
+                            {
+                                forceBreak = true;
+                                break;
+                            }
+                        }
+                    }
+                    if (forceBreak || !anyHits)
+                        break;
+                }
+                
+                if (m_wasDeselected)
+                {
+                    timeOffAutocompleter += Time.deltaTime;
+
+                    var obj = EventSystem.current.currentSelectedGameObject;
+                    if (obj)
+                    {
+                        var path = obj.transform.GetGameObjectPath();
+                        if (path.Contains("AutoCompleter"))
+                            timeOffAutocompleter = 0f;
+                    }
+                }
+            }
+
+            SLPackListView.Instance.AutoCompleter.m_mainObj.SetActive(false);
+            m_selectCoroutine = null;
         }
     }
 
@@ -55,7 +127,7 @@ namespace SideLoader.Inspectors
         private bool m_suggestionsDirty;
         private ContentSuggestion[] m_suggestions = new ContentSuggestion[0];
 
-        private string m_prevInput = null;
+        //private string m_prevInput = null;
 
         public void Init()
         {
@@ -78,6 +150,99 @@ namespace SideLoader.Inspectors
             m_suggestions = suggestions;
             m_suggestionsDirty = true;
         }
+
+        public void ClearAutocompletes()
+        {
+            m_suggestions = new ContentSuggestion[0];
+            m_suggestionsDirty = true;
+        }
+
+        public void CheckAutocomplete()
+        {
+            var genInput = SLPackListView.Instance.m_genenratorInput;
+            string input = genInput.text.Trim();
+
+            var genType = SLPackListView.Instance.m_currentGeneratorType;
+            var gameType = Serializer.GetGameType(genType);
+
+            if (!s_typeToOptionsDict.ContainsKey(gameType))
+            {
+                s_typeToOptionsDict.Add(gameType, new List<ContentSuggestion>());
+                var list = s_typeToOptionsDict[gameType];
+
+                if (typeof(UnityEngine.Object).IsAssignableFrom(gameType))
+                {
+                    HashSet<string> checkedObjects = new HashSet<string>();
+
+                    foreach (var obj in Resources.FindObjectsOfTypeAll(gameType))
+                    {
+                        var suggest = new ContentSuggestion
+                        {
+                            DisplayedValue = obj.name,
+                            UnderlyingValue = obj
+                        };
+
+                        if (obj is Item item)
+                        {
+                            suggest.SearchQueryValue = $"{item.ItemID} {item.Name} {item.name}".ToLower();
+                            suggest.IDValue = item.ItemID.ToString();
+                            suggest.DisplayedValue = $"{item.Name} ({suggest.DisplayedValue})";
+                        }
+                        else if (obj is StatusEffect status)
+                        {
+                            suggest.SearchQueryValue = $"{status.IdentifierName} {status.StatusName} {status.name}".ToLower();
+                            suggest.IDValue = status.IdentifierName.ToString();
+                            suggest.DisplayedValue = $"{status.StatusName} ({suggest.DisplayedValue})";
+                        }
+                        else if (obj is ImbueEffectPreset imbue)
+                        {
+                            suggest.SearchQueryValue = $"{imbue.PresetID} {imbue.Name} {imbue.name}".ToLower();
+                            suggest.IDValue = imbue.PresetID.ToString();
+                            suggest.DisplayedValue = $"{imbue.Name} ({suggest.DisplayedValue})";
+                        }
+                        else if (obj is Recipe recipe)
+                        {
+                            suggest.SearchQueryValue = $"{recipe.UID} {recipe.Name} {recipe.name}".ToLower();
+                            suggest.IDValue = recipe.UID;
+                        }
+                        else if (obj is EnchantmentRecipe enchantRecipe)
+                        {
+                            suggest.SearchQueryValue = $"{enchantRecipe.RecipeID} {enchantRecipe.name}".ToLower();
+                            suggest.IDValue = enchantRecipe.ResultID.ToString();
+                        }
+                        else
+                            continue;
+
+                        if (checkedObjects.Contains(suggest.DisplayedValue))
+                            continue;
+
+                        checkedObjects.Add(suggest.DisplayedValue);
+                        list.Add(suggest);
+                    }
+                }
+            }
+
+            m_availableOptions = s_typeToOptionsDict[gameType];
+
+            if (!string.IsNullOrEmpty(input))
+                SetAutocompletes(GetAutocompletes(input));
+            else
+                SetAutocompletes(m_availableOptions.ToArray());
+
+            //m_prevInput = input;
+        }
+
+        public ContentSuggestion[] GetAutocompletes(string input)
+        {
+            var options = m_availableOptions;
+
+            var search = input.ToLower();
+            var results = options.Where(it => it.SearchQueryValue.Contains(search));
+
+            return results.ToArray();
+        }
+
+        #region UI Construction
 
         private void RefreshButtons()
         {
@@ -125,7 +290,7 @@ namespace SideLoader.Inspectors
         {
             try
             {
-                var m_genInput = SLPackListView.Instance.m_genInput;
+                var m_genInput = SLPackListView.Instance.m_genenratorInput;
 
                 if (!m_genInput)
                     return;
@@ -144,110 +309,12 @@ namespace SideLoader.Inspectors
             }
         }
 
-        public void CheckAutocomplete()
-        {
-            var genInput = SLPackListView.Instance.m_genInput;
-            string input = genInput.text.Trim();
-
-            if (input == m_prevInput)
-                return;
-
-            var genType = SLPackListView.Instance.m_currentGeneratorType;
-            var gameType = Serializer.GetGameType(genType);
-
-            if (!s_typeToOptionsDict.ContainsKey(gameType))
-            {
-                s_typeToOptionsDict.Add(gameType, new List<ContentSuggestion>());
-                var list = s_typeToOptionsDict[gameType];
-
-                if (typeof(UnityEngine.Object).IsAssignableFrom(gameType))
-                {
-                    foreach (var obj in Resources.FindObjectsOfTypeAll(gameType))
-                    {
-                        var suggest = new ContentSuggestion
-                        {
-                            DisplayedValue = obj.name,
-                            UnderlyingValue = obj
-                        };
-
-                        if (obj is Item item)
-                        {
-                            suggest.SearchQueryValue = $"{item.ItemID} {item.Name} {item.name}".ToLower();
-                            suggest.IDValue = item.ItemID.ToString();
-                        }
-                        else if (obj is StatusEffect status)
-                        {
-                            suggest.SearchQueryValue = $"{status.IdentifierName} {status.StatusName} {status.name}".ToLower();
-                            suggest.IDValue = status.IdentifierName.ToString();
-                        }
-                        else if (obj is ImbueEffectPreset imbue)
-                        {
-                            suggest.SearchQueryValue = $"{imbue.PresetID} {imbue.Name} {imbue.name}".ToLower();
-                            suggest.IDValue = imbue.PresetID.ToString();
-                        }
-                        else if (obj is Recipe recipe)
-                        {
-                            suggest.SearchQueryValue = $"{recipe.UID} {recipe.Name} {recipe.name}".ToLower();
-                            suggest.IDValue = recipe.UID;
-                        }
-                        else if (obj is EnchantmentRecipe enchantRecipe)
-                        {
-                            suggest.SearchQueryValue = $"{enchantRecipe.RecipeID} {enchantRecipe.name}".ToLower();
-                            suggest.IDValue = enchantRecipe.ResultID.ToString();
-                        }
-                        else
-                            continue;
-
-                        list.Add(suggest);
-                    }
-                }
-            }
-
-            m_availableOptions = s_typeToOptionsDict[gameType];
-
-            if (!string.IsNullOrEmpty(input))
-                GetAutocompletes(input);
-            else
-                SetAutocompletes(m_availableOptions.ToArray());
-
-            m_prevInput = input;
-        }
-
-        public void ClearAutocompletes()
-        {
-            if (SLPackListView.Instance.AutoCompletes.Any())
-                SLPackListView.Instance.AutoCompletes.Clear();
-        }
-
-        public void GetAutocompletes(string input)
-        {
-            try
-            {
-                SLPackListView.Instance.AutoCompletes.Clear();
-
-                var options = m_availableOptions;
-
-                var search = input.ToLower();
-
-                var results = options.Where(it => it.SearchQueryValue.Contains(search));
-
-                SLPackListView.Instance.AutoCompletes.AddRange(results);
-            }
-            catch (Exception ex)
-            {
-                SL.Log("Autocomplete error:\r\n" + ex.ToString());
-                ClearAutocompletes();
-            }
-        }
-
-        #region UI Construction
-
         private void ConstructUI()
         {
             var parent = UIManager.CanvasRoot;
 
-            var obj = UIFactory.CreateScrollView(parent, out GameObject content, out _, new Color(0.1f, 0.1f, 0.1f, 0.95f));
-
+            var obj = UIFactory.CreateScrollView(parent, out GameObject content, out _, new Color(0.1f, 0.1f, 0.1f, 1));
+            obj.name = "AutoCompleterObject";
             m_mainObj = obj;
 
             var mainRect = obj.GetComponent<RectTransform>();

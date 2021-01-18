@@ -39,27 +39,28 @@ namespace SideLoader.Inspectors
 
         private GameObject m_pageContent;
 
+        private GameObject m_hotReloadRow;
+
         private InputField m_createInput;
 
         private GameObject m_scrollObj;
 
         private GameObject m_generateObj;
         private Dropdown m_genDropdown;
-        internal InputField m_genInput;
+        internal InputField m_genenratorInput;
         //internal int m_lastInputCaretPos;
 
         internal ContentAutoCompleter AutoCompleter;
-        internal List<ContentSuggestion> AutoCompletes = new List<ContentSuggestion>();
 
         internal void UpdateAutocompletes()
         {
             AutoCompleter.CheckAutocomplete();
-            AutoCompleter.SetAutocompletes(AutoCompletes.ToArray());
+            AutoCompleter.Update();
         }
 
         public void UseAutocomplete(string idToUse)
         {
-            m_genInput.text = idToUse;
+            m_genenratorInput.text = idToUse;
             //AutoCompleter.ClearAutocompletes();
             AutoCompleter.m_mainObj.SetActive(false);
         }
@@ -108,8 +109,9 @@ namespace SideLoader.Inspectors
                 text = "No SLPack selected"
             });
 
-            foreach (var pack in SL.Packs.Values)
+            for (int i = 0; i < SL.Packs.Count; i++)
             {
+                var pack = SL.Packs.ElementAt(i).Value;
                 m_slPackDropdown.options.Add(new Dropdown.OptionData
                 {
                     text = pack.Name
@@ -194,11 +196,70 @@ namespace SideLoader.Inspectors
             }
         }
 
+        internal void BeginConfirmHotReload()
+        {
+            m_hotReloadRow.transform.GetChild(0).gameObject.SetActive(false);
+
+            var reloadLabelObj = UIFactory.CreateLabel(m_hotReloadRow, TextAnchor.MiddleLeft);
+            var reloadText = reloadLabelObj.GetComponent<Text>();
+            reloadText.text = "Really reload? This will close all open editor windows!";
+
+            var cancelBtnObj = UIFactory.CreateButton(m_hotReloadRow, new Color(0.2f, 0.2f, 0.2f));
+            var cancelLayout = cancelBtnObj.AddComponent<LayoutElement>();
+            cancelLayout.minWidth = 80;
+            cancelLayout.minHeight = 25;
+            cancelLayout.minWidth = 100;
+            cancelLayout.flexibleWidth = 0;
+            var cancelText = cancelBtnObj.GetComponentInChildren<Text>();
+            cancelText.text = "< Cancel";
+
+            var confirmBtnObj = UIFactory.CreateButton(m_hotReloadRow, new Color(1f, 0.3f, 0f));
+            var confirmLayout = confirmBtnObj.AddComponent<LayoutElement>();
+            confirmLayout.minWidth = 80;
+            confirmLayout.minHeight = 25;
+            confirmLayout.minWidth = 100;
+            confirmLayout.flexibleWidth = 0;
+            var confirmText = confirmBtnObj.GetComponentInChildren<Text>();
+            confirmText.text = "Confirm";
+
+            var cancelBtn = cancelBtnObj.GetComponent<Button>();
+            cancelBtn.onClick.AddListener(() =>
+            {
+                Close(false);
+            });
+
+            var confirmBtn = confirmBtnObj.GetComponent<Button>();
+            confirmBtn.onClick.AddListener(() =>
+            {
+                Close(true);
+            });
+
+            void Close(bool confirmed)
+            {
+                GameObject.Destroy(cancelBtnObj);
+                GameObject.Destroy(confirmBtnObj);
+                GameObject.Destroy(reloadLabelObj);
+
+                if (confirmed)
+                {
+                    for (int i = 0; i < InspectorManager.Instance.m_currentInspectors.Count; i++)
+                        InspectorManager.Instance.m_currentInspectors[i].Destroy();
+
+                    SL.Setup(false);
+
+                    RefreshLoadedSLPacks();
+                }
+
+                m_hotReloadRow.transform.GetChild(0).gameObject.SetActive(true);
+            }
+        }
+
         #region UI CONSTRUCTION
 
         public void ConstructUI()
         {
             GameObject leftPane = UIFactory.CreateVerticalGroup(HomePage.Instance.Content, new Color(72f / 255f, 72f / 255f, 72f / 255f));
+            leftPane.name = "SLPack Pane";
             LayoutElement leftLayout = leftPane.AddComponent<LayoutElement>();
             leftLayout.minWidth = 350;
             leftLayout.flexibleWidth = 0;
@@ -216,28 +277,28 @@ namespace SideLoader.Inspectors
 
             GameObject titleObj = UIFactory.CreateLabel(leftPane, TextAnchor.UpperLeft);
             Text titleLabel = titleObj.GetComponent<Text>();
-            titleLabel.text = "SL Packs";
+            titleLabel.text = "Active SL Packs";
             titleLabel.fontSize = 20;
             LayoutElement titleLayout = titleObj.AddComponent<LayoutElement>();
             titleLayout.minHeight = 30;
             titleLayout.flexibleHeight = 0;
 
-            var refreshBtnObj = UIFactory.CreateButton(leftPane, new Color(1f, 0.3f, 0f));
-            var refreshLayout = refreshBtnObj.AddComponent<LayoutElement>();
+            m_hotReloadRow = UIFactory.CreateVerticalGroup(leftPane, new Color(1, 1, 1, 0));
+            var hotReloadGroup = m_hotReloadRow.GetComponent<VerticalLayoutGroup>();
+            hotReloadGroup.childForceExpandWidth = true;
+            hotReloadGroup.spacing = 5;
+            var reloadLayout = m_hotReloadRow.AddComponent<LayoutElement>();
+            reloadLayout.minHeight = 25;
+            reloadLayout.flexibleHeight = 0;
+            var hotReloadBtnObj = UIFactory.CreateButton(m_hotReloadRow, new Color(1f, 0.3f, 0f));
+            var refreshLayout = hotReloadBtnObj.AddComponent<LayoutElement>();
             refreshLayout.minHeight = 25;
-            var refreshTxt = refreshBtnObj.GetComponentInChildren<Text>();
+            var refreshTxt = hotReloadBtnObj.GetComponentInChildren<Text>();
             refreshTxt.text = "Hot Reload";
-            var refreshBtn = refreshBtnObj.GetComponent<Button>();
+            var refreshBtn = hotReloadBtnObj.GetComponent<Button>();
             refreshBtn.onClick.AddListener(() =>
             {
-                // Todo put a confirm box here
-
-                for (int i = 0; i < InspectorManager.Instance.m_currentInspectors.Count; i++)
-                    InspectorManager.Instance.m_currentInspectors[i].Destroy();
-
-                SL.Setup(false);
-
-                RefreshLoadedSLPacks();
+                BeginConfirmHotReload();
             });
 
             var createRow = UIFactory.CreateHorizontalGroup(leftPane, new Color(0.15f, 0.15f, 0.15f));
@@ -292,80 +353,6 @@ namespace SideLoader.Inspectors
             textLayout.minHeight = 20;
             textLayout.flexibleHeight = 0;
 
-            // ======= Generate template area =======
-
-            m_generateObj = UIFactory.CreateVerticalGroup(leftPane, new Color(0.1f, 0.1f, 0.1f));
-
-            var genDropObj = UIFactory.CreateDropdown(m_generateObj, out m_genDropdown);
-            var dropLayout = genDropObj.AddComponent<LayoutElement>();
-            dropLayout.minHeight = 25;
-            m_genDropdown.onValueChanged.AddListener((int val) =>
-            {
-                m_currentGeneratorType = s_templateTypes[val];
-            });
-
-            var genGroupLayout = m_generateObj.AddComponent<LayoutElement>();
-            genGroupLayout.minHeight = 50;
-            genGroupLayout.flexibleWidth = 9999;
-            var genGroup = m_generateObj.GetComponent<VerticalLayoutGroup>();
-            genGroup.childForceExpandHeight = true;
-            genGroup.childForceExpandWidth = true;
-            genGroup.padding = new RectOffset(3, 3, 3, 3);
-            genGroup.spacing = 5;
-
-            var generateInputObj = UIFactory.CreateInputField(m_generateObj, 14, 3, 0, typeof(AutoCompleteInputField));
-            m_genInput = generateInputObj.GetComponent<AutoCompleteInputField>();
-            (m_genInput.placeholder as Text).text = "Clone target ID (if valid)";
-            var genLayout = m_genInput.gameObject.AddComponent<LayoutElement>();
-            genLayout.minHeight = 25;
-
-            m_genInput.onValueChanged.AddListener((string val) => 
-            {
-                UpdateAutocompletes();
-                AutoCompleter.Update();
-            });
-
-            var genBtnObj = UIFactory.CreateButton(m_generateObj, new Color(0.15f, 0.45f, 0.15f));
-            var genBtnLayout = genBtnObj.AddComponent<LayoutElement>();
-            genBtnLayout.minHeight = 25;
-            var genBtn = genBtnObj.GetComponent<Button>();
-            genBtn.onClick.AddListener(() =>
-            {
-                if (m_currentPack == null)
-                {
-                    SL.LogWarning("Cannot generate a template without an inspected SLPack!");
-                    return;
-                }
-
-                var newTemplate = (IContentTemplate)Activator.CreateInstance(this.m_currentGeneratorType);
-                if (newTemplate.CanParseContent)
-                {
-                    var content = newTemplate.GetContentFromID(m_genInput.text);
-                    if (content != null && newTemplate.ParseToTemplate(content) is IContentTemplate parsed)
-                    {
-                        // todo check if content is assignable from desired type.
-
-                        newTemplate = parsed;
-                    }
-                    else
-                    {
-                        SL.LogWarning("Could not find any content from target ID '" + m_genInput.text);
-                        newTemplate = null;
-                    }
-                }
-                
-                if (newTemplate != null)
-                {
-                    newTemplate.SerializedSLPackName = m_currentPack.Name;
-                    newTemplate.SerializedSubfolderName = newTemplate.DefaultTemplateName;
-                    newTemplate.SerializedFilename = newTemplate.DefaultTemplateName;
-                    InspectorManager.Instance.Inspect(newTemplate, m_currentPack);
-                }
-            });
-
-            var genText = genBtnObj.GetComponentInChildren<Text>();
-            genText.text = "Create Template";
-
             // ====== List view ======
 
             var subfolderDropObj = UIFactory.CreateDropdown(leftPane, out Dropdown subDrop);
@@ -399,6 +386,85 @@ namespace SideLoader.Inspectors
 
             m_scrollObj = UIFactory.CreateScrollView(leftPane, out m_pageContent, out SliderScrollbar scroller, new Color(0.1f, 0.1f, 0.1f));
 
+            // ======= Generate template area =======
+
+            m_generateObj = UIFactory.CreateVerticalGroup(leftPane, new Color(0.1f, 0.1f, 0.1f));
+
+            var genLabelObj = UIFactory.CreateLabel(m_generateObj, TextAnchor.MiddleLeft);
+            var genText = genLabelObj.GetComponent<Text>();
+            genText.text = "Template Generator";
+            genText.fontSize = 16;
+
+            var genDropObj = UIFactory.CreateDropdown(m_generateObj, out m_genDropdown);
+            var dropLayout = genDropObj.AddComponent<LayoutElement>();
+            dropLayout.minHeight = 25;
+            m_genDropdown.onValueChanged.AddListener((int val) =>
+            {
+                m_currentGeneratorType = s_templateTypes[val];
+            });
+
+            var genGroupLayout = m_generateObj.AddComponent<LayoutElement>();
+            genGroupLayout.minHeight = 50;
+            genGroupLayout.flexibleWidth = 9999;
+            var genGroup = m_generateObj.GetComponent<VerticalLayoutGroup>();
+            genGroup.childForceExpandHeight = true;
+            genGroup.childForceExpandWidth = true;
+            genGroup.padding = new RectOffset(3, 3, 3, 3);
+            genGroup.spacing = 5;
+
+            var generateInputObj = UIFactory.CreateInputField(m_generateObj, 14, 3, 0, typeof(AutoCompleteInputField));
+            generateInputObj.name = "AutoCompleterInput";
+            m_genenratorInput = generateInputObj.GetComponent<AutoCompleteInputField>();
+            (m_genenratorInput.placeholder as Text).text = "Clone target ID (if valid)";
+            var genLayout = m_genenratorInput.gameObject.AddComponent<LayoutElement>();
+            genLayout.minHeight = 25;
+
+            m_genenratorInput.onValueChanged.AddListener((string val) =>
+            {
+                UpdateAutocompletes();
+            });
+
+            var genBtnObj = UIFactory.CreateButton(m_generateObj, new Color(0.15f, 0.45f, 0.15f));
+            var genBtnLayout = genBtnObj.AddComponent<LayoutElement>();
+            genBtnLayout.minHeight = 25;
+            var genBtn = genBtnObj.GetComponent<Button>();
+            genBtn.onClick.AddListener(() =>
+            {
+                if (m_currentPack == null)
+                {
+                    SL.LogWarning("Cannot generate a template without an inspected SLPack!");
+                    return;
+                }
+
+                var newTemplate = (IContentTemplate)Activator.CreateInstance(this.m_currentGeneratorType);
+                if (newTemplate.CanParseContent)
+                {
+                    var content = newTemplate.GetContentFromID(m_genenratorInput.text);
+                    if (content != null && newTemplate.ParseToTemplate(content) is IContentTemplate parsed)
+                    {
+                        // todo check if content is assignable from desired type.
+
+                        newTemplate = parsed;
+                    }
+                    else
+                    {
+                        SL.LogWarning("Could not find any content from target ID '" + m_genenratorInput.text);
+                        newTemplate = null;
+                    }
+                }
+
+                if (newTemplate != null)
+                {
+                    newTemplate.SerializedSLPackName = m_currentPack.Name;
+                    newTemplate.SerializedSubfolderName = newTemplate.DefaultTemplateName;
+                    newTemplate.SerializedFilename = newTemplate.DefaultTemplateName;
+                    InspectorManager.Instance.Inspect(newTemplate, m_currentPack);
+                }
+            });
+
+            var genBtnText = genBtnObj.GetComponentInChildren<Text>();
+            genBtnText.text = "Create Template";
+
             RefreshLoadedSLPacks();
         }
 
@@ -415,7 +481,7 @@ namespace SideLoader.Inspectors
 
             var labelObj = UIFactory.CreateLabel(rowObj, TextAnchor.MiddleLeft);
             var labelText = labelObj.GetComponent<Text>();
-            labelText.text = template.SerializedFilename;
+            labelText.text = $"{template.SerializedFilename} ({UISyntaxHighlight.ParseFullSyntax(template.GetType(), false)})";
             var labelLayout = labelObj.AddComponent<LayoutElement>();
             labelLayout.flexibleWidth = 9999;
 

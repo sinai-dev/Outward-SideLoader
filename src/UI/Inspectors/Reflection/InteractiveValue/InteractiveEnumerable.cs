@@ -9,6 +9,7 @@ using UnityEngine.UI;
 using SideLoader.Helpers;
 using SideLoader.UI;
 using SideLoader.UI.Shared;
+using SideLoader.UI.Inspectors.Reflection;
 
 namespace SideLoader.Inspectors.Reflection
 {
@@ -22,6 +23,8 @@ namespace SideLoader.Inspectors.Reflection
                 m_baseEntryType = valueType.GetElementType();
             else
                 m_baseEntryType = typeof(object);
+
+            m_typeToAdd = m_baseEntryType;
         }
 
         public override bool WantInspectBtn => false;
@@ -64,13 +67,19 @@ namespace SideLoader.Inspectors.Reflection
 
         internal void AddEntry()
         {
+            if (m_typeToAdd == null)
+            {
+                SL.LogWarning("No type selected!");
+                return;
+            }
+
             if (RefIList == null)
             {
                 SL.LogWarning("Cannot add to " + this.RefIEnumerable.GetType());
                 return;
             }
 
-            object newValue = At.TryCreateDefault(m_baseEntryType);
+            object newValue = At.TryCreateDefault(m_typeToAdd);
 
             if (RefIList.IsFixedSize)
             {
@@ -297,6 +306,9 @@ namespace SideLoader.Inspectors.Reflection
 
         internal PageHandler m_pageHandler;
 
+        internal TypeTreeDropdown m_typeDrop;
+        internal Type m_typeToAdd;
+
         public override void ConstructUI(GameObject parent, GameObject subGroup)
         {
             base.ConstructUI(parent, subGroup);
@@ -306,12 +318,33 @@ namespace SideLoader.Inspectors.Reflection
         {
             base.ConstructSubcontent();
 
-            // todo dropdown
+            var addRowObj = UIFactory.CreateHorizontalGroup(m_subContentParent, new Color(1, 1, 1, 0));
+            var rowGroup = addRowObj.GetComponent<HorizontalLayoutGroup>();
+            rowGroup.childForceExpandWidth = false;
+            rowGroup.spacing = 5;
+            rowGroup.padding = new RectOffset(3, 3, 3, 3);
+            var addRowLayout = addRowObj.AddComponent<LayoutElement>();
+            addRowLayout.minHeight = 25;
+            addRowLayout.flexibleHeight = 0;
 
-            var addBtnObj = UIFactory.CreateButton(m_subContentParent, new Color(0.15f, 0.45f, 0.15f));
+            var inherited = At.GetChangeableTypes(this.m_baseEntryType);
+            if (inherited.Count > 1)
+            {
+                m_typeDrop = new TypeTreeDropdown(m_baseEntryType, addRowObj, m_baseEntryType, (Type val) => 
+                {
+                    m_typeToAdd = val;
+                });
+
+                if (m_baseEntryType.IsAbstract || m_baseEntryType.IsInterface)
+                    m_typeToAdd = inherited[0];
+            }
+
+            var addBtnObj = UIFactory.CreateButton(addRowObj, new Color(0.15f, 0.45f, 0.15f));
             var addBtn = addBtnObj.GetComponent<Button>();
             var addbtnLayout = addBtnObj.AddComponent<LayoutElement>();
             addbtnLayout.minHeight = 25;
+            addbtnLayout.minWidth = 120;
+            addbtnLayout.flexibleWidth = 0;
             addBtn.onClick.AddListener(() => 
             {
                 AddEntry();
