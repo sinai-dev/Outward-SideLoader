@@ -72,7 +72,7 @@ namespace SideLoader
         // ==================== Internal ====================
 
         /// <summary>Key: Spawn callback UID (generally template UID), Value: SL_Character with OnSpawn event to invoke</summary>
-        internal static Dictionary<string, SL_Character> Templates = new Dictionary<string, SL_Character>();
+        public static readonly Dictionary<string, SL_Character> Templates = new Dictionary<string, SL_Character>();
 
         internal static readonly List<CustomSpawnInfo> ActiveCharacters = new List<CustomSpawnInfo>();
 

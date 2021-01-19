@@ -23,9 +23,9 @@ namespace SideLoader.Inspectors.Reflection
             var path = $@"<b>XML Path:</b> ";
 
             if (RefPack.InMainSLFolder)
-                path += $@"Mods\SideLoader\{RefPack.Name}\{Template.SLPackSubfolder}\";
+                path += $@"Mods\SideLoader\{RefPack.Name}\{Template.SLPackCategory}\";
             else
-                path += $@"BepInEx\plugins\{RefPack.Name}\SideLoader\{Template.SLPackSubfolder}\";
+                path += $@"BepInEx\plugins\{RefPack.Name}\SideLoader\{Template.SLPackCategory}\";
 
             if (!string.IsNullOrEmpty(this.Template.SerializedSubfolderName))
                 path += $@"{Template.SerializedSubfolderName}\";
@@ -71,8 +71,63 @@ namespace SideLoader.Inspectors.Reflection
             UpdateValues();
         }
 
-        //internal InputField m_subfolderInput;
-        //internal InputField m_filenameInput;
+        internal void Save()
+        {
+            if (RefPack == null)
+            {
+                SL.LogWarning("Error - RefPack is null on TemplateInspector.Save!");
+                return;
+            }
+
+            var directory = RefPack.GetSubfolderPath(Template.SLPackCategory);
+
+            if (Template.TemplateAllowedInSubfolder && !string.IsNullOrEmpty(this.Template.SerializedSubfolderName))
+            {
+                directory += $@"\{this.Template.SerializedSubfolderName}";
+            }
+
+            if (!Directory.Exists(directory))
+                Directory.CreateDirectory(directory);
+
+            Serializer.SaveToXml(directory, this.Template.SerializedFilename, Target);
+        }
+
+        private void Load()
+        {
+            if (RefPack == null)
+            {
+                SL.LogWarning("Error - RefPack is null on TemplateInspector.Save!");
+                return;
+            }
+
+            var directory = RefPack.GetSubfolderPath(Template.SLPackCategory);
+
+            if (Template.TemplateAllowedInSubfolder && !string.IsNullOrEmpty(this.Template.SerializedSubfolderName))
+            {
+                directory += $@"\{this.Template.SerializedSubfolderName}";
+            }
+
+            var path = directory + "\\" + Template.SerializedFilename + ".xml";
+            if (!File.Exists(path))
+            {
+                SL.LogWarning("No file exists at " + path);
+                return;
+            }
+
+            if (Serializer.LoadFromXml(path) is IContentTemplate loadedData)
+            {
+                var loadedType = loadedData.GetType();
+                SL.Log("Loaded xml, replacing template with " + loadedType);
+
+                if (loadedType != m_targetType)
+                    ChangeType(loadedType);
+
+                CopyValuesFrom(loadedData);
+            }
+        }
+
+        // =========== UI ===============
+
         internal Text m_fullPathLabel;
 
         public void ConstructTemplateUI()
@@ -94,52 +149,6 @@ namespace SideLoader.Inspectors.Reflection
                 left = 4
             };
 
-            //// ========= Subfolder/Filename row =========
-
-            //var pathInputRowObj = UIFactory.CreateHorizontalGroup(vertGroupObj, new Color(1,1,1,0));
-            //var pathGroup = pathInputRowObj.GetComponent<HorizontalLayoutGroup>();
-            //pathGroup.childForceExpandWidth = true;
-            //pathGroup.spacing = 5;
-
-            //if (Template.TemplateAllowedInSubfolder)
-            //{
-            //    var subLabelObj = UIFactory.CreateLabel(pathInputRowObj, TextAnchor.MiddleRight);
-            //    var subLabelLayout = subLabelObj.AddComponent<LayoutElement>();
-            //    subLabelLayout.minHeight = 24;
-            //    subLabelLayout.minWidth = 130;
-            //    subLabelLayout.flexibleWidth = 0;
-            //    var subText = subLabelObj.GetComponent<Text>();
-            //    subText.text = "Subfolder Name:";
-
-            //    var subInputObj = UIFactory.CreateInputField(pathInputRowObj);
-            //    var subLayout = subInputObj.AddComponent<LayoutElement>();
-            //    subLayout.minHeight = 24;
-            //    subLayout.flexibleWidth = 9999;
-            //    var subField = subInputObj.GetComponent<InputField>();
-            //    subField.image.color = new Color(0.2f, 0.2f, 0.2f);
-            //    (subField.placeholder as Text).text = @"Optional subfolder (used for textures/icons), eg. 'MySubfolderName'";
-            //    m_subfolderInput = subField;
-            //    subField.onValueChanged.AddListener((string val) => { UpdateFullPathText(); });
-            //}
-
-            //var nameLabelObj = UIFactory.CreateLabel(pathInputRowObj, TextAnchor.MiddleRight);
-            //var nameLabelLayout = nameLabelObj.AddComponent<LayoutElement>();
-            //nameLabelLayout.minHeight = 24;
-            //nameLabelLayout.minWidth = 90;
-            //nameLabelLayout.flexibleWidth = 0;
-            //var nameText = nameLabelObj.GetComponent<Text>();
-            //nameText.text = "File Name:";
-
-            //var nameInputObj = UIFactory.CreateInputField(pathInputRowObj);
-            //var nameLayout = nameInputObj.AddComponent<LayoutElement>();
-            //nameLayout.minHeight = 24;
-            //nameLayout.flexibleWidth = 9999;
-            //var nameField = nameInputObj.GetComponent<InputField>();
-            //nameField.image.color = new Color(0.2f, 0.2f, 0.2f);
-            //(nameField.placeholder as Text).text = @"Template file name, eg. 'MyTemplate'";
-            //m_filenameInput = nameField;
-            //nameField.onValueChanged.AddListener((string val) => { UpdateFullPathText(); });
-
             // ========= Full path Row =========
 
             var fullPathRowObj = UIFactory.CreateHorizontalGroup(vertGroupObj, new Color(1, 1, 1, 0));
@@ -156,14 +165,6 @@ namespace SideLoader.Inspectors.Reflection
 
             m_fullPathLabel = fullText;
 
-            //var fullInputObj = UIFactory.CreateInputField(fullPathRowObj);
-            //var fullInputLayout = fullInputObj.AddComponent<LayoutElement>();
-            //fullInputLayout.minHeight = 25;
-            //fullInputLayout.flexibleWidth = 9999;
-            //var fullInput = fullInputObj.GetComponent<InputField>();
-            //fullInput.readOnly = true;
-            //m_fullPathInput = fullInput;
-
             // ========= Save/Load Row =========
 
             var saveLoadRowObj = UIFactory.CreateHorizontalGroup(vertGroupObj, new Color(1, 1, 1, 0));
@@ -174,30 +175,14 @@ namespace SideLoader.Inspectors.Reflection
             saveLoadGroup.childForceExpandHeight = true;
 
             var saveBtnObj = UIFactory.CreateButton(saveLoadRowObj, new Color(0.2f, 0.5f, 0.2f));
-            var btnLayout = saveBtnObj.AddComponent<LayoutElement>();
-            btnLayout.minHeight = 25;
+            var saveBtnLayout = saveBtnObj.AddComponent<LayoutElement>();
+            saveBtnLayout.minHeight = 25;
             var saveBtnText = saveBtnObj.GetComponentInChildren<Text>();
             saveBtnText.text = "Save";
             var saveBtn = saveBtnObj.GetComponent<Button>();
             saveBtn.onClick.AddListener(() =>
             {
-                if (RefPack == null)
-                {
-                    SL.LogWarning("Error - RefPack is null on TemplateInspector.Save!");
-                    return;
-                }
-
-                var directory = RefPack.GetSubfolderPath(Template.SLPackSubfolder);
-
-                if (Template.TemplateAllowedInSubfolder && !string.IsNullOrEmpty(this.Template.SerializedSubfolderName))
-                {
-                    directory += $@"\{this.Template.SerializedSubfolderName}";
-                }
-
-                if (!Directory.Exists(directory))
-                    Directory.CreateDirectory(directory);
-
-                Serializer.SaveToXml(directory, this.Template.SerializedFilename, Target);
+                Save();
             });
 
             var loadBtnObj = UIFactory.CreateButton(saveLoadRowObj, new Color(0.5f, 0.3f, 0.2f));
@@ -208,37 +193,50 @@ namespace SideLoader.Inspectors.Reflection
             var loadBtn = loadBtnObj.GetComponent<Button>();
             loadBtn.onClick.AddListener(() =>
             {
-                if (RefPack == null)
-                {
-                    SL.LogWarning("Error - RefPack is null on TemplateInspector.Save!");
-                    return;
-                }
-
-                var directory = RefPack.GetSubfolderPath(Template.SLPackSubfolder);
-
-                if (Template.TemplateAllowedInSubfolder && !string.IsNullOrEmpty(this.Template.SerializedSubfolderName))
-                {
-                    directory += $@"\{this.Template.SerializedSubfolderName}";
-                }
-
-                var path = directory + "\\" + Template.SerializedFilename + ".xml";
-                if (!File.Exists(path))
-                {
-                    SL.LogWarning("No file exists at " + path);
-                    return;
-                }
-
-                if (Serializer.LoadFromXml(path) is IContentTemplate loadedData)
-                {
-                    var loadedType = loadedData.GetType();
-                    SL.Log("Loaded xml, replacing template with " + loadedType);
-
-                    if (loadedType != m_targetType)
-                        ChangeType(loadedType);
-
-                    CopyValuesFrom(loadedData);
-                }
+                Load();
             });
+
+            // ========= SL_Item Materials ==========
+
+            if (this.Target is SL_Item itemTemplate)
+            {
+                if (itemTemplate.m_serializedMaterials?.Count > 0)
+                {
+                    var materialGroupObj = UIFactory.CreateVerticalGroup(this.Content, new Color(0.1f, 0.1f, 0.1f));
+                    var matGroup = materialGroupObj.GetComponent<VerticalLayoutGroup>();
+                    matGroup.spacing = 4;
+                    matGroup.padding = new RectOffset(3, 3, 3, 3);
+
+                    var matTitleObj = UIFactory.CreateLabel(materialGroupObj, TextAnchor.MiddleLeft);
+                    var matTitle = matTitleObj.GetComponent<Text>();
+                    matTitle.text = "SL_Materials:";
+                    matTitle.fontSize = 15;
+                    matTitle.color = Color.cyan;
+
+                    var matRowObj = UIFactory.CreateHorizontalGroup(materialGroupObj, new Color(1, 1, 1, 0));
+                    var matRowGroup = matRowObj.GetComponent<HorizontalLayoutGroup>();
+                    matRowGroup.spacing = 5;
+                    matRowGroup.childForceExpandWidth = false;
+
+                    foreach (var mat in itemTemplate.m_serializedMaterials.Values)
+                    {
+                        var matBtnObj = UIFactory.CreateButton(matRowObj, new Color(0.2f, 0.4f, 0.4f));
+                        var matBtnLayout = matBtnObj.AddComponent<LayoutElement>();
+                        matBtnLayout.minHeight = 22;
+                        matBtnLayout.minWidth = 200;
+                        matBtnLayout.flexibleWidth = 0;
+
+                        var matText = matBtnObj.GetComponentInChildren<Text>();
+                        matText.text = mat.Name;
+
+                        var matBtn = matBtnObj.GetComponent<Button>();
+                        matBtn.onClick.AddListener(() =>
+                        {
+                            InspectorManager.Instance.Inspect(mat, null);
+                        });
+                    }
+                }
+            }
         }
     }
 }

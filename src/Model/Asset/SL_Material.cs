@@ -12,8 +12,8 @@ namespace SideLoader
     public class SL_Material
     {
         /// <summary>The name of the Material (readonly).</summary>
-        [XmlIgnore]
-        public string Name { get; private set; }
+        [XmlIgnore] public string Name { get; internal set; }
+        [XmlIgnore] internal string m_serializedFolderPath;
 
         /// <summary>The Shader to use for the Material. Should be the same value use by Shader.Find()</summary>
         public string ShaderName;
@@ -127,7 +127,7 @@ namespace SideLoader
         {
             var holder = new SL_Material()
             {
-                Name = mat.name,
+                Name = CustomItemVisuals.GetSafeMaterialName(mat.name),
                 ShaderName = mat.shader.name,
                 Properties = CustomTextures.GetProperties(mat).ToArray(),
                 Keywords = mat.shaderKeywords,

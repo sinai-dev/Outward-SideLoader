@@ -46,7 +46,12 @@ namespace SideLoader.UI.Inspectors.Reflection
 
             m_dropdown.options.AddRange(m_typeOptions.Select(it => new Dropdown.OptionData { text = it.Name }));
 
-            m_dropdown.value = m_typeOptions.IndexOf(currentType);
+            int idx = !currentType.IsAbstract && !currentType.IsInterface
+                ? idx = m_typeOptions.IndexOf(currentType)
+                : idx = 0; 
+
+            m_dropdown.value = idx;
+            InvokeOnValueSelected(idx);
 
             m_dropdown.onValueChanged.AddListener(InvokeOnValueSelected);
         }

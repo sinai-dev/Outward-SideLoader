@@ -392,8 +392,11 @@ namespace SideLoader.Inspectors
 
             ConstructTypeChanger(nameRowObj);
 
-            if (this is TemplateInspector)
-                (this as TemplateInspector).ConstructTemplateUI();
+            if (this is TemplateInspector ti)
+                ti.ConstructTemplateUI();
+
+            if (this is MaterialInspector mi)
+                mi.ConstructMaterialUI();
 
             ConstructFilterArea();
 

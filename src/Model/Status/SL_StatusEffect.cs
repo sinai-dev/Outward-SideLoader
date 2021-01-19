@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -20,7 +19,7 @@ namespace SideLoader
         [XmlIgnore] public bool DoesTargetExist => ResourcesPrefabManager.Instance.GetStatusEffectPrefab(this.TargetStatusIdentifier);
         [XmlIgnore] public string TargetID => this.TargetStatusIdentifier;
         [XmlIgnore] public string AppliedID => this.StatusIdentifier;
-        [XmlIgnore] public SLPack.SubFolders SLPackSubfolder => SLPack.SubFolders.StatusEffects;
+        [XmlIgnore] public SLPack.SubFolders SLPackCategory => SLPack.SubFolders.StatusEffects;
         [XmlIgnore] public bool TemplateAllowedInSubfolder => true;
 
         [XmlIgnore] public bool CanParseContent => true;
@@ -508,6 +507,26 @@ namespace SideLoader
             }
 
             Effects = effects.ToArray();
+        }
+
+        public override void ExportIcons(Component comp, string folder)
+        {
+            base.ExportIcons(comp, folder);
+
+            var status = comp as StatusEffect;
+
+            if (status.StatusIcon)
+                CustomTextures.SaveIconAsPNG(status.StatusIcon, folder);
+
+            if (comp is LevelStatusEffect levelComp)
+            {
+                for (int i = 0; i < levelComp.StatusLevelData.Length; i++)
+                {
+                    var data = levelComp.StatusLevelData[i];
+                    if (data != null && data.Icon)
+                        CustomTextures.SaveIconAsPNG(data.Icon, folder, $"icon{i + 2}");
+                }
+            }
         }
     }
 }

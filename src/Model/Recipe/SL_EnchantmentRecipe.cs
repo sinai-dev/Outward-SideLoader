@@ -15,7 +15,7 @@ namespace SideLoader
         [XmlIgnore] public bool DoesTargetExist => true;
         [XmlIgnore] public int TargetID => this.EnchantmentID;
         [XmlIgnore] public int AppliedID => this.EnchantmentID;
-        [XmlIgnore] public SLPack.SubFolders SLPackSubfolder => SLPack.SubFolders.Enchantments;
+        [XmlIgnore] public SLPack.SubFolders SLPackCategory => SLPack.SubFolders.Enchantments;
         [XmlIgnore] public bool TemplateAllowedInSubfolder => false;
 
         [XmlIgnore] public bool CanParseContent => true;

@@ -147,6 +147,7 @@
     <Compile Include="SaveData\PlayerSaveExtension.cs" />
     <Compile Include="SL.cs" />
     <Compile Include="UI\Inspectors\Reflection\InteractiveValue\InteractiveNullable.cs" />
+    <Compile Include="UI\Inspectors\Reflection\MaterialInspector.cs" />
     <Compile Include="UI\Inspectors\Reflection\TypeTreeDropdown.cs" />
     <Compile Include="UI\Inspectors\SLPackAutoCompleter.cs" />
     <Compile Include="UI\Inspectors\InspectorBase.cs" />

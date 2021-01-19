@@ -57,7 +57,9 @@ namespace SideLoader
         public bool TryFollowCaster;
         public Vector3 SpawnOffset;
 
-        private SL_Character m_charTemplate;
+        [XmlIgnore] public string ExtraRpcData;
+
+        protected SL_Character m_charTemplate;
 
         protected override void AwakeInit()
         {
@@ -88,7 +90,8 @@ namespace SideLoader
                 var ai = m_charTemplate.Spawn((Vector3)_infos[0] + this.SpawnOffset, 
                     this.GenerateRandomUIDForSpawn 
                         ? (string)UID.Generate() 
-                        : this.SLCharacter_UID);
+                        : this.SLCharacter_UID,
+                    this.ExtraRpcData);
 
                 if (!ai)
                     SL.LogWarning("SpawnSLCharacter.ActivateLocally - spawn failed!");

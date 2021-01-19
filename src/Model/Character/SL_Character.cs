@@ -19,7 +19,7 @@ namespace SideLoader
         [XmlIgnore] public bool DoesTargetExist => true;
         [XmlIgnore] public string TargetID => this.UID;
         [XmlIgnore] public string AppliedID => this.UID;
-        [XmlIgnore] public SLPack.SubFolders SLPackSubfolder => SLPack.SubFolders.Characters;
+        [XmlIgnore] public SLPack.SubFolders SLPackCategory => SLPack.SubFolders.Characters;
         [XmlIgnore] public bool TemplateAllowedInSubfolder => false;
 
         [XmlIgnore] public bool CanParseContent => false;

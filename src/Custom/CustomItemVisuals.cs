@@ -43,7 +43,7 @@ namespace SideLoader
             public Transform ItemSpecialFemaleVisuals;
         }
 
-        private static readonly Dictionary<int, ItemVisualsLink> ItemVisuals = new Dictionary<int, ItemVisualsLink>();
+        internal static readonly Dictionary<int, ItemVisualsLink> s_itemVisualLinks = new Dictionary<int, ItemVisualsLink>();
 
         // Regex: Match anything up to " (" 
         private static readonly Regex materialRegex = new Regex(@".+?(?= \()");
@@ -57,18 +57,18 @@ namespace SideLoader
 
         public static ItemVisualsLink GetItemVisualLink(Item item)
         {
-            if (ItemVisuals.ContainsKey(item.ItemID))
-                return ItemVisuals[item.ItemID];
+            if (s_itemVisualLinks.ContainsKey(item.ItemID))
+                return s_itemVisualLinks[item.ItemID];
 
             return null;
         }
 
         public static ItemVisualsLink GetOrAddVisualLink(Item item)
         {
-            if (!ItemVisuals.ContainsKey(item.ItemID))
-                ItemVisuals.Add(item.ItemID, new ItemVisualsLink());
+            if (!s_itemVisualLinks.ContainsKey(item.ItemID))
+                s_itemVisualLinks.Add(item.ItemID, new ItemVisualsLink());
 
-            var link = ItemVisuals[item.ItemID];
+            var link = s_itemVisualLinks[item.ItemID];
 
             return link;
         }
@@ -199,83 +199,16 @@ namespace SideLoader
             return newVisuals;
         }
 
-        /// <summary>Try apply textures to an item from the specified directory 'texturesFolder'.</summary>
-        public static void TryApplyCustomTextures(string texturesFolder, Item item)
-        {
-            if (Directory.Exists(texturesFolder))
-                ApplyTexturesFromFolder(texturesFolder, item);
-            else
-                SL.Log("Directory does not exist: " + texturesFolder);
-        }
-
-        /// <summary>
-        /// Will check for the "SLPackFolder/Items/SubfolderName/Textures" folder (if it exists), and if so load and apply these textures to your item.
-        /// </summary>
-        /// <param name="template">The template for your custom item (must already be set up, including SLPackName and SubfolderName)</param>
-        /// <param name="newItem">The actual new item prefab, already created by CreateCustomItem</param>
-        public static void TryApplyCustomTextures(SL_Item template, Item newItem)
-        {
-            if (string.IsNullOrEmpty(template.SLPackName) || !SL.Packs.ContainsKey(template.SLPackName) || string.IsNullOrEmpty(template.SubfolderName))
-            {
-                SL.Log("Trying to CheckCustomTextures for " + newItem.Name + " but either SLPackName or SubfolderName is not set!");
-                return;
-            }
-
-            var pack = SL.Packs[template.SLPackName];
-            var dir = pack.GetSubfolderPath(SLPack.SubFolders.Items) + @"\" + template.SubfolderName + @"\Textures";
-
-            if (Directory.Exists(dir))
-            {
-                ApplyTexturesFromFolder(dir, newItem);
-            }
-        }
-
-        /// <summary>
-        /// Applies textures and icons to the item from the given directory.
-        /// The icons should be in the base folder, called "icon.png" and "skillicon.png".
-        /// The textures should be in sub-folders for each material (name of folder is material name), and each texture should be named after the shader layer it is setting.
-        /// </summary>
-        /// <param name="dir">Full path relative to Outward folder.</param>
-        /// <param name="item">The item to apply to.</param>
-        private static void ApplyTexturesFromFolder(string dir, Item item)
-        {
-            var sprites = GetIconsFromFolder(dir);
-            ApplyIconsByName(sprites, item);
-
-            var textures = GetTexturesFromFolder(dir, out Dictionary<string, SL_Material> slMaterials);
-            ApplyTexAndMats(textures, slMaterials, item);
-        }
-
-        /// <summary>
-        /// Sets the provided sprites to the item. The list (of 1 or 2 length) should contain either/or: the main item icon called "icon", and the skill tree icon called "skillicon".
-        /// </summary>
-        /// <param name="icons">A list of 1 or 2 length. Item icons should be called "icon", and skill tree icons should be called "skillicon".</param>
-        /// <param name="item">The item to set to.</param>
-        public static void ApplyIconsByName(Sprite[] icons, Item item)
-        {
-            foreach (var sprite in icons)
-            {
-                if (sprite.name.ToLower() == "icon")
-                    SetSpriteLink(item, sprite, false);
-                else if (sprite.name.ToLower() == "skillicon")
-                    SetSpriteLink(item, sprite, true);
-            }
-        }
-
-        #endregion
-
-        #region Main internal API
-
         /// <summary>
         /// Gets an array of the Materials on the given visual prefab type for the given item.
         /// These are actual references to the Materials, not a copy like Unity's Renderer.Materials[]
         /// </summary>
-        internal static Material[] GetMaterials(Item item, VisualPrefabType type)
+        public static Material[] GetMaterials(Item item, VisualPrefabType type)
         {
             Transform prefab = null;
-            if (ItemVisuals.ContainsKey(item.ItemID))
+            if (s_itemVisualLinks.ContainsKey(item.ItemID))
             {
-                var link = ItemVisuals[item.ItemID];
+                var link = s_itemVisualLinks[item.ItemID];
                 switch (type)
                 {
                     case VisualPrefabType.VisualPrefab:
@@ -307,92 +240,20 @@ namespace SideLoader
             return null;
         }
 
-        /// <summary>
-        /// Applies textures to the item using the provided dictionary.
-        /// </summary>
-        /// <param name="textures">Key: Material names (with GetSafeMaterialName), Value: List of Textures to apply, names should match the shader layers of the material.</param>
-        /// <param name="slMaterials">[OPTIONAL] Key: Material names with GetSafeMaterialName, Value: SL_Material template to apply.</param>
-        /// <param name="item">The item to apply to</param>
+        /// <summary>Try apply textures to an item from the specified directory 'texturesFolder'.</summary>
+        [Obsolete("Moved into SL_Item class itself")]
+        public static void TryApplyCustomTextures(string texturesFolder, Item item)
+        {
+        }
+
+        [Obsolete("Moved into SL_Item class itself.")]
+        public static void TryApplyCustomTextures(SL_Item template, Item newItem)
+        {
+        }
+
+        [Obsolete("Moved into SL_Item class itself.")]
         internal static void ApplyTexAndMats(Dictionary<string, List<Texture2D>> textures, Dictionary<string, SL_Material> slMaterials, Item item)
         {
-            if (slMaterials == null)
-            {
-                slMaterials = new Dictionary<string, SL_Material>();
-            }
-
-            // apply to mats
-            for (int i = 0; i < 3; i++)
-            {
-                var prefabtype = (VisualPrefabType)i;
-
-                if (!ItemVisuals.ContainsKey(item.ItemID) || !ItemVisuals[item.ItemID].GetVisuals(prefabtype))
-                {
-                    var prefab = CloneVisualPrefab(item, prefabtype, false);
-                    if (!prefab)
-                    {
-                        continue;
-                    }
-                }
-
-                var mats = GetMaterials(item, prefabtype);
-
-                if (mats == null || mats.Length < 1)
-                {
-                    continue;
-                }
-
-                foreach (var mat in mats)
-                {
-                    var matname = GetSafeMaterialName(mat.name).ToLower();
-
-                    // apply the SL_material template first (set shader, etc)
-                    SL_Material matHolder = null;
-                    if (slMaterials.ContainsKey(matname))
-                    {
-                        matHolder = slMaterials[matname];
-                        matHolder.ApplyToMaterial(mat);
-                    }
-                    else if (!textures.ContainsKey(matname))
-                        continue;
-
-                    // build list of actual shader layer names.
-                    // Key: ToLower(), Value: original.
-                    Dictionary<string, string> layersToLower = new Dictionary<string, string>();
-                    foreach (var layer in mat.GetTexturePropertyNames())
-                        layersToLower.Add(layer.ToLower(), layer);
-
-                    // set actual textures
-                    foreach (var tex in textures[matname])
-                    {
-                        try
-                        {
-                            if (mat.HasProperty(tex.name))
-                            {
-                                mat.SetTexture(tex.name, tex);
-                                //SL.Log("Set texture " + tex.name + " on " + matname);
-                            }
-                            else if (layersToLower.ContainsKey(tex.name))
-                            {
-                                var realname = layersToLower[tex.name];
-                                mat.SetTexture(realname, tex);
-                                //SL.Log("Set texture " + realname + " on " + matname);
-                            }
-                            else
-                                SL.Log("Couldn't find a shader property called " + tex.name + "!");
-                        }
-                        catch
-                        {
-                            SL.Log("Exception setting texture " + tex.name + " on material!");
-                        }
-                    }
-
-                    // finalize texture settings after they've been applied
-                    if (matHolder != null)
-                    {
-                        matHolder.ApplyTextureSettings(mat);
-                    }
-                }
-            }
         }
 
         #endregion
@@ -480,7 +341,7 @@ namespace SideLoader
             foreach (var entry in itemTextures)
             {
                 if (ResourcesPrefabManager.Instance.GetItemPrefab(entry.Key) is Item item)
-                    ApplyTexAndMats(entry.Value, null, item);
+                    SL_Item.ApplyTexAndMats(entry.Value, null, item);
             }
 
             // Apply icons
@@ -491,182 +352,14 @@ namespace SideLoader
             }
         }
 
-        #endregion
-
-        #region Folder loading IO
-
-        public static Sprite[] GetIconsFromFolder(string dir)
+        public static void ApplyIconsByName(Sprite[] icons, Item item)
         {
-            List<Sprite> list = new List<Sprite>();
-            // Check for normal item icon
-            var iconPath = dir + @"\icon.png";
-            if (File.Exists(iconPath))
+            foreach (var sprite in icons)
             {
-                var tex = CustomTextures.LoadTexture(iconPath, false, false);
-                var sprite = CustomTextures.CreateSprite(tex, CustomTextures.SpriteBorderTypes.ItemIcon);
-                UnityEngine.Object.DontDestroyOnLoad(sprite);
-                list.Add(sprite);
-                sprite.name = "icon";
-            }
-
-            // check for Skill icon (if skill)
-            var skillPath = dir + @"\skillicon.png";
-            if (File.Exists(skillPath))
-            {
-                var tex = CustomTextures.LoadTexture(skillPath, false, false);
-                var sprite = CustomTextures.CreateSprite(tex, CustomTextures.SpriteBorderTypes.SkillTreeIcon);
-                UnityEngine.Object.DontDestroyOnLoad(sprite);
-                list.Add(sprite);
-                sprite.name = "skillicon";
-            }
-
-            return list.ToArray();
-        }
-
-        /// <summary>
-        /// Checks the provided folder for sub-folders, each sub-folder should be the name of a material.
-        /// Inside this folder there should be the texture PNG files (named after Shader Layers), and the properties.xml file.
-        /// SideLoader will load everything and return it to you in two dictionaries.
-        /// </summary>
-        /// <param name="dir">The base directory to check (eg. "SLPack\Items\MyItem\Textures\")</param>
-        /// <param name="slMaterials">Secondary out paramater for the SL Material templates. Key: Material Name, Value: SL_Material.</param>
-        /// <returns>Key: Material name, Value: List of Texture2D for the material.</returns>
-        public static Dictionary<string, List<Texture2D>> GetTexturesFromFolder(string dir, out Dictionary<string, SL_Material> slMaterials)
-        {
-            // build dictionary of textures per material
-            // Key: Material name (Safe), Value: Texture
-            var textures = new Dictionary<string, List<Texture2D>>();
-
-            // also keep a dict of the SL_Material templates
-            slMaterials = new Dictionary<string, SL_Material>();
-
-            foreach (var subfolder in Directory.GetDirectories(dir))
-            {
-                var matname = Path.GetFileName(subfolder).ToLower();
-
-                SL.Log("Reading folder " + matname);
-
-                // check for the SL_Material xml
-                Dictionary<string, SL_Material.TextureConfig> texCfgDict = null;
-                string matPath = subfolder + @"\properties.xml";
-                if (File.Exists(matPath))
-                {
-                    var matHolder = Serializer.LoadFromXml(matPath) as SL_Material;
-                    texCfgDict = matHolder.TextureConfigsToDict();
-                    slMaterials.Add(matname, matHolder);
-                }
-
-                // read the textures
-                var texFiles = Directory.GetFiles(subfolder, "*.png");
-                if (texFiles.Length > 0)
-                {
-                    textures.Add(matname, new List<Texture2D>());
-
-                    foreach (var filepath in texFiles)
-                    {
-                        var name = Path.GetFileNameWithoutExtension(filepath);
-
-                        var check = name.ToLower();
-                        bool linear = check.Contains("normtex") || check == "_bumpmap" || check == "_normalmap";
-
-                        bool mipmap = true;
-                        if (texCfgDict != null && texCfgDict.ContainsKey(name))
-                        {
-                            mipmap = texCfgDict[name].UseMipMap;
-                        }
-
-                        // at this point we can safely turn it lower case for compatibility going forward
-                        name = name.ToLower();
-
-                        var tex = CustomTextures.LoadTexture(filepath, mipmap, linear);
-                        tex.name = name;
-                        textures[matname].Add(tex);
-                    }
-                }
-            }
-
-            return textures;
-        }
-
-        #endregion
-
-        #region Saving textures IO
-
-        /// <summary>
-        /// Saves textures from an Item to a directory.
-        /// </summary>
-        /// <param name="item">The item to apply to.</param>
-        /// <param name="dir">Full path, relative to Outward folder</param>
-        public static void SaveAllItemTextures(Item item, string dir)
-        {
-            SL.Log("Saving item textures...");
-
-            if (!Directory.Exists(dir))
-                Directory.CreateDirectory(dir);
-
-            try
-            {
-                Sprite icon = At.GetField(item, "m_itemIcon") as Sprite;
-                if (!icon)
-                    icon = ResourcesPrefabManager.Instance.GetItemIcon(item);
-                if (!icon)
-                    icon = (Sprite)At.GetField(item, "DefaultIcon");
-
-                CustomTextures.SaveIconAsPNG(icon, dir, "icon");
-
-            }
-            catch (Exception e)
-            {
-                SL.Log(e.ToString());
-            }
-
-            if (item is Skill skill && skill.SkillTreeIcon)
-                CustomTextures.SaveIconAsPNG(skill.SkillTreeIcon, dir, "skillicon");
-
-            if (item is LevelAttackSkill levelAtkSkill)
-            {
-                var stages = (LevelAttackSkill.SkillStage[])At.GetField(levelAtkSkill, "m_skillStages");
-                int idx = 1;
-                foreach (var stage in stages)
-                {
-                    idx++;
-                    if (stage.StageIcon)
-                        CustomTextures.SaveIconAsPNG(stage.StageIcon, dir, $"icon{idx}");
-                }
-            }
-
-            for (int i = 0; i < 3; i++)
-            {
-                //SL.Log("Checking materials (" + ((VisualPrefabType)i) + ")");
-
-                if (GetMaterials(item, (VisualPrefabType)i) is Material[] mats)
-                {
-                    foreach (var mat in mats)
-                    {
-                        string subdir = dir + @"\" + GetSafeMaterialName(mat.name);
-
-                        var matHolder = SL_Material.ParseMaterial(mat);
-                        Serializer.SaveToXml(subdir, "properties", matHolder);
-
-                        SaveMaterialTextures(mat, subdir);
-                    }
-                }
-            }
-        }
-
-        private static void SaveMaterialTextures(Material mat, string dir)
-        {
-            if (!Directory.Exists(dir))
-                Directory.CreateDirectory(dir);
-
-            foreach (var texName in mat.GetTexturePropertyNames())
-            {
-                if (mat.GetTexture(texName) is Texture tex)
-                {
-                    bool normal = texName.Contains("NormTex") || texName.Contains("BumpMap") || texName == "_NormalMap";
-
-                    CustomTextures.SaveTextureAsPNG(tex as Texture2D, dir, texName, normal);
-                }
+                if (sprite.name.ToLower() == "icon")
+                    SetSpriteLink(item, sprite, false);
+                else if (sprite.name.ToLower() == "skillicon")
+                    SetSpriteLink(item, sprite, true);
             }
         }
 

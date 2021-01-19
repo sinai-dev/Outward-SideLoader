@@ -336,7 +336,9 @@ namespace SideLoader.Inspectors.Reflection
                 });
 
                 if (m_baseEntryType.IsAbstract || m_baseEntryType.IsInterface)
-                    m_typeToAdd = inherited[0];
+                {
+                    m_typeDrop.m_dropdown.value = 0;
+                }
             }
 
             var addBtnObj = UIFactory.CreateButton(addRowObj, new Color(0.15f, 0.45f, 0.15f));

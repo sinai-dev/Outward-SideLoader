@@ -39,12 +39,12 @@ namespace SideLoader.Inspectors
             }
         }
 
-        public void Inspect(object obj, SLPack pack, CacheMember parentMember = null)
+        public ReflectionInspector Inspect(object obj, SLPack pack, CacheMember parentMember = null)
         {
             //UnityEngine.Object unityObj = obj as UnityEngine.Object;
 
             if (obj.IsNullOrDestroyed(false))
-                return;
+                return null;
 
             // check if currently inspecting this object
             foreach (InspectorBase tab in m_currentInspectors)
@@ -52,13 +52,15 @@ namespace SideLoader.Inspectors
                 if (ReferenceEquals(obj, tab.Target))
                 {
                     SetInspectorTab(tab);
-                    return;
+                    return null;
                 }
             }
 
             ReflectionInspector inspector;
             if (obj is IContentTemplate)
                 inspector = new TemplateInspector(obj, pack);
+            else if (obj is SL_Material)
+                inspector = new MaterialInspector(obj);
             else
                 inspector = new ReflectionInspector(obj);
 
@@ -70,6 +72,8 @@ namespace SideLoader.Inspectors
 
             m_currentInspectors.Add(inspector);
             SetInspectorTab(inspector);
+
+            return inspector;
         }
 
         public void SetInspectorTab(InspectorBase inspector)

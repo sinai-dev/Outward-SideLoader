@@ -16,7 +16,7 @@ namespace SideLoader
         [XmlIgnore] public string AppliedID => this.UID;
         [XmlIgnore] public bool IsCreatingNewID => true;
         [XmlIgnore] public bool DoesTargetExist => true;
-        [XmlIgnore] public SLPack.SubFolders SLPackSubfolder => SLPack.SubFolders.StatusFamilies;
+        [XmlIgnore] public SLPack.SubFolders SLPackCategory => SLPack.SubFolders.StatusFamilies;
         [XmlIgnore] public bool TemplateAllowedInSubfolder => false;
         [XmlIgnore] public string DefaultTemplateName => this.UID;
 

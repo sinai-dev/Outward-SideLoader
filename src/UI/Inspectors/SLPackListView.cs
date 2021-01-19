@@ -12,6 +12,7 @@ using System.IO;
 using SideLoader.Model;
 using UnityEngine.EventSystems;
 using SideLoader.Model.Status;
+using SideLoader.Inspectors.Reflection;
 
 namespace SideLoader.Inspectors
 {
@@ -461,6 +462,27 @@ namespace SideLoader.Inspectors
             var nameInput = nameInputObj.GetComponent<InputField>();
             (nameInput.placeholder as Text).text = "Filename (blank for auto)";
 
+            bool exportIconsWanted = true;
+            bool exportTexturesWanted = true;
+
+            var toggleIconObj = UIFactory.CreateToggle(m_generateObj, out Toggle toggleIcon, out Text toggleIconTxt);
+            var iconLayout = toggleIconObj.AddComponent<LayoutElement>();
+            iconLayout.minHeight = 25;
+            toggleIconTxt.text = "Export Icons if possible?";
+            toggleIcon.onValueChanged.AddListener((bool val) => 
+            {
+                exportIconsWanted = val;
+            });
+
+            var toggleTexObj = UIFactory.CreateToggle(m_generateObj, out Toggle toggleTex, out Text toggleTexText);
+            var toggleTexLayout = toggleTexObj.AddComponent<LayoutElement>();
+            toggleTexLayout.minHeight = 25;
+            toggleTexText.text = "Export Textures if possible?";
+            toggleTex.onValueChanged.AddListener((bool val) =>
+            {
+                exportTexturesWanted = val;
+            });
+
             // generate button
             var genBtnObj = UIFactory.CreateButton(m_generateObj, new Color(0.15f, 0.45f, 0.15f));
             var genBtnLayout = genBtnObj.AddComponent<LayoutElement>();
@@ -478,6 +500,7 @@ namespace SideLoader.Inspectors
                 if (newTemplate.CanParseContent)
                 {
                     var content = newTemplate.GetContentFromID(m_generatorTargetInput.text);
+                    
                     if (content != null && newTemplate.ParseToTemplate(content) is IContentTemplate parsed)
                     {
                         newTemplate = parsed;
@@ -491,25 +514,138 @@ namespace SideLoader.Inspectors
 
                 if (newTemplate != null)
                 {
-                    newTemplate.SerializedSLPackName = m_currentPack.Name;
+                    if (!CheckTemplateName(newTemplate, subfolderInput, nameInput))
+                    {
+                        SL.LogWarning("A folder/filename already exists with that name, try again");
+                        return;
+                    }
 
-                    var subname = newTemplate.DefaultTemplateName;
-                    if (!string.IsNullOrEmpty(subfolderInput.text))
-                        subname = subfolderInput.text;
+                    // EXPORT ICONS/TEXTURES IF ITEM/STATUS/IMBUE
 
-                    var name = newTemplate.DefaultTemplateName;
-                    if (!string.IsNullOrEmpty(nameInput.text))
-                        name = nameInput.text;
+                    if (exportIconsWanted || exportTexturesWanted)
+                    {
+                        if (newTemplate is SL_Item slitem)
+                        {
+                            if (string.IsNullOrEmpty(slitem.SerializedSubfolderName))
+                            {
+                                SL.LogWarning("You need to set a subfolder name to export icons/textures!");
+                                return;
+                            }
 
-                    newTemplate.SerializedSubfolderName = subname;
-                    newTemplate.SerializedFilename = name;
+                            var item = ResourcesPrefabManager.Instance.GetItemPrefab(slitem.Target_ItemID);
+                            var dir = m_currentPack.GetSubfolderPath(SLPack.SubFolders.Items);
+                            dir += $@"\{slitem.SerializedSubfolderName}\Textures";
 
-                    InspectorManager.Instance.Inspect(newTemplate, m_currentPack);
+                            if (exportIconsWanted)
+                                SL_Item.SaveItemIcons(item, dir);
+
+                            if (exportTexturesWanted)
+                                SL_Item.SaveItemTextures(item, dir, out slitem.m_serializedMaterials);
+                        }
+                        else if (exportIconsWanted && newTemplate is SL_StatusBase slstatus)
+                        {
+                            var template = slstatus as IContentTemplate;
+
+                            if (string.IsNullOrEmpty(template.SerializedSubfolderName))
+                            {
+                                SL.LogWarning("You need to set a subfolder name to export icons!");
+                                return;
+                            }
+
+                            var dir = m_currentPack.GetSubfolderPath(SLPack.SubFolders.StatusEffects);
+                            dir += $@"\{template.SerializedSubfolderName}";
+
+                            Component comp;
+                            if (template is SL_StatusEffect sl_Status)
+                                comp = ResourcesPrefabManager.Instance.GetStatusEffectPrefab(sl_Status.TargetStatusIdentifier);
+                            else
+                                comp = ResourcesPrefabManager.Instance.GetEffectPreset((template as SL_ImbueEffect).TargetStatusID) as ImbueEffectPreset;
+
+                            slstatus.ExportIcons(comp, dir);
+                        }
+                    }
+
+                    var inspector = InspectorManager.Instance.Inspect(newTemplate, m_currentPack);
+
+                    (inspector as TemplateInspector).Save();
                 }
             });
 
             var genBtnText = genBtnObj.GetComponentInChildren<Text>();
             genBtnText.text = "Create Template";
+        }
+
+        internal bool CheckTemplateName(IContentTemplate template, InputField subfolderInput, InputField nameInput)
+        {
+            template.SerializedSLPackName = m_currentPack.Name;
+
+            var subname = "";
+            if (template.TemplateAllowedInSubfolder)
+            {
+                if (!string.IsNullOrEmpty(subfolderInput.text))
+                    subname = subfolderInput.text;
+                else
+                    subname = template.DefaultTemplateName;
+            }
+
+            var dir = m_currentPack.GetSubfolderPath(template.SLPackCategory);
+            if (!string.IsNullOrEmpty(subname))
+            {
+                //dir += $@"\{subname}";
+
+                var tempdir = dir + "\\" + subname;
+
+                if (Directory.Exists(tempdir))
+                {
+                    if (!string.IsNullOrEmpty(subfolderInput.text))
+                        // subfolder supplied but one exists there. return false.
+                        return false;
+
+                    int tried = 2;
+                    var tempsubname = subname + "_" + tried;
+                    while (Directory.Exists(tempdir))
+                    {
+                        tried++;
+                        tempsubname = subname + "_" + tried;
+                        tempdir = dir + "\\" + tempsubname;
+                    }
+                    subname = tempsubname;
+                }
+
+                dir = tempdir;
+            }
+
+            template.SerializedSubfolderName = subname;
+
+            string name;
+            if (!string.IsNullOrEmpty(nameInput.text))
+                name = nameInput.text;
+            else
+                name = template.DefaultTemplateName;
+
+            var fullpath = $@"{dir}\{name}.xml";
+
+            if (File.Exists(fullpath))
+            {
+                if (!string.IsNullOrEmpty(nameInput.text))
+                    // name supplied but one exists there. return false.
+                    return false;
+
+                // Force auto unique name (no input supplied)
+                var tempPath = $@"{dir}\{name}_";
+                int tried = 2;
+                var tempname = name + "_" + tried;
+                while (File.Exists($"{tempPath}{tried}.xml"))
+                {
+                    tried++;
+                    tempname = name + "_" + tried;
+                }
+                name = tempname;
+            }
+
+            template.SerializedFilename = name;
+
+            return true;
         }
 
         internal void AddSLPackTemplateButton(IContentTemplate template)

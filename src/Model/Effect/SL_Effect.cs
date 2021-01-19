@@ -12,8 +12,8 @@ namespace SideLoader
     {
         /// <summary>The time, in seconds, after which the effects will be applied. Default is 0.</summary>
         public float Delay = 0f;
-        /// <summary>Sync type determines the networking behaviour.</summary>
-        public Effect.SyncTypes SyncType = Effect.SyncTypes.Everyone;
+        /// <summary>Sync type determines the networking behaviour. Refer to an existing effect of this type if ensure.</summary>
+        public Effect.SyncTypes SyncType = Effect.SyncTypes.OwnerSync;
         /// <summary>Override the SL_EffectTransform.TransformName category with a manual value.</summary>
         public EffectSynchronizer.EffectCategories OverrideCategory = EffectSynchronizer.EffectCategories.None;
 

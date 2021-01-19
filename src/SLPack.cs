@@ -51,7 +51,7 @@ namespace SideLoader
             for (int i = 0; i < directories.Length; i++)
             {
                 var dir = directories[i];
-                if (dir == SL.GENERATED_FOLDER || dir == SL.INTERNAL_FOLDER || dir == SLSaveManager.SAVEDATA_FOLDER)
+                if (dir == SL.INTERNAL_FOLDER || dir == SLSaveManager.SAVEDATA_FOLDER) // || dir == SL.GENERATED_FOLDER
                     continue;
 
                 var name = Path.GetFileName(dir);

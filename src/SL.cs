@@ -24,11 +24,11 @@ namespace SideLoader
         // Folders
         public const string SL_FOLDER = @"Mods\SideLoader";
         public static string PLUGINS_FOLDER => Paths.PluginPath;
-        public static string GENERATED_FOLDER => $@"{SL_FOLDER}\{_GENERATED}";
         public static string INTERNAL_FOLDER => $@"{SL_FOLDER}\{_INTERNAL}";
-
-        public const string _GENERATED = "_GENERATED";
         public const string _INTERNAL = "_INTERNAL";
+
+        //public static string GENERATED_FOLDER => $@"{SL_FOLDER}\{_GENERATED}";
+        //public const string _GENERATED = "_GENERATED";
 
         internal static Transform s_cloneHolder;
 

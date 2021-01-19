@@ -22,7 +22,7 @@ namespace SideLoader.Model
         IContentTemplate ParseToTemplate(object content);
         object GetContentFromID(object id);
 
-        SLPack.SubFolders SLPackSubfolder { get; }
+        SLPack.SubFolders SLPackCategory { get; }
         bool TemplateAllowedInSubfolder { get; }
         string DefaultTemplateName { get; }
     }

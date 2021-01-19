@@ -17,7 +17,7 @@ namespace SideLoader
         [XmlIgnore] public bool DoesTargetExist => ResourcesPrefabManager.Instance.GetEffectPreset(this.TargetStatusID);
         [XmlIgnore] public int TargetID => this.TargetStatusID;
         [XmlIgnore] public int AppliedID => this.NewStatusID;
-        [XmlIgnore] public SLPack.SubFolders SLPackSubfolder => SLPack.SubFolders.StatusEffects;
+        [XmlIgnore] public SLPack.SubFolders SLPackCategory => SLPack.SubFolders.StatusEffects;
         [XmlIgnore] public bool TemplateAllowedInSubfolder => true;
 
         [XmlIgnore] public bool CanParseContent => true;
@@ -143,6 +143,16 @@ namespace SideLoader
             template.Effects = list.ToArray();
 
             return template;
+        }
+
+        public override void ExportIcons(Component comp, string folder)
+        {
+            base.ExportIcons(comp, folder);
+
+            var imbue = comp as ImbueEffectPreset;
+
+            if (imbue.ImbueStatusIcon)
+                CustomTextures.SaveIconAsPNG(imbue.ImbueStatusIcon, folder);
         }
     }
 }
