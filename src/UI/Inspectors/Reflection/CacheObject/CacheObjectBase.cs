@@ -8,7 +8,7 @@ using SideLoader.UI.Shared;
 using SideLoader.Helpers;
 using UnityEngine.UI;
 
-namespace SideLoader.Inspectors.Reflection
+namespace SideLoader.UI.Inspectors.Reflection
 {
     public abstract class CacheObjectBase
     {

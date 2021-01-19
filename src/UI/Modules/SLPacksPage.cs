@@ -3,15 +3,15 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
-using SideLoader.Inspectors;
+using SideLoader.UI.Inspectors;
 
 namespace SideLoader.UI.Modules
 {
-    public class HomePage : MainMenu.Page
+    public class SLPacksPage : MainMenu.Page
     {
-        public override string Name => "Home";
+        public override string Name => "SL Packs";
 
-        public static HomePage Instance { get; internal set; }
+        public static SLPacksPage Instance { get; internal set; }
 
         public override void Init()
         {

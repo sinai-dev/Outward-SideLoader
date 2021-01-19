@@ -8,7 +8,7 @@ using System.IO;
 using SideLoader.Model;
 using System.Collections;
 
-namespace SideLoader.Inspectors.Reflection
+namespace SideLoader.UI.Inspectors.Reflection
 {
     public class TemplateInspector : ReflectionInspector
     {

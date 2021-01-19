@@ -12,9 +12,9 @@ using System.IO;
 using SideLoader.Model;
 using UnityEngine.EventSystems;
 using SideLoader.Model.Status;
-using SideLoader.Inspectors.Reflection;
+using SideLoader.UI.Inspectors.Reflection;
 
-namespace SideLoader.Inspectors
+namespace SideLoader.UI.Inspectors
 {
     public class SLPackListView
     {
@@ -272,7 +272,7 @@ namespace SideLoader.Inspectors
 
         public void ConstructUI()
         {
-            GameObject leftPane = UIFactory.CreateVerticalGroup(HomePage.Instance.Content, new Color(72f / 255f, 72f / 255f, 72f / 255f));
+            GameObject leftPane = UIFactory.CreateVerticalGroup(SLPacksPage.Instance.Content, new Color(72f / 255f, 72f / 255f, 72f / 255f));
             leftPane.name = "SLPack Pane";
             LayoutElement leftLayout = leftPane.AddComponent<LayoutElement>();
             leftLayout.minWidth = 350;

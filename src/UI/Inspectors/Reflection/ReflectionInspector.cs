@@ -4,17 +4,16 @@ using System.Linq;
 using System.Text;
 using SideLoader.Helpers;
 using UnityEngine;
-using SideLoader.Inspectors.Reflection;
+using SideLoader.UI.Inspectors.Reflection;
 using SideLoader.UI.Shared;
 using System.Reflection;
 using SideLoader.UI;
 using UnityEngine.UI;
 using System.Xml.Serialization;
 using SideLoader.Model;
-using SideLoader.UI.Inspectors.Reflection;
 using System.Collections;
 
-namespace SideLoader.Inspectors
+namespace SideLoader.UI.Inspectors
 {
     public class ReflectionInspector : InspectorBase
     {

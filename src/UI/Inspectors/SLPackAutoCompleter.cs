@@ -1,4 +1,4 @@
-﻿using SideLoader.Inspectors;
+﻿using SideLoader.UI.Inspectors;
 using SideLoader.UI;
 using System;
 using System.Collections;
@@ -10,7 +10,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-namespace SideLoader.Inspectors
+namespace SideLoader.UI.Inspectors
 {
     public struct ContentSuggestion
     {

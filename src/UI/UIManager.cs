@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
-using SideLoader.Inspectors;
+using SideLoader.UI.Inspectors;
 using SideLoader.UI.Modules;
 using System.IO;
 using System.Reflection;

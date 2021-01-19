@@ -23,7 +23,9 @@ namespace SideLoader
         /// <summary>List of Shader Properties to set.</summary>
         public ShaderProperty[] Properties;
         /// <summary>List of TextureConfigs to apply.</summary>
-        public TextureConfig[] TextureConfigs; 
+        public TextureConfig[] TextureConfigs;
+
+        public override string ToString() => $"{Name} ({ShaderName})";
 
         /// <summary>Applies this SL_Material template to the provided Material.</summary>
         /// <param name="mat">The material to apply to.</param>
@@ -163,6 +165,8 @@ namespace SideLoader
             public bool UseMipMap = true;
             /// <summary>If using MipMap, the bias level.</summary>
             public float MipMapBias = 0;
+
+            public override string ToString() => this.TextureName;
         }
 
         /// <summary>Abstract wrapper used to serialize Shader Properties.</summary>
@@ -171,6 +175,8 @@ namespace SideLoader
         {
             /// <summary>Name of the Property.</summary>
             public string Name;
+
+            public override string ToString() => Name;
         }
 
         public class FloatProp : ShaderProperty

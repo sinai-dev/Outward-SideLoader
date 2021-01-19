@@ -10,7 +10,7 @@ using SideLoader.UI;
 using SideLoader.UI.Shared;
 using System.Reflection;
 
-namespace SideLoader.Inspectors.Reflection
+namespace SideLoader.UI.Inspectors.Reflection
 {
     public class InteractiveDictionary : InteractiveValue
     {

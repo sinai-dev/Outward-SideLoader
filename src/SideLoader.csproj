@@ -147,6 +147,7 @@
     <Compile Include="SaveData\PlayerSaveExtension.cs" />
     <Compile Include="SL.cs" />
     <Compile Include="UI\Inspectors\Reflection\InteractiveValue\InteractiveNullable.cs" />
+    <Compile Include="UI\Inspectors\Reflection\InteractiveValue\InteractiveSLDamage.cs" />
     <Compile Include="UI\Inspectors\Reflection\MaterialInspector.cs" />
     <Compile Include="UI\Inspectors\Reflection\TypeTreeDropdown.cs" />
     <Compile Include="UI\Inspectors\SLPackAutoCompleter.cs" />
@@ -163,7 +164,7 @@
     <Compile Include="UI\Inspectors\Reflection\InteractiveValue\InteractiveBool.cs" />
     <Compile Include="UI\Inspectors\Reflection\InteractiveValue\InteractiveDictionary.cs" />
     <Compile Include="UI\Inspectors\Reflection\InteractiveValue\InteractiveEnum.cs" />
-    <Compile Include="UI\Inspectors\Reflection\InteractiveValue\InteractiveEnumerable.cs" />
+    <Compile Include="UI\Inspectors\Reflection\InteractiveValue\InteractiveList.cs" />
     <Compile Include="UI\Inspectors\Reflection\InteractiveValue\InteractiveFlags.cs" />
     <Compile Include="UI\Inspectors\Reflection\InteractiveValue\InteractiveNumber.cs" />
     <Compile Include="UI\Inspectors\Reflection\InteractiveValue\InteractiveString.cs" />
@@ -173,9 +174,8 @@
     <Compile Include="UI\Inspectors\SLPackListView.cs" />
     <Compile Include="UI\MainMenu.cs" />
     <Compile Include="UI\Modules\DebugConsole.cs" />
-    <Compile Include="UI\Modules\HomePage.cs" />
-    <Compile Include="UI\Modules\PageThree.cs" />
-    <Compile Include="UI\Modules\PageTwo.cs" />
+    <Compile Include="UI\Modules\SLPacksPage.cs" />
+    <Compile Include="UI\Modules\ToolsPage.cs" />
     <Compile Include="UI\PanelDragger.cs" />
     <Compile Include="UI\Shared\InputFieldScroller.cs" />
     <Compile Include="UI\Shared\PageHandler.cs" />
@@ -304,7 +304,6 @@
     <Compile Include="Custom\CustomTextures.cs" />
     <Compile Include="SLPlugin.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="UI\SLMenu.cs" />
     <Compile Include="Helpers\At.cs" />
   </ItemGroup>
   <ItemGroup>

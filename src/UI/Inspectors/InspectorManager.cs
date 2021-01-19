@@ -7,10 +7,10 @@ using SideLoader.UI.Modules;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
-using SideLoader.Inspectors.Reflection;
+using SideLoader.UI.Inspectors.Reflection;
 using SideLoader.Model;
 
-namespace SideLoader.Inspectors
+namespace SideLoader.UI.Inspectors
 {
     public class InspectorManager
     {
@@ -78,7 +78,7 @@ namespace SideLoader.Inspectors
 
         public void SetInspectorTab(InspectorBase inspector)
         {
-            MainMenu.Instance.SetPage(HomePage.Instance);
+            MainMenu.Instance.SetPage(SLPacksPage.Instance);
 
             if (m_activeInspector == inspector)
                 return;
@@ -114,7 +114,7 @@ namespace SideLoader.Inspectors
 
         public void ConstructInspectorPane()
         {
-            var mainObj = UIFactory.CreateVerticalGroup(HomePage.Instance.Content, new Color(72f / 255f, 72f / 255f, 72f / 255f));
+            var mainObj = UIFactory.CreateVerticalGroup(SLPacksPage.Instance.Content, new Color(72f / 255f, 72f / 255f, 72f / 255f));
             LayoutElement mainLayout = mainObj.AddComponent<LayoutElement>();
             mainLayout.preferredHeight = 400;
             mainLayout.flexibleHeight = 9000;

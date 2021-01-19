@@ -28,7 +28,7 @@ namespace SideLoader
                 return null;
 
             References.RPM_EFFECT_PRESETS.TryGetValue(parsed, out EffectPreset ret);
-            return (IContentTemplate)ret;
+            return ret;
         }
 
         [XmlIgnore] public string SerializedSLPackName

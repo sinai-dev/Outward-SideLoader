@@ -168,6 +168,9 @@ namespace SideLoader
         [SL_Serialized]
         public class SkillItemReq
         {
+            public override string ToString()
+                => $"{Quantity}x {ResourcesPrefabManager.Instance.GetItemPrefab(ItemID)?.Name ?? "<not found>"} (Consume = {Consume})";
+
             public int ItemID;
             public int Quantity;
             public bool Consume;

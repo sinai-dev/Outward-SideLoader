@@ -54,9 +54,8 @@ namespace SideLoader.UI
 
             Instance = this;
 
-            Pages.Add(new HomePage());
-            Pages.Add(new PageTwo());
-            Pages.Add(new PageThree());
+            Pages.Add(new SLPacksPage());
+            Pages.Add(new ToolsPage());
 
             ConstructMenu();
 

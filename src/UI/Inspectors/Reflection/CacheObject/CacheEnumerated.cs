@@ -7,7 +7,7 @@ using SideLoader.UI;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace SideLoader.Inspectors.Reflection
+namespace SideLoader.UI.Inspectors.Reflection
 {
     public class CacheEnumerated : CacheObjectBase
     {
@@ -16,9 +16,9 @@ namespace SideLoader.Inspectors.Reflection
 
         public int Index { get; set; }
         public IList RefIList { get; set; }
-        public InteractiveEnumerable ParentEnumeration { get; set; }
+        public InteractiveList ParentEnumeration { get; set; }
 
-        public CacheEnumerated(int index, InteractiveEnumerable parentEnumeration, IList refIList, GameObject parentContent)
+        public CacheEnumerated(int index, InteractiveList parentEnumeration, IList refIList, GameObject parentContent)
         {
             this.ParentEnumeration = parentEnumeration;
             this.Index = index;

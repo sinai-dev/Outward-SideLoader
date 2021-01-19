@@ -253,6 +253,11 @@ namespace SideLoader
         [SL_Serialized]
         public class Ingredient
         {
+            public override string ToString()
+                => Type == RecipeIngredient.ActionTypes.AddGenericIngredient
+                    ? $"Generic: {Ingredient_Tag}"
+                    : $"Specific: {ResourcesPrefabManager.Instance.GetItemPrefab(Ingredient_ItemID)?.Name ?? "<not found>"}";
+
             public RecipeIngredient.ActionTypes Type;
 
             public int Ingredient_ItemID;
@@ -262,6 +267,9 @@ namespace SideLoader
         [SL_Serialized]
         public class ItemQty
         {
+            public override string ToString()
+                => $"{Quantity}x {ResourcesPrefabManager.Instance.GetItemPrefab(ItemID)?.Name ?? "<not found>"}";
+
             public int ItemID;
             public int Quantity;
         }

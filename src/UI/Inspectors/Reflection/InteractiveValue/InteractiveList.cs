@@ -11,11 +11,11 @@ using SideLoader.UI;
 using SideLoader.UI.Shared;
 using SideLoader.UI.Inspectors.Reflection;
 
-namespace SideLoader.Inspectors.Reflection
+namespace SideLoader.UI.Inspectors.Reflection
 {
-    public class InteractiveEnumerable : InteractiveValue
+    public class InteractiveList : InteractiveValue
     {
-        public InteractiveEnumerable(object value, Type valueType) : base(value, valueType) 
+        public InteractiveList(object value, Type valueType) : base(value, valueType) 
         {
             if (valueType.IsGenericType)
                 m_baseEntryType = valueType.GetGenericArguments()[0];
@@ -31,7 +31,7 @@ namespace SideLoader.Inspectors.Reflection
         public override bool HasSubContent => true;
         public override bool SubContentWanted => Value != null;
 
-        internal IEnumerable RefIEnumerable;
+        //internal IEnumerable RefIEnumerable;
         internal IList RefIList;
         internal readonly Type m_baseEntryType;
 
@@ -41,7 +41,7 @@ namespace SideLoader.Inspectors.Reflection
 
         public override void OnValueUpdated()
         {
-            RefIEnumerable = Value as IEnumerable;
+            //RefIEnumerable = Value as IEnumerable;
             RefIList = Value as IList;
 
             if (m_subContentParent.activeSelf)
@@ -75,7 +75,7 @@ namespace SideLoader.Inspectors.Reflection
 
             if (RefIList == null)
             {
-                SL.LogWarning("Cannot add to " + this.RefIEnumerable.GetType());
+                SL.LogWarning("Cannot add to " + this.Value.GetType());
                 return;
             }
 
@@ -135,7 +135,7 @@ namespace SideLoader.Inspectors.Reflection
         internal void ApplyFromRefIList()
         {
             this.Value = RefIList;
-            this.RefIEnumerable = Value as IEnumerable;
+            //this.RefIEnumerable = Value as IEnumerable;
             Owner.SetValue();
             GetCacheEntries();
             RefreshUIForValue();
@@ -153,21 +153,8 @@ namespace SideLoader.Inspectors.Reflection
                 return;
             }
 
-            object toChange = null;
-            object toSwap = null;
-            int i = 0;
-            foreach (var entry in RefIEnumerable)
-            {
-                if (i == index)
-                    toChange = entry;
-                else if (i == newIndex)
-                    toSwap = entry;
-
-                if (toChange != null && toSwap != null)
-                    break;
-
-                i++;
-            }
+            object toChange = RefIList[index];
+            object toSwap = RefIList[newIndex];
 
             RefIList[newIndex] = toChange;
             RefIList[index] = toSwap;
@@ -233,10 +220,10 @@ namespace SideLoader.Inspectors.Reflection
                 m_entries.Clear();
             }
 
-            if (RefIEnumerable != null)
+            if (RefIList != null)
             {
                 int index = 0;
-                foreach (var entry in RefIEnumerable)
+                foreach (var entry in RefIList)
                 {
                     object entryToUse = entry;
                     if (entryToUse == null)

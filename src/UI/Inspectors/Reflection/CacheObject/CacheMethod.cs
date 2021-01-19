@@ -7,7 +7,7 @@ using UnityEngine.UI;
 using SideLoader.UI;
 using SideLoader.Helpers;
 
-namespace SideLoader.Inspectors.Reflection
+namespace SideLoader.UI.Inspectors.Reflection
 {
     public class CacheMethod : CacheMember
     {

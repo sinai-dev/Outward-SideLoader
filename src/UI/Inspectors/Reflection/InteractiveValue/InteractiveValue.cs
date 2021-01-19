@@ -10,12 +10,13 @@ using SideLoader.UI;
 using System.Collections;
 using SideLoader.UI.Inspectors.Reflection;
 
-namespace SideLoader.Inspectors.Reflection
+namespace SideLoader.UI.Inspectors.Reflection
 {
     public class InteractiveValue
     {
         public static Type GetIValueForType(Type type)
         {
+            // cant switch-case this. order is important too.
             if (type.FullName.StartsWith("System.Nullable"))
                 return typeof(InteractiveNullable);
             else if (type == typeof(bool))
@@ -24,21 +25,20 @@ namespace SideLoader.Inspectors.Reflection
                 return typeof(InteractiveString);
             else if (type.IsPrimitive)
                 return typeof(InteractiveNumber);
+            else if (type == typeof(SL_Damage))
+                return typeof(InteractiveSLDamage);
             else if (typeof(Enum).IsAssignableFrom(type))
-            {
-                if (type.GetCustomAttributes(typeof(FlagsAttribute), true) is object[] attributes && attributes.Length > 0)
-                    return typeof(InteractiveFlags);
-                else
-                    return typeof(InteractiveEnum);
-            }
+                return type.GetCustomAttribute(typeof(FlagsAttribute), true) is FlagsAttribute
+                        ? typeof(InteractiveFlags)
+                        : typeof(InteractiveEnum);
             else if (InteractiveUnityStruct.SupportsType(type))
                 return typeof(InteractiveUnityStruct);
             else if (typeof(Transform).IsAssignableFrom(type))
                 return typeof(InteractiveValue);
             else if (typeof(IDictionary).IsAssignableFrom(type))
                 return typeof(InteractiveDictionary);
-            else if (typeof(IEnumerable).IsAssignableFrom(type))
-                return typeof(InteractiveEnumerable);
+            else if (typeof(IList).IsAssignableFrom(type))
+                return typeof(InteractiveList);
             else
                 return typeof(InteractiveValue);
         }

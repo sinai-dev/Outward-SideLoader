@@ -26,7 +26,7 @@ namespace SideLoader
                 return null;
 
             References.ENCHANTMENT_RECIPES.TryGetValue(parsed, out EnchantmentRecipe ret);
-            return (IContentTemplate)ret;
+            return ret;
         }
 
         [XmlIgnore]

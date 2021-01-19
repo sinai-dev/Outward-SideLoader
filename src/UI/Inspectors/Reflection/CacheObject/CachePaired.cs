@@ -8,7 +8,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 
-namespace SideLoader.Inspectors.Reflection
+namespace SideLoader.UI.Inspectors.Reflection
 {
     public enum PairTypes
     {

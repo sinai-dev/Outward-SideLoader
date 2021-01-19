@@ -4,7 +4,7 @@ using UnityEngine.UI;
 using SideLoader.Helpers;
 using SideLoader.UI;
 
-namespace SideLoader.Inspectors
+namespace SideLoader.UI.Inspectors
 {
     public abstract class InspectorBase
     {

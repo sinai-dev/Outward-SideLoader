@@ -8,7 +8,7 @@ using UnityEngine.UI;
 using SideLoader.Helpers;
 using SideLoader.UI;
 
-namespace SideLoader.Inspectors.Reflection
+namespace SideLoader.UI.Inspectors.Reflection
 {
     public class InteractiveNumber : InteractiveValue
     {

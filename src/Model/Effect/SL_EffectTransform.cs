@@ -21,6 +21,22 @@ namespace SideLoader
         public SL_EffectCondition[] EffectConditions;
         public SL_EffectTransform[] ChildEffects;
 
+        public override string ToString()
+        {
+            string ret = this.TransformName;
+
+            if (this.Effects?.Length > 0)
+                ret += $" ({Effects.Length} effects)";
+
+            if (this.EffectConditions?.Length > 0)
+                ret += $" ({EffectConditions.Length} conditions)";
+
+            if (this.ChildEffects?.Length > 0)
+                ret += $" ({ChildEffects.Length} children)";
+
+            return ret;
+        }
+
         /// <summary>
         /// Returns true if this Transform contains any Effects or Conditions, or has Children which do.
         /// </summary>

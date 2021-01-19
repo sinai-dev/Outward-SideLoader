@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using System.IO;
-using SideLoader.Inspectors;
+using SideLoader.UI.Inspectors;
 
 namespace SideLoader.UI
 {
