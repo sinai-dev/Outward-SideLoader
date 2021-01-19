@@ -11,11 +11,6 @@ namespace SideLoader
         public RemoveStatusEffect.RemoveTypes CleanseType;
         public string SelectorValue;
 
-        /// <summary>[OBSOLETE] Use SelectorValue instead.</summary>
-        public string Status_Name;
-        /// <summary>[OBSOLETE] Use SelectorValue instead.</summary>
-        public string Status_Tag;
-
         public override void ApplyToComponent<T>(T component)
         {
             var comp = component as RemoveStatusEffect;
@@ -80,5 +75,16 @@ namespace SideLoader
                     break;
             }
         }
+
+        // ==== Legacy support ====
+
+        /// <summary>[OBSOLETE] Use SelectorValue instead.</summary>
+        [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
+        public string Status_Name;
+        /// <summary>[OBSOLETE] Use SelectorValue instead.</summary>
+        [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
+        public string Status_Tag;
+        internal bool ShouldSerializeStatus_Name() => false;
+        internal bool ShouldSerializeStatus_Tag() => false;
     }
 }

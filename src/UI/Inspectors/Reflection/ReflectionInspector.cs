@@ -12,6 +12,7 @@ using UnityEngine.UI;
 using System.Xml.Serialization;
 using SideLoader.Model;
 using System.Collections;
+using System.ComponentModel;
 
 namespace SideLoader.UI.Inspectors
 {
@@ -202,7 +203,9 @@ namespace SideLoader.UI.Inspectors
                 {
                     try
                     {
-                        if (member.CustomAttributes.Any(it => it.AttributeType == typeof(XmlIgnoreAttribute)))
+                        if (member.CustomAttributes.Any(it => it.AttributeType == typeof(XmlIgnoreAttribute)
+                                                           || it.AttributeType == typeof(EditorBrowsableAttribute)
+                                                              && (EditorBrowsableState)it.ConstructorArguments[0].Value == EditorBrowsableState.Never))
                             continue;
 
                         //SL.Log($"Trying to cache member {sig}...");

@@ -12,6 +12,8 @@ namespace SideLoader
 {
     public class SL_Recipe : IContentTemplate<string>
     {
+        #region IContentTemplate
+
         [XmlIgnore] public string DefaultTemplateName => "UntitledRecipe";
         [XmlIgnore] public bool IsCreatingNewID => true;
         [XmlIgnore] public bool DoesTargetExist => true;
@@ -46,6 +48,8 @@ namespace SideLoader
             set => m_serializedFilename = value;
         }
         public void CreateContent() => this.ApplyRecipe();
+
+        #endregion
 
         internal string SLPackName;
         internal string m_serializedFilename;
@@ -94,12 +98,18 @@ namespace SideLoader
                 var ingredients = new List<RecipeIngredient>();
                 foreach (var ingredient in this.Ingredients)
                 {
+                    // legacy support
+                    if (!string.IsNullOrEmpty(ingredient.Ingredient_Tag))
+                        ingredient.SelectorValue = ingredient.Ingredient_Tag;
+                    else if (ingredient.Ingredient_ItemID != 0)
+                        ingredient.SelectorValue = ingredient.Ingredient_ItemID.ToString();
+
                     if (ingredient.Type == RecipeIngredient.ActionTypes.AddGenericIngredient)
                     {
-                        var tag = CustomTags.GetTag(ingredient.Ingredient_Tag);
+                        var tag = CustomTags.GetTag(ingredient.SelectorValue);
                         if (tag == Tag.None)
                         {
-                            SL.LogWarning("Could not get a tag by the name of '" + ingredient.Ingredient_Tag);
+                            SL.LogWarning("Could not get a tag by the name of '" + ingredient.SelectorValue);
                             return;
                         }
 
@@ -111,16 +121,17 @@ namespace SideLoader
                     }
                     else
                     {
-                        if (ingredient.Ingredient_ItemID == 0)
+                        int.TryParse(ingredient.SelectorValue, out int id);
+                        if (id == 0)
                         {
                             SL.LogWarning("Picking an Ingredient based on Item ID, but no ID was set. Check your XML and make sure there are no logical errors. Aborting");
                             return;
                         }
 
-                        var ingredientItem = ResourcesPrefabManager.Instance.GetItemPrefab(ingredient.Ingredient_ItemID);
+                        var ingredientItem = ResourcesPrefabManager.Instance.GetItemPrefab(id);
                         if (!ingredientItem)
                         {
-                            SL.Log("Error: Could not get ingredient id : " + ingredient.Ingredient_ItemID);
+                            SL.Log("Error: Could not get ingredient id : " + id);
                             return;
                         }
 
@@ -225,7 +236,7 @@ namespace SideLoader
                     recipeHolder.Ingredients.Add(new Ingredient() 
                     {
                         Type = ingredient.ActionType,
-                        Ingredient_ItemID = ingredient.AddedIngredient.ItemID
+                        SelectorValue = ingredient.AddedIngredient.ItemID.ToString()
                     });
                 }
                 else
@@ -233,7 +244,7 @@ namespace SideLoader
                     recipeHolder.Ingredients.Add(new Ingredient() 
                     {
                         Type = ingredient.ActionType,
-                        Ingredient_Tag = ingredient.AddedIngredientType.Tag.TagName
+                        SelectorValue = ingredient.AddedIngredientType.Tag.TagName
                     });
                 }
             }
@@ -254,14 +265,31 @@ namespace SideLoader
         public class Ingredient
         {
             public override string ToString()
-                => Type == RecipeIngredient.ActionTypes.AddGenericIngredient
-                    ? $"Generic: {Ingredient_Tag}"
-                    : $"Specific: {ResourcesPrefabManager.Instance.GetItemPrefab(Ingredient_ItemID)?.Name ?? "<not found>"}";
+            {
+                string ret;
+                if (Type == RecipeIngredient.ActionTypes.AddGenericIngredient)
+                    ret = SelectorValue;
+                else
+                    if (!string.IsNullOrEmpty(this.SelectorValue))
+                        ret = ResourcesPrefabManager.Instance.GetItemPrefab(this.SelectorValue)?.Name ?? "<not found>";
+                    else
+                        ret = "<not set>";
+
+                return ret;
+            }
 
             public RecipeIngredient.ActionTypes Type;
+            public string SelectorValue;
 
+            // legacy
+            ///<summary>[OBSOLETE] Use SelectorValue instead.</summary>
+            [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
             public int Ingredient_ItemID;
+            ///<summary>[OBSOLETE] Use SelectorValue instead.</summary>
+            [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
             public string Ingredient_Tag;
+            internal bool ShouldSerializeIngredient_ItemID() => false;
+            internal bool ShouldSerializeIngredient_Tag() => false;
         }
 
         [SL_Serialized]
