@@ -137,6 +137,7 @@ namespace SideLoader
             ManaCost = skill.ManaCost;
             DurabilityCost = skill.DurabilityCost;
             DurabilityCostPercent = skill.DurabilityCostPercent;
+            HealthCost = skill.HealthCost;
 
             VFXOnStart = skill.VFXOnStart;
             StopStartVFXOnEnd = skill.StopVFX;

@@ -305,41 +305,6 @@ namespace SideLoader.UI.Inspectors.Reflection
         {
             base.ConstructSubcontent();
 
-            var addRowObj = UIFactory.CreateHorizontalGroup(m_subContentParent, new Color(1, 1, 1, 0));
-            var rowGroup = addRowObj.GetComponent<HorizontalLayoutGroup>();
-            rowGroup.childForceExpandWidth = false;
-            rowGroup.spacing = 5;
-            rowGroup.padding = new RectOffset(3, 3, 3, 3);
-            var addRowLayout = addRowObj.AddComponent<LayoutElement>();
-            addRowLayout.minHeight = 25;
-            addRowLayout.flexibleHeight = 0;
-
-            var inherited = At.GetInheritedTypes(this.m_baseEntryType);
-            if (inherited.Count > 1)
-            {
-                m_typeDrop = new TypeTreeDropdown(m_baseEntryType, addRowObj, m_baseEntryType, (Type val) => 
-                {
-                    m_typeToAdd = val;
-                });
-
-                if (m_baseEntryType.IsAbstract || m_baseEntryType.IsInterface)
-                {
-                    m_typeDrop.m_dropdown.value = 0;
-                }
-            }
-
-            var addBtnObj = UIFactory.CreateButton(addRowObj, new Color(0.15f, 0.45f, 0.15f));
-            var addBtn = addBtnObj.GetComponent<Button>();
-            var addbtnLayout = addBtnObj.AddComponent<LayoutElement>();
-            addbtnLayout.minHeight = 25;
-            addbtnLayout.minWidth = 120;
-            addbtnLayout.flexibleWidth = 0;
-            addBtn.onClick.AddListener(() => 
-            {
-                AddEntry();
-            });
-            addBtnObj.GetComponentInChildren<Text>().text = "Add...";
-
             m_pageHandler = new PageHandler(null);
             m_pageHandler.ConstructUI(m_subContentParent);
             m_pageHandler.OnPageChanged += OnPageTurned;
@@ -368,7 +333,47 @@ namespace SideLoader.UI.Inspectors.Reflection
             contentFitter.horizontalFit = ContentSizeFitter.FitMode.Unconstrained;
             contentFitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
 
+            ConstructAddRow();
+
             RefreshElementsAfterUpdate();
+        }
+
+        internal void ConstructAddRow()
+        {
+            var addRowObj = UIFactory.CreateHorizontalGroup(m_subContentParent, new Color(1, 1, 1, 0));
+            var rowGroup = addRowObj.GetComponent<HorizontalLayoutGroup>();
+            rowGroup.childForceExpandWidth = false;
+            rowGroup.spacing = 5;
+            rowGroup.padding = new RectOffset(3, 3, 3, 3);
+            var addRowLayout = addRowObj.AddComponent<LayoutElement>();
+            addRowLayout.minHeight = 25;
+            addRowLayout.flexibleHeight = 0;
+
+            var inherited = At.GetInheritedTypes(this.m_baseEntryType);
+            if (inherited.Count > 1)
+            {
+                m_typeDrop = new TypeTreeDropdown(m_baseEntryType, addRowObj, m_baseEntryType, (Type val) =>
+                {
+                    m_typeToAdd = val;
+                });
+
+                if (m_baseEntryType.IsAbstract || m_baseEntryType.IsInterface)
+                {
+                    m_typeDrop.m_dropdown.value = 0;
+                }
+            }
+
+            var addBtnObj = UIFactory.CreateButton(addRowObj, new Color(0.15f, 0.45f, 0.15f));
+            var addBtn = addBtnObj.GetComponent<Button>();
+            var addbtnLayout = addBtnObj.AddComponent<LayoutElement>();
+            addbtnLayout.minHeight = 25;
+            addbtnLayout.minWidth = 120;
+            addbtnLayout.flexibleWidth = 0;
+            addBtn.onClick.AddListener(() =>
+            {
+                AddEntry();
+            });
+            addBtnObj.GetComponentInChildren<Text>().text = "Add...";
         }
 
 #endregion

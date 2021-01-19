@@ -48,7 +48,7 @@ namespace SideLoader.UI.Inspectors
 
         public override string TabLabel => m_targetTypeShortName;
 
-        internal CacheMember ParentMember { get; set; }
+        internal CacheObjectBase ParentMember { get; set; }
 
         internal Type m_targetType;
         internal string m_targetTypeShortName;
@@ -103,6 +103,12 @@ namespace SideLoader.UI.Inspectors
                 cacheField.IValue.Value = Target;
                 cacheField.SetValue();
                 cacheField.UpdateValue();
+            }
+            else if (this.ParentMember is CacheEnumerated cacheEnumerated)
+            {
+                cacheEnumerated.IValue.Value = Target;
+                cacheEnumerated.SetValue();
+                cacheEnumerated.UpdateValue();
             }
 
             m_targetType = Target.GetType();
@@ -405,8 +411,8 @@ namespace SideLoader.UI.Inspectors
         private void ConstructTypeChanger(GameObject parent)
         {
             Type baseType;
-            if (this.ParentMember is CacheField cacheField)
-                baseType = cacheField.FallbackType;
+            if (this.ParentMember is CacheObjectBase cacheParent)
+                baseType = cacheParent.FallbackType;
             else
             {
                 baseType = this.m_targetType;

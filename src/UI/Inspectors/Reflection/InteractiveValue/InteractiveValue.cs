@@ -518,7 +518,7 @@ namespace SideLoader.UI.Inspectors.Reflection
             void OnInspectClicked()
             {
                 if (!Value.IsNullOrDestroyed(false))
-                    InspectorManager.Instance.Inspect(this.Value, null, this.Owner as CacheMember);
+                    InspectorManager.Instance.Inspect(this.Value, null, this.Owner);
             }
 
             m_inspectButton.SetActive(false);

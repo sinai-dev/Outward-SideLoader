@@ -40,7 +40,7 @@ namespace SideLoader.UI.Inspectors.Reflection
 
             var dropLayout = m_uiContent.AddComponent<LayoutElement>();
             dropLayout.minHeight = 25;
-            dropLayout.minWidth = 250;
+            dropLayout.minWidth = 300;
             dropLayout.flexibleHeight = 0;
             dropLayout.flexibleWidth = 0;
 

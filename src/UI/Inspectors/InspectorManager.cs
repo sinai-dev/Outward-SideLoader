@@ -39,7 +39,7 @@ namespace SideLoader.UI.Inspectors
             }
         }
 
-        public ReflectionInspector Inspect(object obj, SLPack pack, CacheMember parentMember = null)
+        public ReflectionInspector Inspect(object obj, SLPack pack, CacheObjectBase parentMember = null)
         {
             //UnityEngine.Object unityObj = obj as UnityEngine.Object;
 
