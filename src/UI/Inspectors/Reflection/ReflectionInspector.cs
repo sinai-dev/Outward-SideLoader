@@ -99,17 +99,15 @@ namespace SideLoader.UI.Inspectors
             if (this is TemplateInspector ti)
                 ti.Template = Target as IContentTemplate;
 
-            if (this.ParentMember is CacheField cacheField)
+            if (this.ParentMember is CacheObjectBase parentCache)
             {
-                cacheField.IValue.Value = Target;
-                cacheField.SetValue();
-                cacheField.UpdateValue();
-            }
-            else if (this.ParentMember is CacheEnumerated cacheEnumerated)
-            {
-                cacheEnumerated.IValue.Value = Target;
-                cacheEnumerated.SetValue();
-                cacheEnumerated.UpdateValue();
+                try
+                {
+                    parentCache.IValue.Value = Target;
+                    parentCache.SetValue();
+                    parentCache.UpdateValue();
+                }
+                catch { }
             }
 
             m_targetType = Target.GetType();

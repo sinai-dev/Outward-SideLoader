@@ -384,6 +384,9 @@ namespace SideLoader.UI.Inspectors.Reflection
                 ConstructSubcontent();
         }
 
+        internal MethodInfo m_toStringMethod;
+        internal bool m_toStringCanFormat;
+
         public string GetDefaultLabel(bool updateType = true)
         {
             var valueType = Value?.GetType() ?? this.FallbackType;
@@ -413,8 +416,36 @@ namespace SideLoader.UI.Inspectors.Reflection
             }
             else
             {
-                var toString = (string)valueType.GetMethod("ToString", new Type[0])?.Invoke(Value, null) 
-                                ?? Value.ToString();
+                if (m_toStringMethod == null)
+                {
+                    m_toStringMethod = valueType.GetMethod("ToString", new Type[] { typeof(string) });
+                    if (m_toStringMethod == null)
+                    {
+                        m_toStringMethod = valueType.GetMethod("ToString", new Type[0]);
+                        if (m_toStringMethod == null)
+                            m_toStringMethod = typeof(object).GetMethod("ToString", new Type[0]);
+                    }
+                    else
+                        m_toStringCanFormat = true;
+                }
+
+                string toString = "";
+                if (m_toStringCanFormat)
+                {
+                    try
+                    {
+                        toString = m_toStringMethod.Invoke(Value, new object[] { "F3" }) as string;
+                    }
+                    catch (FormatException)
+                    {
+                        m_toStringCanFormat = false;
+                        m_toStringMethod = valueType.GetMethod("ToString", new Type[0]);
+                        if (m_toStringMethod == null)
+                            m_toStringMethod = typeof(object).GetMethod("ToString", new Type[0]);
+                    }
+                }
+                if (!m_toStringCanFormat)
+                    toString = m_toStringMethod.Invoke(Value, null) as string;
 
                 var fullnametemp = valueType.ToString();
                 if (fullnametemp.StartsWith("Il2CppSystem"))
