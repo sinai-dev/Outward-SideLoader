@@ -19,6 +19,7 @@ namespace SideLoader
 
         public float BuildUpMultiplier = 1.0f;
         public bool BypassCounter;
+        public bool AffectController;
 
         public override void ApplyToComponent<T>(T component)
         {
@@ -36,6 +37,7 @@ namespace SideLoader
             comp.BuildUpValue = this.Buildup;
             comp.BypassCounter = this.BypassCounter;
             comp.BuildUpMultiplier = this.BuildUpMultiplier;
+            comp.AffectController = this.AffectController;
         }
 
         public override void SerializeEffect<T>(T effect)
@@ -48,6 +50,7 @@ namespace SideLoader
                 Buildup = comp.BuildUpValue;
                 BuildUpMultiplier = comp.BuildUpMultiplier;
                 BypassCounter = comp.BypassCounter;
+                this.AffectController = comp.AffectController;
             }
         }
     }
