@@ -14,6 +14,7 @@ namespace SideLoader
         public float? Damage_Protection;
 
         public float[] Damage_Bonus = new float[9];
+        public float? Impact_Bonus;
 
         public float? Stamina_Use_Penalty;
         public float? Mana_Use_Modifier;
@@ -51,7 +52,10 @@ namespace SideLoader
             
             if (this.Damage_Bonus != null)
                 At.SetField(eStats, "m_damageAttack", this.Damage_Bonus);
-            
+
+            if (this.Impact_Bonus != null)
+                At.SetField(eStats, "m_impactModifier", this.Impact_Bonus);
+
             if (this.Stamina_Use_Penalty != null)
                 At.SetField(eStats, "m_staminaUsePenalty", (float)this.Stamina_Use_Penalty);
             
@@ -118,8 +122,9 @@ namespace SideLoader
                 GlobalStatusEffectResistance = eStats.GlobalStatusEffectResistance;
                 StaminaRegenModifier = eStats.StaminaRegenModifier;
 
-                Damage_Bonus = At.GetField(stats as EquipmentStats, "m_damageAttack") as float[];
-                Damage_Resistance = At.GetField(stats as EquipmentStats, "m_damageResistance") as float[];
+                Damage_Bonus = At.GetField(eStats, "m_damageAttack") as float[];
+                Damage_Resistance = At.GetField(eStats, "m_damageResistance") as float[];
+                Impact_Bonus = eStats.ImpactModifier;
             }
             catch (Exception e)
             {
