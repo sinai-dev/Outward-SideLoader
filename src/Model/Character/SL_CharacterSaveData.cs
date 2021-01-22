@@ -24,6 +24,8 @@ namespace SideLoader
         public float Health;
         public string[] StatusData;
 
+
+
         public string ExtraRPCData;
         public string ExtraSaveData;
 

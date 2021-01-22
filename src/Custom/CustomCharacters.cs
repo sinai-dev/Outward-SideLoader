@@ -264,8 +264,7 @@ namespace SideLoader
             var pv = character.photonView;
             int view = pv.viewID;
 
-            //  DestroyImmediate
-            GameObject.DestroyImmediate(character.gameObject);
+            GameObject.Destroy(character.gameObject);
 
             if (character)
                 SL.LogError("ERROR - Could not seem to destroy character " + character.UID);

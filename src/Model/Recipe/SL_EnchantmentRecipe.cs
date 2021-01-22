@@ -10,6 +10,7 @@ namespace SideLoader
 {
     public class SL_EnchantmentRecipe : IContentTemplate<int>
     {
+        #region IContentTemplate
         [XmlIgnore] public string DefaultTemplateName => "Untitled EnchantmentRecipe";
         [XmlIgnore] public bool IsCreatingNewID => true;
         [XmlIgnore] public bool DoesTargetExist => true;
@@ -35,12 +36,14 @@ namespace SideLoader
             get => SLPackName;
             set => SLPackName = value;
         }
-        [XmlIgnore] public string SerializedSubfolderName
+        [XmlIgnore]
+        public string SerializedSubfolderName
         {
             get => null;
             set { }
         }
-        [XmlIgnore] public string SerializedFilename
+        [XmlIgnore]
+        public string SerializedFilename
         {
             get => m_serializedFilename;
             set => m_serializedFilename = value;
@@ -49,6 +52,7 @@ namespace SideLoader
 
         [XmlIgnore] public string SLPackName;
         [XmlIgnore] internal string m_serializedFilename;
+        #endregion
 
         public int EnchantmentID;
         public string Name;
@@ -66,7 +70,9 @@ namespace SideLoader
         public TemperatureSteps[] Temperature;
         public bool WindAltarActivated;
 
-        // actual enchantment data
+        public bool IsEnchantingGuildRecipe;
+
+        // ~~~ actual enchantment data ~~~
         public float EnchantTime;
         public SL_EffectTransform[] Effects;
         public AdditionalDamage[] AddedDamages;
@@ -178,6 +184,8 @@ namespace SideLoader
             else
                 recipe.Weather = new EnchantmentRecipe.WeaterCondition[0];
 
+            recipe.TableIsInBuilding = this.IsEnchantingGuildRecipe;
+
             // ========== Create actual Enchantment effects prefab ==========
 
             var enchantmentObject = new GameObject(this.EnchantmentID + "_" + this.Name);
@@ -249,23 +257,15 @@ namespace SideLoader
       
             // Recipe dict
             if (References.ENCHANTMENT_RECIPES.ContainsKey(this.EnchantmentID))
-            {
                 References.ENCHANTMENT_RECIPES[this.EnchantmentID] = recipe;
-            }
             else
-            {
                 References.ENCHANTMENT_RECIPES.Add(this.EnchantmentID, recipe);
-            }
 
             // Enchantment dict
             if (References.ENCHANTMENT_PREFABS.ContainsKey(this.EnchantmentID))
-            {
                 References.ENCHANTMENT_PREFABS[this.EnchantmentID] = enchantment;
-            }
             else
-            {
                 References.ENCHANTMENT_PREFABS.Add(this.EnchantmentID, enchantment);
-            }
         }
 
         public static void SetLocalization(SL_EnchantmentRecipe recipe, out string descKey)
@@ -276,22 +276,14 @@ namespace SideLoader
             descKey = $"DESC_{nameKey}";
 
             if (dict.ContainsKey(nameKey))
-            {
                 dict[nameKey] = recipe.Name;
-            }
             else
-            {
                 dict.Add(nameKey, recipe.Name);
-            }
 
             if (dict.ContainsKey(descKey))
-            {
                 dict[descKey] = recipe.Description;
-            }
             else
-            {
                 dict.Add(descKey, recipe.Description);
-            }
         }
 
         // ======== Serializing Enchantment into a Template =========
@@ -311,6 +303,8 @@ namespace SideLoader
                 Areas = recipe.Region,
                 Temperature = recipe.Temperature,
                 WindAltarActivated = recipe.WindAltarActivated,
+
+                IsEnchantingGuildRecipe = recipe.TableIsInBuilding,
 
                 EnchantTime = enchantment.EnchantTime,
                 HealthAbsorbRatio = enchantment.HealthAbsorbRatio,
@@ -349,13 +343,9 @@ namespace SideLoader
                         SelectorType = (IngredientTypes)equipData.Type
                     };
                     if (data.SelectorType == IngredientTypes.SpecificItem)
-                    {
                         data.SelectorValue = equipData.SpecificIngredient?.ItemID.ToString();
-                    }
                     else
-                    {
                         data.SelectorValue = equipData.IngredientTag.Tag.TagName;
-                    }
                     equipList.Add(data);
                 }
                 compatibleEquipment.Equipments = equipList.ToArray();
@@ -372,9 +362,7 @@ namespace SideLoader
                     var effectsChild = SL_EffectTransform.ParseTransform(child);
 
                     if (effectsChild.HasContent)
-                    {
                         effects.Add(effectsChild);
-                    }
                 }
                 template.Effects = effects.ToArray();
             }
@@ -409,17 +397,11 @@ namespace SideLoader
             }
 
             if (enchantment.DamageBonus != null)
-            {
                 template.FlatDamageAdded = SL_Damage.ParseDamageList(enchantment.DamageBonus).ToArray();
-            }
             if (enchantment.DamageModifier != null)
-            {
                 template.DamageModifierBonus = SL_Damage.ParseDamageList(enchantment.DamageModifier).ToArray();
-            }
             if (enchantment.ElementalResistances != null)
-            {
                 template.DamageResistanceBonus = SL_Damage.ParseDamageList(enchantment.ElementalResistances).ToArray();
-            }
 
             template.GlobalStatusResistance = enchantment.GlobalStatusResistance;
 
@@ -435,12 +417,16 @@ namespace SideLoader
 
         public struct IngredientData
         {
+            public override string ToString() => $"{SelectorType}: {SelectorValue}";
+
             public IngredientTypes SelectorType;
             public string SelectorValue;
         }
 
         public struct EquipmentData
         {
+            public override string ToString() => $"Tag: {RequiredTag}, Equipments: {Equipments?.Length.ToString() ?? "<null>"}";
+
             public IngredientData[] Equipments;
             public string RequiredTag;
         }
@@ -455,6 +441,8 @@ namespace SideLoader
 
         public struct PillarData
         {
+            public override string ToString() => $"{Direction} {(IsFar ? "Far" : "Close")}";
+
             public Directions Direction;
             public bool IsFar;
         }
@@ -469,6 +457,8 @@ namespace SideLoader
 
         public struct WeatherCondition
         {
+            public override string ToString() => $"{WeatherType} (Invert: {Invert})";
+
             public WeatherTypes WeatherType;
             public bool Invert;
         }
@@ -476,6 +466,8 @@ namespace SideLoader
         // ====== Enchantment sub-classes ======
         public struct AdditionalDamage
         {
+            public override string ToString() => $"{SourceDamageType} -> {AddedDamageType} ({ConversionRatio}%)";
+
             public DamageType.Types AddedDamageType;
             public DamageType.Types SourceDamageType;
             public float ConversionRatio;
@@ -483,6 +475,8 @@ namespace SideLoader
 
         public struct StatModification
         {
+            public override string ToString() => $"{Stat} ({Type}): {Value}";
+
             public Enchantment.Stat Stat;
             public Enchantment.StatModification.BonusType Type;
             public float Value;

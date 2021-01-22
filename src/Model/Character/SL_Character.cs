@@ -14,6 +14,7 @@ namespace SideLoader
     [SL_Serialized]
     public class SL_Character : IContentTemplate<string>
     {
+        #region IContentTemplate
         [XmlIgnore] public string DefaultTemplateName => "Untitled Character";
         [XmlIgnore] public bool IsCreatingNewID => true;
         [XmlIgnore] public bool DoesTargetExist => true;
@@ -26,23 +27,27 @@ namespace SideLoader
         public IContentTemplate ParseToTemplate(object _) => throw new NotImplementedException();
         public object GetContentFromID(object id) => throw new NotImplementedException();
 
-        [XmlIgnore] public string SerializedSLPackName
+        [XmlIgnore]
+        public string SerializedSLPackName
         {
             get => SLPackName;
             set => SLPackName = value;
         }
-        [XmlIgnore] public string SerializedSubfolderName
+        [XmlIgnore]
+        public string SerializedSubfolderName
         {
             get => null;
             set { }
         }
-        [XmlIgnore] public string SerializedFilename
+        [XmlIgnore]
+        public string SerializedFilename
         {
             get => m_serializedFilename;
             set => m_serializedFilename = value;
         }
 
         public void CreateContent() => this.Prepare();
+        #endregion
 
         /// <summary>[Not Serialized] The name of the SLPack used to load certain assets from. Not required.</summary>
         [XmlIgnore] public string SLPackName { get; set; }

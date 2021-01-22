@@ -166,61 +166,7 @@ namespace SideLoader.UI.Inspectors
             var gameType = Serializer.GetGameType(genType);
 
             if (!s_typeToOptionsDict.ContainsKey(gameType))
-            {
-                s_typeToOptionsDict.Add(gameType, new List<ContentSuggestion>());
-                var list = s_typeToOptionsDict[gameType];
-
-                if (typeof(UnityEngine.Object).IsAssignableFrom(gameType))
-                {
-                    HashSet<string> checkedObjects = new HashSet<string>();
-
-                    foreach (var obj in Resources.FindObjectsOfTypeAll(gameType))
-                    {
-                        var suggest = new ContentSuggestion
-                        {
-                            DisplayedValue = obj.name,
-                            UnderlyingValue = obj
-                        };
-
-                        if (obj is Item item)
-                        {
-                            suggest.SearchQueryValue = $"{item.ItemID} {item.Name} {item.name}".ToLower();
-                            suggest.IDValue = item.ItemID.ToString();
-                            suggest.DisplayedValue = $"{item.Name} ({suggest.DisplayedValue})";
-                        }
-                        else if (obj is StatusEffect status)
-                        {
-                            suggest.SearchQueryValue = $"{status.IdentifierName} {status.StatusName} {status.name}".ToLower();
-                            suggest.IDValue = status.IdentifierName.ToString();
-                            suggest.DisplayedValue = $"{status.StatusName} ({suggest.DisplayedValue})";
-                        }
-                        else if (obj is ImbueEffectPreset imbue)
-                        {
-                            suggest.SearchQueryValue = $"{imbue.PresetID} {imbue.Name} {imbue.name}".ToLower();
-                            suggest.IDValue = imbue.PresetID.ToString();
-                            suggest.DisplayedValue = $"{imbue.Name} ({suggest.DisplayedValue})";
-                        }
-                        else if (obj is Recipe recipe)
-                        {
-                            suggest.SearchQueryValue = $"{recipe.UID} {recipe.Name} {recipe.name}".ToLower();
-                            suggest.IDValue = recipe.UID;
-                        }
-                        else if (obj is EnchantmentRecipe enchantRecipe)
-                        {
-                            suggest.SearchQueryValue = $"{enchantRecipe.RecipeID} {enchantRecipe.name}".ToLower();
-                            suggest.IDValue = enchantRecipe.ResultID.ToString();
-                        }
-                        else
-                            continue;
-
-                        if (checkedObjects.Contains(suggest.DisplayedValue))
-                            continue;
-
-                        checkedObjects.Add(suggest.DisplayedValue);
-                        list.Add(suggest);
-                    }
-                }
-            }
+                BuildOptionData(gameType);
 
             m_availableOptions = s_typeToOptionsDict[gameType];
 
@@ -240,6 +186,69 @@ namespace SideLoader.UI.Inspectors
             var results = options.Where(it => it.SearchQueryValue.Contains(search));
 
             return results.ToArray();
+        }
+
+        internal static void BuildOptionData(Type gameType)
+        {
+            s_typeToOptionsDict.Add(gameType, new List<ContentSuggestion>());
+            var list = s_typeToOptionsDict[gameType];
+
+            if (typeof(UnityEngine.Object).IsAssignableFrom(gameType))
+            {
+                HashSet<string> checkedObjects = new HashSet<string>();
+
+                foreach (var obj in Resources.FindObjectsOfTypeAll(gameType))
+                {
+                    var suggest = new ContentSuggestion
+                    {
+                        DisplayedValue = obj.name,
+                        UnderlyingValue = obj
+                    };
+
+                    if (obj is Item item)
+                    {
+                        if (!item.GetIsDLCOwned())
+                            continue;
+
+                        suggest.SearchQueryValue = $"{item.ItemID} {item.Name} {item.name}".ToLower();
+                        suggest.IDValue = item.ItemID.ToString();
+                        suggest.DisplayedValue = $"{item.Name} ({suggest.DisplayedValue})";
+                    }
+                    else if (obj is StatusEffect status)
+                    {
+                        suggest.SearchQueryValue = $"{status.IdentifierName} {status.StatusName} {status.name}".ToLower();
+                        suggest.IDValue = status.IdentifierName.ToString();
+                        suggest.DisplayedValue = $"{status.StatusName} ({suggest.DisplayedValue})";
+                    }
+                    else if (obj is ImbueEffectPreset imbue)
+                    {
+                        suggest.SearchQueryValue = $"{imbue.PresetID} {imbue.Name} {imbue.name}".ToLower();
+                        suggest.IDValue = imbue.PresetID.ToString();
+                        suggest.DisplayedValue = $"{imbue.Name} ({suggest.DisplayedValue})";
+                    }
+                    else if (obj is Recipe recipe)
+                    {
+                        if (!recipe.IsDLCOwned())
+                            continue;
+
+                        suggest.SearchQueryValue = $"{recipe.UID} {recipe.Name} {recipe.name}".ToLower();
+                        suggest.IDValue = recipe.UID;
+                    }
+                    else if (obj is EnchantmentRecipe enchantRecipe)
+                    {
+                        suggest.SearchQueryValue = $"{enchantRecipe.RecipeID} {enchantRecipe.name}".ToLower();
+                        suggest.IDValue = enchantRecipe.ResultID.ToString();
+                    }
+                    else
+                        continue;
+
+                    if (checkedObjects.Contains(suggest.DisplayedValue))
+                        continue;
+
+                    checkedObjects.Add(suggest.DisplayedValue);
+                    list.Add(suggest);
+                }
+            }
         }
 
         #region UI Construction

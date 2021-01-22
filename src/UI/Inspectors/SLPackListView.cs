@@ -18,39 +18,22 @@ namespace SideLoader.UI.Inspectors
 {
     public class SLPackListView
     {
-        internal static List<Type> s_templateTypes = new List<Type>();
-
         public SLPackListView()
         {
             Instance = this;
             ConstructUI();
         }
 
+        internal static List<Type> s_templateTypes = new List<Type>();
+        internal static List<Type> s_currentTemplateTypes = new List<Type>();
+
         public static SLPackListView Instance;
 
         internal static Action OnToggleShow;
 
         internal SLPack m_currentPack;
-
         internal SLPack.SubFolders m_currentSubfolder = SLPack.SubFolders.Items;
         internal Type m_currentGeneratorType;
-
-        private Dropdown m_slPackDropdown;
-        private Text m_slPackDropdownLabel;
-        //private Text m_slPackLabel;
-
-        private GameObject m_pageContent;
-
-        private GameObject m_hotReloadRow;
-
-        private InputField m_createInput;
-
-        private GameObject m_scrollObj;
-
-        private GameObject m_generateObj;
-        private Dropdown m_genDropdown;
-        internal InputField m_generatorTargetInput;
-        //internal int m_lastInputCaretPos;
 
         internal ContentAutoCompleter AutoCompleter;
 
@@ -84,11 +67,7 @@ namespace SideLoader.UI.Inspectors
 
             s_templateTypes = s_templateTypes.OrderBy(it => it.Name).ToList();
 
-            m_genDropdown.options = new List<Dropdown.OptionData>();
-            foreach (var type in s_templateTypes)
-                m_genDropdown.options.Add(new Dropdown.OptionData { text = type.Name });
-
-            m_genDropdown.onValueChanged.Invoke(0);
+            RefreshGeneratorTypeDropdown();
 
             RefreshLoadedSLPacks();
         }
@@ -155,6 +134,49 @@ namespace SideLoader.UI.Inspectors
             m_generateObj.gameObject.SetActive(true);
 
             RefreshSLPackContentList();
+        }
+
+        internal void RefreshGeneratorTypeDropdown()
+        {
+            Type baseGeneratorType = null;
+            switch (m_currentSubfolder)
+            {
+                case SLPack.SubFolders.StatusEffects:
+                    baseGeneratorType = typeof(SL_StatusBase); break;
+                case SLPack.SubFolders.Items:
+                    baseGeneratorType = typeof(SL_Item); break;
+                case SLPack.SubFolders.Characters:
+                    baseGeneratorType = typeof(SL_Character); break;
+                case SLPack.SubFolders.Enchantments:
+                    baseGeneratorType = typeof(SL_EnchantmentRecipe); break;
+                case SLPack.SubFolders.Recipes:
+                    baseGeneratorType = typeof(SL_Recipe); break;
+                case SLPack.SubFolders.StatusFamilies:
+                    baseGeneratorType = typeof(SL_StatusEffectFamily); break;
+            }
+
+            if (baseGeneratorType == null)
+            {
+                SL.LogError("No base type for subfolder: " + m_currentSubfolder);
+                return;
+            }
+
+            m_genDropdown.options = new List<Dropdown.OptionData>();
+            s_currentTemplateTypes.Clear();
+
+            foreach (var type in s_templateTypes)
+            {
+                if (!baseGeneratorType.IsAssignableFrom(type))
+                    continue;
+
+                s_currentTemplateTypes.Add(type);
+                m_genDropdown.options.Add(new Dropdown.OptionData { text = type.Name });
+            }
+
+            m_genDropdown.value = 1;
+            m_genDropdown.value = 0;
+
+            m_generatorTitle.text = "Template Generator (" + m_currentSubfolder + ")";
         }
 
         internal void RefreshSLPackContentList()
@@ -270,6 +292,22 @@ namespace SideLoader.UI.Inspectors
 
         #region UI CONSTRUCTION
 
+        private Dropdown m_slPackDropdown;
+        private Text m_slPackDropdownLabel;
+
+        private GameObject m_pageContent;
+
+        private GameObject m_hotReloadRow;
+
+        private InputField m_createInput;
+
+        private GameObject m_scrollObj;
+
+        private GameObject m_generateObj;
+        private Dropdown m_genDropdown;
+        internal InputField m_generatorTargetInput;
+        internal Text m_generatorTitle;
+
         public void ConstructUI()
         {
             GameObject leftPane = UIFactory.CreateVerticalGroup(SLPacksPage.Instance.Content, new Color(72f / 255f, 72f / 255f, 72f / 255f));
@@ -371,6 +409,12 @@ namespace SideLoader.UI.Inspectors
 
         private void ConstructListView(GameObject leftPane)
         {
+            var titleObj = UIFactory.CreateLabel(leftPane, TextAnchor.MiddleLeft);
+            var titleLayout = titleObj.AddComponent<LayoutElement>();
+            titleLayout.minHeight = 25;
+            var titleText = titleObj.GetComponent<Text>();
+            titleText.text = "SLPack Category:";
+
             var subfolderDropObj = UIFactory.CreateDropdown(leftPane, out Dropdown subDrop);
             var subdropLayout = subfolderDropObj.AddComponent<LayoutElement>();
             subdropLayout.minHeight = 25;
@@ -397,6 +441,7 @@ namespace SideLoader.UI.Inspectors
             subDrop.onValueChanged.AddListener((int val) =>
             {
                 m_currentSubfolder = list[val];
+                RefreshGeneratorTypeDropdown();
                 RefreshSLPackContentList();
             });
 
@@ -408,9 +453,9 @@ namespace SideLoader.UI.Inspectors
             m_generateObj = UIFactory.CreateVerticalGroup(leftPane, new Color(0.1f, 0.1f, 0.1f));
 
             var genLabelObj = UIFactory.CreateLabel(m_generateObj, TextAnchor.MiddleLeft);
-            var genText = genLabelObj.GetComponent<Text>();
-            genText.text = "Template Generator";
-            genText.fontSize = 16;
+            m_generatorTitle = genLabelObj.GetComponent<Text>();
+            m_generatorTitle.text = "Template Generator";
+            m_generatorTitle.fontSize = 16;
 
             // Generator dropdown type
             // (callback added below)
@@ -449,7 +494,7 @@ namespace SideLoader.UI.Inspectors
             // add this generator callback now that subfolder has been declared
             m_genDropdown.onValueChanged.AddListener((int val) =>
             {
-                m_currentGeneratorType = s_templateTypes[val];
+                m_currentGeneratorType = s_currentTemplateTypes[val];
 
                 targetInputFieldObj.SetActive(CanSelectedTypeCloneFromTarget());
                 subfolderInputObj.SetActive(CanSelectedTypeBeInSubfolder());

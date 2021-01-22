@@ -385,7 +385,8 @@ namespace SideLoader.UI.Inspectors.Reflection
         }
 
         internal MethodInfo m_toStringMethod;
-        internal bool m_toStringCanFormat;
+        internal MethodInfo m_toStringFormatMethod;
+        internal bool m_gotToStringMethods;
 
         public string GetDefaultLabel(bool updateType = true)
         {
@@ -416,36 +417,29 @@ namespace SideLoader.UI.Inspectors.Reflection
             }
             else
             {
-                if (m_toStringMethod == null)
+                if (!m_gotToStringMethods)
                 {
-                    m_toStringMethod = valueType.GetMethod("ToString", new Type[] { typeof(string) });
-                    if (m_toStringMethod == null)
-                    {
-                        m_toStringMethod = valueType.GetMethod("ToString", new Type[0]);
-                        if (m_toStringMethod == null)
-                            m_toStringMethod = typeof(object).GetMethod("ToString", new Type[0]);
-                    }
-                    else
-                        m_toStringCanFormat = true;
-                }
+                    m_gotToStringMethods = true;
 
-                string toString = "";
-                if (m_toStringCanFormat)
-                {
+                    m_toStringMethod = valueType.GetMethod("ToString", new Type[0]);
+                    m_toStringFormatMethod = valueType.GetMethod("ToString", new Type[] { typeof(string) });
+
+                    // test format method actually works
                     try
                     {
-                        toString = m_toStringMethod.Invoke(Value, new object[] { "F3" }) as string;
+                        m_toStringFormatMethod.Invoke(Value, new object[] { "F3" });
                     }
-                    catch (FormatException)
+                    catch
                     {
-                        m_toStringCanFormat = false;
-                        m_toStringMethod = valueType.GetMethod("ToString", new Type[0]);
-                        if (m_toStringMethod == null)
-                            m_toStringMethod = typeof(object).GetMethod("ToString", new Type[0]);
+                        m_toStringFormatMethod = null;
                     }
                 }
-                if (!m_toStringCanFormat)
-                    toString = m_toStringMethod.Invoke(Value, null) as string;
+
+                string toString;
+                if (m_toStringFormatMethod != null)
+                    toString = (string)m_toStringFormatMethod.Invoke(Value, new object[] { "F3" });
+                else
+                    toString = (string)m_toStringMethod.Invoke(Value, new object[0]);
 
                 var fullnametemp = valueType.ToString();
                 if (fullnametemp.StartsWith("Il2CppSystem"))
