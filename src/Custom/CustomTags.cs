@@ -60,6 +60,13 @@ namespace SideLoader
             return tag;
         }
 
+        /// <summary>
+        /// Helper to set the TagSource component on an Item, Status etc.
+        /// </summary>
+        /// <param name="gameObject">The GameObject to add or set the component to.</param>
+        /// <param name="tags">The list of tags (Tag Names) to add.</param>
+        /// <param name="destroyExisting">Removing existing tags, if any?</param>
+        /// <returns>The resulting TagSource component.</returns>
         public static TagListSelectorComponent SetTagSource(GameObject gameObject, string[] tags, bool destroyExisting)
         {
             var tagsource = gameObject.GetComponent<TagListSelectorComponent>();

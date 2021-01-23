@@ -54,7 +54,7 @@ namespace SideLoader
                 At.SetField(eStats, "m_damageAttack", this.Damage_Bonus);
 
             if (this.Impact_Bonus != null)
-                At.SetField(eStats, "m_impactModifier", this.Impact_Bonus);
+                At.SetField(eStats, "m_baseImpactModifier", this.Impact_Bonus);
 
             if (this.Stamina_Use_Penalty != null)
                 At.SetField(eStats, "m_staminaUsePenalty", (float)this.Stamina_Use_Penalty);

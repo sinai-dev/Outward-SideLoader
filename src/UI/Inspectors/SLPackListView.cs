@@ -153,6 +153,8 @@ namespace SideLoader.UI.Inspectors
                     baseGeneratorType = typeof(SL_Recipe); break;
                 case SLPack.SubFolders.StatusFamilies:
                     baseGeneratorType = typeof(SL_StatusEffectFamily); break;
+                case SLPack.SubFolders.Tags:
+                    baseGeneratorType = typeof(SL_TagManifest); break;
             }
 
             if (baseGeneratorType == null)

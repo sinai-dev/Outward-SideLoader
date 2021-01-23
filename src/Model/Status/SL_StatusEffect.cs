@@ -14,6 +14,7 @@ namespace SideLoader
 {
     public class SL_StatusEffect : SL_StatusBase, IContentTemplate<string>
     {
+        #region IContentTemplate
         [XmlIgnore] public string DefaultTemplateName => $"{this.AppliedID}";
         [XmlIgnore] public bool IsCreatingNewID => !string.IsNullOrEmpty(this.StatusIdentifier) && this.StatusIdentifier != this.TargetStatusIdentifier;
         [XmlIgnore] public bool DoesTargetExist => ResourcesPrefabManager.Instance.GetStatusEffectPrefab(this.TargetStatusIdentifier);
@@ -32,22 +33,26 @@ namespace SideLoader
             return ret;
         }
 
-        [XmlIgnore] public string SerializedSLPackName 
+        [XmlIgnore]
+        public string SerializedSLPackName
         {
-            get => SLPackName; 
+            get => SLPackName;
             set => SLPackName = value;
         }
-        [XmlIgnore] public string SerializedSubfolderName 
+        [XmlIgnore]
+        public string SerializedSubfolderName
         {
-            get => SubfolderName; 
+            get => SubfolderName;
             set => SubfolderName = value;
         }
-        [XmlIgnore] public string SerializedFilename 
+        [XmlIgnore]
+        public string SerializedFilename
         {
-            get => m_serializedFilename; 
+            get => m_serializedFilename;
             set => m_serializedFilename = value;
         }
         public void CreateContent() => this.Internal_Create();
+        #endregion
 
         // ~~~~~~~~~~~~~~~~~~~~
 

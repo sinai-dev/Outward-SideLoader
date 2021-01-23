@@ -13,7 +13,7 @@ namespace SideLoader
     [SL_Serialized]
     public class SL_Item : IContentTemplate<int>
     {
-        // IPrefabTemplate implementation
+        #region IContentTemplate
 
         [XmlIgnore] public string DefaultTemplateName => $"{this.AppliedID}_{this.Name}";
         [XmlIgnore] public bool IsCreatingNewID => this.New_ItemID > 0 && this.New_ItemID != this.Target_ItemID;
@@ -53,26 +53,38 @@ namespace SideLoader
 
         public void CreateContent() => Internal_Create();
 
-        internal Dictionary<string, SL_Material> m_serializedMaterials = new Dictionary<string, SL_Material>();
+        #endregion
 
-        // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        // ~~~~~~~~~~~~~~ Events ~~~~~~~~~~~~~~
 
         internal static readonly Dictionary<int, List<Action<Item>>> s_initCallbacks = new Dictionary<int, List<Action<Item>>>();
 
         /// <summary>
-        /// The OnInstanceStart event is called when an Item with this template's applied ID is created or loaded during gameplay.
+        /// Add a listener to the OnInstanceStart event, which is called when an Item with this template's applied ID is created or loaded during gameplay.
         /// </summary>
         /// <param name="listener">Your callback. The Item argument is the Item instance.</param>
-        public void AddOnInstanceStartListener(Action<Item> listener)
+        public void AddOnInstanceStartListener(Action<Item> listener) 
+            => AddOnInstanceStartListener(this.AppliedID, listener);
+
+        /// <summary>
+        /// Add a listener to the OnInstanceStart event, which is called for items when they are created during gameplay.
+        /// </summary>
+        /// <param name="itemID">The Item ID to listen for.</param>
+        /// <param name="listener">Your callback. The Item argument is the Item instance.</param>
+        public static void AddOnInstanceStartListener(int itemID, Action<Item> listener)
         {
-            if (s_initCallbacks.ContainsKey(this.AppliedID))
-                s_initCallbacks[this.AppliedID].Add(listener);
+            if (s_initCallbacks.ContainsKey(itemID))
+                s_initCallbacks[itemID].Add(listener);
             else
-                s_initCallbacks.Add(this.AppliedID, new List<Action<Item>> { listener });
+                s_initCallbacks.Add(itemID, new List<Action<Item>> { listener });
         }
 
         /// <summary>Invoked when this template is applied during SideLoader's start or hot-reload.</summary>
         public event Action<Item> OnTemplateApplied;
+
+        // ~~~~~~~~~~~~~~ Actual Template ~~~~~~~~~~~~~~
+
+        internal Dictionary<string, SL_Material> m_serializedMaterials = new Dictionary<string, SL_Material>();
 
         /// <summary> [NOT SERIALIZED] The name of the SLPack this custom item template comes from (or is using).
         /// If defining from C#, you can set this to the name of the pack you want to load assets from.</summary>
@@ -154,7 +166,7 @@ namespace SideLoader
 
         internal void Internal_Create()
         {
-            if (this.New_ItemID <= 0)
+            if (this.New_ItemID == 0)
                 this.New_ItemID = this.Target_ItemID;
 
             var item = CustomItems.CreateCustomItem(this);

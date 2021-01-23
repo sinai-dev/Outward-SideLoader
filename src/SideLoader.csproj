@@ -92,6 +92,8 @@
     <Compile Include="Model\Item\Skill\SL_LevelAttackSkill.cs" />
     <Compile Include="Model\Item\Skill\SL_LevelPassiveSkill.cs" />
     <Compile Include="Model\Item\Skill\SL_PistolSkill.cs" />
+    <Compile Include="Model\Tag\SL_TagDefinition.cs" />
+    <Compile Include="Model\Tag\SL_TagManifest.cs" />
     <Compile Include="Model\Status\SL_Disease.cs" />
     <Compile Include="Model\Status\SL_LeechStatus.cs" />
     <Compile Include="Model\Status\SL_LevelStatusEffect.cs" />

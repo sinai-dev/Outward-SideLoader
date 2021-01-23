@@ -100,15 +100,12 @@ namespace SideLoader
         public Dictionary<string, SL_Recipe> RecipeTemplates = new Dictionary<string, SL_Recipe>();
         public Dictionary<string, SL_EnchantmentRecipe> EnchantmentTemplates = new Dictionary<string, SL_EnchantmentRecipe>();
         public Dictionary<string, SL_StatusEffectFamily> StatusFamilyTemplates = new Dictionary<string, SL_StatusEffectFamily>();
+        public Dictionary<string, SL_TagManifest> TagTemplates = new Dictionary<string, SL_TagManifest>();
 
         public IDictionary GetContentForSubfolder(SubFolders folder)
         {
             switch (folder)
             {
-                case SubFolders.StatusEffects:
-                    return StatusTemplates;
-                case SubFolders.Items:
-                    return ItemTemplates;
                 case SubFolders.AssetBundles:
                     return AssetBundles;
                 case SubFolders.AudioClip:
@@ -117,10 +114,16 @@ namespace SideLoader
                     return CharacterTemplates;
                 case SubFolders.Enchantments:
                     return EnchantmentTemplates;
+                case SubFolders.Items:
+                    return ItemTemplates;
                 case SubFolders.Recipes:
                     return RecipeTemplates;
+                case SubFolders.StatusEffects:
+                    return StatusTemplates;
                 case SubFolders.StatusFamilies:
                     return StatusFamilyTemplates;
+                case SubFolders.Tags:
+                    return TagTemplates;
             }
 
             throw new NotImplementedException(folder.ToString());
@@ -139,6 +142,7 @@ namespace SideLoader
             Recipes,
             StatusEffects,
             StatusFamilies,
+            Tags,
             Texture2D,
         }
 
@@ -197,6 +201,8 @@ namespace SideLoader
             if (!hotReload)
                 pack.LoadAssetBundles();
 
+            pack.LoadTags();
+
             pack.LoadAudioClips();
             pack.LoadTexture2D();
 
@@ -220,9 +226,7 @@ namespace SideLoader
         {
             var dir = GetSubfolderPath(SubFolders.AssetBundles);
             if (!Directory.Exists(dir))
-            {
                 return;
-            }
 
             foreach (var bundlePath in Directory.GetFiles(GetSubfolderPath(SubFolders.AssetBundles))
                                                 .Where(x => !x.EndsWith(".meta") 
@@ -252,6 +256,27 @@ namespace SideLoader
                 catch (Exception e)
                 {
                     SL.LogError("Error loading asset bundle! Message: " + e.Message + "\r\nStack: " + e.StackTrace);
+                }
+            }
+        }
+
+        private void LoadTags()
+        {
+            var dir = GetSubfolderPath(SubFolders.Tags);
+            if (!Directory.Exists(dir))
+                return;
+
+            foreach (var tagManifestPath in Directory.GetFiles(dir, "*.xml"))
+            {
+                using (var file = File.OpenRead(tagManifestPath))
+                {
+                    var serializer = Serializer.GetXmlSerializer(typeof(SL_TagManifest));
+                    if (serializer.Deserialize(file) is SL_TagManifest manifest)
+                    {
+                        manifest.SLPackName = this.Name;
+                        manifest.SerializedFilename = Path.GetFileNameWithoutExtension(tagManifestPath);
+                        manifest.CreateContent();
+                    }
                 }
             }
         }

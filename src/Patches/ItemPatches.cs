@@ -41,34 +41,6 @@ namespace SideLoader.Patches
 
     #endregion
 
-    #region anti-piracy
-
-    [HarmonyPatch(typeof(ResourcesPrefabManager), nameof(ResourcesPrefabManager.GetItemPrefab), new Type[] { typeof(string) })]
-    public class RPM_GetItemPrefab
-    {
-        [HarmonyPrefix]
-        public static bool Prefix(string _itemIDString, ref Item __result)
-        {
-            if (string.IsNullOrEmpty(_itemIDString) || !StoreManager.Instance)
-                return true;
-
-            References.RPM_ITEM_PREFABS.TryGetValue(_itemIDString, out Item item);
-
-            if (!item)
-                return true;
-
-            if (!item.GetIsDLCOwned())
-            {
-                __result = null;
-                return false;
-            }
-
-            return true;
-        }
-    }
-
-    #endregion
-
     #region Localization
 
     [HarmonyPatch(typeof(Item), "GetLocalizedName")]

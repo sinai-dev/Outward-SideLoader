@@ -390,6 +390,9 @@ namespace SideLoader.UI.Inspectors.Reflection
 
         public string GetDefaultLabel(bool updateType = true)
         {
+            if (Value == null)
+                return "<null>";
+
             var valueType = Value?.GetType() ?? this.FallbackType;
             if (updateType)
                 m_richValueType = UISyntaxHighlight.ParseFullSyntax(valueType, true);
@@ -402,68 +405,49 @@ namespace SideLoader.UI.Inspectors.Reflection
 
             string label;
 
-            if (Value is TextAsset textAsset)
+            if (!m_gotToStringMethods)
             {
-                label = textAsset.text;
+                m_gotToStringMethods = true;
 
-                if (label.Length > 10)
-                    label = $"{label.Substring(0, 10)}...";
+                m_toStringMethod = valueType.GetMethod("ToString", new Type[0]);
+                m_toStringFormatMethod = valueType.GetMethod("ToString", new Type[] { typeof(string) });
 
-                label = $"\"{label}\" {textAsset.name} ({m_richValueType})";
+                // test format method actually works
+                try
+                {
+                    m_toStringFormatMethod.Invoke(Value, new object[] { "F3" });
+                }
+                catch
+                {
+                    m_toStringFormatMethod = null;
+                }
             }
-            else if (Value is EventSystem)
+
+            string toString;
+            if (m_toStringFormatMethod != null)
+                toString = (string)m_toStringFormatMethod.Invoke(Value, new object[] { "F3" });
+            else
+                toString = (string)m_toStringMethod.Invoke(Value, new object[0]);
+
+            if (toString == null)
+                toString = "";
+
+            var fullnametemp = valueType.ToString();
+            if (fullnametemp.StartsWith("Il2CppSystem"))
+                fullnametemp = fullnametemp.Substring(6, fullnametemp.Length - 6);
+
+            var temp = toString.Replace(fullnametemp, "").Trim();
+
+            if (string.IsNullOrEmpty(temp))
             {
                 label = m_richValueType;
             }
             else
             {
-                if (!m_gotToStringMethods)
-                {
-                    m_gotToStringMethods = true;
+                if (toString.Length > 200)
+                    toString = toString.Substring(0, 200) + "...";
 
-                    m_toStringMethod = valueType.GetMethod("ToString", new Type[0]);
-                    m_toStringFormatMethod = valueType.GetMethod("ToString", new Type[] { typeof(string) });
-
-                    // test format method actually works
-                    try
-                    {
-                        m_toStringFormatMethod.Invoke(Value, new object[] { "F3" });
-                    }
-                    catch
-                    {
-                        m_toStringFormatMethod = null;
-                    }
-                }
-
-                string toString;
-                if (m_toStringFormatMethod != null)
-                    toString = (string)m_toStringFormatMethod.Invoke(Value, new object[] { "F3" });
-                else
-                    toString = (string)m_toStringMethod.Invoke(Value, new object[0]);
-
-                var fullnametemp = valueType.ToString();
-                if (fullnametemp.StartsWith("Il2CppSystem"))
-                    fullnametemp = fullnametemp.Substring(6, fullnametemp.Length - 6);
-
-                var temp = toString.Replace(fullnametemp, "").Trim();
-
-                if (string.IsNullOrEmpty(temp))
-                {
-                    label = m_richValueType;
-                }
-                else
-                {
-                    if (toString.Length > 200)
-                        toString = toString.Substring(0, 200) + "...";
-
-                    label = toString;
-
-                    var unityType = $"({valueType.FullName})";
-                    if (Value is UnityEngine.Object && label.Contains(unityType))
-                        label = label.Replace(unityType, $"({m_richValueType})");
-                    else
-                        label += $" ({m_richValueType})";
-                }
+                label = $"{toString} ({m_richValueType})";
             }
 
             return m_defaultLabel = label;
