@@ -20,7 +20,7 @@ namespace SideLoader
         // Mod Info
         public const string GUID = "com.sinai." + MODNAME;
         public const string MODNAME = "SideLoader";
-        public const string VERSION = "3.2.3";
+        public const string VERSION = "3.2.5";
 
         // ================ Main Setup ====================
 

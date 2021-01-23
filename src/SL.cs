@@ -213,9 +213,11 @@ namespace SideLoader
             // Reset packs
             PacksLoaded = false;
             Packs.Clear();
+
+            // Reset internal dictionaries/lists
+            SL_Item.CurrentlyAppliedTemplates.Clear();
             SL_Skill.s_customSkills.Clear();
 
-            // Clear textures dictionary
             CustomTextures.Textures.Clear();
         }
 

@@ -57,6 +57,8 @@ namespace SideLoader
 
         // ~~~~~~~~~~~~~~ Events ~~~~~~~~~~~~~~
 
+        public static readonly List<SL_Item> CurrentlyAppliedTemplates = new List<SL_Item>();
+
         internal static readonly Dictionary<int, List<Action<Item>>> s_initCallbacks = new Dictionary<int, List<Action<Item>>>();
 
         /// <summary>
@@ -166,16 +168,25 @@ namespace SideLoader
 
         internal void Internal_Create()
         {
-            if (this.New_ItemID == 0)
+            if (this.New_ItemID == -1)
                 this.New_ItemID = this.Target_ItemID;
 
             var item = CustomItems.CreateCustomItem(this);
 
             ApplyToItem(item);
-
             item.IsPrefab = true;
 
-            this.OnTemplateApplied?.Invoke(item);
+            CurrentlyAppliedTemplates.Add(this);
+
+            try
+            {
+                this.OnTemplateApplied?.Invoke(item);
+            }
+            catch (Exception e)
+            {
+                SL.LogWarning("Exception invoking OnTemplateApplied!");
+                SL.LogInnerException(e);
+            }
         }
 
         /// <summary>

@@ -632,7 +632,7 @@ namespace SideLoader.UI.Inspectors
                 if (!string.IsNullOrEmpty(subfolderInput.text))
                     subname = subfolderInput.text;
                 else
-                    subname = template.DefaultTemplateName;
+                    subname = Serializer.ReplaceInvalidChars(template.DefaultTemplateName);
             }
 
             var dir = m_currentPack.GetSubfolderPath(template.SLPackCategory);
@@ -668,7 +668,7 @@ namespace SideLoader.UI.Inspectors
             if (!string.IsNullOrEmpty(nameInput.text))
                 name = nameInput.text;
             else
-                name = template.DefaultTemplateName;
+                name = Serializer.ReplaceInvalidChars(template.DefaultTemplateName);
 
             var fullpath = $@"{dir}\{name}.xml";
 
