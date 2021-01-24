@@ -185,7 +185,11 @@ namespace SideLoader.UI.Inspectors.Reflection
                     BeginConfirmCreate();
                 else
                 {
-                    Value = At.TryCreateDefault(FallbackType);
+                    var type = FallbackType.IsAbstract || FallbackType.IsInterface
+                                ? m_cachedChangeableTypes[0]
+                                : FallbackType;
+
+                    Value = At.TryCreateDefault(type);
                     SetValueFromThis();
                 }
             }

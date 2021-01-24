@@ -52,17 +52,17 @@ namespace SideLoader.UI.Inspectors.Reflection
             m_baseLabel.text = UISyntaxHighlight.ParseFullSyntax(FallbackType, false);
             m_valueInput.text = Value.ToString();
 
-            var type = Value?.GetType();
-            if (type == typeof(float)
-                || type == typeof(double)
-                || type == typeof(decimal))
-            {
-                m_valueInput.characterValidation = InputField.CharacterValidation.Decimal;
-            }
-            else
-            {
-                m_valueInput.characterValidation = InputField.CharacterValidation.Integer;
-            }
+            //var type = Value?.GetType();
+            //if (type == typeof(float)
+            //    || type == typeof(double)
+            //    || type == typeof(decimal))
+            //{
+            //    m_valueInput.characterValidation = InputField.CharacterValidation.Decimal;
+            //}
+            //else
+            //{
+            //    m_valueInput.characterValidation = InputField.CharacterValidation.Integer;
+            //}
 
             if (Owner.CanWrite)
             {

@@ -36,14 +36,6 @@ namespace SideLoader
 
         // ============ Spawning ============
 
-        [Obsolete("addCombatAI is no longer part of CustomCharacters. Use an SL_Character template instead.")]
-        public static GameObject SpawnCharacter(Vector3 position, string uid, string name = "SL_Character", bool addCombatAI = false, string extraRpcData = null)
-           => InternalSpawn(position, Vector3.zero, uid, name, null, null, extraRpcData);
-
-        [Obsolete("addCombatAI is no longer part of CustomCharacters. Use an SL_Character template instead.")]
-        public static GameObject SpawnCharacter(Vector3 pos, Vector3 rotation, string uid, string name = "SL_Character", bool addCombatAI = false, string extraRpcData = null)
-            => InternalSpawn(pos, rotation, uid, name, null, uid, extraRpcData);
-
         /// <summary>
         /// Spawns a custom character and applies the template.
         /// The OnSpawn callback is based on the Template UID. You should have already called template.Prepare() before calling this.
@@ -67,7 +59,10 @@ namespace SideLoader
         /// <param name="extraRpcData">Optional extra RPC data to send with the spawn.</param>
         /// <returns>Your custom character</returns>
         public static GameObject SpawnCharacter(SL_Character template, Vector3 position, Vector3 rotation, string characterUID = null, string extraRpcData = null)
-            => InternalSpawn(position, rotation, characterUID ?? template.UID, template.Name, template.CharacterVisualsData?.ToString(), template.UID, extraRpcData);
+            => SpawnCharacter(template, position, rotation, characterUID, extraRpcData, false);
+
+        internal static GameObject SpawnCharacter(SL_Character template, Vector3 position, Vector3 rotation, string characterUID = null, string extraRpcData = null, bool loadingFromSave = false)
+           => InternalSpawn(position, rotation, characterUID ?? template.UID, template.Name, template.CharacterVisualsData?.ToString(), template.UID, extraRpcData, loadingFromSave);
 
         // ==================== Internal ====================
 
@@ -76,21 +71,71 @@ namespace SideLoader
 
         internal static readonly List<CustomSpawnInfo> ActiveCharacters = new List<CustomSpawnInfo>();
 
-        internal static event Action INTERNAL_SpawnCharacters;
+        //internal static event Action INTERNAL_SpawnSceneCharacters;
 
         // public static bool IsRealScene(Scene scene) => true; // CustomScenes.IsRealScene(scene);
 
         internal static void InvokeSpawnCharacters()
         {
+            if (PhotonNetwork.isNonMasterClientInRoom)
+                return;
+
             var scene = SceneManager.GetActiveScene();
-            if (INTERNAL_SpawnCharacters != null) // && IsRealScene(scene)
+            //SL.Log($"Checking SL_Character spawns ({scene.name})");
+
+            var sceneData = SLCharacterSaveManager.TryLoadSaveData(CharSaveType.Scene);
+
+            foreach (var template in Templates.Values.Where(it => it.SaveType == CharSaveType.Scene 
+                                                               && it.SceneToSpawn == SceneManagerHelper.ActiveSceneName))
             {
-                SL.Log($"Spawning characters ({scene.name})");
-                SL.TryInvoke(INTERNAL_SpawnCharacters);
+                if (!SLCharacterSaveManager.SceneResetWanted && sceneData != null && sceneData.Any(it => it.TemplateUID == template.UID))
+                    continue;
+
+                template.SceneSpawnIfValid();
             }
 
-            if (!PhotonNetwork.isNonMasterClientInRoom)
-                SLPlugin.Instance.StartCoroutine(SLCharacterSaveManager.TryLoadSaveData());
+            SLPlugin.Instance.StartCoroutine(DelayedLoadCoroutine(sceneData));
+        }
+
+        private static IEnumerator DelayedLoadCoroutine(SL_CharacterSaveData[] sceneData)
+        {
+            while (!NetworkLevelLoader.Instance.AllPlayerReadyToContinue || NetworkLevelLoader.Instance.IsGameplayPaused)
+                yield return null;
+
+            if (!SLCharacterSaveManager.SceneResetWanted && sceneData != null)
+                LoadCharactersFromSave(sceneData);
+
+            if (SLCharacterSaveManager.TryLoadSaveData(CharSaveType.Follower) is SL_CharacterSaveData[] followData)
+                LoadCharactersFromSave(followData);
+
+            SLCharacterSaveManager.SceneResetWanted = false;
+        }
+
+        private static void LoadCharactersFromSave(SL_CharacterSaveData[] list)
+        {
+            // var playerPos = CharacterManager.Instance.GetFirstLocalCharacter().transform.position;
+
+            foreach (var saveData in list)
+            {
+                if (!Templates.TryGetValue(saveData.TemplateUID, out SL_Character template))
+                {
+                    SL.LogWarning($"Loading an SL_Character save data, but cannot find any loaded SL_Character template with the UID '{saveData.TemplateUID}'");
+                    continue;
+                }
+
+                Vector3 pos;
+                if (!string.IsNullOrEmpty(saveData.FollowTargetUID)
+                    && CharacterManager.Instance.GetCharacter(saveData.FollowTargetUID) is Character followTarget)
+                {
+                    pos = followTarget.transform.position;
+                }
+                else
+                    pos = saveData.Position;
+
+                var character = template.InternalSpawn(pos, template.SpawnRotation, saveData.CharacterUID, saveData.ExtraRPCData, true);
+                
+                saveData.ApplyToCharacter(character);
+            }
         }
 
         internal static void AddActiveCharacter(CustomSpawnInfo info)
@@ -105,9 +150,10 @@ namespace SideLoader
         }
 
         // Main internal spawn method
-        internal static GameObject InternalSpawn(Vector3 position, Vector3 rotation, string UID, string name, string visualData = null, string spawnCallbackUID = null, string extraRpcData = null)
+        internal static GameObject InternalSpawn(Vector3 position, Vector3 rotation, string UID, string name,
+            string visualData, string spawnCallbackUID, string extraRpcData, bool loadingFromSave)
         {
-            SL.Log($"Spawning character '{name}', _UID: {UID}, spawnCallbackUID: {spawnCallbackUID}");
+            SL.Log($"Spawning character '{name}', _UID: {UID}, spawnCallbackUID: {spawnCallbackUID}, at position: {position}");
 
             try
             {
@@ -138,7 +184,7 @@ namespace SideLoader
 
                 prefab.SetActive(true);
 
-                SLRPCManager.Instance.SpawnCharacter(UID, viewID, name, visualData, spawnCallbackUID, extraRpcData);
+                SLRPCManager.Instance.SpawnCharacter(UID, viewID, name, visualData, spawnCallbackUID, extraRpcData, loadingFromSave);
 
                 return prefab;
             }
@@ -149,12 +195,13 @@ namespace SideLoader
             }
         }
 
-        internal static IEnumerator SpawnCharacterCoroutine(string charUID, int viewID, string name, string visualData, string spawnCallbackUID, string extraRpcData)
+        internal static IEnumerator SpawnCharacterCoroutine(string charUID, int viewID, string name, string visualData, string spawnCallbackUID, 
+            string extraRpcData, bool loadingFromSave)
         {
             // get character from manager
             Character character = CharacterManager.Instance.GetCharacter(charUID);
             float start = 0f;
-            while (!character && start < 15f)
+            while (!character && start < 5f)
             {
                 yield return null;
                 start += Time.deltaTime;
@@ -162,7 +209,10 @@ namespace SideLoader
             }
 
             if (!character)
+            {
+                SL.LogWarning("SpawnCharacterCoroutine: failed to find character by UID: " + charUID);
                 yield break;
+            }
 
             // add to cache list
             AddActiveCharacter(new CustomSpawnInfo(character, spawnCallbackUID, extraRpcData));
@@ -173,16 +223,14 @@ namespace SideLoader
             // set name
             character.name = $"{name}_{charUID}";
 
-            //if (addCombatAI) // && !localSpawn)
-            //    SetupBasicAI(character);
-
             // invoke OnSpawn callback
             if (Templates.ContainsKey(spawnCallbackUID))
             {
                 var template = Templates[spawnCallbackUID];
-
-                template.INTERNAL_OnSpawn(character, extraRpcData);
+                template.INTERNAL_OnSpawn(character, extraRpcData, loadingFromSave);
             }
+            else
+                SL.LogWarning("Could not find template based on UID: " + spawnCallbackUID);
 
             character.gameObject.SetActive(true);
 
@@ -201,24 +249,32 @@ namespace SideLoader
 
             // setup new view
             var pView = character.gameObject.AddComponent<PhotonView>();
-            pView.viewID = viewID;
+            pView.ownerId = 0;
+            pView.ownershipTransfer = OwnershipOption.Fixed;
             pView.onSerializeTransformOption = OnSerializeTransform.PositionAndRotation;
             pView.onSerializeRigidBodyOption = OnSerializeRigidBody.All;
-            pView.synchronization = ViewSynchronization.Unreliable;
+            pView.synchronization = ViewSynchronization.Off;
 
             // fix photonview serialization components
             if (pView.ObservedComponents == null || pView.ObservedComponents.Count < 1)
                 pView.ObservedComponents = new List<Component>() { character };
 
+            // set view ID last.
+            pView.viewID = viewID;
+
+            // delayed force-refresh.
             float t = 0f;
             while (t < 0.5f)
             {
                 yield return null;
                 t += Time.deltaTime;
             }
-
             character.gameObject.SetActive(false);
             character.gameObject.SetActive(true);
+
+            // remove starting silver after delay
+            if (!PhotonNetwork.isNonMasterClientInRoom)
+                character.Inventory.RemoveMoney(27, true);
         }
 
         // called from a patch on level unload
@@ -243,10 +299,7 @@ namespace SideLoader
         internal static void DestroyCharacterLocal(Character character)
         {
             if (!character)
-            {
-                //SL.Log("Trying to destroy a character that is null or already destroyed!");
                 return;
-            }
 
             character.gameObject.SetActive(false);
 
@@ -257,19 +310,32 @@ namespace SideLoader
                 ActiveCharacters.Remove(info);
             }
 
+            SLPlugin.Instance.StartCoroutine(DelayedCharacterDestroy(character));
+
+            //if (character)
+            //    SL.LogError("ERROR - Could not seem to destroy character " + character.UID);
+            //else
+            //    PhotonNetwork.UnAllocateViewID(view);
+        }
+
+        private static IEnumerator DelayedCharacterDestroy(Character character)
+        {
+            yield return new WaitForSeconds(0.1f);
+
             var m_characters = At.GetField(CharacterManager.Instance, "m_characters") as DictionaryExt<string, Character>;
             if (m_characters.ContainsKey(character.UID))
                 m_characters.Remove(character.UID);
 
-            var pv = character.photonView;
-            int view = pv.viewID;
+            var view = character.photonView;
+            int viewID = view?.viewID ?? -1;
 
-            GameObject.Destroy(character.gameObject);
+            GameObject.DestroyImmediate(character.gameObject);
 
-            if (character)
-                SL.LogError("ERROR - Could not seem to destroy character " + character.UID);
-            else
-                PhotonNetwork.UnAllocateViewID(view);
+            if (view)
+                GameObject.DestroyImmediate(view);
+
+            if (viewID > 0)
+                PhotonNetwork.UnAllocateViewID(viewID);
         }
 
         #region Stats

@@ -29,9 +29,9 @@ namespace SideLoader
             }
         }
 
-        public override void ApplyToCharacter(Character trainer)
+        public override void ApplyToCharacter(Character trainer, bool loadingFromSave)
         {
-            base.ApplyToCharacter(trainer);
+            base.ApplyToCharacter(trainer, loadingFromSave);
 
             var trainertemplate = GameObject.Instantiate(Resources.Load<GameObject>("editor/templates/TrainerTemplate"));
             trainertemplate.transform.parent = trainer.transform;

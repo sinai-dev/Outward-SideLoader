@@ -198,25 +198,30 @@ namespace SideLoader
 
             // order is somewhat important.
             
-            if (!hotReload)
-                pack.LoadAssetBundles();
-
-            pack.LoadTags();
-
-            pack.LoadAudioClips();
-            pack.LoadTexture2D();
-
-            pack.LoadStatusFamilies();
-            pack.LoadCustomStatuses();
-
-            pack.LoadCustomItems();
-
-            pack.LoadRecipes();
-
-            if (!hotReload)
+            try
             {
+                if (!hotReload)
+                    pack.LoadAssetBundles();
+
+                pack.LoadTags();
+
+                pack.LoadAudioClips();
+                pack.LoadTexture2D();
+
+                pack.LoadStatusFamilies();
+                pack.LoadCustomStatuses();
+
+                pack.LoadCustomItems();
+
+                pack.LoadRecipes();
+
                 pack.LoadCharacters();
                 pack.LoadEnchantments();
+            }
+            catch (Exception ex)
+            {
+                SL.LogWarning("Exceptiong loading SLPack!");
+                SL.LogInnerException(ex);
             }
 
             return pack;

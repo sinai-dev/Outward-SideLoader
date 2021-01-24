@@ -87,7 +87,12 @@ namespace SideLoader
 
             if (m_charTemplate != null)
             {
-                var ai = m_charTemplate.Spawn((Vector3)_infos[0] + this.SpawnOffset, 
+                var pos = this.OwnerCharacter
+                            ? this.OwnerCharacter.transform.position
+                            : (Vector3)_infos[0];
+
+                var ai = m_charTemplate.Spawn(pos,
+                    Vector3.zero,
                     this.GenerateRandomUIDForSpawn 
                         ? (string)UID.Generate() 
                         : this.SLCharacter_UID,

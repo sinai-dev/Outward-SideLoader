@@ -42,15 +42,15 @@ namespace SideLoader
         /// <summary>
         /// Internal RPC call used by CustomCharacters.CreateCharacter. This is essentially a link to the CustomCharacters.SpawnCharacterCoroutine method.
         /// </summary>
-        public void SpawnCharacter(string charUID, int viewID, string name, string visualData, string spawnCallbackUID, string extraRpcData)
+        public void SpawnCharacter(string charUID, int viewID, string name, string visualData, string spawnCallbackUID, string extraRpcData, bool loadingFromSave)
         {
-            this.photonView.RPC(nameof(RPC_SpawnCharacter), PhotonTargets.All, charUID, viewID, name, visualData, spawnCallbackUID, extraRpcData);
+            this.photonView.RPC(nameof(RPC_SpawnCharacter), PhotonTargets.All, charUID, viewID, name, visualData, spawnCallbackUID, extraRpcData, loadingFromSave);
         }
 
         [PunRPC]
-        internal void RPC_SpawnCharacter(string charUID, int viewID, string name, string visualData, string spawnCallbackUID, string extraRpcData)
+        internal void RPC_SpawnCharacter(string charUID, int viewID, string name, string visualData, string spawnCallbackUID, string extraRpcData, bool loadingFromSave)
         {
-            SLPlugin.Instance.StartCoroutine(CustomCharacters.SpawnCharacterCoroutine(charUID, viewID, name, visualData, spawnCallbackUID, extraRpcData));
+            SLPlugin.Instance.StartCoroutine(CustomCharacters.SpawnCharacterCoroutine(charUID, viewID, name, visualData, spawnCallbackUID, extraRpcData, loadingFromSave));
         }
 
         /// <summary>
@@ -80,7 +80,7 @@ namespace SideLoader
                 }
                 catch
                 {
-                    SL.Log("Could not destroy Character '" + charUID + "'");
+                    // SL.Log("Could not destroy Character '" + charUID + "'");
                 }
             }
         }
@@ -94,6 +94,14 @@ namespace SideLoader
 
             // destroy current spawns
             CustomCharacters.CleanupCharacters();
+
+            // Wait a short delay before the respawn
+            StartCoroutine(DelayedRequestSpawn());
+        }
+
+        private IEnumerator DelayedRequestSpawn()
+        {
+            yield return new WaitForSeconds(0.5f);
 
             // respawn for all new clients from save data
             CustomCharacters.InvokeSpawnCharacters();

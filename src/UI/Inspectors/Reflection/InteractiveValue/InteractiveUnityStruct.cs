@@ -295,6 +295,19 @@ namespace SideLoader.UI.Inspectors.Reflection
 
                 void OnSetValue()
                 {
+                    int i = 0;
+                    foreach (var inputField in structInputFields)
+                    {
+                        if (!float.TryParse(inputField.text, out float f))
+                        {
+                            SL.LogWarning("Could not parse input '" + inputField.text + "' to float!");
+                            break;
+                        }
+
+                        Value = StructInfo.SetValue(ref this.Value, i, f);
+                        i++;
+                    }
+
                     Owner.SetValue();
                     RefreshUIForValue();
                 }
@@ -303,6 +316,8 @@ namespace SideLoader.UI.Inspectors.Reflection
                 applyText.text = "Apply";
             }
         }
+
+        private readonly List<InputField> structInputFields = new List<InputField>();
 
         internal void AddEditorRow(int index, GameObject groupObj)
         {
@@ -323,7 +338,7 @@ namespace SideLoader.UI.Inspectors.Reflection
 
             var inputFieldObj = UIFactory.CreateInputField(rowObj, 14, 3, 1);
             var inputField = inputFieldObj.GetComponent<InputField>();
-            inputField.characterValidation = InputField.CharacterValidation.Decimal;
+            // inputField.characterValidation = InputField.CharacterValidation.Decimal;
             var inputLayout = inputFieldObj.AddComponent<LayoutElement>();
             inputLayout.flexibleWidth = 0;
             inputLayout.minWidth = 120;
@@ -331,7 +346,8 @@ namespace SideLoader.UI.Inspectors.Reflection
 
             m_inputs[index] = inputField;
 
-            inputField.onValueChanged.AddListener((string val) => { Value = StructInfo.SetValue(ref this.Value, index, float.Parse(val)); });
+            structInputFields.Add(inputField);
+            //inputField.onValueChanged.AddListener((string val) => { Value = StructInfo.SetValue(ref this.Value, index, float.Parse(val)); });
         }
 
         #endregion

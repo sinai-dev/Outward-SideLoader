@@ -15,7 +15,7 @@ namespace SideLoader.SaveData
     /// </summary>
     public static class SLCharacterSaveManager
     {
-        public static bool WasLastAreaReset { get; internal set; }
+        public static bool SceneResetWanted { get; internal set; }
 
         // ~~~~~ Saving ~~~~~
 
@@ -106,65 +106,19 @@ namespace SideLoader.SaveData
 
         // ~~~~~ Loading ~~~~~
 
-        internal static IEnumerator TryLoadSaveData()
-        {
-            while (!NetworkLevelLoader.Instance.AllPlayerReadyToContinue && NetworkLevelLoader.Instance.IsGameplayPaused)
-                yield return null;
-
-            if (!WasLastAreaReset)
-            {
-                TryLoadSaveData(CharSaveType.Scene);
-            }
-            else
-            {
-                var path = GetCurrentSavePath(CharSaveType.Scene);
-                if (File.Exists(path))
-                    File.Delete(path);
-            }
-
-            TryLoadSaveData(CharSaveType.Follower);
-        }
-
-        internal static void TryLoadSaveData(CharSaveType type)
+        internal static SL_CharacterSaveData[] TryLoadSaveData(CharSaveType type)
         {
             var savePath = GetCurrentSavePath(type);
 
             if (!File.Exists(savePath))
-                return;
+                return null;
 
             using (var file = File.OpenRead(savePath))
             {
                 var serializer = Serializer.GetXmlSerializer(typeof(SL_CharacterSaveData[]));
                 var list = serializer.Deserialize(file) as SL_CharacterSaveData[];
 
-                var playerPos = CharacterManager.Instance.GetFirstLocalCharacter().transform.position;
-
-                foreach (var saveData in list)
-                {
-                    if (type == CharSaveType.Scene)
-                    {
-                        var character = CharacterManager.Instance.GetCharacter(saveData.CharacterUID);
-                        if (!character)
-                        {
-                            SL.LogWarning($"Trying to apply a Scene-type SL_CharacterSaveData but could not find character with UID '{saveData.CharacterUID}'");
-                            continue;
-                        }
-
-                        saveData.ApplyToCharacter(character);
-                    }
-                    else
-                    {
-                        // Followers loaded from a save should be re-spawned.
-                        if (!CustomCharacters.Templates.TryGetValue(saveData.TemplateUID, out SL_Character template))
-                        {
-                            SL.LogWarning($"Loading a follower save data, but cannot find any SL_Character template with the UID '{saveData.TemplateUID}'");
-                            continue;
-                        }
-
-                        var character = template.Spawn(playerPos, saveData.CharacterUID, saveData.ExtraRPCData);
-                        saveData.ApplyToCharacter(character);
-                    }
-                }
+                return list;
             }
         }
     }

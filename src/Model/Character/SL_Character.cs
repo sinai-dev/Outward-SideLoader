@@ -117,6 +117,15 @@ namespace SideLoader
         /// <summary>Item ID for Backpack</summary>
         public int? Backpack_ID;
 
+        public List<SL_ItemQty> Backpack_Items;
+        public List<SL_ItemQty> Pouch_Items;
+
+        // ~~~ loot ~~~
+
+        public bool LootableOnDeath;
+        public bool DropPouchContents;
+        public bool DropWeapons;
+
         // ~~~~~~~~~~ stats ~~~~~~~~~~
         [XmlIgnore] private const string SL_STAT_ID = "SL_Stat";
 
@@ -163,21 +172,23 @@ namespace SideLoader
                 CustomCharacters.Templates.Add(this.UID, this);
             }
 
-            if (!string.IsNullOrEmpty(this.SceneToSpawn))
-                CustomCharacters.INTERNAL_SpawnCharacters += SceneSpawnIfValid;
+            //if (!string.IsNullOrEmpty(this.SceneToSpawn))
+            //    CustomCharacters.INTERNAL_SpawnSceneCharacters += SceneSpawnIfValid;
 
             OnPrepare();
 
             SL.Log("Prepared SL_Character '" + Name + "' (" + UID + ")");
         }
 
+        internal virtual void OnPrepare() { }
+
         public void Unregister()
         {
             if (CustomCharacters.Templates.ContainsKey(this.UID))
                 CustomCharacters.Templates.Remove(this.UID);
 
-            if (!string.IsNullOrEmpty(this.SceneToSpawn))
-                CustomCharacters.INTERNAL_SpawnCharacters -= SceneSpawnIfValid;
+            //if (!string.IsNullOrEmpty(this.SceneToSpawn))
+            //    CustomCharacters.INTERNAL_SpawnSceneCharacters -= SceneSpawnIfValid;
         }
 
         /// <summary>
@@ -187,7 +198,7 @@ namespace SideLoader
         /// <param name="characterUID">Optional custom character UID for dynamic spawns</param>
         /// <param name="extraRpcData">Optional extra RPC data to send.</param>
         public Character Spawn(Vector3 position, string characterUID = null, string extraRpcData = null)
-            => Spawn(position, Vector3.zero, characterUID, extraRpcData);
+            => InternalSpawn(position, Vector3.zero, characterUID, extraRpcData, false);
 
         /// <summary>
         /// Calls CustomCharacters.SpawnCharacter with this template.
@@ -197,6 +208,11 @@ namespace SideLoader
         /// <param name="characterUID">Optional custom character UID for dynamic spawns</param>
         /// <param name="extraRpcData">Optional extra RPC data to send.</param>
         public Character Spawn(Vector3 position, Vector3 rotation, string characterUID = null, string extraRpcData = null)
+            => InternalSpawn(position, rotation, characterUID, extraRpcData, false);
+
+        // main actual spawn method
+
+        internal Character InternalSpawn(Vector3 position, Vector3 rotation, string characterUID, string extraRpcData, bool loadingFromSave)
         {
             characterUID = characterUID ?? this.UID;
 
@@ -206,24 +222,28 @@ namespace SideLoader
                 return existing;
             }
 
-            return CustomCharacters.SpawnCharacter(this, position, rotation, characterUID, extraRpcData).GetComponent<Character>();
+            return CustomCharacters.SpawnCharacter(this, position, rotation, characterUID, extraRpcData, loadingFromSave).GetComponent<Character>();
         }
 
-        internal virtual void OnPrepare() { }
+        // called from CustomCharacters.SpawnCharacterCoroutine
 
-        internal void INTERNAL_OnSpawn(Character character, string extraRpcData)
+        internal void INTERNAL_OnSpawn(Character character, string extraRpcData, bool loadingFromSave)
         {
             character.gameObject.SetActive(false);
 
-            ApplyToCharacter(character);
+            ApplyToCharacter(character, loadingFromSave);
 
             SL.TryInvoke(OnSpawn, character, extraRpcData);
         }
+
+        // invoked after a save is applied
 
         internal void INTERNAL_OnSaveApplied(Character character, string extraRpcData, string extraSaveData)
         {
             SL.TryInvoke(OnSaveApplied, character, extraRpcData, extraSaveData);
         }
+
+        // invoked when character is being saved
 
         internal string INTERNAL_OnPrepareSave(Character character)
         {
@@ -242,6 +262,8 @@ namespace SideLoader
             return ret;
         }
 
+        // helper to spawn for static scene spawns
+
         internal void SceneSpawnIfValid()
         {
             if (PhotonNetwork.isNonMasterClientInRoom || SceneManagerHelper.ActiveSceneName != this.SceneToSpawn)
@@ -250,18 +272,29 @@ namespace SideLoader
             Spawn(this.SpawnPosition, this.SpawnRotation);
         }
 
-        /// <summary>
-        /// Applies this template to a character. Some parts of the template are only applied by the host, while others are applied by any client.
-        /// Ideally this method should be called by all clients via RPC (which is the case if you just use the Spawn() method).
-        /// </summary>
-        public virtual void ApplyToCharacter(Character character)
+        // coroutine used for destroy-on-death
+
+        private IEnumerator DestroyOnDeathCoroutine(Character character)
         {
+            yield return new WaitForSeconds(2.0f);
+
+            CustomCharacters.DestroyCharacterRPC(character);
+        }
+
+        // ~~~~~~~~~~~~~~~~ Tempate applying ~~~~~~~~~~~~~~~~
+
+        public virtual void ApplyToCharacter(Character character, bool loadingFromSave)
+        {
+            SL.Log("Applying SL_Character template, template UID: " + this.UID + ", char UID: " + character.UID);
+
             // set name
             if (Name != null)
             {
                 At.SetField(character, "m_nameLocKey", "");
                 At.SetField(character, "m_name", Name);
             }
+
+            character.NonSavable = true;
 
             // if host
             if (!PhotonNetwork.isNonMasterClientInRoom)
@@ -273,28 +306,71 @@ namespace SideLoader
                 if (Faction != null)
                     character.ChangeFaction((Character.Factions)Faction);
 
-                // gear
-                if (Weapon_ID != null)
-                    TryEquipItem(character, (int)Weapon_ID);
+                if (!loadingFromSave)
+                {
+                    Bag bag = null;
 
-                if (Shield_ID != null)
-                    TryEquipItem(character, (int)Shield_ID);
+                    // gear
+                    if (Weapon_ID != null)
+                        TryEquipItem(character, (int)Weapon_ID);
 
-                if (Helmet_ID != null)
-                    TryEquipItem(character, (int)Helmet_ID);
+                    if (Shield_ID != null)
+                        TryEquipItem(character, (int)Shield_ID);
 
-                if (Chest_ID != null)
-                    TryEquipItem(character, (int)Chest_ID);
+                    if (Helmet_ID != null)
+                        TryEquipItem(character, (int)Helmet_ID);
 
-                if (Boots_ID != null)
-                    TryEquipItem(character, (int)Boots_ID);
+                    if (Chest_ID != null)
+                        TryEquipItem(character, (int)Chest_ID);
 
-                if (Backpack_ID != null)
-                    TryEquipItem(character, (int)Backpack_ID);
+                    if (Boots_ID != null)
+                        TryEquipItem(character, (int)Boots_ID);
+
+                    if (Backpack_ID != null)
+                        bag = (Bag)TryEquipItem(character, (int)Backpack_ID);
+
+                    // pouch items / backpack
+                    if (this.Pouch_Items != null && this.Pouch_Items.Count > 0)
+                    {
+                        if (character.Inventory?.Pouch?.transform)
+                        {
+                            foreach (var itemQty in this.Pouch_Items)
+                            {
+                                var prefab = ResourcesPrefabManager.Instance.GetItemPrefab(itemQty.ItemID);
+
+                                character.Inventory.GenerateItem(prefab, itemQty.Quantity, false);
+                            }
+                        }
+                        else
+                            SL.LogWarning("Trying to add pouch items but character has no pouch!");
+                    }
+
+                    if (this.Backpack_Items != null && this.Backpack_Items.Count > 0)
+                    {
+                        if (bag)
+                        {
+                            var itemContainer = bag.transform.Find("Content");
+
+                            foreach (var itemQty in this.Backpack_Items)
+                            {
+                                var item = ItemManager.Instance.GenerateItemNetwork(itemQty.ItemID);
+                                item.ChangeParent(itemContainer);
+
+                                if (item.IsStackable)
+                                    item.RemainingAmount = itemQty.Quantity;
+
+                                if (item is FueledContainer lantern)
+                                    lantern.SetLight(true);
+                            }
+                        }
+                        else
+                            SL.LogWarning("Trying to add backpack items but character has no backpack!");
+                    }
+                }
             }
 
             // AI
-            if (this.AI != null && !PhotonNetwork.isNonMasterClientInRoom)
+            if (this.AI != null)
             {
                 SL.Log("SL_Character AI is " + this.AI.GetType().FullName + ", applying...");
                 this.AI.Apply(character);
@@ -312,14 +388,21 @@ namespace SideLoader
                     SL.LogWarning("SL_Character: Could not get TargetingSystem component!");
             }
 
+            // loot/death
+            if (LootableOnDeath)
+            {
+                var lootable = character.gameObject.AddComponent<LootableOnDeath>();
+                lootable.DropWeapons = this.DropWeapons;
+                lootable.EnabledPouch = this.DropPouchContents;
+
+                At.SetField(lootable, "m_character", character);
+
+                // todo droptables
+                lootable.SkinDrops = new DropInstance[0];
+                lootable.LootDrops = new DropInstance[0];
+            }
+
             character.gameObject.SetActive(true);
-        }
-
-        private IEnumerator DestroyOnDeathCoroutine(Character character)
-        {
-            yield return new WaitForSeconds(2.0f);
-
-            CustomCharacters.DestroyCharacterRPC(character);
         }
 
         public virtual void SetStats(Character character)
@@ -399,17 +482,17 @@ namespace SideLoader
         /// <summary>
         /// An EquipInstantiate helper that also works on custom items. It also checks if the character owns the item and in that case tries to equip it.
         /// </summary>
-        public static void TryEquipItem(Character character, int id)
+        public static Item TryEquipItem(Character character, int id)
         {
             if (id <= 0)
-                return;
+                return null;
 
             if (ResourcesPrefabManager.Instance.GetItemPrefab(id) is Equipment item)
             {
                 if (character.Inventory.Equipment.GetEquippedItem(item.EquipSlot) is Equipment existing)
                 {
                     if (existing.ItemID == id)
-                        return;
+                        return null;
                     else
                         existing.ChangeParent(character.Inventory.Pouch.transform);
                 }
@@ -422,7 +505,11 @@ namespace SideLoader
                     itemToEquip = ItemManager.Instance.GenerateItemNetwork(id);
 
                 itemToEquip.ChangeParent(character.Inventory.Equipment.GetMatchingEquipmentSlotTransform(item.EquipSlot));
+
+                return itemToEquip;
             }
+
+            return null;
         }
 
         public static IEnumerator SetVisuals(Character character, string visualData)

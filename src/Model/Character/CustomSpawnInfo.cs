@@ -24,57 +24,6 @@ namespace SideLoader
             CustomCharacters.Templates.TryGetValue(templateUID, out this.Template);
         }
 
-        public SL_CharacterSaveData ToSaveData()
-        {
-            // should probably debug this if it happens
-            if (this.Template == null || !this.ActiveCharacter)
-            {
-                SL.LogWarning("Trying to save a CustomSpawnInfo, but template or activeCharacter is null!"); 
-                return null;
-            }
-
-            var character = this.ActiveCharacter;
-            var template = this.Template;
-
-            // capture the save data in an instance
-            var data = new SL_CharacterSaveData()
-            {
-                SaveType = template.SaveType,
-                CharacterUID = character.UID,
-                TemplateUID = template.UID,
-                Forward = character.transform.forward,
-                Position = character.transform.position,
-                ExtraRPCData = this.ExtraRPCData,
-                ExtraSaveData = template.INTERNAL_OnPrepareSave(character),
-            };
-
-            if (character.GetComponentInChildren<AISWander>() is AISWander aiWander) 
-            {
-                if (aiWander.FollowTransform && aiWander.FollowTransform.GetComponentInChildren<Character>() is Character followTarget)
-                    data.FollowTargetUID = followTarget.UID.ToString();
-            }
-
-            try 
-            {
-                data.Health = character.Health;
-
-                if (character.StatusEffectMngr)
-                {
-                    var statuses = character.StatusEffectMngr.Statuses.ToArray().Where(it => !string.IsNullOrEmpty(it.IdentifierName));
-                    data.StatusData = new string[statuses.Count()];
-
-                    int i = 0;
-                    foreach (var status in statuses)
-                    {
-                        var sourceChar = (UID)At.GetField(status, "m_sourceCharacterUID")?.ToString();
-                        data.StatusData[i] = $"{status.IdentifierName}|{sourceChar}|{status.RemainingLifespan}";
-                        i++;
-                    }
-                }
-
-            } catch { }
-
-            return data;
-        }
+        public SL_CharacterSaveData ToSaveData() => SL_CharacterSaveData.FromSpawnInfo(this);
     }
 }

@@ -16,7 +16,7 @@ namespace SideLoader
         #region IContentTemplate
 
         [XmlIgnore] public string DefaultTemplateName => $"{this.AppliedID}_{this.Name}";
-        [XmlIgnore] public bool IsCreatingNewID => this.New_ItemID > 0 && this.New_ItemID != this.Target_ItemID;
+        [XmlIgnore] public bool IsCreatingNewID => this.New_ItemID != -1 && this.New_ItemID != this.Target_ItemID;
         [XmlIgnore] public bool DoesTargetExist => ResourcesPrefabManager.Instance.GetItemPrefab(this.Target_ItemID);
         [XmlIgnore] public int TargetID => this.Target_ItemID;
         [XmlIgnore] public int AppliedID => IsCreatingNewID ? this.New_ItemID : this.Target_ItemID;

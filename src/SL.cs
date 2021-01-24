@@ -217,6 +217,7 @@ namespace SideLoader
             // Reset internal dictionaries/lists
             SL_Item.CurrentlyAppliedTemplates.Clear();
             SL_Skill.s_customSkills.Clear();
+            CustomCharacters.Templates.Clear();
 
             CustomTextures.Textures.Clear();
         }
