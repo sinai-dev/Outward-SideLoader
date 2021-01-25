@@ -7,6 +7,7 @@ using UnityEngine;
 using System.Xml.Serialization;
 using SideLoader.Helpers;
 using SideLoader.Model;
+using HarmonyLib;
 
 namespace SideLoader
 {
@@ -307,77 +308,21 @@ namespace SideLoader
                     character.ChangeFaction((Character.Factions)Faction);
 
                 if (!loadingFromSave)
-                {
-                    Bag bag = null;
-
-                    // gear
-                    if (Weapon_ID != null)
-                        TryEquipItem(character, (int)Weapon_ID);
-
-                    if (Shield_ID != null)
-                        TryEquipItem(character, (int)Shield_ID);
-
-                    if (Helmet_ID != null)
-                        TryEquipItem(character, (int)Helmet_ID);
-
-                    if (Chest_ID != null)
-                        TryEquipItem(character, (int)Chest_ID);
-
-                    if (Boots_ID != null)
-                        TryEquipItem(character, (int)Boots_ID);
-
-                    if (Backpack_ID != null)
-                        bag = (Bag)TryEquipItem(character, (int)Backpack_ID);
-
-                    // pouch items / backpack
-                    if (this.Pouch_Items != null && this.Pouch_Items.Count > 0)
-                    {
-                        if (character.Inventory?.Pouch?.transform)
-                        {
-                            foreach (var itemQty in this.Pouch_Items)
-                            {
-                                var prefab = ResourcesPrefabManager.Instance.GetItemPrefab(itemQty.ItemID);
-
-                                character.Inventory.GenerateItem(prefab, itemQty.Quantity, false);
-                            }
-                        }
-                        else
-                            SL.LogWarning("Trying to add pouch items but character has no pouch!");
-                    }
-
-                    if (this.Backpack_Items != null && this.Backpack_Items.Count > 0)
-                    {
-                        if (bag)
-                        {
-                            var itemContainer = bag.transform.Find("Content");
-
-                            foreach (var itemQty in this.Backpack_Items)
-                            {
-                                var item = ItemManager.Instance.GenerateItemNetwork(itemQty.ItemID);
-                                item.ChangeParent(itemContainer);
-
-                                if (item.IsStackable)
-                                    item.RemainingAmount = itemQty.Quantity;
-
-                                if (item is FueledContainer lantern)
-                                    lantern.SetLight(true);
-                            }
-                        }
-                        else
-                            SL.LogWarning("Trying to add backpack items but character has no backpack!");
-                    }
-                }
+                    SetItems(character);
             }
 
             // AI
             if (this.AI != null)
             {
-                SL.Log("SL_Character AI is " + this.AI.GetType().FullName + ", applying...");
+                //SL.Log("SL_Character AI is " + this.AI.GetType().FullName + ", applying...");
                 this.AI.Apply(character);
             }
 
             // stats
             SetStats(character);
+
+            if (this.AI is SL_CharacterAIMelee aiMelee && aiMelee.ForceNonCombat)
+                this.TargetableFactions = new Character.Factions[0];
 
             if (this.TargetableFactions != null)
             {
@@ -403,6 +348,68 @@ namespace SideLoader
             }
 
             character.gameObject.SetActive(true);
+        }
+
+        private void SetItems(Character character)
+        {
+            Bag bag = null;
+
+            // gear
+            if (Weapon_ID != null)
+                TryEquipItem(character, (int)Weapon_ID);
+
+            if (Shield_ID != null)
+                TryEquipItem(character, (int)Shield_ID);
+
+            if (Helmet_ID != null)
+                TryEquipItem(character, (int)Helmet_ID);
+
+            if (Chest_ID != null)
+                TryEquipItem(character, (int)Chest_ID);
+
+            if (Boots_ID != null)
+                TryEquipItem(character, (int)Boots_ID);
+
+            if (Backpack_ID != null)
+                bag = (Bag)TryEquipItem(character, (int)Backpack_ID);
+
+            // pouch items / backpack
+            if (this.Pouch_Items != null && this.Pouch_Items.Count > 0)
+            {
+                if (character.Inventory?.Pouch?.transform)
+                {
+                    foreach (var itemQty in this.Pouch_Items)
+                    {
+                        var prefab = ResourcesPrefabManager.Instance.GetItemPrefab(itemQty.ItemID);
+
+                        character.Inventory.GenerateItem(prefab, itemQty.Quantity, false);
+                    }
+                }
+                else
+                    SL.LogWarning("Trying to add pouch items but character has no pouch!");
+            }
+
+            if (this.Backpack_Items != null && this.Backpack_Items.Count > 0)
+            {
+                if (bag)
+                {
+                    var itemContainer = bag.transform.Find("Content");
+
+                    foreach (var itemQty in this.Backpack_Items)
+                    {
+                        var item = ItemManager.Instance.GenerateItemNetwork(itemQty.ItemID);
+                        item.ChangeParent(itemContainer);
+
+                        if (item.IsStackable)
+                            item.RemainingAmount = itemQty.Quantity;
+
+                        if (item is FueledContainer lantern)
+                            lantern.SetLight(true);
+                    }
+                }
+                else
+                    SL.LogWarning("Trying to add backpack items but character has no backpack!");
+            }
         }
 
         public virtual void SetStats(Character character)
@@ -484,7 +491,7 @@ namespace SideLoader
         /// </summary>
         public static Item TryEquipItem(Character character, int id)
         {
-            if (id <= 0)
+            if (id == -1)
                 return null;
 
             if (ResourcesPrefabManager.Instance.GetItemPrefab(id) is Equipment item)

@@ -175,8 +175,6 @@ namespace SideLoader
 
                 character.SetUID(UID);
 
-                //FixStats(prefab.GetComponent<Character>());
-
                 var viewID = PhotonNetwork.AllocateSceneViewID();
 
                 if (string.IsNullOrEmpty(spawnCallbackUID))

@@ -252,6 +252,13 @@ namespace SideLoader
             At.SetField(comp as BaseSkillSlot, "m_columnIndex", ColumnIndex);
 
             var skill = ResourcesPrefabManager.Instance.GetItemPrefab(SkillID) as Skill;
+            
+            if (!skill)
+            {
+                SL.LogWarning("SL_SkillSlot: Could not find skill by id '" + SkillID + "'");
+                return comp;
+            }
+            
             At.SetField(comp, "m_skill", skill);
 
             At.SetField(skill, "m_schoolIndex", treeID);

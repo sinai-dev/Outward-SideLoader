@@ -33,28 +33,35 @@ namespace SideLoader.UI.Inspectors.Reflection
             GetDefaultLabel(false);
             UpdateCreateDestroyBtnState();
 
-            m_baseLabel.text = m_richValueType;
-
-            if (!m_hiddenObj.gameObject.activeSelf)
-                m_hiddenObj.gameObject.SetActive(true);
-
-            if (!string.IsNullOrEmpty((string)Value))
+            try
             {
-                var toString = (string)Value;
-                if (toString.Length > 15000)
-                    toString = toString.Substring(0, 15000);
+                m_baseLabel.text = m_richValueType;
 
-                m_valueInput.text = toString;
-                m_placeholderText.text = toString;
+                if (!m_hiddenObj.gameObject.activeSelf)
+                    m_hiddenObj.gameObject.SetActive(true);
+
+                if (!string.IsNullOrEmpty((string)Value))
+                {
+                    var toString = (string)Value;
+                    if (toString.Length > 15000)
+                        toString = toString.Substring(0, 15000);
+
+                    m_valueInput.text = toString;
+                    m_placeholderText.text = toString;
+                }
+                else
+                {
+                    string s = Value == null
+                                ? "null"
+                                : "empty";
+
+                    m_valueInput.text = "";
+                    m_placeholderText.text = s;
+                }
             }
-            else
+            catch (Exception e)
             {
-                string s = Value == null
-                            ? "null"
-                            : "empty";
-
-                m_valueInput.text = "";
-                m_placeholderText.text = s;
+                SL.Log("Exception setting InteractiveString: " + e);
             }
 
             m_labelLayout.minWidth = 50;
