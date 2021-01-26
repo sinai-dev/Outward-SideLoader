@@ -34,15 +34,35 @@ namespace SideLoader.Patches
             {
                 if (At.GetField(holder.CurrentSaveInstance, "m_loadedScene") is EnvironmentSave loadedScene)
                 {
-                    float age = (float)(loadedScene.GameTime - EnvironmentConditions.GameTime);
-
-                    SLCharacterSaveManager.SceneResetWanted = AreaManager.Instance.IsAreaExpired(loadedScene.AreaName, age);
+                    var area = (AreaManager.AreaEnum)AreaManager.Instance.GetAreaFromSceneName(loadedScene.AreaName).ID;
+                    if (IsPermanent(area))
+                        SLCharacterSaveManager.SceneResetWanted = false;
+                    else
+                    {
+                        float age = (float)(loadedScene.GameTime - EnvironmentConditions.GameTime);
+                        SLCharacterSaveManager.SceneResetWanted = AreaManager.Instance.IsAreaExpired(loadedScene.AreaName, age);
+                    }
                 }
                 else
                     SLCharacterSaveManager.SceneResetWanted = true;
             }
             else
                 SLCharacterSaveManager.SceneResetWanted = true;
+
+            SL.Log("Set SceneResetWanted: " + SLCharacterSaveManager.SceneResetWanted);
+        }
+
+        internal static bool IsPermanent(AreaManager.AreaEnum area)
+        {
+            var perms = AreaManager.Instance.PermenantAreas;
+            foreach (var a in perms)
+            {
+                if (area == a)
+                {
+                    return true;
+                }
+            }
+            return false;
         }
     }
 

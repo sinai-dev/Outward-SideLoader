@@ -47,6 +47,8 @@ namespace SideLoader.UI.Inspectors.Reflection
 
             base.ChangeType(newType);
 
+            Template = Target as IContentTemplate;
+
             Template.SerializedFilename = origFile;
             Template.SerializedSubfolderName = origSub;
             Template.SerializedSLPackName = origPack;
@@ -57,16 +59,16 @@ namespace SideLoader.UI.Inspectors.Reflection
         internal override void CopyValuesFrom(object data)
         {
             var origPack = RefPack.Name;
-            var origSub = this.Template.SerializedFilename;
-            var origFile = this.Template.SerializedSubfolderName;
+            var origSub = this.Template.SerializedSubfolderName;
+            var origFile = this.Template.SerializedFilename;
 
             At.CopyFields(Target, data, null, true);
+
+            Template = Target as IContentTemplate;
 
             Template.SerializedFilename = origFile;
             Template.SerializedSubfolderName = origSub;
             Template.SerializedSLPackName = origPack;
-            //this.SubfolderName = origSub;
-            //this.Filename = origFile;
 
             UpdateValues();
         }
@@ -78,6 +80,15 @@ namespace SideLoader.UI.Inspectors.Reflection
                 SL.LogWarning("Error - RefPack is null on TemplateInspector.Save!");
                 return;
             }
+
+            //// make sure all members set their values first (that have been opened)
+            //foreach (var member in this.m_allMembers)
+            //{
+            //    if (!member.m_constructedUI)
+            //        continue;
+
+            //    member.IValue.QuickSave();
+            //}
 
             var directory = RefPack.GetSubfolderPath(Template.SLPackCategory);
 
@@ -124,6 +135,8 @@ namespace SideLoader.UI.Inspectors.Reflection
 
                 CopyValuesFrom(loadedData);
             }
+
+            UpdateFullPathText();
         }
 
         // =========== UI ===============

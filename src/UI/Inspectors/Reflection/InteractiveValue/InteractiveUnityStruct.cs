@@ -197,6 +197,12 @@ namespace SideLoader.UI.Inspectors.Reflection
 
         public IStructInfo StructInfo;
 
+        //internal override void QuickSave()
+        //{
+        //    this.OnApplyClicked();
+        //    base.QuickSave();
+        //}
+
         public override void RefreshUIForValue()
         {
             InitializeStructInfo();
@@ -228,14 +234,6 @@ namespace SideLoader.UI.Inspectors.Reflection
             if (StructInfo != null)
             {
                 DestroySubContent();
-                //// changing types, destroy subcontent
-                //for (int i = 0; i < m_subContentParent.transform.childCount; i++)
-                //{
-                //    var child = m_subContentParent.transform.GetChild(i);
-                //    GameObject.Destroy(child.gameObject);
-                //}
-
-                //m_UIConstructed = false;
             }
 
             m_lastStructType = type;
@@ -295,26 +293,31 @@ namespace SideLoader.UI.Inspectors.Reflection
 
                 void OnSetValue()
                 {
-                    int i = 0;
-                    foreach (var inputField in structInputFields)
-                    {
-                        if (!float.TryParse(inputField.text, out float f))
-                        {
-                            SL.LogWarning("Could not parse input '" + inputField.text + "' to float!");
-                            break;
-                        }
-
-                        Value = StructInfo.SetValue(ref this.Value, i, f);
-                        i++;
-                    }
-
-                    Owner.SetValue();
-                    RefreshUIForValue();
+                    OnApplyClicked();
                 }
 
                 var applyText = applyBtnObj.GetComponentInChildren<Text>();
                 applyText.text = "Apply";
             }
+        }
+
+        private void OnApplyClicked()
+        {
+            int i = 0;
+            foreach (var inputField in structInputFields)
+            {
+                if (!float.TryParse(inputField.text, out float f))
+                {
+                    SL.LogWarning("Could not parse input '" + inputField.text + "' to float!");
+                    break;
+                }
+
+                Value = StructInfo.SetValue(ref this.Value, i, f);
+                i++;
+            }
+
+            Owner.SetValue();
+            RefreshUIForValue();
         }
 
         private readonly List<InputField> structInputFields = new List<InputField>();

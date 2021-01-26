@@ -81,7 +81,7 @@ namespace SideLoader
                 return;
 
             var scene = SceneManager.GetActiveScene();
-            //SL.Log($"Checking SL_Character spawns ({scene.name})");
+            SL.Log($"Checking SL_Character spawns ({scene.name})");
 
             var sceneData = SLCharacterSaveManager.TryLoadSaveData(CharSaveType.Scene);
 
@@ -89,7 +89,9 @@ namespace SideLoader
                                                                && it.SceneToSpawn == SceneManagerHelper.ActiveSceneName))
             {
                 if (!SLCharacterSaveManager.SceneResetWanted && sceneData != null && sceneData.Any(it => it.TemplateUID == template.UID))
+                {
                     continue;
+                }
 
                 template.SceneSpawnIfValid();
             }
@@ -131,6 +133,9 @@ namespace SideLoader
                 }
                 else
                     pos = saveData.Position;
+
+                if (!template.GetShouldSpawn())
+                    continue;
 
                 var character = template.InternalSpawn(pos, template.SpawnRotation, saveData.CharacterUID, saveData.ExtraRPCData, true);
                 

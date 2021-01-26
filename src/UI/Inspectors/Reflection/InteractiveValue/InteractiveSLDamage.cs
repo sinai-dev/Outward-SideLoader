@@ -29,6 +29,14 @@ namespace SideLoader.UI.Inspectors.Reflection
             base.OnValueUpdated();
         }
 
+        //internal override void QuickSave()
+        //{
+        //    if (this.m_subContentConstructed)
+        //        this.OnApplyClicked();
+
+        //    base.QuickSave();
+        //}
+
         public override void RefreshUIForValue()
         {
             base.RefreshUIForValue();

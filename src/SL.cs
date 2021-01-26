@@ -219,6 +219,8 @@ namespace SideLoader
             SL_Skill.s_customSkills.Clear();
             CustomCharacters.Templates.Clear();
 
+            SL_DropTable.s_registeredTables.Clear();
+
             CustomTextures.Textures.Clear();
         }
 

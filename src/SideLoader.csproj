@@ -49,6 +49,9 @@
     <Compile Include="Model\Character\SL_CharacterAI.cs" />
     <Compile Include="Model\Character\SL_CharacterTrainer.cs" />
     <Compile Include="Model\DependancySolver.cs" />
+    <Compile Include="Model\DropTables\SL_ItemDrop.cs" />
+    <Compile Include="Model\DropTables\SL_ItemDropChance.cs" />
+    <Compile Include="Model\DropTables\SL_RandomDropGenerator.cs" />
     <Compile Include="Model\Effect\Conditions\Custom\SL_HasHealthCondition.cs" />
     <Compile Include="Model\Effect\Conditions\SL_InBoundsCondition.cs" />
     <Compile Include="Model\Effect\Conditions\SL_InstrumentClose.cs" />
@@ -93,6 +96,7 @@
     <Compile Include="Model\Item\Skill\SL_LevelAttackSkill.cs" />
     <Compile Include="Model\Item\Skill\SL_LevelPassiveSkill.cs" />
     <Compile Include="Model\Item\Skill\SL_PistolSkill.cs" />
+    <Compile Include="Model\DropTables\SL_DropTable.cs" />
     <Compile Include="Model\Tag\SL_TagDefinition.cs" />
     <Compile Include="Model\Tag\SL_TagManifest.cs" />
     <Compile Include="Model\Status\SL_Disease.cs" />

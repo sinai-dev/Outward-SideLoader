@@ -36,6 +36,14 @@ namespace SideLoader.UI.Inspectors.Reflection
             ElementType = valueType.GetGenericArguments()[0];
         }
 
+        //internal override void QuickSave()
+        //{
+        //    if (this.SubIValue != null)
+        //        this.SubIValue.QuickSave();
+
+        //    base.QuickSave();
+        //}
+
         public override void OnValueUpdated()
         {
             base.OnValueUpdated();
@@ -128,11 +136,6 @@ namespace SideLoader.UI.Inspectors.Reflection
 
             m_uiParent = parent;
             m_uiSubGroupParent = subGroup;
-
-            //m_baseLabel.gameObject.SetActive(false);
-            //m_inspectButton.gameObject.SetActive(false);
-
-
         }
     }
 }

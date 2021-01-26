@@ -79,11 +79,8 @@ namespace SideLoader.UI.Inspectors
 
         internal void RefreshLoadedSLPacks()
         {
-            m_currentPack = null;
             m_slPackDropdown.options.Clear();
             m_slPackDropdownLabel.text = "Choose an SLPack...";
-            m_scrollObj.gameObject.SetActive(false);
-            m_generateObj.gameObject.SetActive(false);
 
             m_slPackDropdown.options.Add(new Dropdown.OptionData
             {
@@ -98,6 +95,13 @@ namespace SideLoader.UI.Inspectors
                     text = pack.Name
                 });
             }
+
+            m_slPackDropdown.value = 1;
+            m_slPackDropdown.value = 0;
+
+            m_currentPack = null;
+            m_scrollObj.gameObject.SetActive(false);
+            m_generateObj.gameObject.SetActive(false);
         }
 
         internal bool CanSelectedTypeBeInSubfolder()
@@ -122,7 +126,7 @@ namespace SideLoader.UI.Inspectors
         {
             if (val < 1 || val > SL.Packs.Count)
             {
-                RefreshLoadedSLPacks();
+                //RefreshLoadedSLPacks();
                 //m_slPackLabel.text = $"No pack selected...";
                 return;
             }
@@ -147,6 +151,8 @@ namespace SideLoader.UI.Inspectors
                     baseGeneratorType = typeof(SL_Item); break;
                 case SLPack.SubFolders.Characters:
                     baseGeneratorType = typeof(SL_Character); break;
+                case SLPack.SubFolders.DropTables:
+                    baseGeneratorType = typeof(SL_DropTable); break;
                 case SLPack.SubFolders.Enchantments:
                     baseGeneratorType = typeof(SL_EnchantmentRecipe); break;
                 case SLPack.SubFolders.Recipes:
@@ -281,7 +287,10 @@ namespace SideLoader.UI.Inspectors
                 if (confirmed)
                 {
                     for (int i = 0; i < InspectorManager.Instance.m_currentInspectors.Count; i++)
+                    {
                         InspectorManager.Instance.m_currentInspectors[i].Destroy();
+                        i--;
+                    }
 
                     SL.Setup(false);
 

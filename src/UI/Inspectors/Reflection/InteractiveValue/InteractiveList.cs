@@ -39,12 +39,20 @@ namespace SideLoader.UI.Inspectors.Reflection
         internal readonly CacheEnumerated[] m_displayedEntries = new CacheEnumerated[30];
         internal bool m_recacheWanted = true;
 
+        //internal override void QuickSave()
+        //{
+        //    foreach (var entry in this.m_entries)
+        //        entry.IValue.QuickSave();
+
+        //    base.QuickSave();
+        //}
+
         public override void OnValueUpdated()
         {
             //RefIEnumerable = Value as IEnumerable;
             RefIList = Value as IList;
 
-            if (m_subContentParent.activeSelf)
+            if (m_subContentParent && m_subContentParent.activeSelf)
             {
                 GetCacheEntries();
                 RefreshDisplay();

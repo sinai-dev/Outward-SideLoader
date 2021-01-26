@@ -77,16 +77,28 @@ namespace SideLoader
         /// </summary>
         public event Func<Character, string> OnCharacterBeingSaved;
 
+        /// <summary>If you define this with a function, the return bool will be used to decide if the character should spawn or not (for scene spawns).</summary>
+        [XmlIgnore] public Func<bool> ShouldSpawn;
+
         /// <summary>Determines how this character will be saved.</summary>
         public CharSaveType SaveType;
 
         /// <summary>The Unique ID for this character template.</summary>
-        public string UID;
+        public string UID = "";
         /// <summary>The display name for this character.</summary>
-        public string Name;
+        public string Name = "";
 
         /// <summary>If true, the character will be automatically destroyed when it dies.</summary>
         public bool DestroyOnDeath;
+
+        /// <summary>The default starting pose for the Character. Interrupted by moving/combat.</summary>
+        public Character.SpellCastType StartingPose = Character.SpellCastType.NONE;
+
+        /// <summary>The Scale of the character's physical model.</summary>
+        public Vector3 Scale = Vector3.one;
+
+        /// <summary>Should the character spawn Sheathed, or not?</summary>
+        public bool StartSheathed = true;
 
         /// <summary>For Scene-type characters, the Scene Name to spawn in (referring to scene build names).</summary>
         public string SceneToSpawn;
@@ -126,6 +138,7 @@ namespace SideLoader
         public bool LootableOnDeath;
         public bool DropPouchContents;
         public bool DropWeapons;
+        public string[] DropTableUIDs;
 
         // ~~~~~~~~~~ stats ~~~~~~~~~~
         [XmlIgnore] private const string SL_STAT_ID = "SL_Stat";
@@ -172,13 +185,17 @@ namespace SideLoader
 
                 CustomCharacters.Templates.Add(this.UID, this);
             }
-
-            //if (!string.IsNullOrEmpty(this.SceneToSpawn))
-            //    CustomCharacters.INTERNAL_SpawnSceneCharacters += SceneSpawnIfValid;
+            
+            if (this.LootableOnDeath && this.DropTableUIDs?.Length > 0 && !this.DropPouchContents)
+            {
+                SL.LogWarning($"SL_Character '{UID}' has LootableOnDeath=true and DropTableUIDs set, but DropPouchContents is false!" +
+                    $"You should set DropPouchContents to true in this case or change your template behaviour. Forcing DropPouchContents to true.");
+                this.DropPouchContents = true;
+            }
 
             OnPrepare();
 
-            SL.Log("Prepared SL_Character '" + Name + "' (" + UID + ")");
+            SL.Log("Prepared SL_Character '" + Name + "' (" + UID + ").");
         }
 
         internal virtual void OnPrepare() { }
@@ -187,9 +204,6 @@ namespace SideLoader
         {
             if (CustomCharacters.Templates.ContainsKey(this.UID))
                 CustomCharacters.Templates.Remove(this.UID);
-
-            //if (!string.IsNullOrEmpty(this.SceneToSpawn))
-            //    CustomCharacters.INTERNAL_SpawnSceneCharacters -= SceneSpawnIfValid;
         }
 
         /// <summary>
@@ -270,7 +284,58 @@ namespace SideLoader
             if (PhotonNetwork.isNonMasterClientInRoom || SceneManagerHelper.ActiveSceneName != this.SceneToSpawn)
                 return;
 
+            if (!GetShouldSpawn())
+                return;
+
             Spawn(this.SpawnPosition, this.SpawnRotation);
+        }
+
+        internal bool GetShouldSpawn()
+        {
+            if (this.ShouldSpawn != null)
+            {
+                try
+                {
+                    // If user's ShouldSpawn returns false, return.
+                    return ShouldSpawn.Invoke();
+                }
+                catch (Exception ex)
+                {
+                    SL.LogWarning("Exception invoking ShouldSpawn callback for " + this.Name + " (" + this.UID + ")");
+                    SL.LogInnerException(ex);
+                }
+            }
+
+            return true;
+        }
+
+        // internal death callback
+
+        internal void OnDeath(Character character)
+        {
+            if (this.DestroyOnDeath)
+            {
+                SLPlugin.Instance.StartCoroutine(DestroyOnDeathCoroutine(character));
+                return;
+            }
+
+            if (LootableOnDeath && this.DropTableUIDs != null && DropTableUIDs.Length > 0)
+            {
+                if (character.GetComponent<LootableOnDeath>() is LootableOnDeath lootable
+                    && (bool)At.GetField(lootable, "m_wasAlive"))
+                {
+                    foreach (var tableUID in this.DropTableUIDs)
+                    {
+                        if (SL_DropTable.s_registeredTables.TryGetValue(tableUID, out SL_DropTable table))
+                            table.GenerateDrops(character.Inventory.Pouch.transform);
+                        else
+                            SL.LogWarning($"Trying to generate drops for '{UID}', " +
+                                $"but could not find any registered SL_DropTable with the UID '{tableUID}'");
+                    }
+
+                    character.Inventory.MakeLootable(this.DropWeapons, this.DropPouchContents, true, false);
+                }
+            }
         }
 
         // coroutine used for destroy-on-death
@@ -288,6 +353,8 @@ namespace SideLoader
         {
             SL.Log("Applying SL_Character template, template UID: " + this.UID + ", char UID: " + character.UID);
 
+            character.NonSavable = true;
+
             // set name
             if (Name != null)
             {
@@ -295,13 +362,17 @@ namespace SideLoader
                 At.SetField(character, "m_name", Name);
             }
 
-            character.NonSavable = true;
+            // set scale
+            character.transform.localScale = this.Scale;
+
+            // set starting pose
+            if (!PhotonNetwork.isNonMasterClientInRoom)
+                SLPlugin.Instance.StartCoroutine(DelayedSetPose(character));
 
             // if host
             if (!PhotonNetwork.isNonMasterClientInRoom)
             {
-                if (this.DestroyOnDeath)
-                    character.OnDeath += () => { SLPlugin.Instance.StartCoroutine(DestroyOnDeathCoroutine(character)); };
+                character.OnDeath += () => { OnDeath(character); };
 
                 // set faction
                 if (Faction != null)
@@ -348,6 +419,18 @@ namespace SideLoader
             }
 
             character.gameObject.SetActive(true);
+        }
+
+        private IEnumerator DelayedSetPose(Character character)
+        {
+            yield return new WaitForSeconds(0.8f);
+
+            // set sheathed
+            if (!this.StartSheathed)
+                character.SheatheInput();
+
+            if (StartingPose != Character.SpellCastType.NONE)
+                character.CastSpell(StartingPose, character.gameObject);
         }
 
         private void SetItems(Character character)

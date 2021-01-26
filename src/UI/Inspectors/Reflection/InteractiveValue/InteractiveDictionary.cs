@@ -42,10 +42,14 @@ namespace SideLoader.UI.Inspectors.Reflection
         }
 
         internal IDictionary RefIDictionary;
-        internal IDictionary RefCppDictionary = null;
+
         internal Type m_typeOfKeys;
         internal Type m_typeofValues;
 
+        // I know this looks weird, but trust me it's intentional.
+        // I'm just keeping track of the KVP's by their index, I don't need
+        // to actually have Dictionary functionality with them.
+        // Storing them in a list is actually better here.
         internal readonly List<KeyValuePair<CachePaired, CachePaired>> m_entries 
             = new List<KeyValuePair<CachePaired, CachePaired>>();
 

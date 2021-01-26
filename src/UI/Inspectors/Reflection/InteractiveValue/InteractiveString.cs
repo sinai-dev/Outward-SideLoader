@@ -19,6 +19,12 @@ namespace SideLoader.UI.Inspectors.Reflection
 
         public override bool WantInspectBtn => false;
 
+        //internal override void QuickSave()
+        //{
+        //    OnApplyClicked();
+        //    base.QuickSave();
+        //}
+
         public override void RefreshUIForValue()
         {
             if (Value == null || !Owner.HasEvaluated)

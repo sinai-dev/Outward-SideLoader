@@ -86,6 +86,25 @@ namespace SideLoader
             $@"{SL.SL_FOLDER}\{Name}" :
             $@"{SL.PLUGINS_FOLDER}\{Name}\SideLoader";
 
+
+        /// <summary>
+        /// The supported sub-folders in an SL Pack. 
+        /// </summary>
+        public enum SubFolders
+        {
+            AudioClip,
+            AssetBundles,
+            Characters,
+            Enchantments,
+            DropTables,
+            Items,
+            Recipes,
+            StatusEffects,
+            StatusFamilies,
+            Tags,
+            Texture2D,
+        }
+
         /// <summary>AssetBundles loaded from the `AssetBundles\` folder. Dictionary Key is the file name.</summary>
         public Dictionary<string, AssetBundle> AssetBundles = new Dictionary<string, AssetBundle>();
         /// <summary>Texture2Ds loaded from the PNGs in the `Texture2D\` folder (not from the `Items\...` folders). Dictionary Key is the file name (without ".png")</summary>
@@ -95,6 +114,7 @@ namespace SideLoader
         /// <summary>SL_Characters loaded from the `Characters\` folder. Dictionary Key is the file name without xml.</summary>
         public Dictionary<string, SL_Character> CharacterTemplates = new Dictionary<string, SL_Character>();
 
+        public Dictionary<string, SL_DropTable> DropTables = new Dictionary<string, SL_DropTable>();
         public Dictionary<string, SL_Item> ItemTemplates = new Dictionary<string, SL_Item>();
         public Dictionary<string, SL_StatusBase> StatusTemplates = new Dictionary<string, SL_StatusBase>();
         public Dictionary<string, SL_Recipe> RecipeTemplates = new Dictionary<string, SL_Recipe>();
@@ -114,6 +134,8 @@ namespace SideLoader
                     return CharacterTemplates;
                 case SubFolders.Enchantments:
                     return EnchantmentTemplates;
+                case SubFolders.DropTables:
+                    return DropTables;
                 case SubFolders.Items:
                     return ItemTemplates;
                 case SubFolders.Recipes:
@@ -127,23 +149,6 @@ namespace SideLoader
             }
 
             throw new NotImplementedException(folder.ToString());
-        }
-
-        /// <summary>
-        /// The supported sub-folders in an SL Pack. 
-        /// </summary>
-        public enum SubFolders
-        {
-            AudioClip,
-            AssetBundles,
-            Characters,
-            Enchantments,
-            Items,
-            Recipes,
-            StatusEffects,
-            StatusFamilies,
-            Tags,
-            Texture2D,
         }
 
         /// <summary>
@@ -204,6 +209,7 @@ namespace SideLoader
                     pack.LoadAssetBundles();
 
                 pack.LoadTags();
+                pack.LoadDropTables();
 
                 pack.LoadAudioClips();
                 pack.LoadTexture2D();
@@ -281,6 +287,36 @@ namespace SideLoader
                         manifest.SLPackName = this.Name;
                         manifest.SerializedFilename = Path.GetFileNameWithoutExtension(tagManifestPath);
                         manifest.CreateContent();
+                        this.TagTemplates.Add(manifest.GetHashCode().ToString(), manifest);
+                    }
+                }
+            }
+        }
+
+        private void LoadDropTables()
+        {
+            var dir = GetSubfolderPath(SubFolders.DropTables);
+            if (!Directory.Exists(dir))
+                return;
+
+            foreach (var tablePath in Directory.GetFiles(dir, "*.xml"))
+            {
+                using (var file = File.OpenRead(tablePath))
+                {
+                    var serializer = Serializer.GetXmlSerializer(typeof(SL_DropTable));
+                    if (serializer.Deserialize(file) is SL_DropTable table)
+                    {
+                        table.SerializedSLPackName = this.Name;
+                        table.SerializedFilename = Path.GetFileNameWithoutExtension(tablePath);
+                        table.CreateContent();
+                        
+                        if (this.DropTables.ContainsKey(table.UID))
+                        {
+                            SL.LogWarning("Serialized an SL_DropTable but one is already loaded with this UID: " + table.UID);
+                            continue;
+                        }
+
+                        this.DropTables.Add(table.UID, table);
                     }
                 }
             }

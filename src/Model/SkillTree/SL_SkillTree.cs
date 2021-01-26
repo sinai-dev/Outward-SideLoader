@@ -29,6 +29,13 @@ namespace SideLoader
         /// <summary>The unique identifier for this skill tree, eg "com.me.mymod"</summary>
         public string UID;
 
+        ///// <summary>
+        ///// The Item ID of the Item used for buying the skills, by default it's Silver (9000010).
+        ///// </summary>
+        //public int CurrencyItemID = 9000010;
+
+        // todo alternate currency icon sprite
+
         /// <summary>The actual skill tree rows </summary>
         public List<SL_SkillRow> SkillRows = new List<SL_SkillRow>();
 
@@ -64,6 +71,8 @@ namespace SideLoader
             if (string.IsNullOrEmpty(this.UID))
                 this.UID = this.Name;
             At.SetField(school, "m_uid", new UID(this.UID));
+
+            // TODO set currency and icon
 
             // fix the breakthrough int
             At.SetField(school, "m_breakthroughSkillIndex", -1);

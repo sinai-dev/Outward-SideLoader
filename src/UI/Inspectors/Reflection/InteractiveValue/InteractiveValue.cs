@@ -78,6 +78,11 @@ namespace SideLoader.UI.Inspectors.Reflection
 
         public bool m_UIConstructed;
 
+        //internal virtual void QuickSave()
+        //{
+        //    SetValueFromThis();
+        //}
+
         public virtual void OnDestroy()
         {
             if (this.m_valueContent)

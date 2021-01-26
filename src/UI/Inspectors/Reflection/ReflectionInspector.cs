@@ -255,7 +255,9 @@ namespace SideLoader.UI.Inspectors
         {
             foreach (var member in m_allMembers)
             {
-                if (member == null) continue;
+                if (member == null || !member.m_constructedUI) 
+                    continue;
+
                 member.UpdateValue();
             }
         }
