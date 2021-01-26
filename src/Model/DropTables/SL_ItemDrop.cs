@@ -32,7 +32,7 @@ namespace SideLoader
 				return;
             }
 
-			var qtyToAdd = Random.Range(this.MinQty, this.MaxQty + 1);
+			var qtyToAdd = Random.Range(this.MinQty, Mathf.Max(this.MinQty, this.MaxQty) + 1);
 			if (qtyToAdd <= 0)
 				return;
 
