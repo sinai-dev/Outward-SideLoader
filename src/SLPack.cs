@@ -86,7 +86,6 @@ namespace SideLoader
             $@"{SL.SL_FOLDER}\{Name}" :
             $@"{SL.PLUGINS_FOLDER}\{Name}\SideLoader";
 
-
         /// <summary>
         /// The supported sub-folders in an SL Pack. 
         /// </summary>

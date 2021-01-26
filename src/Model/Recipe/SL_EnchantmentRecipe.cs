@@ -89,6 +89,9 @@ namespace SideLoader
         public float GlobalStatusResistance;
         public string QuestEventUID;
 
+        /// <summary>
+        /// Call this to prepare/apply your template. If you call this in the Awake() of your mod, it will be added to a queue and applied a bit later.
+        /// </summary>
         public void Apply()
         {
             if (SL.PacksLoaded)

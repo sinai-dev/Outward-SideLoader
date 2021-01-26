@@ -116,9 +116,28 @@ namespace SideLoader.SaveData
             using (var file = File.OpenRead(savePath))
             {
                 var serializer = Serializer.GetXmlSerializer(typeof(SL_CharacterSaveData[]));
-                var list = serializer.Deserialize(file) as SL_CharacterSaveData[];
 
-                return list;
+                var list = new List<SL_CharacterSaveData>();
+                if (serializer.Deserialize(file) is SL_CharacterSaveData[] array)
+                {
+                    foreach (var entry in array)
+                    {
+                        if (CustomCharacters.Templates.TryGetValue(entry.TemplateUID, out SL_Character template))
+                        {
+                            // if template was changed to temporary, ignore the save data.
+                            if (template.SaveType == CharSaveType.Temporary)
+                                continue;
+
+                            // update save data type to template current type
+                            if (entry.SaveType != template.SaveType)
+                                entry.SaveType = template.SaveType;
+
+                            list.Add(entry);
+                        }
+                    }
+                }
+
+                return list.ToArray();
             }
         }
     }
