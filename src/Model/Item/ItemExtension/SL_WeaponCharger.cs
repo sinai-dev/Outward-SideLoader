@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace SideLoader
+﻿namespace SideLoader
 {
     public class SL_WeaponCharger : SL_ItemExtension
     {
@@ -21,7 +16,7 @@ namespace SideLoader
 
         public override void SerializeComponent<T>(T extension)
         {
-            this.ChargingStaminaCost = (extension as WeaponCharger).ChargingStaminaCost;            
+            this.ChargingStaminaCost = (extension as WeaponCharger).ChargingStaminaCost;
         }
     }
 }

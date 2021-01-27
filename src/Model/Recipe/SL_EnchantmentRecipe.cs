@@ -1,10 +1,8 @@
 ﻿using SideLoader.Model;
 using SideLoader.SLPacks;
 using SideLoader.SLPacks.Categories;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Xml.Serialization;
 using UnityEngine;
 
@@ -122,7 +120,7 @@ namespace SideLoader
 
             recipe.CompatibleEquipments = new EnchantmentRecipe.EquipmentData
             {
-                EquipmentTag = new TagSourceSelector(CustomTags.GetTag(this.CompatibleEquipment.RequiredTag)),                
+                EquipmentTag = new TagSourceSelector(CustomTags.GetTag(this.CompatibleEquipment.RequiredTag)),
             };
             if (this.CompatibleEquipment.Equipments != null)
             {
@@ -243,7 +241,7 @@ namespace SideLoader
             enchantment.GlobalStatusResistance = this.GlobalStatusResistance;
 
             // =========== SET DICTIONARY REFS ============
-      
+
             // Recipe dict
             if (References.ENCHANTMENT_RECIPES.ContainsKey(this.EnchantmentID))
                 References.ENCHANTMENT_RECIPES[this.EnchantmentID] = recipe;
@@ -287,7 +285,7 @@ namespace SideLoader
                 Description = enchantment.Description,
                 EnchantmentID = recipe.RecipeID,
 
-                IncenseItemID = recipe.PillarDatas?[0]?.CompatibleIngredients?[0].SpecificIngredient?.ItemID ?? -1,                
+                IncenseItemID = recipe.PillarDatas?[0]?.CompatibleIngredients?[0].SpecificIngredient?.ItemID ?? -1,
                 TimeOfDay = recipe.TimeOfDay,
                 Areas = recipe.Region,
                 Temperature = recipe.Temperature,

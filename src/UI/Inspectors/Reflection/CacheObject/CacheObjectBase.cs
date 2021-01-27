@@ -1,11 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
 using UnityEngine;
-using SideLoader.UI;
-using SideLoader.UI.Shared;
-using SideLoader.Helpers;
 using UnityEngine.UI;
 
 namespace SideLoader.UI.Inspectors.Reflection
@@ -52,7 +46,7 @@ namespace SideLoader.UI.Inspectors.Reflection
             var value = IValue.Value;
 
             // if the type has changed fundamentally, make a new interactivevalue for it
-            var type = value == null 
+            var type = value == null
                 ? FallbackType
                 : value.GetType();
 

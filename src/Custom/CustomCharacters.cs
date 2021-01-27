@@ -1,15 +1,10 @@
-﻿using System;
+﻿using SideLoader.SaveData;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using UnityEngine;
-using UnityEngine.AI;
-using HarmonyLib;
 using UnityEngine.SceneManagement;
-using SideLoader.Helpers;
-using System.IO;
-using SideLoader.SaveData;
 
 namespace SideLoader
 {
@@ -24,14 +19,14 @@ namespace SideLoader
         /// Use this to cleanup a custom character. This will send out an RPC.
         /// </summary>
         /// <param name="character">The Character to destroy.</param>
-        public static void DestroyCharacterRPC(Character character) 
+        public static void DestroyCharacterRPC(Character character)
             => SLRPCManager.Instance.DestroyCharacter(character.UID);
 
         /// <summary>
         /// Use this to cleanup a custom character. This will send out an RPC.
         /// </summary>
         /// <param name="UID">The UID of the Character to destroy.</param>
-        public static void DestroyCharacterRPC(string UID) 
+        public static void DestroyCharacterRPC(string UID)
             => SLRPCManager.Instance.DestroyCharacter(UID);
 
         // ============ Spawning ============
@@ -85,7 +80,7 @@ namespace SideLoader
 
             var sceneData = SLCharacterSaveManager.TryLoadSaveData(CharSaveType.Scene);
 
-            foreach (var template in Templates.Values.Where(it => it.SaveType == CharSaveType.Scene 
+            foreach (var template in Templates.Values.Where(it => it.SaveType == CharSaveType.Scene
                                                                && it.SceneToSpawn == SceneManagerHelper.ActiveSceneName))
             {
                 if (!SLCharacterSaveManager.SceneResetWanted && sceneData != null && sceneData.Any(it => it.TemplateUID == template.UID))
@@ -138,7 +133,7 @@ namespace SideLoader
                     continue;
 
                 var character = template.InternalSpawn(pos, template.SpawnRotation, saveData.CharacterUID, saveData.ExtraRPCData, true);
-                
+
                 saveData.ApplyToCharacter(character);
             }
         }
@@ -198,7 +193,7 @@ namespace SideLoader
             }
         }
 
-        internal static IEnumerator SpawnCharacterCoroutine(string charUID, int viewID, string name, string visualData, string spawnCallbackUID, 
+        internal static IEnumerator SpawnCharacterCoroutine(string charUID, int viewID, string name, string visualData, string spawnCallbackUID,
             string extraRpcData, bool loadingFromSave)
         {
             // get character from manager
@@ -373,7 +368,7 @@ namespace SideLoader
                 new Stat[] { new Stat(0f), new Stat(0f), new Stat(0f), new Stat(0f), new Stat(0f), new Stat(0f), new Stat(0f), new Stat(0f), new Stat(0f) });
             At.SetField(stats, "m_damageProtection",
                 new Stat[] { new Stat(0f), new Stat(0f), new Stat(0f), new Stat(0f), new Stat(0f), new Stat(0f), new Stat(0f), new Stat(0f), new Stat(0f) });
-            At.SetField(stats, "m_damageTypesModifier", 
+            At.SetField(stats, "m_damageTypesModifier",
                 new Stat[] { new Stat(1f), new Stat(1f), new Stat(1f), new Stat(1f), new Stat(1f), new Stat(1f), new Stat(1f), new Stat(1f), new Stat(1f) });
 
             At.SetField(stats, "m_heatRegenRate", new Stat(0f));

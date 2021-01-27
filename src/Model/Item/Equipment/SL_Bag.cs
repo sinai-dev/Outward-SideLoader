@@ -1,12 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Xml.Serialization;
-using SideLoader.Helpers;
-using UnityEngine;
-
-namespace SideLoader
+﻿namespace SideLoader
 {
     public class SL_Bag : SL_Equipment
     {

@@ -1,12 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-//using TMPro;
+﻿//using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
-using SideLoader.Helpers;
-using SideLoader.UI.Shared;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 namespace SideLoader.UI.Modules
 {

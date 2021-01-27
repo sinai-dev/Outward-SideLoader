@@ -1,12 +1,8 @@
-﻿using SideLoader.Helpers;
-using SideLoader.Model;
+﻿using SideLoader.Model;
 using SideLoader.SLPacks;
 using SideLoader.SLPacks.Categories;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Xml.Serialization;
 
 namespace SideLoader
@@ -99,7 +95,7 @@ namespace SideLoader
                 family = new StatusEffectFamily();
                 library.StatusEffectFamilies.Add(family);
             }
-        
+
             if (family == null)
             {
                 SL.LogWarning("Applying SL_StatusEffectFamily template, null error");

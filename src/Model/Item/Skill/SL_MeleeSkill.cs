@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace SideLoader
+﻿namespace SideLoader
 {
     public class SL_MeleeSkill : SL_AttackSkill
     {
@@ -45,7 +40,7 @@ namespace SideLoader
                 if (this.Unblockable != null)
                     detector.Unblockable = (bool)this.Unblockable;
             }
-            
+
         }
 
         public override void SerializeItem(Item item)

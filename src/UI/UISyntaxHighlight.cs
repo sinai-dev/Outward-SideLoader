@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using System.Reflection;
 using UnityEngine;
 
@@ -126,7 +125,7 @@ namespace SideLoader.UI
             var args = "<";
             for (int i = 0; i < gArgs.Length; i++)
             {
-                if (i > 0) 
+                if (i > 0)
                     args += ", ";
 
                 var arg = gArgs[i];

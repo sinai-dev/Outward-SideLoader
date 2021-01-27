@@ -1,9 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using SideLoader.Helpers;
-using UnityEngine;
 
 namespace SideLoader
 {
@@ -24,7 +19,7 @@ namespace SideLoader
         public float? Pouch_Bonus;
         public float? Heat_Protection;
         public float? Cold_Protection;
-        
+
         // Soroboreans
         public float? Corruption_Protection;
         public float? Health_Regen;
@@ -43,13 +38,13 @@ namespace SideLoader
 
             if (this.Damage_Resistance != null)
                 At.SetField(eStats, "m_damageResistance", this.Damage_Resistance);
-           
+
             if (this.Impact_Resistance != null)
                 At.SetField(eStats, "m_impactResistance", (float)this.Impact_Resistance);
-            
+
             if (this.Damage_Protection != null)
                 At.SetField(eStats, "m_damageProtection", new float[9] { (float)this.Damage_Protection, 0f, 0f, 0f, 0f, 0f, 0f, 0f, 0f });
-            
+
             if (this.Damage_Bonus != null)
                 At.SetField(eStats, "m_damageAttack", this.Damage_Bonus);
 
@@ -58,7 +53,7 @@ namespace SideLoader
 
             if (this.Stamina_Use_Penalty != null)
                 At.SetField(eStats, "m_staminaUsePenalty", (float)this.Stamina_Use_Penalty);
-            
+
             if (this.Mana_Use_Modifier != null)
                 At.SetField(eStats, "m_manaUseModifier", (float)this.Mana_Use_Modifier);
 
@@ -67,22 +62,22 @@ namespace SideLoader
 
             if (this.Movement_Penalty != null)
                 At.SetField(eStats, "m_movementPenalty", (float)this.Movement_Penalty);
-            
+
             if (this.Pouch_Bonus != null)
                 At.SetField(eStats, "m_pouchCapacityBonus", (float)this.Pouch_Bonus);
-            
+
             if (this.Heat_Protection != null)
                 At.SetField(eStats, "m_heatProtection", (float)this.Heat_Protection);
-            
+
             if (this.Cold_Protection != null)
                 At.SetField(eStats, "m_coldProtection", (float)this.Cold_Protection);
-            
+
             if (this.Corruption_Protection != null)
                 At.SetField(eStats, "m_corruptionProtection", (float)this.Corruption_Protection);
-            
+
             if (this.Cooldown_Reduction != null)
                 At.SetField(eStats, "m_baseCooldownReductionBonus", (float)this.Cooldown_Reduction);
-            
+
             if (this.Health_Regen != null)
                 At.SetField(eStats, "m_baseHealthRegenBonus", (float)this.Health_Regen);
 
@@ -113,7 +108,7 @@ namespace SideLoader
                 Pouch_Bonus = eStats.PouchCapacityBonus;
                 Heat_Protection = eStats.HeatProtection;
                 Cold_Protection = eStats.ColdProtection;
-                
+
                 Corruption_Protection = eStats.CorruptionResistance;
                 Health_Regen = eStats.HealthRegenBonus;
                 Cooldown_Reduction = eStats.CooldownReduction;

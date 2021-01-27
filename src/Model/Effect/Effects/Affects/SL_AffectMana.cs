@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using UnityEngine;
-
-namespace SideLoader
+﻿namespace SideLoader
 {
     public class SL_AffectMana : SL_Effect
     {
@@ -26,8 +20,8 @@ namespace SideLoader
             var comp = effect as AffectMana;
 
             AffectQuantity = comp.Value;
-            IsModifier =     comp.IsModifier;
-            AffectType =     comp.AffectType;
+            IsModifier = comp.IsModifier;
+            AffectType = comp.AffectType;
         }
     }
 }

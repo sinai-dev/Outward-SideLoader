@@ -1,15 +1,12 @@
-﻿using System;
+﻿using BepInEx;
+using SideLoader.SaveData;
+using SideLoader.SLPacks;
+using SideLoader.UI;
+using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.IO;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using BepInEx;
-using SideLoader.Model;
-using SideLoader.SaveData;
-using System.Linq;
-using SideLoader.UI;
-using SideLoader.SLPacks;
 
 namespace SideLoader
 {
@@ -110,7 +107,7 @@ namespace SideLoader
             }
             else
                 ResetForHotReload();
-            
+
             // Load SL Packs
             SLPackManager.LoadAllPacks(isFirstSetup);
 

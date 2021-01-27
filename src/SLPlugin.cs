@@ -1,13 +1,11 @@
-﻿using System;
+﻿using BepInEx;
+using BepInEx.Logging;
+using HarmonyLib;
+using SideLoader.UI;
+using SideLoader.UI.Modules;
 using System.IO;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using HarmonyLib;
-using BepInEx;
-using BepInEx.Logging;
-using System.Collections.Generic;
-using SideLoader.UI;
-using SideLoader.UI.Modules;
 
 namespace SideLoader
 {

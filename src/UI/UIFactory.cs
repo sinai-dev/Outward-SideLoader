@@ -1,8 +1,7 @@
-﻿using System;
+﻿using SideLoader.UI.Shared;
+using System;
 using UnityEngine;
 using UnityEngine.UI;
-using SideLoader.Helpers;
-using SideLoader.UI.Shared;
 
 namespace SideLoader.UI
 {
@@ -73,7 +72,7 @@ namespace SideLoader.UI
                 button.onClick.AddListener(Deselect);
                 void Deselect()
                 {
-					button.OnDeselect(null);
+                    button.OnDeselect(null);
                 }
 
             }
@@ -343,8 +342,8 @@ namespace SideLoader.UI
             }
 
             Image bgImage = bgObj.AddComponent<Image>();
-            bgImage.color = bgColor == default 
-                ? new Color(0.2f, 0.2f, 0.2f, 1.0f) 
+            bgImage.color = bgColor == default
+                ? new Color(0.2f, 0.2f, 0.2f, 1.0f)
                 : bgColor;
 
             Image checkImage = checkObj.AddComponent<Image>();
@@ -404,8 +403,8 @@ namespace SideLoader.UI
             mainImage.type = Image.Type.Sliced;
             mainImage.color = new Color(0.15f, 0.15f, 0.15f);
 
-            InputField mainInput = type == null 
-                                    ? mainObj.AddComponent<InputField>() 
+            InputField mainInput = type == null
+                                    ? mainObj.AddComponent<InputField>()
                                     : mainObj.AddComponent(type) as InputField;
             Navigation nav = mainInput.navigation;
             nav.mode = Navigation.Mode.None;
@@ -637,7 +636,7 @@ namespace SideLoader.UI
             viewportRect.anchorMax = Vector2.one;
             viewportRect.pivot = new Vector2(0.0f, 1.0f);
             viewportRect.sizeDelta = new Vector2(-15.0f, 0.0f);
-            viewportRect.offsetMax = new Vector2(-20.0f, 0.0f); 
+            viewportRect.offsetMax = new Vector2(-20.0f, 0.0f);
 
             viewportObj.AddComponent<Image>().color = Color.white;
             viewportObj.AddComponent<Mask>().showMaskGraphic = false;

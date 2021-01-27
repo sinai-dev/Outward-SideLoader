@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using SideLoader.UI.Inspectors;
 using UnityEngine;
 using UnityEngine.UI;
-using SideLoader.UI.Inspectors;
 
 namespace SideLoader.UI.Modules
 {

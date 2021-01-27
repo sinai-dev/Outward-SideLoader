@@ -1,20 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using SideLoader.UI;
-using SideLoader.UI.Modules;
-using SideLoader.UI.Shared;
-using UnityEngine;
-using UnityEngine.SceneManagement;
-using UnityEngine.UI;
-using SideLoader.Helpers;
-using System.IO;
-using SideLoader.Model;
-using UnityEngine.EventSystems;
+﻿using SideLoader.Model;
 using SideLoader.Model.Status;
-using SideLoader.UI.Inspectors.Reflection;
 using SideLoader.SLPacks;
 using SideLoader.SLPacks.Categories;
+using SideLoader.UI.Inspectors.Reflection;
+using SideLoader.UI.Modules;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using UnityEngine;
+using UnityEngine.UI;
 
 namespace SideLoader.UI.Inspectors
 {
@@ -498,7 +493,7 @@ namespace SideLoader.UI.Inspectors
             var iconLayout = toggleIconObj.AddComponent<LayoutElement>();
             iconLayout.minHeight = 25;
             toggleIconTxt.text = "Export Icons if possible?";
-            toggleIcon.onValueChanged.AddListener((bool val) => 
+            toggleIcon.onValueChanged.AddListener((bool val) =>
             {
                 exportIconsWanted = val;
             });
@@ -529,7 +524,7 @@ namespace SideLoader.UI.Inspectors
                 if (newTemplate.CanParseContent)
                 {
                     var content = newTemplate.GetContentFromID(m_generatorTargetInput.text);
-                    
+
                     if (content != null && newTemplate.ParseToTemplate(content) is IContentTemplate parsed)
                     {
                         newTemplate = parsed;
@@ -704,7 +699,7 @@ namespace SideLoader.UI.Inspectors
 
             var refTemplate = template;
 
-            inspectBtn.onClick.AddListener(() => 
+            inspectBtn.onClick.AddListener(() =>
             {
                 if (m_currentPack == null)
                 {

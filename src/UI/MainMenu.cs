@@ -1,9 +1,7 @@
-﻿using System;
+﻿using SideLoader.UI.Modules;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-using SideLoader.UI.Modules;
-using SideLoader.Helpers;
 
 namespace SideLoader.UI
 {
@@ -42,7 +40,7 @@ namespace SideLoader.UI
         private Button m_lastNavButtonPressed;
         private readonly Color m_navButtonNormal = new Color(0.3f, 0.3f, 0.3f, 1);
         private readonly Color m_navButtonHighlight = new Color(0.3f, 0.6f, 0.3f);
-        private readonly Color m_navButtonSelected = new Color(0.2f, 0.5f, 0.2f, 1); 
+        private readonly Color m_navButtonSelected = new Color(0.2f, 0.5f, 0.2f, 1);
 
         public MainMenu()
         {

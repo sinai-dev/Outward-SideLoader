@@ -1,10 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Xml.Serialization;
-using HarmonyLib;
-using SideLoader.Helpers;
 using UnityEngine;
 
 namespace SideLoader
@@ -47,7 +42,7 @@ namespace SideLoader
             if (CustomItemVisuals.GetOrigItemVisuals(item, Type) is Transform origPrefab)
             {
                 bool setPrefab = false;
-                
+
                 // Check for AssetBundle Prefabs first
                 if (!string.IsNullOrEmpty(Prefab_SLPack) && SL.Packs.ContainsKey(Prefab_SLPack))
                 {
@@ -180,7 +175,7 @@ namespace SideLoader
                 if (!visualModel.GetComponent<ItemVisual>() && basePrefab.GetComponent<ItemVisual>() is ItemVisual itemVisual)
                 {
                     if (itemVisual is ArmorVisuals)
-                    { 
+                    {
                         var armorV = visualModel.AddComponent<ArmorVisuals>();
                         armorV.ArmorExtras = new ArmorVisualExtra[0];
                     }

@@ -3,9 +3,6 @@ using SideLoader.SLPacks;
 using SideLoader.SLPacks.Categories;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Xml.Serialization;
 
 namespace SideLoader
@@ -15,13 +12,13 @@ namespace SideLoader
     {
         #region IContentTemplate
 
-        public string  DefaultTemplateName    => $"Tags";
-        public bool    IsCreatingNewID        => true;
-        public bool    DoesTargetExist        => true;
-        public object  TargetID               => null;
-        public object  AppliedID              => null;
-        public bool    CanParseContent        => false;
-        public bool    TemplateAllowedInSubfolder => false;
+        public string DefaultTemplateName => $"Tags";
+        public bool IsCreatingNewID => true;
+        public bool DoesTargetExist => true;
+        public object TargetID => null;
+        public object AppliedID => null;
+        public bool CanParseContent => false;
+        public bool TemplateAllowedInSubfolder => false;
 
         public ITemplateCategory PackCategory => SLPackManager.GetCategoryInstance<TagCategory>();
 

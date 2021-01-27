@@ -1,14 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using UnityEngine;
-using System.IO;
-using System.Xml.Serialization;
-using SideLoader.Helpers;
-using SideLoader.Model;
+﻿using SideLoader.Model;
 using SideLoader.SLPacks;
 using SideLoader.SLPacks.Categories;
+using System;
+using System.Collections.Generic;
+using System.Xml.Serialization;
+using UnityEngine;
 
 namespace SideLoader
 {
@@ -223,7 +219,7 @@ namespace SideLoader
             {
                 if (ingredient.ActionType == RecipeIngredient.ActionTypes.AddSpecificIngredient)
                 {
-                    recipeHolder.Ingredients.Add(new Ingredient() 
+                    recipeHolder.Ingredients.Add(new Ingredient()
                     {
                         Type = ingredient.ActionType,
                         SelectorValue = ingredient.AddedIngredient.ItemID.ToString()
@@ -231,7 +227,7 @@ namespace SideLoader
                 }
                 else
                 {
-                    recipeHolder.Ingredients.Add(new Ingredient() 
+                    recipeHolder.Ingredients.Add(new Ingredient()
                     {
                         Type = ingredient.ActionType,
                         SelectorValue = ingredient.AddedIngredientType.Tag.TagName
@@ -261,9 +257,9 @@ namespace SideLoader
                     ret = SelectorValue;
                 else
                     if (!string.IsNullOrEmpty(this.SelectorValue))
-                        ret = ResourcesPrefabManager.Instance.GetItemPrefab(this.SelectorValue)?.Name ?? "<not found>";
-                    else
-                        ret = "<not set>";
+                    ret = ResourcesPrefabManager.Instance.GetItemPrefab(this.SelectorValue)?.Name ?? "<not found>";
+                else
+                    ret = "<not set>";
 
                 return ret;
             }

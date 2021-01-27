@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace SideLoader
+﻿namespace SideLoader
 {
     /// <summary>
     /// Shell class, doesn't require any extra fields, but requires a WeaponLoadoutItem ItemExtension on the Item.

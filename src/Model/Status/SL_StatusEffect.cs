@@ -1,14 +1,13 @@
-﻿using System;
+﻿using SideLoader.Helpers;
+using SideLoader.Model;
+using SideLoader.Model.Status;
+using SideLoader.SLPacks.Categories;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Xml.Serialization;
-using SideLoader.Helpers;
-using SideLoader.Model;
-using SideLoader.Model.Status;
-using SideLoader.SaveData;
-using SideLoader.SLPacks.Categories;
 using UnityEngine;
 
 namespace SideLoader
@@ -97,7 +96,7 @@ namespace SideLoader
         public bool? DisplayedInHUD;
         public bool? IsHidden;
         public bool? IsMalusEffect;
-        
+
         public int? DelayedDestroyTime;
 
         public StatusEffect.ActionsOnHit? ActionOnHit;
@@ -182,7 +181,7 @@ namespace SideLoader
 
             if (IsHidden != null)
                 status.IsHidden = (bool)IsHidden;
-            
+
             if (IsMalusEffect != null)
                 status.IsMalusEffect = (bool)this.IsMalusEffect;
 
@@ -277,7 +276,7 @@ namespace SideLoader
             if (this.FamilyMode == StatusEffect.FamilyModes.Bind)
             {
                 At.SetField(status, "m_familyMode", StatusEffect.FamilyModes.Bind);
-                
+
                 if (this.BindFamily != null)
                 {
                     // set bind using SL_StatusEffectFamily template
@@ -433,7 +432,7 @@ namespace SideLoader
             return template;
         }
 
-        public virtual void SerializeStatus(StatusEffect status) 
+        public virtual void SerializeStatus(StatusEffect status)
         {
             var preset = status.GetComponent<EffectPreset>();
 

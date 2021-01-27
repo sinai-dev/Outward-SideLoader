@@ -1,12 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using UnityEngine;
-using HarmonyLib;
+﻿using UnityEngine;
 
 namespace SideLoader
-{   
+{
     /// <summary>
     /// Abstract base class for SL_ShootBlast and SL_ShootProjectile
     /// </summary>

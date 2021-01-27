@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using UnityEngine;
-
-namespace SideLoader
+﻿namespace SideLoader
 {
     public class SL_AffectBurntStamina : SL_Effect
     {

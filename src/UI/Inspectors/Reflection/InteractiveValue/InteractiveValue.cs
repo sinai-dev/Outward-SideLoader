@@ -1,14 +1,11 @@
-﻿using System;
+﻿using SideLoader.Helpers;
+using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using UnityEngine;
-using UnityEngine.EventSystems;
 using UnityEngine.UI;
-using SideLoader.Helpers;
-using SideLoader.UI;
-using System.Collections;
-using SideLoader.UI.Inspectors.Reflection;
 
 namespace SideLoader.UI.Inspectors.Reflection
 {
@@ -45,8 +42,8 @@ namespace SideLoader.UI.Inspectors.Reflection
 
         public static InteractiveValue Create(object value, Type fallbackType, bool dontUseValueType = false)
         {
-            var type = dontUseValueType 
-                        ? fallbackType 
+            var type = dontUseValueType
+                        ? fallbackType
                         : value?.GetType() ?? fallbackType;
 
             var iType = GetIValueForType(type);
@@ -88,7 +85,7 @@ namespace SideLoader.UI.Inspectors.Reflection
             if (this.m_valueContent)
             {
                 m_valueContent.transform.SetParent(null, false);
-                m_valueContent.SetActive(false); 
+                m_valueContent.SetActive(false);
                 GameObject.Destroy(this.m_valueContent.gameObject);
             }
 
@@ -117,7 +114,7 @@ namespace SideLoader.UI.Inspectors.Reflection
 
             if (Owner is CacheMember ownerMember && !string.IsNullOrEmpty(ownerMember.ReflectionException))
                 OnException(ownerMember);
-            else 
+            else
                 RefreshUIForValue();
         }
 
@@ -133,7 +130,7 @@ namespace SideLoader.UI.Inspectors.Reflection
         {
             if (m_UIConstructed)
                 m_baseLabel.text = "<color=red>" + member.ReflectionException + "</color>";
-                
+
             Value = null;
         }
 
@@ -309,7 +306,7 @@ namespace SideLoader.UI.Inspectors.Reflection
                 m_subContentParent.gameObject.SetActive(false);
 
             Type selectedType = m_cachedChangeableTypes.FirstOrDefault();
-            var drop = new TypeTreeDropdown(FallbackType, m_valueContent, Value?.GetType() ?? FallbackType, (Type val) => 
+            var drop = new TypeTreeDropdown(FallbackType, m_valueContent, Value?.GetType() ?? FallbackType, (Type val) =>
             {
                 selectedType = val;
             });
@@ -567,6 +564,6 @@ namespace SideLoader.UI.Inspectors.Reflection
             }
         }
 
-#endregion
+        #endregion
     }
 }

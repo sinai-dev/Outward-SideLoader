@@ -1,13 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using UnityEngine;
-using System.IO;
 using System.Text.RegularExpressions;
-using HarmonyLib;
-using Steamworks;
-using SideLoader.Helpers;
+using UnityEngine;
 
 namespace SideLoader
 {
@@ -325,7 +319,7 @@ namespace SideLoader
                         itemTextures[id][mat].Add(tex);
                     }
                 }
-                catch (InvalidCastException) 
+                catch (InvalidCastException)
                 {
                     // suppress
                 }

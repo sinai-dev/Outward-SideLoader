@@ -1,11 +1,7 @@
-﻿using SideLoader.UI.Inspectors;
-using SideLoader.UI;
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -90,7 +86,7 @@ namespace SideLoader.UI.Inspectors
                     if (forceBreak || !anyHits)
                         break;
                 }
-                
+
                 if (m_wasDeselected)
                 {
                     timeOffAutocompleter += Time.deltaTime;

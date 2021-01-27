@@ -1,13 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Xml.Serialization;
-using UnityEngine;
-using System.IO;
-using SideLoader.Model;
+﻿using SideLoader.Model;
 using SideLoader.Model.Status;
 using SideLoader.SLPacks.Categories;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Xml.Serialization;
+using UnityEngine;
 
 namespace SideLoader
 {

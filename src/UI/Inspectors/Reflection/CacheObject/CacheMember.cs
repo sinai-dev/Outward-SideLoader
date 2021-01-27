@@ -1,12 +1,9 @@
-﻿using System;
+﻿using SideLoader.UI.Shared;
+using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 using UnityEngine;
 using UnityEngine.UI;
-using SideLoader.UI;
-using SideLoader.UI.Shared;
-using SideLoader.Helpers;
 
 namespace SideLoader.UI.Inspectors.Reflection
 {

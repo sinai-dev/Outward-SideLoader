@@ -1,13 +1,9 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using UnityEngine;
 using System.Xml.Serialization;
+using UnityEngine;
 using UnityEngine.SceneManagement;
-using SideLoader.Helpers;
-using SideLoader.Model;
 
 namespace SideLoader
 {
@@ -261,13 +257,13 @@ namespace SideLoader
             At.SetField(comp as BaseSkillSlot, "m_columnIndex", ColumnIndex);
 
             var skill = ResourcesPrefabManager.Instance.GetItemPrefab(SkillID) as Skill;
-            
+
             if (!skill)
             {
                 SL.LogWarning("SL_SkillSlot: Could not find skill by id '" + SkillID + "'");
                 return comp;
             }
-            
+
             At.SetField(comp, "m_skill", skill);
 
             At.SetField(skill, "m_schoolIndex", treeID);

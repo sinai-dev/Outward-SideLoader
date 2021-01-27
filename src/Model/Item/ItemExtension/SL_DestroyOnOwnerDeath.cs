@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace SideLoader
+﻿namespace SideLoader
 {
     public class SL_DestroyOnOwnerDeath : SL_ItemExtension
     {
@@ -11,12 +6,12 @@ namespace SideLoader
 
         public override void ApplyToComponent<T>(T component)
         {
-           
+
         }
 
         public override void SerializeComponent<T>(T extension)
         {
-            
+
         }
     }
 }

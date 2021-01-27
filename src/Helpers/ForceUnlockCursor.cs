@@ -1,6 +1,4 @@
-﻿using System;
-using UnityEngine;
-using HarmonyLib;
+﻿using UnityEngine;
 
 namespace SideLoader.Helpers
 {

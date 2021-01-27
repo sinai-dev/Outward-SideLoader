@@ -1,14 +1,10 @@
-﻿using BepInEx;
-using BepInEx.Logging;
+﻿using HarmonyLib;
 using Rewired;
 using Rewired.Data;
-using System;
 using System.Collections.Generic;
-using System.Reflection;
-using UnityEngine;
-using HarmonyLib;
-using RewiredDict = System.Collections.Generic.Dictionary<int, RewiredInputs>;
 using System.Linq;
+using UnityEngine;
+using RewiredDict = System.Collections.Generic.Dictionary<int, RewiredInputs>;
 
 // Credits:
 // - Stian for the original version

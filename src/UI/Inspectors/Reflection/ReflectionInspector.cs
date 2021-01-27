@@ -1,18 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using SideLoader.Helpers;
-using UnityEngine;
+﻿using SideLoader.Model;
 using SideLoader.UI.Inspectors.Reflection;
 using SideLoader.UI.Shared;
-using System.Reflection;
-using SideLoader.UI;
-using UnityEngine.UI;
-using System.Xml.Serialization;
-using SideLoader.Model;
+using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.ComponentModel;
+using System.Linq;
+using System.Reflection;
+using System.Xml.Serialization;
+using UnityEngine;
+using UnityEngine.UI;
 
 namespace SideLoader.UI.Inspectors
 {
@@ -255,7 +252,7 @@ namespace SideLoader.UI.Inspectors
         {
             foreach (var member in m_allMembers)
             {
-                if (member == null || !member.m_constructedUI) 
+                if (member == null || !member.m_constructedUI)
                     continue;
 
                 member.UpdateValue();
@@ -419,9 +416,9 @@ namespace SideLoader.UI.Inspectors
             else
             {
                 baseType = this.m_targetType;
-                while (baseType.BaseType != null 
+                while (baseType.BaseType != null
                     && typeof(IContentTemplate).IsAssignableFrom(baseType.BaseType)
-                    && !baseType.BaseType.IsAbstract 
+                    && !baseType.BaseType.IsAbstract
                     && !baseType.BaseType.IsInterface)
                 {
                     baseType = baseType.BaseType;
@@ -431,7 +428,7 @@ namespace SideLoader.UI.Inspectors
             if (At.GetImplementationsOf(baseType).Count <= 1)
                 return;
 
-            var drop = new TypeTreeDropdown(baseType, parent, m_targetType, (Type val) => 
+            var drop = new TypeTreeDropdown(baseType, parent, m_targetType, (Type val) =>
             {
                 // todo confirm
                 if (val != m_targetType)
@@ -506,7 +503,7 @@ namespace SideLoader.UI.Inspectors
                 UpdateValues();
             });
         }
-        
+
         internal void ConstructMemberList()
         {
             var scrollobj = UIFactory.CreateScrollView(Content, out m_scrollContent, out m_sliderScroller, new Color(0.05f, 0.05f, 0.05f));

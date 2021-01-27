@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using SideLoader.UI;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -119,7 +116,7 @@ namespace SideLoader.UI.Inspectors.Reflection
             var destroyText = destroyBtnObj.GetComponentInChildren<Text>();
             destroyText.text = "X";
             var destroyBtn = destroyBtnObj.GetComponent<Button>();
-            destroyBtn.onClick.AddListener(() => 
+            destroyBtn.onClick.AddListener(() =>
             {
                 BeginConfirmDestroy();
             });

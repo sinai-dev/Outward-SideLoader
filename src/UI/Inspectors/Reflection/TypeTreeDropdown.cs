@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -48,7 +46,7 @@ namespace SideLoader.UI.Inspectors.Reflection
 
             int idx = !currentType.IsAbstract && !currentType.IsInterface
                 ? idx = m_typeOptions.IndexOf(currentType)
-                : idx = 0; 
+                : idx = 0;
 
             m_dropdown.value = idx;
             InvokeOnValueSelected(idx);

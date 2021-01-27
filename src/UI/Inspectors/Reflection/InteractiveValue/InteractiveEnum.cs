@@ -1,17 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using UnityEngine;
 using UnityEngine.UI;
-using SideLoader.Helpers;
-using SideLoader.UI;
 
 namespace SideLoader.UI.Inspectors.Reflection
 {
     public class InteractiveEnum : InteractiveValue
     {
-        internal static Dictionary<Type, KeyValuePair<int,string>[]> s_enumNamesCache = new Dictionary<Type, KeyValuePair<int, string>[]>();
+        internal static Dictionary<Type, KeyValuePair<int, string>[]> s_enumNamesCache = new Dictionary<Type, KeyValuePair<int, string>[]>();
 
         public InteractiveEnum(object value, Type valueType) : base(value, valueType)
         {
@@ -23,7 +19,7 @@ namespace SideLoader.UI.Inspectors.Reflection
         public override bool WantInspectBtn => false;
         public override bool WantCreateDestroyBtn => false;
 
-        internal KeyValuePair<int,string>[] m_values = new KeyValuePair<int, string>[0];
+        internal KeyValuePair<int, string>[] m_values = new KeyValuePair<int, string>[0];
 
         internal Type m_lastEnumType;
 
@@ -54,7 +50,7 @@ namespace SideLoader.UI.Inspectors.Reflection
                 foreach (var value in values)
                 {
                     var name = value.ToString();
-                    if (set.Contains(name)) 
+                    if (set.Contains(name))
                         continue;
                     set.Add(name);
                     list.Add(new KeyValuePair<int, string>((int)value, name));

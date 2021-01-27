@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -81,7 +78,7 @@ namespace SideLoader.UI.Inspectors.Reflection
 
         public override void ConstructUI(GameObject parent, GameObject subGroup)
         {
-            base.ConstructUI(parent, subGroup); 
+            base.ConstructUI(parent, subGroup);
 
             m_baseLabel.gameObject.SetActive(false);
 
@@ -89,7 +86,7 @@ namespace SideLoader.UI.Inspectors.Reflection
             var typeLayout = typeDropObj.AddComponent<LayoutElement>();
             typeLayout.minWidth = 150;
             typeLayout.minHeight = 25;
-            m_typeDropdown.options.AddRange(new List<Dropdown.OptionData> 
+            m_typeDropdown.options.AddRange(new List<Dropdown.OptionData>
             {
                 new Dropdown.OptionData{ text = "Physical" },
                 new Dropdown.OptionData{ text = "Ethereal" },

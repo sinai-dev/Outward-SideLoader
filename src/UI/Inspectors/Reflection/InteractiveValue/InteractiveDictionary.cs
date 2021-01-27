@@ -1,14 +1,10 @@
-﻿using System;
+﻿using SideLoader.UI.Shared;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using UnityEngine;
 using UnityEngine.UI;
-using SideLoader.Helpers;
-using SideLoader.UI;
-using SideLoader.UI.Shared;
-using System.Reflection;
 
 namespace SideLoader.UI.Inspectors.Reflection
 {
@@ -50,7 +46,7 @@ namespace SideLoader.UI.Inspectors.Reflection
         // I'm just keeping track of the KVP's by their index, I don't need
         // to actually have Dictionary functionality with them.
         // Storing them in a list is actually better here.
-        internal readonly List<KeyValuePair<CachePaired, CachePaired>> m_entries 
+        internal readonly List<KeyValuePair<CachePaired, CachePaired>> m_entries
             = new List<KeyValuePair<CachePaired, CachePaired>>();
 
         internal readonly KeyValuePair<CachePaired, CachePaired>[] m_displayedEntries
@@ -197,7 +193,7 @@ namespace SideLoader.UI.Inspectors.Reflection
         }
 
 
-#region UI CONSTRUCTION
+        #region UI CONSTRUCTION
 
         internal GameObject m_listContent;
         internal LayoutElement m_listLayout;
@@ -251,6 +247,6 @@ namespace SideLoader.UI.Inspectors.Reflection
         //    m_rowHolders.Add(obj);
         //}
 
-#endregion
+        #endregion
     }
 }

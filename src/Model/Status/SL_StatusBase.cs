@@ -1,11 +1,6 @@
 ﻿using SideLoader.SLPacks;
 using SideLoader.SLPacks.Categories;
-using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Xml.Serialization;
 using UnityEngine;
 
@@ -32,10 +27,10 @@ namespace SideLoader.Model.Status
 
         public void ApplyActualTemplate() => this.Internal_ActualCreate();
 
-        public object GetContentFromID(object id) 
+        public object GetContentFromID(object id)
             => Internal_GetContent(id);
 
-        public IContentTemplate ParseToTemplate(object content) 
+        public IContentTemplate ParseToTemplate(object content)
             => Internal_ParseToTemplate(content);
 
         #endregion

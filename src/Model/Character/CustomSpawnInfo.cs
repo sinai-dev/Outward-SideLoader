@@ -1,12 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using SideLoader.Helpers;
-
-namespace SideLoader
+﻿namespace SideLoader
 {
     /// <summary>
     /// Used internally by SideLoader.

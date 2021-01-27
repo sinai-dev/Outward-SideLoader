@@ -1,21 +1,16 @@
-﻿using System;
+﻿using SideLoader.UI.Shared;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
-using System.Text;
 using UnityEngine;
 using UnityEngine.UI;
-using SideLoader.Helpers;
-using SideLoader.UI;
-using SideLoader.UI.Shared;
-using SideLoader.UI.Inspectors.Reflection;
 
 namespace SideLoader.UI.Inspectors.Reflection
 {
     public class InteractiveList : InteractiveValue
     {
-        public InteractiveList(object value, Type valueType) : base(value, valueType) 
+        public InteractiveList(object value, Type valueType) : base(value, valueType)
         {
             if (valueType.IsGenericType)
                 m_baseEntryType = valueType.GetGenericArguments()[0];
@@ -294,7 +289,7 @@ namespace SideLoader.UI.Inspectors.Reflection
             RefreshDisplay();
         }
 
-#region UI CONSTRUCTION
+        #region UI CONSTRUCTION
 
         internal GameObject m_listContent;
         internal LayoutElement m_listLayout;
@@ -384,6 +379,6 @@ namespace SideLoader.UI.Inspectors.Reflection
             addBtnObj.GetComponentInChildren<Text>().text = "Add...";
         }
 
-#endregion
+        #endregion
     }
 }

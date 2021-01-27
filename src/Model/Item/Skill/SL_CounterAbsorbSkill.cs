@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Collections.Generic;
 
 namespace SideLoader
 {
@@ -14,7 +11,7 @@ namespace SideLoader
             base.ApplyToItem(item);
 
             var skill = item as CounterAbsorbSkill;
-            
+
             if (this.Absorbs != null)
             {
                 var list = new List<CounterAbsorb>();

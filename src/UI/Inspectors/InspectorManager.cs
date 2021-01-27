@@ -1,14 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using SideLoader.Helpers;
-using SideLoader.UI;
-using SideLoader.UI.Modules;
-using UnityEngine;
-using UnityEngine.SceneManagement;
-using UnityEngine.UI;
-using SideLoader.UI.Inspectors.Reflection;
+﻿using SideLoader.Helpers;
 using SideLoader.Model;
+using SideLoader.UI.Inspectors.Reflection;
+using SideLoader.UI.Modules;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.UI;
 
 namespace SideLoader.UI.Inspectors
 {
@@ -16,9 +12,9 @@ namespace SideLoader.UI.Inspectors
     {
         public static InspectorManager Instance { get; private set; }
 
-        public InspectorManager() 
+        public InspectorManager()
         {
-            Instance = this; 
+            Instance = this;
             ConstructInspectorPane();
         }
 
@@ -205,6 +201,6 @@ namespace SideLoader.UI.Inspectors
             invisGroup.spacing = 10;
         }
 
-#endregion
+        #endregion
     }
 }

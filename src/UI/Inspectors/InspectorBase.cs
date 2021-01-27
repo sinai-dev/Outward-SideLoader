@@ -1,8 +1,6 @@
-﻿using System;
+﻿using SideLoader.Helpers;
 using UnityEngine;
 using UnityEngine.UI;
-using SideLoader.Helpers;
-using SideLoader.UI;
 
 namespace SideLoader.UI.Inspectors
 {
@@ -85,7 +83,7 @@ namespace SideLoader.UI.Inspectors
             }
         }
 
-        
+
 
         #region UI CONSTRUCTION
 
@@ -133,6 +131,6 @@ namespace SideLoader.UI.Inspectors
             closeBtn.colors = closeColors;
         }
 
-#endregion
+        #endregion
     }
 }

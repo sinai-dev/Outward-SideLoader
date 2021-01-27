@@ -1,12 +1,9 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using UnityEngine;
 using System.IO;
+using UnityEngine;
 using UnityEngine.Networking;
-using SideLoader.Helpers;
 
 namespace SideLoader
 {
@@ -29,7 +26,7 @@ namespace SideLoader
                 SL.LogWarning("Cannot find GlobalAudioManager Instance!");
                 return;
             }
-            
+
             if (ReplacedClips.Contains(sound))
                 SL.Log($"The Sound clip '{sound}' has already been replaced, replacing again...");
 

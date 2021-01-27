@@ -1,12 +1,7 @@
-﻿using UnityEngine;
-using UnityEngine.EventSystems;
-using UnityEngine.UI;
-using SideLoader.UI.Inspectors;
-using SideLoader.UI.Modules;
-using System.IO;
-using System.Reflection;
-using SideLoader.Helpers;
+﻿using SideLoader.Helpers;
 using SideLoader.UI.Shared;
+using UnityEngine;
+using UnityEngine.UI;
 
 namespace SideLoader.UI
 {

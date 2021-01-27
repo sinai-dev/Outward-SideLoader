@@ -1,9 +1,4 @@
 ﻿using System;
-using System.CodeDom;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using MapMagic;
 using UnityEngine;
 
 namespace SideLoader
@@ -12,7 +7,7 @@ namespace SideLoader
     public abstract class SL_EffectCondition
     {
         public bool Invert;
-    
+
         public EffectCondition ApplyToTransform(Transform transform)
         {
             Type componentType = Serializer.GetGameType(this.GetType());

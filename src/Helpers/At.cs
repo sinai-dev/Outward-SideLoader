@@ -54,7 +54,7 @@ namespace SideLoader
 
                 s_cachedTypeInheritance.Add(baseType, set);
             }
-            
+
             return s_cachedTypeInheritance[baseType];
         }
 

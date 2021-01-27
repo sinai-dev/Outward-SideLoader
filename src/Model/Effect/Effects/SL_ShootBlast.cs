@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using HarmonyLib;
 using UnityEngine;
 
 namespace SideLoader
@@ -138,8 +135,8 @@ namespace SideLoader
                 Radius = blast.Radius;
                 RefreshTime = blast.RefreshTime;
                 DontPlayHitSound = blast.DontPlayHitSound;
-                PlayFXOnRefresh  = blast.PlayFXOnRefresh;
-                DelayFirstShoot = blast.DelayFirstShoot; 
+                PlayFXOnRefresh = blast.PlayFXOnRefresh;
+                DelayFirstShoot = blast.DelayFirstShoot;
 
                 BlastLifespan = comp.BlastLifespan;
                 IgnoreStop = comp.IgnoreStop;

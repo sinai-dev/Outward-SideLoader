@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace SideLoader
+﻿namespace SideLoader
 {
     public class SL_Ammunition : SL_Weapon
     {

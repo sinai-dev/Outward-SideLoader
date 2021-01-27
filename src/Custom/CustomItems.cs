@@ -1,13 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using UnityEngine;
-using System.IO;
-using Localizer;
-using System.Reflection;
-using HarmonyLib;
+﻿using Localizer;
 using SideLoader.Helpers;
+using System;
+using System.Collections.Generic;
+using UnityEngine;
 
 namespace SideLoader
 {
@@ -198,7 +193,7 @@ namespace SideLoader
         }
 
         public static void SetItemTags(Item item, string[] tags, bool destroyExisting)
-        { 
+        {
             var tagsource = CustomTags.SetTagSource(item.gameObject, tags, destroyExisting);
             At.SetField(item, "m_tagSource", tagsource);
         }

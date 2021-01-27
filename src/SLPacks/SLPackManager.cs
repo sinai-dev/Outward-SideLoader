@@ -3,9 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using UnityEngine;
 
 namespace SideLoader.SLPacks
 {
@@ -31,7 +28,7 @@ namespace SideLoader.SLPacks
             }
         }
 
-        public static T GetCategoryInstance<T>() where T : SLPackCategory 
+        public static T GetCategoryInstance<T>() where T : SLPackCategory
             => (T)GetCategoryInstance(typeof(T));
 
         public static SLPackCategory GetCategoryInstance(Type slPackCategoryType)

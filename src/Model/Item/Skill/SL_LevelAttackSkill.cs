@@ -1,10 +1,6 @@
 ﻿using SideLoader.SLPacks.Categories;
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SideLoader
 {
@@ -85,10 +81,10 @@ namespace SideLoader
                 for (int i = 0; i < stages.Length; i++)
                 {
                     var stage = stages[i];
-                    this.Stages[i] = new SL_SkillStage 
+                    this.Stages[i] = new SL_SkillStage
                     {
-                        Name = stage.GetName(), 
-                        Animation = stage.StageAnim 
+                        Name = stage.GetName(),
+                        Animation = stage.StageAnim
                     };
                 }
             }

@@ -14,68 +14,68 @@ namespace SideLoader
         public int DroppedItemID;
 
         public void GenerateDrop(Transform container)
-		{
-			if (!container)
-				return;
+        {
+            if (!container)
+                return;
 
-			var itemContainer = container.GetComponent<ItemContainer>();
-			if (!itemContainer)
+            var itemContainer = container.GetComponent<ItemContainer>();
+            if (!itemContainer)
             {
-				SL.LogWarning("Generating an SL_ItemDrop but the container does not have an ItemContainer component: " + container.GetGameObjectPath());
-				return;
-			}
-
-			var prefab = ResourcesPrefabManager.Instance.GetItemPrefab(this.DroppedItemID);
-			if (!prefab)
-            {
-				SL.LogWarning("Generating an SL_ItemDrop but the DroppedItemID is invalid: " + this.DroppedItemID);
-				return;
+                SL.LogWarning("Generating an SL_ItemDrop but the container does not have an ItemContainer component: " + container.GetGameObjectPath());
+                return;
             }
 
-			var qtyToAdd = Random.Range(this.MinQty, Mathf.Max(this.MinQty, this.MaxQty) + 1);
-			if (qtyToAdd <= 0)
-				return;
-
-			//SL.Log("Adding " + qtyToAdd + " of " + prefab.Name);
-
-			if (prefab is Currency)
+            var prefab = ResourcesPrefabManager.Instance.GetItemPrefab(this.DroppedItemID);
+            if (!prefab)
             {
-				itemContainer.AddSilver(qtyToAdd);
+                SL.LogWarning("Generating an SL_ItemDrop but the DroppedItemID is invalid: " + this.DroppedItemID);
+                return;
             }
-			else
+
+            var qtyToAdd = Random.Range(this.MinQty, Mathf.Max(this.MinQty, this.MaxQty) + 1);
+            if (qtyToAdd <= 0)
+                return;
+
+            //SL.Log("Adding " + qtyToAdd + " of " + prefab.Name);
+
+            if (prefab is Currency)
             {
-				var item = ItemManager.Instance.GenerateItemNetwork(prefab.ItemID);
-				item.ChangeParent(container);
+                itemContainer.AddSilver(qtyToAdd);
+            }
+            else
+            {
+                var item = ItemManager.Instance.GenerateItemNetwork(prefab.ItemID);
+                item.ChangeParent(container);
 
-				qtyToAdd--;
+                qtyToAdd--;
 
-				if (qtyToAdd >= 1)
+                if (qtyToAdd >= 1)
                 {
-					if (!prefab.HasMultipleUses)
+                    if (!prefab.HasMultipleUses)
                     {
-						for (int i = 0; i < qtyToAdd; i++)
+                        for (int i = 0; i < qtyToAdd; i++)
                         {
-							item = ItemManager.Instance.GenerateItemNetwork(DroppedItemID);
-							item.ChangeParent(container);
-						}
+                            item = ItemManager.Instance.GenerateItemNetwork(DroppedItemID);
+                            item.ChangeParent(container);
+                        }
                     }
-					else
+                    else
                     {
-						if (qtyToAdd > item.MaxStackAmount)
-						{
-							item.RemainingAmount = item.MaxStackAmount;
-							for (qtyToAdd -= item.RemainingAmount; qtyToAdd > 0; qtyToAdd -= item.RemainingAmount)
-							{
-								item = ItemManager.Instance.GenerateItemNetwork(DroppedItemID);
-								item.ChangeParent(container);
-								item.RemainingAmount = Mathf.Min(qtyToAdd, item.MaxStackAmount);
-							}
-							return;
-						}
-						item.RemainingAmount = qtyToAdd;
-					}
+                        if (qtyToAdd > item.MaxStackAmount)
+                        {
+                            item.RemainingAmount = item.MaxStackAmount;
+                            for (qtyToAdd -= item.RemainingAmount; qtyToAdd > 0; qtyToAdd -= item.RemainingAmount)
+                            {
+                                item = ItemManager.Instance.GenerateItemNetwork(DroppedItemID);
+                                item.ChangeParent(container);
+                                item.RemainingAmount = Mathf.Min(qtyToAdd, item.MaxStackAmount);
+                            }
+                            return;
+                        }
+                        item.RemainingAmount = qtyToAdd;
+                    }
                 }
             }
-		}
+        }
     }
 }

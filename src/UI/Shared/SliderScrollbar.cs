@@ -1,38 +1,33 @@
-﻿using System;
+﻿using SideLoader.UI;
 using System.Collections.Generic;
-using System.Reflection;
 using UnityEngine;
-using UnityEngine.Events;
 using UnityEngine.UI;
-using SideLoader;
-using SideLoader.Helpers;
-using SideLoader.UI;
 
 // Basically just to fix an issue with Scrollbars, instead we use a Slider as the scrollbar.
 public class SliderScrollbar
 {
-	internal static readonly List<SliderScrollbar> Instances = new List<SliderScrollbar>();
+    internal static readonly List<SliderScrollbar> Instances = new List<SliderScrollbar>();
 
     public bool IsActive { get; private set; }
 
-	internal readonly Scrollbar m_scrollbar;
-	internal readonly Slider m_slider;
+    internal readonly Scrollbar m_scrollbar;
+    internal readonly Slider m_slider;
     internal readonly RectTransform m_scrollRect;
 
-	public SliderScrollbar(Scrollbar scrollbar, Slider slider)
+    public SliderScrollbar(Scrollbar scrollbar, Slider slider)
     {
-		Instances.Add(this);
+        Instances.Add(this);
 
-		this.m_scrollbar = scrollbar;
-		this.m_slider = slider;
+        this.m_scrollbar = scrollbar;
+        this.m_slider = slider;
         this.m_scrollRect = scrollbar.transform.parent.GetComponent<RectTransform>();
 
         this.m_scrollbar.onValueChanged.AddListener(this.OnScrollbarValueChanged);
         this.m_slider.onValueChanged.AddListener(this.OnSliderValueChanged);
 
         this.RefreshVisibility();
-		this.m_slider.Set(1f, false);
-	}
+        this.m_slider.Set(1f, false);
+    }
 
     internal bool CheckDestroyed()
     {
@@ -45,13 +40,13 @@ public class SliderScrollbar
         return false;
     }
 
-	internal void Update()
-	{
-		this.RefreshVisibility();
+    internal void Update()
+    {
+        this.RefreshVisibility();
     }
 
-	internal void RefreshVisibility()
-	{
+    internal void RefreshVisibility()
+    {
         if (!m_slider.gameObject.activeInHierarchy)
         {
             IsActive = false;
@@ -73,14 +68,14 @@ public class SliderScrollbar
         }
     }
 
-	public void OnScrollbarValueChanged(float _value)
-	{
-		if (this.m_slider.value != _value)
+    public void OnScrollbarValueChanged(float _value)
+    {
+        if (this.m_slider.value != _value)
             this.m_slider.Set(_value, false);
-	}
+    }
 
-	public void OnSliderValueChanged(float _value)
-	{
+    public void OnSliderValueChanged(float _value)
+    {
         this.m_scrollbar.value = _value;
     }
 

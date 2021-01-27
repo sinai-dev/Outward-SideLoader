@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 namespace SideLoader
@@ -32,7 +29,7 @@ namespace SideLoader
                     SL.Log("SkillItemReq: Couldn't find an item with the ID " + req.ItemID);
                     continue;
                 }
-                
+
                 list.Add(new Skill.ItemRequired()
                 {
                     Item = item,

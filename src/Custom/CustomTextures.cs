@@ -1,11 +1,7 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using UnityEngine;
 using System.IO;
-using UnityEngine.UI;
+using UnityEngine;
 using SLShaderDict = System.Collections.Generic.Dictionary<string, System.Collections.Generic.Dictionary<string, SideLoader.CustomTextures.ShaderPropType>>;
 
 namespace SideLoader
@@ -327,7 +323,7 @@ namespace SideLoader
         private static readonly SLShaderDict ShaderPropertyDicts = new SLShaderDict()
         {
             {
-                CUSTOM_MAINSET_MAINSTANDARD,      
+                CUSTOM_MAINSET_MAINSTANDARD,
                 new Dictionary<string, ShaderPropType>
                 {
                     { "_Color",                 ShaderPropType.Color },
@@ -359,7 +355,7 @@ namespace SideLoader
                     { "_AutoNormStr",           ShaderPropType.Float },
                     { "_AutoTexTiling",         ShaderPropType.Float },
                     { "_SnowEnabled",           ShaderPropType.Float }
-                } 
+                }
             },
             {
                 CUSTOM_DISTORT_DISTORTTEXTURESPEC,

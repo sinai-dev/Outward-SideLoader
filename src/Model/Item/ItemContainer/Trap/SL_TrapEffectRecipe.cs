@@ -1,8 +1,5 @@
-﻿using System;
+﻿using SideLoader.Helpers;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using SideLoader.Helpers;
 using UnityEngine;
 
 namespace SideLoader

@@ -1,12 +1,8 @@
-﻿using System;
-using System.Reflection;
-using UnityEngine;
-using SideLoader.Helpers;
-using SideLoader.UI;
-using UnityEngine.UI;
+﻿using SideLoader.Model;
+using System;
 using System.IO;
-using SideLoader.Model;
-using System.Collections;
+using UnityEngine;
+using UnityEngine.UI;
 
 namespace SideLoader.UI.Inspectors.Reflection
 {

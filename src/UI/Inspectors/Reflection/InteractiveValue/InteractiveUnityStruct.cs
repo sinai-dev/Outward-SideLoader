@@ -1,11 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using UnityEngine;
 using UnityEngine.UI;
-using SideLoader.Helpers;
-using SideLoader.UI;
 
 namespace SideLoader.UI.Inspectors.Reflection
 {
@@ -179,8 +175,8 @@ namespace SideLoader.UI.Inspectors.Reflection
         public static bool SupportsType(Type type) => s_supportedTypes.Contains(type);
         private static readonly HashSet<Type> s_supportedTypes = new HashSet<Type>
         {
-            typeof(Vector2), 
-            typeof(Vector3), 
+            typeof(Vector2),
+            typeof(Vector3),
             typeof(Vector4),
             typeof(Rect),
             typeof(Color) // todo might make a special editor for colors

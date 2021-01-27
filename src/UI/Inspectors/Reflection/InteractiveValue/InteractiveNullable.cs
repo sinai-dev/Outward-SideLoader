@@ -1,9 +1,4 @@
-﻿using SideLoader.UI;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -51,7 +46,7 @@ namespace SideLoader.UI.Inspectors.Reflection
             if (UnderlyingValue == null && SubIValue != null)
                 SubIValue = null;
             else if (UnderlyingValue != null && SubIValue == null)
-            { 
+            {
                 SubIValue = Create(UnderlyingValue, ElementType);
                 SubIValue.Owner = this.Owner;
                 SubIValue.m_mainContentParent = this.m_mainContentParent;

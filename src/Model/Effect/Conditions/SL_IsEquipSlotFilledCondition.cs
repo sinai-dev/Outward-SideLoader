@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace SideLoader
+﻿namespace SideLoader
 {
     public class SL_IsEquipSlotFilledCondition : SL_EffectCondition
     {
@@ -16,7 +11,7 @@ namespace SideLoader
 
         public override void SerializeEffect<T>(T component)
         {
-            EquipmentSlot = (component as IsEquipSlotFilledCondition).EquipmentSlot;   
+            EquipmentSlot = (component as IsEquipSlotFilledCondition).EquipmentSlot;
         }
     }
 }

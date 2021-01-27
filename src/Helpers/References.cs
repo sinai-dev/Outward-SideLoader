@@ -1,11 +1,6 @@
-﻿using System;
+﻿using Localizer;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Localizer;
 using UnityEngine;
-using System.Collections;
-using SideLoader.Helpers;
 
 namespace SideLoader
 {

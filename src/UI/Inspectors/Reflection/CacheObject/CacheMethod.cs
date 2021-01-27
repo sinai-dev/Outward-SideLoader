@@ -4,8 +4,6 @@ using System.Linq;
 using System.Reflection;
 using UnityEngine;
 using UnityEngine.UI;
-using SideLoader.UI;
-using SideLoader.Helpers;
 
 namespace SideLoader.UI.Inspectors.Reflection
 {
@@ -147,7 +145,7 @@ namespace SideLoader.UI.Inspectors.Reflection
             {
                 foreach (var constraint in this.GenericConstraints[i])
                 {
-                    if (constrainTxt != "") 
+                    if (constrainTxt != "")
                         constrainTxt += ", ";
 
                     constrainTxt += $"{UISyntaxHighlight.ParseFullSyntax(constraint, false)}";

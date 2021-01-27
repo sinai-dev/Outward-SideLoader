@@ -1,11 +1,7 @@
-﻿using System;
+﻿using SideLoader.UI.Shared;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-using SideLoader.UI.Shared;
-using System.IO;
-using System.Linq;
-using SideLoader.Helpers;
 
 namespace SideLoader.UI.Modules
 {
@@ -60,7 +56,7 @@ namespace SideLoader.UI.Modules
 
             if (hexColor != null)
                 message = $"<color=#{hexColor}>{message}</color>";
-            
+
             if (Instance?.m_textInput)
             {
                 var input = Instance.m_textInput;
@@ -113,7 +109,7 @@ namespace SideLoader.UI.Modules
             inputScroll.inputField.readOnly = true;
 
             m_textInput = inputScroll.inputField;
-#endregion
+            #endregion
 
             #region BOTTOM BAR
 

@@ -1,18 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Xml.Serialization;
-
-namespace SideLoader
+﻿namespace SideLoader
 {
 
     public class SL_CounterSuccessCondition : SL_EffectCondition
     {
         public override void ApplyToComponent<T>(T component)
         {
-            var skill = component.transform.root.gameObject.GetComponent<CounterSkill>(); 
-            
+            var skill = component.transform.root.gameObject.GetComponent<CounterSkill>();
+
             if (!skill)
             {
                 SL.Log("Trying to apply a CounterSuccessCondition on a skill which is not a Counter Skill! Error!");

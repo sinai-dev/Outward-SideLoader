@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace SideLoader
+﻿namespace SideLoader
 {
     public class SL_PassiveSkillCondition : SL_EffectCondition
     {
@@ -28,7 +23,7 @@ namespace SideLoader
         public override void SerializeEffect<T>(T component)
         {
             var comp = component as PassiveSkillCondition;
-            
+
             Invert = (comp.Invert && !comp.Inverse) || (!comp.Invert && comp.Inverse);
 
             ReqSkillID = comp.PassiveSkill.ItemID;

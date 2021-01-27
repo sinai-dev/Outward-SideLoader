@@ -1,9 +1,4 @@
 ﻿using SideLoader.Model;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SideLoader.SLPacks.Categories
 {
@@ -17,7 +12,7 @@ namespace SideLoader.SLPacks.Categories
         {
             var character = template as SL_Character;
             character.ApplyActualTemplate();
-            
+
             if (pack.CharacterTemplates.ContainsKey(character.UID))
                 SL.LogWarning("Loaded a dupliate UID SL_Character! UID: " + character.UID);
             else

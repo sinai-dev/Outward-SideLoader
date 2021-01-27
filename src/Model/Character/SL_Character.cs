@@ -1,15 +1,11 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using UnityEngine;
-using System.Xml.Serialization;
-using SideLoader.Helpers;
-using SideLoader.Model;
-using HarmonyLib;
+﻿using SideLoader.Model;
 using SideLoader.SLPacks;
 using SideLoader.SLPacks.Categories;
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Xml.Serialization;
+using UnityEngine;
 
 namespace SideLoader
 {
@@ -146,7 +142,7 @@ namespace SideLoader
 
         // ~~~~~~~~~~ AI States ~~~~~~~~~~
         public SL_CharacterAI AI;
-        
+
         [Obsolete("Use SL_Character.AI instead")] [XmlIgnore] public bool AddCombatAI;
         [Obsolete("Use SL_Character.AI instead")] [XmlIgnore] public bool? CanDodge;
         [Obsolete("Use SL_Character.AI instead")] [XmlIgnore] public bool? CanBlock;

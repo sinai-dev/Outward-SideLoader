@@ -1,14 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using UnityEngine;
-using System.IO;
-using System.Xml.Serialization;
-using SideLoader.Helpers;
+﻿using SideLoader.Helpers;
 using SideLoader.Model;
 using SideLoader.SLPacks;
 using SideLoader.SLPacks.Categories;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Xml.Serialization;
+using UnityEngine;
 
 namespace SideLoader
 {
@@ -28,19 +26,22 @@ namespace SideLoader
         [XmlIgnore] public bool CanParseContent => true;
         public IContentTemplate ParseToTemplate(object content) => ParseItemToTemplate(content as Item);
 
-        [XmlIgnore] public string SerializedSLPackName
+        [XmlIgnore]
+        public string SerializedSLPackName
         {
-            get => SLPackName; 
+            get => SLPackName;
             set => SLPackName = value;
         }
-        [XmlIgnore] public string SerializedSubfolderName 
+        [XmlIgnore]
+        public string SerializedSubfolderName
         {
-            get => SubfolderName; 
+            get => SubfolderName;
             set => SubfolderName = value;
         }
-        [XmlIgnore] public string SerializedFilename 
+        [XmlIgnore]
+        public string SerializedFilename
         {
-            get => m_serializedFilename; 
+            get => m_serializedFilename;
             set => m_serializedFilename = value;
         }
 
@@ -67,7 +68,7 @@ namespace SideLoader
         /// Add a listener to the OnInstanceStart event, which is called when an Item with this template's applied ID is created or loaded during gameplay.
         /// </summary>
         /// <param name="listener">Your callback. The Item argument is the Item instance.</param>
-        public void AddOnInstanceStartListener(Action<Item> listener) 
+        public void AddOnInstanceStartListener(Action<Item> listener)
             => AddOnInstanceStartListener((int)this.AppliedID, listener);
 
         /// <summary>
@@ -317,7 +318,7 @@ namespace SideLoader
             // Texture Replacements
             if (!string.IsNullOrEmpty(SLPackName) && SL.Packs.ContainsKey(SLPackName) && !string.IsNullOrEmpty(this.SubfolderName))
             {
-                ReadAndApplyTexturesFolder(item);   
+                ReadAndApplyTexturesFolder(item);
             }
         }
 
@@ -448,7 +449,7 @@ namespace SideLoader
             {
                 var prefabtype = (VisualPrefabType)i;
 
-                if (!CustomItemVisuals.s_itemVisualLinks.ContainsKey(item.ItemID) 
+                if (!CustomItemVisuals.s_itemVisualLinks.ContainsKey(item.ItemID)
                     || !CustomItemVisuals.s_itemVisualLinks[item.ItemID].GetVisuals(prefabtype))
                 {
                     var prefab = CustomItemVisuals.CloneVisualPrefab(item, prefabtype, false);

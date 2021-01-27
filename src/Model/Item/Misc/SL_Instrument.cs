@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace SideLoader
 {
@@ -21,10 +16,10 @@ namespace SideLoader
 
             if (this.PeriodicTime != null)
                 comp.PeriodicTime = (float)this.PeriodicTime;
-            
+
             if (this.PulseSpeed != null)
                 comp.PulseSpeed = (Vector2)this.PulseSpeed;
-            
+
             if (this.StrikeTime != null)
                 comp.StrikeTime = (float)this.StrikeTime;
         }

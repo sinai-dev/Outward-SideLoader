@@ -1,9 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using SideLoader.Helpers;
-using UnityEngine;
 
 namespace SideLoader
 {
@@ -46,7 +41,7 @@ namespace SideLoader
 
             return holder;
         }
-    
+
         public virtual void SerializeStats(ItemStats stats)
         {
             BaseValue = stats.BaseValue;

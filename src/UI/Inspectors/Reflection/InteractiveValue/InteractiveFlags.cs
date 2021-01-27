@@ -1,17 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using UnityEngine;
 using UnityEngine.UI;
-using SideLoader.Helpers;
-using SideLoader.UI;
 
 namespace SideLoader.UI.Inspectors.Reflection
 {
     public class InteractiveFlags : InteractiveEnum
     {
-        public InteractiveFlags(object value, Type valueType) : base(value, valueType) 
+        public InteractiveFlags(object value, Type valueType) : base(value, valueType)
         {
             m_toggles = new Toggle[m_values.Length];
             m_enabledFlags = new bool[m_values.Length];
