@@ -17,6 +17,11 @@ namespace SideLoader.SLPacks.Categories
         {
             var character = template as SL_Character;
             character.ApplyActualTemplate();
+            
+            if (pack.CharacterTemplates.ContainsKey(character.UID))
+                SL.LogWarning("Loaded a dupliate UID SL_Character! UID: " + character.UID);
+            else
+                pack.CharacterTemplates.Add(character.UID, character);
         }
 
         public override bool ShouldApplyLate(IContentTemplate template) => false;
