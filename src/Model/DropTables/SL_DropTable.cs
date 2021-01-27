@@ -1,51 +1,39 @@
 ﻿using SideLoader.Model;
+using SideLoader.SLPacks;
+using SideLoader.SLPacks.Categories;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml.Serialization;
 using UnityEngine;
 
 namespace SideLoader
 {
     [SL_Serialized]
-    public class SL_DropTable : IContentTemplate<string> 
+    public class SL_DropTable : IContentTemplate 
     {
         #region IContentTemplate
 
-        public string TargetID => this.UID;
-        public string AppliedID => this.UID;
+        public object TargetID => this.UID;
+        public object AppliedID => this.UID;
 
-        public string SerializedSLPackName 
-        {
-            get => m_serializedSLPackName;
-            set => m_serializedSLPackName = value;
-        }
-        
-        public string SerializedFilename 
-        { 
-            get => m_serializedFilename; 
-            set => m_serializedFilename = value;
-        }
-
-        public string SerializedSubfolderName
-        {
-            get => null;
-            set { }
-        }
+        [XmlIgnore] public string SerializedSLPackName { get; set; }
+        [XmlIgnore] public string SerializedFilename { get; set; }
+        [XmlIgnore] public string SerializedSubfolderName { get; set; }
 
         public bool IsCreatingNewID => true;
         public bool DoesTargetExist => true;
 
         public bool CanParseContent => false;
-
-        public SLPack.SubFolders SLPackCategory => SLPack.SubFolders.DropTables;
-
         public bool TemplateAllowedInSubfolder => false;
+
+        public ITemplateCategory PackCategory => SLPackManager.GetCategoryInstance<DropTableCategory>();
 
         public string DefaultTemplateName => "Untitled Droptable";
 
-        public void CreateContent() => Prepare();
+        public void ApplyActualTemplate() => Prepare();
 
         public IContentTemplate ParseToTemplate(object content) => throw new NotImplementedException();
         public object GetContentFromID(object id) => throw new NotImplementedException();
@@ -59,9 +47,6 @@ namespace SideLoader
         public List<SL_ItemDrop> GuaranteedDrops = new List<SL_ItemDrop>();
 
         public List<SL_RandomDropGenerator> RandomTables = new List<SL_RandomDropGenerator>();
-
-        internal string m_serializedSLPackName;
-        internal string m_serializedFilename;
 
         public void Prepare()
         {

@@ -23,7 +23,7 @@ namespace SideLoader
             if (this.SkillTree != null)
             {
                 if (string.IsNullOrEmpty(SkillTree.SLPackName))
-                    SkillTree.SLPackName = this.SLPackName;
+                    SkillTree.SLPackName = this.SerializedSLPackName;
 
                 m_skillTree = this.SkillTree.CreateBaseSchool(true);
             }

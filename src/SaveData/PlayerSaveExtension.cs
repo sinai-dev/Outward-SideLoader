@@ -15,28 +15,11 @@ namespace SideLoader.SaveData
     {
         // ~~~~~~ Static ~~~~~~
 
-        [XmlIgnore] internal static readonly HashSet<Type> s_registeredModels = new HashSet<Type>();
+        [XmlIgnore] internal static HashSet<Type> s_registeredModels = new HashSet<Type>();
 
         internal static void LoadExtensionTypes()
         {
-            foreach (var asm in AppDomain.CurrentDomain.GetAssemblies())
-            {
-                try
-                {
-                    foreach (var type in asm.GetExportedTypes()
-                                            .Where(it => !it.IsAbstract
-                                                      && typeof(PlayerSaveExtension).IsAssignableFrom(it)
-                                                      && !s_registeredModels.Contains(it)))
-                    {
-                        s_registeredModels.Add(type);
-                    }     
-                }
-                catch (Exception ex)
-                {
-                    SL.Log("Exception getting PlayerSaveExtension types from assembly " + asm.FullName);
-                    SL.LogInnerException(ex);
-                }
-            }
+            s_registeredModels = At.GetImplementationsOf(typeof(PlayerSaveExtension));
         }
 
         /// <summary>

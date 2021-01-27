@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SideLoader.SLPacks;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -16,20 +17,17 @@ namespace SideLoader.Model
         bool IsCreatingNewID { get; }
         bool DoesTargetExist { get; }
 
-        void CreateContent();
+        object TargetID { get; }
+        object AppliedID { get; }
+
+        void ApplyActualTemplate();
 
         bool CanParseContent { get; }
         IContentTemplate ParseToTemplate(object content);
         object GetContentFromID(object id);
 
-        SLPack.SubFolders SLPackCategory { get; }
+        ITemplateCategory PackCategory { get; }
         bool TemplateAllowedInSubfolder { get; }
         string DefaultTemplateName { get; }
-    }
-
-    public interface IContentTemplate<U> : IContentTemplate
-    {
-        U TargetID { get; }
-        U AppliedID { get; }
     }
 }

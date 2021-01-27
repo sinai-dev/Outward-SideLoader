@@ -7,47 +7,49 @@ using UnityEngine;
 using System.IO;
 using SideLoader.Model;
 using SideLoader.Model.Status;
+using SideLoader.SLPacks.Categories;
 
 namespace SideLoader
 {
-    public class SL_ImbueEffect : SL_StatusBase, IContentTemplate<int>
+    public class SL_ImbueEffect : SL_StatusBase, ICustomModel
     {
-        [XmlIgnore] public string DefaultTemplateName => $"{this.AppliedID}_{this.Name}";
-        [XmlIgnore] public bool IsCreatingNewID => this.NewStatusID > 0 && this.NewStatusID != this.TargetStatusID;
-        [XmlIgnore] public bool DoesTargetExist => ResourcesPrefabManager.Instance.GetEffectPreset(this.TargetStatusID);
-        [XmlIgnore] public int TargetID => this.TargetStatusID;
-        [XmlIgnore] public int AppliedID => this.NewStatusID;
-        [XmlIgnore] public SLPack.SubFolders SLPackCategory => SLPack.SubFolders.StatusEffects;
-        [XmlIgnore] public bool TemplateAllowedInSubfolder => true;
+        public Type SLTemplateModel => typeof(SL_ImbueEffect);
+        public Type GameModel => typeof(ImbueEffectPreset);
 
-        [XmlIgnore] public bool CanParseContent => true;
-        public IContentTemplate ParseToTemplate(object content) => ParseImbueEffect(content as ImbueEffectPreset);
-        public object GetContentFromID(object id)
+        #region IContentTemplate
+
+        internal override bool Internal_IsCreatingNewID() => this.NewStatusID != -1 && NewStatusID != TargetStatusID;
+
+        internal override bool Internal_DoesTargetExist() => ResourcesPrefabManager.Instance.GetEffectPreset(this.TargetStatusID);
+
+        internal override string Internal_DefaultTemplateName() => $"{AppliedID}_{Name}";
+
+        internal override object Internal_TargetID() => TargetStatusID;
+
+        internal override object Internal_AppliedID() => NewStatusID == -1
+                                                            ? TargetStatusID
+                                                            : NewStatusID;
+
+        internal override object Internal_GetContent(object id)
         {
-            if (!int.TryParse(id.ToString(), out int parsed))
+            if (string.IsNullOrEmpty((string)id))
                 return null;
 
-            References.RPM_EFFECT_PRESETS.TryGetValue(parsed, out EffectPreset ret);
-            return ret;
+            if (int.TryParse((string)id, out int result))
+            {
+                References.RPM_EFFECT_PRESETS.TryGetValue(result, out EffectPreset ret);
+                return (ImbueEffectPreset)ret;
+            }
+            else
+                return null;
         }
 
-        [XmlIgnore] public string SerializedSLPackName
-        {
-            get => SLPackName;
-            set => SLPackName = value;
-        }
-        [XmlIgnore] public string SerializedSubfolderName 
-        {
-            get => SubfolderName; 
-            set => SubfolderName = value;
-        }
-        [XmlIgnore] public string SerializedFilename 
-        {
-            get => m_serializedFilename; 
-            set => m_serializedFilename = value;
-        }
+        internal override IContentTemplate Internal_ParseToTemplate(object content)
+            => ParseImbueEffect((ImbueEffectPreset)content);
 
-        public void CreateContent() => this.Internal_Create();
+        internal override void Internal_ActualCreate() => Internal_Apply();
+
+        #endregion
 
         /// <summary>Invoked when this template is applied during SideLoader's start or hot-reload.</summary>
         public event Action<ImbueEffectPreset> OnTemplateApplied;
@@ -77,15 +79,12 @@ namespace SideLoader
         public void Apply()
         {
             if (SL.PacksLoaded)
-            {
-                SL.LogWarning("Applying a template AFTER SL.OnPacksLoaded has been called. This is not recommended, use SL.BeforePacksLoaded instead.");
-                Internal_Create();
-            }
+                Internal_Apply();
             else
-                SL.PendingImbues.Add(this);
+                PackCategory.CSharpTemplates.Add(this);
         }
 
-        private void Internal_Create()
+        private void Internal_Apply()
         {
             var imbue = ApplyTemplate();
             this.OnTemplateApplied?.Invoke(imbue);
@@ -103,7 +102,7 @@ namespace SideLoader
             // check for custom icon
             if (!string.IsNullOrEmpty(SLPackName) && !string.IsNullOrEmpty(SubfolderName) && SL.Packs[SLPackName] is SLPack pack)
             {
-                var path = $@"{pack.GetSubfolderPath(SLPack.SubFolders.StatusEffects)}\{SubfolderName}\icon.png";
+                var path = $@"{pack.GetPathForCategory<StatusCategory>()}\{SubfolderName}\icon.png";
 
                 if (File.Exists(path))
                 {

@@ -23,9 +23,9 @@ namespace SideLoader.UI.Inspectors.Reflection
             var path = $@"<b>XML Path:</b> ";
 
             if (RefPack.InMainSLFolder)
-                path += $@"Mods\SideLoader\{RefPack.Name}\{Template.SLPackCategory}\";
+                path += $@"Mods\SideLoader\{RefPack.Name}\{Template.PackCategory.FolderName}\";
             else
-                path += $@"BepInEx\plugins\{RefPack.Name}\SideLoader\{Template.SLPackCategory}\";
+                path += $@"BepInEx\plugins\{RefPack.Name}\SideLoader\{Template.PackCategory.FolderName}\";
 
             if (!string.IsNullOrEmpty(this.Template.SerializedSubfolderName))
                 path += $@"{Template.SerializedSubfolderName}\";
@@ -90,7 +90,7 @@ namespace SideLoader.UI.Inspectors.Reflection
             //    member.IValue.QuickSave();
             //}
 
-            var directory = RefPack.GetSubfolderPath(Template.SLPackCategory);
+            var directory = RefPack.GetPathForCategory(Template.PackCategory.GetType());
 
             if (Template.TemplateAllowedInSubfolder && !string.IsNullOrEmpty(this.Template.SerializedSubfolderName))
             {
@@ -111,7 +111,7 @@ namespace SideLoader.UI.Inspectors.Reflection
                 return;
             }
 
-            var directory = RefPack.GetSubfolderPath(Template.SLPackCategory);
+            var directory = RefPack.GetPathForCategory(Template.PackCategory.GetType());
 
             if (Template.TemplateAllowedInSubfolder && !string.IsNullOrEmpty(this.Template.SerializedSubfolderName))
             {

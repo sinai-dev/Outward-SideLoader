@@ -25,25 +25,44 @@ namespace SideLoader
     /// </summary>
     public class Serializer
     {
-        internal static Assembly SL_Assembly => m_slAssembly ?? (m_slAssembly = Assembly.GetExecutingAssembly());
-        private static Assembly m_slAssembly;
+        //internal static Assembly SL_Assembly => m_slAssembly ?? (m_slAssembly = Assembly.GetExecutingAssembly());
+        //private static Assembly m_slAssembly;
 
         internal static Assembly Game_Assembly => m_gameAssembly ?? (m_gameAssembly = typeof(Item).Assembly);
         private static Assembly m_gameAssembly;
 
-        internal static Type[] SLTypes => m_slTypes ?? GetSLTypes();
+        internal static Type[] SLTypes => GetSLTypes();
         private static Type[] m_slTypes;
 
         private static readonly Dictionary<Type, XmlSerializer> m_xmlCache = new Dictionary<Type, XmlSerializer>();
 
+        internal static int s_lastLoadedAssemblyCount;
+
         internal static Type[] GetSLTypes()
         {
+            var assemblies = AppDomain.CurrentDomain.GetAssemblies();
+
+            if (m_slTypes != null)
+            {
+                if (s_lastLoadedAssemblyCount == assemblies.Length)
+                    return m_slTypes;
+            }
+
+            s_lastLoadedAssemblyCount = assemblies.Length;
+
             var list = new List<Type>();
 
-            foreach (var type in SL_Assembly.GetTypes())
+            foreach (var asm in assemblies)
             {
-                if (type.GetCustomAttributes(typeof(SL_Serialized), true).Length > 0)
-                    list.Add(type);
+                try
+                {
+                    foreach (var type in asm.GetExportedTypes())
+                    {
+                        if (type.GetCustomAttribute(typeof(SL_Serialized)) is SL_Serialized)
+                            list.Add(type);
+                    }
+                }
+                catch { }
             }
 
             return m_slTypes = list.ToArray();
@@ -78,6 +97,13 @@ namespace SideLoader
             if (s_typeConversions.ContainsKey(_slType))
                 return s_typeConversions[_slType];
 
+            if (typeof(ICustomModel).IsAssignableFrom(_slType))
+            {
+                var custom = (ICustomModel)Activator.CreateInstance(_slType);
+                s_typeConversions.Add(_slType, custom.GameModel);
+                return custom.GameModel;
+            }
+
             var name = _slType.Name.Substring(3, _slType.Name.Length - 3);
 
             Type ret = null;
@@ -111,18 +137,27 @@ namespace SideLoader
             if (s_typeConversions.ContainsKey(key))
                 return s_typeConversions[key];
 
-            if (SL_Assembly.GetType($"SideLoader.SL_{gameType.Name}") is Type slType && !slType.IsAbstract)
+            foreach (var type in SLTypes.Where(it => typeof(ICustomModel).IsAssignableFrom(it)))
             {
-                s_typeConversions.Add(key, slType);
-                return slType;
+                var custom = Activator.CreateInstance(type) as ICustomModel;
+                if (custom.GameModel == gameType)
+                {
+                    s_typeConversions.Add(key, custom.SLTemplateModel);
+                    return custom.SLTemplateModel;
+                }
             }
+
+            var byname = SLTypes.FirstOrDefault(it => it.Name.Substring(3, it.Name.Length - 3) == gameType.Name);
+            if (byname != null)
+            {
+                s_typeConversions.Add(key, byname);
+                return byname;
+            }
+
+            if (gameType.BaseType != null)
+                return GetBestSLType(gameType.BaseType, originalQuery ?? gameType);
             else
-            {
-                if (gameType.BaseType != null)
-                    return GetBestSLType(gameType.BaseType, originalQuery ?? gameType);
-                else
-                    return null;
-            }
+                return null;
         }
 
         /// <summary>
@@ -177,6 +212,25 @@ namespace SideLoader
             return typeName;
         }
 
+        internal static readonly Dictionary<string, Type> s_typesByName = new Dictionary<string, Type>();
+
+        public static Type GetTypeFromDocumentRootName(string typeName)
+        {
+            s_typesByName.TryGetValue(typeName, out Type type);
+
+            if (type == null)
+            {
+                type = SLTypes.FirstOrDefault(it => it.Name == typeName);
+                if (type == null)
+                {
+                    SL.LogWarning("Could not get Type from document with base node '" + typeName + "'!");
+                    return null;
+                }
+            }
+
+            return type;
+        }
+
         /// <summary>
         /// Load an SL_Type object from XML.
         /// </summary>
@@ -192,20 +246,13 @@ namespace SideLoader
             {
                 var typeName = GetBaseTypeOfXmlDocument(path);
 
-                if (!string.IsNullOrEmpty(typeName) && SL_Assembly.GetType($"SideLoader.{typeName}") is Type type)
+                var type = GetTypeFromDocumentRootName(typeName);
+
+                using (var file = File.OpenRead(path))
                 {
-                    using (var file = File.OpenRead(path))
-                    {
-                        var xml = GetXmlSerializer(type);
-                        var obj = xml.Deserialize(file);
-                        file.Dispose();
-                        return obj;
-                    }
-                }
-                else
-                {
-                    SL.LogError("LoadFromXml Error, could not serialize the Type of document! typeName: " + typeName);
-                    return null;
+                    var xml = GetXmlSerializer(type);
+                    var obj = xml.Deserialize(file);
+                    return obj;
                 }
             }
             catch (Exception e)

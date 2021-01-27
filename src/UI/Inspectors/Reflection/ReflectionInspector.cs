@@ -428,7 +428,7 @@ namespace SideLoader.UI.Inspectors
                 }
             }
 
-            if (At.GetInheritedTypes(baseType).Count <= 1)
+            if (At.GetImplementationsOf(baseType).Count <= 1)
                 return;
 
             var drop = new TypeTreeDropdown(baseType, parent, m_targetType, (Type val) => 

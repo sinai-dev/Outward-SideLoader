@@ -15,11 +15,7 @@ namespace SideLoader
     
         public EffectCondition ApplyToTransform(Transform transform)
         {
-            Type componentType;
-            if (this is ICustomModel iModel)
-                componentType = iModel.GameModel;
-            else
-                componentType = Serializer.GetGameType(this.GetType());
+            Type componentType = Serializer.GetGameType(this.GetType());
 
             if (componentType != null)
             {
@@ -41,11 +37,7 @@ namespace SideLoader
 
         public static SL_EffectCondition ParseCondition(EffectCondition component)
         {
-            Type slType;
-            if (component is ICustomModel iModel)
-                slType = iModel.SLTemplateModel;
-            else
-                slType = Serializer.GetBestSLType(component.GetType());
+            Type slType = Serializer.GetBestSLType(component.GetType());
 
             if (slType != null && !slType.IsAbstract)
             {

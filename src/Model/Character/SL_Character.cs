@@ -8,52 +8,35 @@ using System.Xml.Serialization;
 using SideLoader.Helpers;
 using SideLoader.Model;
 using HarmonyLib;
+using SideLoader.SLPacks;
+using SideLoader.SLPacks.Categories;
 
 namespace SideLoader
 {
     /// <summary>SideLoader's wrapper for Custom Characters.</summary>
     [SL_Serialized]
-    public class SL_Character : IContentTemplate<string>
+    public class SL_Character : IContentTemplate
     {
         #region IContentTemplate
         [XmlIgnore] public string DefaultTemplateName => "Untitled Character";
         [XmlIgnore] public bool IsCreatingNewID => true;
         [XmlIgnore] public bool DoesTargetExist => true;
-        [XmlIgnore] public string TargetID => this.UID;
-        [XmlIgnore] public string AppliedID => this.UID;
-        [XmlIgnore] public SLPack.SubFolders SLPackCategory => SLPack.SubFolders.Characters;
+        [XmlIgnore] public object TargetID => this.UID;
+        [XmlIgnore] public object AppliedID => this.UID;
+        [XmlIgnore] public ITemplateCategory PackCategory => SLPackManager.GetCategoryInstance<CharacterCategory>();
         [XmlIgnore] public bool TemplateAllowedInSubfolder => false;
 
         [XmlIgnore] public bool CanParseContent => false;
         public IContentTemplate ParseToTemplate(object _) => throw new NotImplementedException();
         public object GetContentFromID(object id) => throw new NotImplementedException();
 
-        [XmlIgnore]
-        public string SerializedSLPackName
-        {
-            get => SLPackName;
-            set => SLPackName = value;
-        }
-        [XmlIgnore]
-        public string SerializedSubfolderName
-        {
-            get => null;
-            set { }
-        }
-        [XmlIgnore]
-        public string SerializedFilename
-        {
-            get => m_serializedFilename;
-            set => m_serializedFilename = value;
-        }
+        [XmlIgnore] public string SerializedSLPackName { get; set; }
+        [XmlIgnore] public string SerializedSubfolderName { get; set; }
+        [XmlIgnore] public string SerializedFilename { get; set; }
 
-        public void CreateContent() => this.Prepare();
+        public void ApplyActualTemplate() => this.Prepare();
+
         #endregion
-
-        /// <summary>[Not Serialized] The name of the SLPack used to load certain assets from. Not required.</summary>
-        [XmlIgnore] public string SLPackName { get; set; }
-
-        internal string m_serializedFilename;
 
         /// <summary> This event will be executed locally by ALL clients via RPC. Use this for any custom local setup that you need.
         /// <list type="bullet">The character is the Character your template was applied to.</list>
@@ -174,6 +157,14 @@ namespace SideLoader
         /// </summary>
         public void Prepare()
         {
+            if (SL.PacksLoaded)
+                Internal_Apply();
+            else
+                PackCategory.CSharpTemplates.Add(this);
+        }
+
+        internal void Internal_Apply()
+        {
             // add uid to CustomCharacters callback dictionary
             if (!string.IsNullOrEmpty(this.UID))
             {
@@ -185,7 +176,7 @@ namespace SideLoader
 
                 CustomCharacters.Templates.Add(this.UID, this);
             }
-            
+
             if (this.LootableOnDeath && this.DropTableUIDs?.Length > 0 && !this.DropPouchContents)
             {
                 SL.LogWarning($"SL_Character '{UID}' has LootableOnDeath=true and DropTableUIDs set, but DropPouchContents is false!" +

@@ -13,6 +13,8 @@ using SideLoader.Model;
 using UnityEngine.EventSystems;
 using SideLoader.Model.Status;
 using SideLoader.UI.Inspectors.Reflection;
+using SideLoader.SLPacks;
+using SideLoader.SLPacks.Categories;
 
 namespace SideLoader.UI.Inspectors
 {
@@ -21,10 +23,15 @@ namespace SideLoader.UI.Inspectors
         public SLPackListView()
         {
             Instance = this;
+
+            m_currentCategory = SLPackManager.GetCategoryInstance<ItemCategory>();
+
+            s_templateTypes = At.GetImplementationsOf(typeof(IContentTemplate));
+
             ConstructUI();
         }
 
-        internal static List<Type> s_templateTypes = new List<Type>();
+        internal static HashSet<Type> s_templateTypes = new HashSet<Type>();
         internal static List<Type> s_currentTemplateTypes = new List<Type>();
 
         public static SLPackListView Instance;
@@ -32,7 +39,8 @@ namespace SideLoader.UI.Inspectors
         internal static Action OnToggleShow;
 
         internal SLPack m_currentPack;
-        internal SLPack.SubFolders m_currentSubfolder = SLPack.SubFolders.Items;
+        internal ITemplateCategory m_currentCategory;
+        //internal SLPack.SubFolders m_currentSubfolder = SLPack.SubFolders.Items;
         internal Type m_currentGeneratorType;
 
         internal ContentAutoCompleter AutoCompleter;
@@ -55,26 +63,9 @@ namespace SideLoader.UI.Inspectors
             AutoCompleter = new ContentAutoCompleter();
             AutoCompleter.Init();
 
-            foreach (var type in Serializer.SL_Assembly.GetExportedTypes())
-            {
-                if (!type.IsAbstract 
-                    && !(type.BaseType is IContentTemplate)
-                    && typeof(IContentTemplate).IsAssignableFrom(type))
-                {
-                    s_templateTypes.Add(type);
-                }
-            }
-
-            s_templateTypes = s_templateTypes.OrderBy(it => it.Name).ToList();
-
             RefreshGeneratorTypeDropdown();
 
             RefreshLoadedSLPacks();
-        }
-
-        public void Update()
-        {
-            //m_lastInputCaretPos = m_genInput?.caretPosition ?? -1;
         }
 
         internal void RefreshLoadedSLPacks()
@@ -126,8 +117,8 @@ namespace SideLoader.UI.Inspectors
         {
             if (val < 1 || val > SL.Packs.Count)
             {
-                //RefreshLoadedSLPacks();
-                //m_slPackLabel.text = $"No pack selected...";
+                m_scrollObj.gameObject.SetActive(false);
+                m_generateObj.gameObject.SetActive(false);
                 return;
             }
 
@@ -142,30 +133,11 @@ namespace SideLoader.UI.Inspectors
 
         internal void RefreshGeneratorTypeDropdown()
         {
-            Type baseGeneratorType = null;
-            switch (m_currentSubfolder)
-            {
-                case SLPack.SubFolders.StatusEffects:
-                    baseGeneratorType = typeof(SL_StatusBase); break;
-                case SLPack.SubFolders.Items:
-                    baseGeneratorType = typeof(SL_Item); break;
-                case SLPack.SubFolders.Characters:
-                    baseGeneratorType = typeof(SL_Character); break;
-                case SLPack.SubFolders.DropTables:
-                    baseGeneratorType = typeof(SL_DropTable); break;
-                case SLPack.SubFolders.Enchantments:
-                    baseGeneratorType = typeof(SL_EnchantmentRecipe); break;
-                case SLPack.SubFolders.Recipes:
-                    baseGeneratorType = typeof(SL_Recipe); break;
-                case SLPack.SubFolders.StatusFamilies:
-                    baseGeneratorType = typeof(SL_StatusEffectFamily); break;
-                case SLPack.SubFolders.Tags:
-                    baseGeneratorType = typeof(SL_TagManifest); break;
-            }
+            Type baseGeneratorType = m_currentCategory.BaseContainedType;
 
             if (baseGeneratorType == null)
             {
-                SL.LogError("No base type for subfolder: " + m_currentSubfolder);
+                SL.LogError("No base type for subfolder: " + m_currentCategory);
                 return;
             }
 
@@ -184,7 +156,7 @@ namespace SideLoader.UI.Inspectors
             m_genDropdown.value = 1;
             m_genDropdown.value = 0;
 
-            m_generatorTitle.text = "Template Generator (" + m_currentSubfolder + ")";
+            m_generatorTitle.text = "Template Generator (" + m_currentCategory.FolderName + ")";
         }
 
         internal void RefreshSLPackContentList()
@@ -194,7 +166,9 @@ namespace SideLoader.UI.Inspectors
 
             ClearPackEntryButtons();
 
-            var dict = m_currentPack.GetContentForSubfolder(m_currentSubfolder);
+            var dict = m_currentPack.GetContentForCategory(m_currentCategory.GetType());
+            if (dict == null)
+                return;
             foreach (var entry in dict.Values)
                 AddSLPackTemplateButton(entry as IContentTemplate);
         }
@@ -430,28 +404,27 @@ namespace SideLoader.UI.Inspectors
             var subdropLayout = subfolderDropObj.AddComponent<LayoutElement>();
             subdropLayout.minHeight = 25;
 
-            var list = new List<SLPack.SubFolders>();
-            foreach (var name in Enum.GetValues(typeof(SLPack.SubFolders)))
+            var list = new List<ITemplateCategory>();
+
+            foreach (var ctg in SLPackManager.SLPackCategories)
             {
-                var folder = (SLPack.SubFolders)Enum.Parse(typeof(SLPack.SubFolders), name.ToString());
-
-                if (folder == SLPack.SubFolders.Texture2D
-                    || folder == SLPack.SubFolders.AssetBundles
-                    || folder == SLPack.SubFolders.AudioClip)
-                    continue;
-
-                list.Add(folder);
+                if (ctg is ITemplateCategory category)
+                    list.Add(category);
             }
+
+            list = list.OrderBy(it => it.FolderName).ToList();
 
             subDrop.options = new List<Dropdown.OptionData>();
             foreach (var entry in list)
-                subDrop.options.Add(new Dropdown.OptionData { text = entry.ToString() });
+                subDrop.options.Add(new Dropdown.OptionData { text = entry.FolderName });
 
-            subDrop.value = list.IndexOf(SLPack.SubFolders.Items);
+            var itemCtg = SLPackManager.GetCategoryInstance<ItemCategory>();
+
+            subDrop.value = list.IndexOf(itemCtg);
 
             subDrop.onValueChanged.AddListener((int val) =>
             {
-                m_currentSubfolder = list[val];
+                m_currentCategory = list[val];
                 RefreshGeneratorTypeDropdown();
                 RefreshSLPackContentList();
             });
@@ -589,7 +562,7 @@ namespace SideLoader.UI.Inspectors
                             }
 
                             var item = ResourcesPrefabManager.Instance.GetItemPrefab(slitem.Target_ItemID);
-                            var dir = m_currentPack.GetSubfolderPath(SLPack.SubFolders.Items);
+                            var dir = m_currentPack.GetPathForCategory<ItemCategory>();
                             dir += $@"\{slitem.SerializedSubfolderName}\Textures";
 
                             if (exportIconsWanted)
@@ -608,7 +581,7 @@ namespace SideLoader.UI.Inspectors
                                 return;
                             }
 
-                            var dir = m_currentPack.GetSubfolderPath(SLPack.SubFolders.StatusEffects);
+                            var dir = m_currentPack.GetPathForCategory<StatusCategory>();
                             dir += $@"\{template.SerializedSubfolderName}";
 
                             Component comp;
@@ -644,7 +617,7 @@ namespace SideLoader.UI.Inspectors
                     subname = Serializer.ReplaceInvalidChars(template.DefaultTemplateName);
             }
 
-            var dir = m_currentPack.GetSubfolderPath(template.SLPackCategory);
+            var dir = m_currentPack.GetPathForCategory(m_currentCategory.GetType());
             if (!string.IsNullOrEmpty(subname))
             {
                 //dir += $@"\{subname}";

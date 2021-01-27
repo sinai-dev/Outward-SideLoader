@@ -28,7 +28,7 @@ namespace SideLoader.UI.Modules
 
         public override void Update()
         {
-            SLPackListView.Instance.Update();
+            //SLPackListView.Instance.Update();
             InspectorManager.Instance.Update();
         }
 

@@ -177,21 +177,21 @@ namespace SideLoader.UI.Inspectors.Reflection
             }
         }
 
-        internal List<Type> m_cachedChangeableTypes;
+        internal HashSet<Type> m_cachedChangeableTypes;
 
         internal virtual void OnCreateDestroyClicked()
         {
             if (Value == null)
             {
                 if (m_cachedChangeableTypes == null)
-                    m_cachedChangeableTypes = At.GetInheritedTypes(this.FallbackType);
+                    m_cachedChangeableTypes = At.GetImplementationsOf(this.FallbackType);
 
                 if (m_cachedChangeableTypes.Count > 1)
                     BeginConfirmCreate();
                 else
                 {
                     var type = FallbackType.IsAbstract || FallbackType.IsInterface
-                                ? m_cachedChangeableTypes[0]
+                                ? m_cachedChangeableTypes.FirstOrDefault()
                                 : FallbackType;
 
                     Value = At.TryCreateDefault(type);
@@ -308,7 +308,7 @@ namespace SideLoader.UI.Inspectors.Reflection
             if (m_subContentConstructed && subWasActive)
                 m_subContentParent.gameObject.SetActive(false);
 
-            Type selectedType = m_cachedChangeableTypes[0];
+            Type selectedType = m_cachedChangeableTypes.FirstOrDefault();
             var drop = new TypeTreeDropdown(FallbackType, m_valueContent, Value?.GetType() ?? FallbackType, (Type val) => 
             {
                 selectedType = val;

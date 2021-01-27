@@ -1,5 +1,7 @@
 ﻿using SideLoader.Helpers;
 using SideLoader.Model;
+using SideLoader.SLPacks;
+using SideLoader.SLPacks.Categories;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,15 +12,17 @@ using System.Xml.Serialization;
 namespace SideLoader
 {
     [SL_Serialized]
-    public class SL_StatusEffectFamily : IContentTemplate<string>
+    public class SL_StatusEffectFamily : IContentTemplate
     {
-        [XmlIgnore] public string TargetID => this.UID;
-        [XmlIgnore] public string AppliedID => this.UID;
-        [XmlIgnore] public bool IsCreatingNewID => true;
-        [XmlIgnore] public bool DoesTargetExist => true;
-        [XmlIgnore] public SLPack.SubFolders SLPackCategory => SLPack.SubFolders.StatusFamilies;
-        [XmlIgnore] public bool TemplateAllowedInSubfolder => false;
-        [XmlIgnore] public string DefaultTemplateName => this.UID;
+        #region IContentTemplate
+
+        public object TargetID => this.UID;
+        public object AppliedID => this.UID;
+        public bool IsCreatingNewID => true;
+        public bool DoesTargetExist => true;
+        public ITemplateCategory PackCategory => SLPackManager.GetCategoryInstance<StatusFamilyCategory>();
+        public bool TemplateAllowedInSubfolder => false;
+        public string DefaultTemplateName => this.UID;
 
         [XmlIgnore] public bool CanParseContent => false;
         public IContentTemplate ParseToTemplate(object _) => throw new NotImplementedException();
@@ -27,22 +31,13 @@ namespace SideLoader
             return StatusEffectFamilyLibrary.Instance.StatusEffectFamilies.FirstOrDefault(it => it.UID == (string)id);
         }
 
-        [XmlIgnore] public string SerializedSLPackName {
-            get => SLPackName; set => SLPackName = value;
-        }
-        [XmlIgnore] public string SerializedSubfolderName
-        {
-            get => null;
-            set { }
-        }
-        [XmlIgnore] public string SerializedFilename {
-            get => m_serializedFilename; set => m_serializedFilename = value;
-        }
+        [XmlIgnore] public string SerializedSLPackName { get; set; }
+        [XmlIgnore] public string SerializedSubfolderName { get; set; }
+        [XmlIgnore] public string SerializedFilename { get; set; }
 
-        internal string SLPackName;
-        internal string m_serializedFilename;
+        public void ApplyActualTemplate() => CreateFamily();
 
-        public void CreateContent() => CreateFamily();
+        #endregion
 
         public string UID;
         public string Name;
@@ -53,20 +48,11 @@ namespace SideLoader
         public StatusEffectFamily.LengthTypes? LengthType;
 
         /// <summary>
-        /// Call this to register the template, it will be applied by OnPacksLoaded.
+        /// Call this to register the template and create the status family.
         /// </summary>
         public void Apply()
         {
-            if (SL.PacksLoaded)
-            {
-                CreateFamily();
-                return;
-            }
-
-            if (SL.PendingStatusFamilies.Contains(this))
-                return;
-
-            SL.PendingStatusFamilies.Add(this);
+            CreateFamily();
         }
 
         internal static SL_StatusEffectFamily ParseEffectFamily(StatusEffectFamily family)

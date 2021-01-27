@@ -21,7 +21,7 @@ namespace SideLoader.UI.Inspectors.Reflection
         public TypeTreeDropdown(Type type, GameObject parent, Type currentType, Action<Type> listener)
         {
             m_baseType = type;
-            m_typeOptions = At.GetInheritedTypes(m_baseType).OrderBy(it => it.Name).ToList();
+            m_typeOptions = At.GetImplementationsOf(m_baseType).OrderBy(it => it.Name).ToList();
 
             OnValueSelected += listener;
 

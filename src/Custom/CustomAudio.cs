@@ -66,7 +66,7 @@ namespace SideLoader
         }
 
         /// <summary>Coroutine used to load an AudioClip.</summary>
-        public static IEnumerator LoadClip(string path, SLPack pack = null)
+        public static IEnumerator LoadClip(string path, SLPack pack = null, Dictionary<string, object> dict = null)
         {
             var fullPath = @"file://" + Path.GetFullPath(path);
 
@@ -102,6 +102,11 @@ namespace SideLoader
                     }
 
                     pack.AudioClips.Add(name, clip);
+
+                    if (dict != null)
+                    {
+                        dict.Add(path, clip);
+                    }
                 }
 
                 if (Enum.TryParse(name, out GlobalAudioManager.Sounds sound))

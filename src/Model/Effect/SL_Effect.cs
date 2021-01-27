@@ -22,11 +22,7 @@ namespace SideLoader
         /// <summary>Adds and applies this effect to the provided Transform.</summary>
         public Effect ApplyToTransform(Transform t)
         {
-            Type componentType;
-            if (this is ICustomModel iModel)
-                componentType = iModel.GameModel;
-            else
-                componentType = Serializer.GetGameType(this.GetType());
+            Type componentType = Serializer.GetGameType(this.GetType());
 
             if (componentType != null)
             {
@@ -53,11 +49,7 @@ namespace SideLoader
         /// <summary>Serialize an effect and get the equivalent SL_Effect.</summary>
         public static SL_Effect ParseEffect(Effect effect)
         {
-            Type slType;
-            if (effect is ICustomModel iModel)
-                slType = iModel.SLTemplateModel;
-            else
-                slType = Serializer.GetBestSLType(effect.GetType());
+            Type slType = Serializer.GetBestSLType(effect.GetType());
 
             if (slType != null && !slType.IsAbstract)
             {

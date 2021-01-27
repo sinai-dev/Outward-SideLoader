@@ -7,33 +7,26 @@ using System.IO;
 using System.Xml.Serialization;
 using SideLoader.Helpers;
 using SideLoader.Model;
+using SideLoader.SLPacks;
+using SideLoader.SLPacks.Categories;
 
 namespace SideLoader
 {
     [SL_Serialized]
-    public class SL_Item : IContentTemplate<int>
+    public class SL_Item : IContentTemplate
     {
         #region IContentTemplate
 
         [XmlIgnore] public string DefaultTemplateName => $"{this.AppliedID}_{this.Name}";
         [XmlIgnore] public bool IsCreatingNewID => this.New_ItemID != -1 && this.New_ItemID != this.Target_ItemID;
         [XmlIgnore] public bool DoesTargetExist => ResourcesPrefabManager.Instance.GetItemPrefab(this.Target_ItemID);
-        [XmlIgnore] public int TargetID => this.Target_ItemID;
-        [XmlIgnore] public int AppliedID => IsCreatingNewID ? this.New_ItemID : this.Target_ItemID;
-        [XmlIgnore] public SLPack.SubFolders SLPackCategory => SLPack.SubFolders.Items;
+        [XmlIgnore] public object TargetID => this.Target_ItemID;
+        [XmlIgnore] public object AppliedID => IsCreatingNewID ? this.New_ItemID : this.Target_ItemID;
+        [XmlIgnore] public ITemplateCategory PackCategory => (ITemplateCategory)SLPackManager.GetCategoryInstance<ItemCategory>();
         [XmlIgnore] public bool TemplateAllowedInSubfolder => true;
 
         [XmlIgnore] public bool CanParseContent => true;
         public IContentTemplate ParseToTemplate(object content) => ParseItemToTemplate(content as Item);
-
-        public object GetContentFromID(object id)
-        {
-            if (string.IsNullOrEmpty((string)id))
-                return null;
-
-            References.RPM_ITEM_PREFABS.TryGetValue((string)id, out Item ret);
-            return ret;
-        }
 
         [XmlIgnore] public string SerializedSLPackName
         {
@@ -51,7 +44,16 @@ namespace SideLoader
             set => m_serializedFilename = value;
         }
 
-        public void CreateContent() => Internal_Create();
+        public void ApplyActualTemplate() => Internal_Create();
+
+        public object GetContentFromID(object id)
+        {
+            if (string.IsNullOrEmpty((string)id))
+                return null;
+
+            References.RPM_ITEM_PREFABS.TryGetValue((string)id, out Item ret);
+            return ret;
+        }
 
         #endregion
 
@@ -66,7 +68,7 @@ namespace SideLoader
         /// </summary>
         /// <param name="listener">Your callback. The Item argument is the Item instance.</param>
         public void AddOnInstanceStartListener(Action<Item> listener) 
-            => AddOnInstanceStartListener(this.AppliedID, listener);
+            => AddOnInstanceStartListener((int)this.AppliedID, listener);
 
         /// <summary>
         /// Add a listener to the OnInstanceStart event, which is called for items when they are created during gameplay.
@@ -153,17 +155,9 @@ namespace SideLoader
         public void Apply()
         {
             if (SL.PacksLoaded)
-            {
-                //SL.LogWarning("Applying an Item Template AFTER SL.OnPacksLoaded has been called. This is not recommended, use SL.BeforePacksLoaded at the latest instead.");
                 Internal_Create();
-            }
             else
-            {
-                if (ShouldApplyLate)
-                    SL.PendingLateItems.Add(this);
-                else
-                    SL.PendingItems.Add(this);
-            }
+                PackCategory.CSharpTemplates.Add(this);
         }
 
         internal void Internal_Create()
@@ -329,7 +323,10 @@ namespace SideLoader
 
         public void ReadAndApplyTexturesFolder(Item item)
         {
-            var texturesFolder = $@"{SL.GetSLPack(this.SLPackName).GetSubfolderPath(SLPack.SubFolders.Items)}\{this.SubfolderName}\Textures";
+            var packpath = SL.GetSLPack(this.SLPackName).GetPathForCategory<ItemCategory>();
+
+            var texturesFolder = $@"{packpath}\{this.SubfolderName}\Textures";
+
             if (!Directory.Exists(texturesFolder))
                 return;
 

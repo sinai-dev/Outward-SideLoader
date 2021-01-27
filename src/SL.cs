@@ -9,6 +9,7 @@ using SideLoader.Model;
 using SideLoader.SaveData;
 using System.Linq;
 using SideLoader.UI;
+using SideLoader.SLPacks;
 
 namespace SideLoader
 {
@@ -63,16 +64,6 @@ namespace SideLoader
         /// <summary>This event is invoked when gameplay actually resumes after a scene is loaded.</summary>
         public static event Action OnGameplayResumedAfterLoading;
 
-        // custom template lists
-        internal static readonly List<SL_Item> PendingItems = new List<SL_Item>();
-        internal static readonly List<SL_StatusEffect> PendingStatuses = new List<SL_StatusEffect>();
-        internal static readonly List<SL_StatusEffectFamily> PendingStatusFamilies = new List<SL_StatusEffectFamily>();
-        internal static readonly List<SL_ImbueEffect> PendingImbues = new List<SL_ImbueEffect>();
-        internal static readonly List<SL_Recipe> PendingRecipes = new List<SL_Recipe>();
-        internal static readonly List<SL_EnchantmentRecipe> PendingEnchantments = new List<SL_EnchantmentRecipe>();
-        internal static readonly List<SL_Item> PendingLateItems = new List<SL_Item>();
-        internal static readonly List<SL_Character> PendingCharacters = new List<SL_Character>();
-
         // ======== Scene Change Event ========
 
         // This is called when Unity says the scene is done loading, but we still want to wait for Outward to be done.
@@ -102,16 +93,16 @@ namespace SideLoader
 
         // ======== SL Setup ========
 
-        internal static void Setup(bool firstSetup = true)
+        internal static void Setup(bool isFirstSetup = true)
         {
             s_cloneHolder = new GameObject("SL_CloneHolder").transform;
             GameObject.DontDestroyOnLoad(s_cloneHolder.gameObject);
 
-            PlayerSaveExtension.LoadExtensionTypes();
-
-            if (firstSetup)
+            if (isFirstSetup)
             {
                 SLRPCManager.Setup();
+
+                PlayerSaveExtension.LoadExtensionTypes();
 
                 CheckPrefabDictionaries();
 
@@ -121,38 +112,9 @@ namespace SideLoader
                 ResetForHotReload();
             
             // Load SL Packs
-            SLPack.ApplyAllSLPacks(firstSetup);
+            SLPackManager.LoadAllPacks(isFirstSetup);
 
-            // create status families
-            foreach (var family in PendingStatusFamilies)
-                family.ApplyTemplate();
-
-            // apply custom statuses and imbues first
-            new DependancySolver<SL_StatusEffect, string>()
-                .ApplyTemplates(PendingStatuses);
-
-            new DependancySolver<SL_ImbueEffect, int>()
-                .ApplyTemplates(PendingImbues);
-
-            // apply early items
-            var itemSolver = new DependancySolver<SL_Item, int>();
-            itemSolver.ApplyTemplates(PendingItems);
-
-            // apply recipes
-            for (int i = 0; i < PendingRecipes.Count; i++)
-                PendingRecipes[i].ApplyRecipe();
-            
-            for (int i = 0; i < PendingEnchantments.Count; i++)
-                PendingEnchantments[i].ApplyTemplate();
-
-            // apply late items
-            itemSolver.ApplyTemplates(PendingLateItems);
-
-            // apply characters
-            for (int i = 0; i < PendingCharacters.Count; i++)
-                PendingCharacters[i].Prepare();
-
-            if (firstSetup)
+            if (isFirstSetup)
             {
                 foreach (var pack in SL.Packs)
                     pack.Value.TryApplyItemTextureBundles();
@@ -163,22 +125,17 @@ namespace SideLoader
             Log("SideLoader Setup Finished");
             Log("-------------------------");
 
-            if (firstSetup && OnPacksLoaded != null)
+            if (isFirstSetup)
             {
-                TryInvoke(OnPacksLoaded);
-                Log("Finished invoking OnPacksLoaded.");
+                if (OnPacksLoaded != null)
+                {
+                    TryInvoke(OnPacksLoaded);
+                    Log("Finished invoking OnPacksLoaded.");
+                }
 
                 /* Setup UI */
                 UIManager.Init();
             }
-
-            PendingStatusFamilies.Clear();
-            PendingCharacters.Clear();
-            PendingImbues.Clear();
-            PendingItems.Clear();
-            PendingLateItems.Clear();
-            PendingRecipes.Clear();
-            PendingStatuses.Clear();
         }
 
         internal static void CheckPrefabDictionaries()

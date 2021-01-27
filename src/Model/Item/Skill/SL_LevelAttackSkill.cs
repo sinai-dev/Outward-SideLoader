@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SideLoader.SLPacks.Categories;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -51,7 +52,7 @@ namespace SideLoader
             // check for custom level icons
             if (!string.IsNullOrEmpty(SLPackName) && !string.IsNullOrEmpty(SubfolderName) && SL.Packs[SLPackName] is SLPack pack)
             {
-                var dir = $@"{pack.GetSubfolderPath(SLPack.SubFolders.Items)}\{SubfolderName}\Textures";
+                var dir = $@"{pack.GetPathForCategory<ItemCategory>()}\{SubfolderName}\Textures";
                 for (int i = 0; i < newMax; i++)
                 {
                     var path = dir + $@"\icon{i + 2}.png";

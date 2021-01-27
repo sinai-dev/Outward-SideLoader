@@ -1,4 +1,6 @@
 ﻿using SideLoader.Model;
+using SideLoader.SLPacks;
+using SideLoader.SLPacks.Categories;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,47 +11,32 @@ using System.Xml.Serialization;
 namespace SideLoader
 {
     [SL_Serialized]
-    public class SL_TagManifest : IContentTemplate<string>
+    public class SL_TagManifest : IContentTemplate
     {
         #region IContentTemplate
-        [XmlIgnore] public string DefaultTemplateName => $"Tags";
-        [XmlIgnore] public bool IsCreatingNewID => true;
-        [XmlIgnore] public bool DoesTargetExist => true;
-        [XmlIgnore] public string TargetID => null;
-        [XmlIgnore] public string AppliedID => null;
-        [XmlIgnore] public SLPack.SubFolders SLPackCategory => SLPack.SubFolders.Tags;
-        [XmlIgnore] public bool TemplateAllowedInSubfolder => false;
 
-        [XmlIgnore] public bool CanParseContent => false;
-        public IContentTemplate ParseToTemplate(object content) => throw new NotImplementedException();
+        public string  DefaultTemplateName    => $"Tags";
+        public bool    IsCreatingNewID        => true;
+        public bool    DoesTargetExist        => true;
+        public object  TargetID               => null;
+        public object  AppliedID              => null;
+        public bool    CanParseContent        => false;
+        public bool    TemplateAllowedInSubfolder => false;
+
+        public ITemplateCategory PackCategory => SLPackManager.GetCategoryInstance<TagCategory>();
+
+        [XmlIgnore] public string SerializedSLPackName { get; set; }
+        [XmlIgnore] public string SerializedSubfolderName { get; set; }
+        [XmlIgnore] public string SerializedFilename { get; set; }
+
+        public void ApplyActualTemplate() => this.Internal_Create();
+
         public object GetContentFromID(object id) => null;
+        public IContentTemplate ParseToTemplate(object content) => throw new NotImplementedException();
 
-        [XmlIgnore]
-        public string SerializedSLPackName
-        {
-            get => SLPackName;
-            set => SLPackName = value;
-        }
-        [XmlIgnore]
-        public string SerializedSubfolderName
-        {
-            get => SubfolderName;
-            set => SubfolderName = value;
-        }
-        [XmlIgnore]
-        public string SerializedFilename
-        {
-            get => m_serializedFilename;
-            set => m_serializedFilename = value;
-        }
-        public void CreateContent() => this.Internal_Create();
         #endregion
 
         // Actual template
-
-        [XmlIgnore] internal string SLPackName;
-        [XmlIgnore] internal string SubfolderName;
-        [XmlIgnore] internal string m_serializedFilename;
 
         public List<SL_TagDefinition> Tags = new List<SL_TagDefinition>();
 

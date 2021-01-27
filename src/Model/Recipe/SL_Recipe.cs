@@ -7,23 +7,27 @@ using System.IO;
 using System.Xml.Serialization;
 using SideLoader.Helpers;
 using SideLoader.Model;
+using SideLoader.SLPacks;
+using SideLoader.SLPacks.Categories;
 
 namespace SideLoader
 {
-    public class SL_Recipe : IContentTemplate<string>
+    public class SL_Recipe : IContentTemplate
     {
         #region IContentTemplate
 
         [XmlIgnore] public string DefaultTemplateName => "UntitledRecipe";
         [XmlIgnore] public bool IsCreatingNewID => true;
         [XmlIgnore] public bool DoesTargetExist => true;
-        [XmlIgnore] public string TargetID => this.UID;
-        [XmlIgnore] public string AppliedID => this.UID;
-        [XmlIgnore] public SLPack.SubFolders SLPackCategory => SLPack.SubFolders.Recipes;
+        [XmlIgnore] public object TargetID => this.UID;
+        [XmlIgnore] public object AppliedID => this.UID;
+        [XmlIgnore] public ITemplateCategory PackCategory => (ITemplateCategory)SLPackManager.GetCategoryInstance<RecipeCategory>();
         [XmlIgnore] public bool TemplateAllowedInSubfolder => false;
 
         [XmlIgnore] public bool CanParseContent => true;
+
         public IContentTemplate ParseToTemplate(object content) => ParseRecipe(content as Recipe);
+
         public object GetContentFromID(object id)
         {
             if (string.IsNullOrEmpty((string)id))
@@ -32,27 +36,13 @@ namespace SideLoader
             return ret;
         }
 
-        [XmlIgnore] public string SerializedSLPackName 
-        {
-            get => SLPackName; 
-            set => SLPackName = value;
-        }
-        [XmlIgnore] public string SerializedSubfolderName
-        {
-            get => null;
-            set { }
-        }
-        [XmlIgnore] public string SerializedFilename 
-        {
-            get => m_serializedFilename; 
-            set => m_serializedFilename = value;
-        }
-        public void CreateContent() => this.ApplyRecipe();
+        [XmlIgnore] public string SerializedSLPackName { get; set; }
+        [XmlIgnore] public string SerializedSubfolderName { get; set; }
+        [XmlIgnore] public string SerializedFilename { get; set; }
+
+        public void ApplyActualTemplate() => this.ApplyRecipe();
 
         #endregion
-
-        internal string SLPackName;
-        internal string m_serializedFilename;
 
         [XmlIgnore]
         private bool m_applied = false;

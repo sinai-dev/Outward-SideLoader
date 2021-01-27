@@ -8,50 +8,49 @@ using SideLoader.Helpers;
 using SideLoader.Model;
 using SideLoader.Model.Status;
 using SideLoader.SaveData;
+using SideLoader.SLPacks.Categories;
 using UnityEngine;
 
 namespace SideLoader
 {
-    public class SL_StatusEffect : SL_StatusBase, IContentTemplate<string>
+    public class SL_StatusEffect : SL_StatusBase
     {
         #region IContentTemplate
-        [XmlIgnore] public string DefaultTemplateName => $"{this.AppliedID}";
-        [XmlIgnore] public bool IsCreatingNewID => !string.IsNullOrEmpty(this.StatusIdentifier) && this.StatusIdentifier != this.TargetStatusIdentifier;
-        [XmlIgnore] public bool DoesTargetExist => ResourcesPrefabManager.Instance.GetStatusEffectPrefab(this.TargetStatusIdentifier);
-        [XmlIgnore] public string TargetID => this.TargetStatusIdentifier;
-        [XmlIgnore] public string AppliedID => this.StatusIdentifier;
-        [XmlIgnore] public SLPack.SubFolders SLPackCategory => SLPack.SubFolders.StatusEffects;
-        [XmlIgnore] public bool TemplateAllowedInSubfolder => true;
 
-        [XmlIgnore] public bool CanParseContent => true;
-        public IContentTemplate ParseToTemplate(object content) => ParseStatusEffect(content as StatusEffect);
-        public object GetContentFromID(object id)
+        internal override bool Internal_IsCreatingNewID()
+        {
+            return !string.IsNullOrEmpty(this.StatusIdentifier) && this.StatusIdentifier != this.TargetStatusIdentifier;
+        }
+
+        internal override bool Internal_DoesTargetExist()
+        {
+            if (string.IsNullOrEmpty(this.TargetStatusIdentifier))
+                return false;
+
+            return ResourcesPrefabManager.Instance.GetStatusEffectPrefab(this.TargetStatusIdentifier);
+        }
+
+        internal override string Internal_DefaultTemplateName() => $"{AppliedID}";
+
+        internal override object Internal_TargetID() => this.TargetStatusIdentifier;
+
+        internal override object Internal_AppliedID() => string.IsNullOrEmpty(this.StatusIdentifier)
+                                                         ? this.TargetStatusIdentifier
+                                                         : this.StatusIdentifier;
+
+        internal override object Internal_GetContent(object id)
         {
             if (string.IsNullOrEmpty((string)id))
                 return null;
+
             References.RPM_STATUS_EFFECTS.TryGetValue((string)id, out StatusEffect ret);
             return ret;
         }
 
-        [XmlIgnore]
-        public string SerializedSLPackName
-        {
-            get => SLPackName;
-            set => SLPackName = value;
-        }
-        [XmlIgnore]
-        public string SerializedSubfolderName
-        {
-            get => SubfolderName;
-            set => SubfolderName = value;
-        }
-        [XmlIgnore]
-        public string SerializedFilename
-        {
-            get => m_serializedFilename;
-            set => m_serializedFilename = value;
-        }
-        public void CreateContent() => this.Internal_Create();
+        internal override IContentTemplate Internal_ParseToTemplate(object content) => ParseStatusEffect((StatusEffect)content);
+
+        internal override void Internal_ActualCreate() => Internal_Apply();
+
         #endregion
 
         // ~~~~~~~~~~~~~~~~~~~~
@@ -129,15 +128,12 @@ namespace SideLoader
         public void Apply()
         {
             if (SL.PacksLoaded)
-            {
-                SL.LogWarning("Applying a template AFTER SL.OnPacksLoaded has been called. This is not recommended, use SL.BeforePacksLoaded instead.");
-                Internal_Create();
-            }
+                Internal_Apply();
             else
-                SL.PendingStatuses.Add(this);
+                PackCategory.CSharpTemplates.Add(this);
         }
 
-        internal void Internal_Create()
+        internal void Internal_Apply()
         {
             if (string.IsNullOrEmpty(this.StatusIdentifier))
                 this.StatusIdentifier = this.TargetStatusIdentifier;
@@ -321,9 +317,9 @@ namespace SideLoader
             }
 
             // check for custom icon
-            if (!string.IsNullOrEmpty(SLPackName) && !string.IsNullOrEmpty(SubfolderName) && SL.Packs[SLPackName] is SLPack pack)
+            if (!string.IsNullOrEmpty(SLPackName) && !string.IsNullOrEmpty(SubfolderName) && SL.GetSLPack(SLPackName) is SLPack pack)
             {
-                var path = pack.GetSubfolderPath(SLPack.SubFolders.StatusEffects) + "\\" + SubfolderName + "\\icon.png";
+                var path = $@"{pack.GetPathForCategory<StatusCategory>()}\{SubfolderName}\icon.png";
 
                 if (File.Exists(path))
                 {
@@ -463,6 +459,8 @@ namespace SideLoader
             this.SpecialSFX = status.SpecialSFX;
             this.VFXInstantiationType = status.FxInstantiation;
 
+            this.ActionOnHit = status.ActionOnHit;
+
             this.Priority = (int)At.GetField(status, "m_priority");
 
             this.DelayedDestroyTime = status.DelayedDestroyTime;
@@ -499,15 +497,19 @@ namespace SideLoader
             }
 
             var effects = new List<SL_EffectTransform>();
-            var signature = status.transform.GetChild(0);
-            if (signature)
+            Transform signature;
+            if (status.transform.childCount > 0)
             {
-                foreach (Transform child in signature.transform)
+                signature = status.transform.GetChild(0);
+                if (signature.transform.childCount > 0)
                 {
-                    var effectsChild = SL_EffectTransform.ParseTransform(child);
+                    foreach (Transform child in signature.transform)
+                    {
+                        var effectsChild = SL_EffectTransform.ParseTransform(child);
 
-                    if (effectsChild.HasContent)
-                        effects.Add(effectsChild);
+                        if (effectsChild.HasContent)
+                            effects.Add(effectsChild);
+                    }
                 }
             }
 

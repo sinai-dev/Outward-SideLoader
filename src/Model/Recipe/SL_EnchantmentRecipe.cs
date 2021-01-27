@@ -1,4 +1,6 @@
 ﻿using SideLoader.Model;
+using SideLoader.SLPacks;
+using SideLoader.SLPacks.Categories;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,15 +10,15 @@ using UnityEngine;
 
 namespace SideLoader
 {
-    public class SL_EnchantmentRecipe : IContentTemplate<int>
+    public class SL_EnchantmentRecipe : IContentTemplate
     {
         #region IContentTemplate
         [XmlIgnore] public string DefaultTemplateName => "Untitled EnchantmentRecipe";
         [XmlIgnore] public bool IsCreatingNewID => true;
         [XmlIgnore] public bool DoesTargetExist => true;
-        [XmlIgnore] public int TargetID => this.EnchantmentID;
-        [XmlIgnore] public int AppliedID => this.EnchantmentID;
-        [XmlIgnore] public SLPack.SubFolders SLPackCategory => SLPack.SubFolders.Enchantments;
+        [XmlIgnore] public object TargetID => this.EnchantmentID;
+        [XmlIgnore] public object AppliedID => this.EnchantmentID;
+        [XmlIgnore] public ITemplateCategory PackCategory => SLPackManager.GetCategoryInstance<EnchantmentCategory>();
         [XmlIgnore] public bool TemplateAllowedInSubfolder => false;
 
         [XmlIgnore] public bool CanParseContent => true;
@@ -30,28 +32,12 @@ namespace SideLoader
             return ret;
         }
 
-        [XmlIgnore]
-        public string SerializedSLPackName
-        {
-            get => SLPackName;
-            set => SLPackName = value;
-        }
-        [XmlIgnore]
-        public string SerializedSubfolderName
-        {
-            get => null;
-            set { }
-        }
-        [XmlIgnore]
-        public string SerializedFilename
-        {
-            get => m_serializedFilename;
-            set => m_serializedFilename = value;
-        }
-        public void CreateContent() => this.ApplyTemplate();
+        [XmlIgnore] public string SerializedSLPackName { get; set; }
+        [XmlIgnore] public string SerializedSubfolderName { get; set; }
+        [XmlIgnore] public string SerializedFilename { get; set; }
 
-        [XmlIgnore] public string SLPackName;
-        [XmlIgnore] internal string m_serializedFilename;
+        public void ApplyActualTemplate() => this.ApplyTemplate();
+
         #endregion
 
         public int EnchantmentID;
@@ -100,7 +86,7 @@ namespace SideLoader
                 ApplyTemplate();
             }
             else
-                SL.PendingEnchantments.Add(this);
+                PackCategory.CSharpTemplates.Add(this);
         }
 
         internal void ApplyTemplate()

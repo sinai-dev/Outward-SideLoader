@@ -23,18 +23,27 @@ namespace SideLoader
             return value;
         }
 
-        internal static readonly Dictionary<Type, List<Type>> s_cachedTypeInheritance = new Dictionary<Type, List<Type>>();
+        internal static readonly Dictionary<Type, HashSet<Type>> s_cachedTypeInheritance = new Dictionary<Type, HashSet<Type>>();
+        internal static int s_lastAssemblyCount;
 
-        internal static List<Type> GetInheritedTypes(Type baseType)
+        internal static HashSet<Type> GetImplementationsOf(this Type baseType)
         {
-            if (!s_cachedTypeInheritance.ContainsKey(baseType))
+            var assemblies = AppDomain.CurrentDomain.GetAssemblies();
+
+            if (!s_cachedTypeInheritance.ContainsKey(baseType) || assemblies.Length != s_lastAssemblyCount)
             {
+                if (assemblies.Length != s_lastAssemblyCount)
+                {
+                    s_cachedTypeInheritance.Clear();
+                    s_lastAssemblyCount = assemblies.Length;
+                }
+
                 var set = new HashSet<Type>();
 
                 if (!baseType.IsAbstract && !baseType.IsInterface)
                     set.Add(baseType);
 
-                foreach (var asm in AppDomain.CurrentDomain.GetAssemblies())
+                foreach (var asm in assemblies)
                 {
                     foreach (var t in asm.GetExportedTypes().Where(t => !t.IsAbstract && !t.IsInterface))
                     {
@@ -43,7 +52,7 @@ namespace SideLoader
                     }
                 }
 
-                s_cachedTypeInheritance.Add(baseType, set.ToList());
+                s_cachedTypeInheritance.Add(baseType, set);
             }
             
             return s_cachedTypeInheritance[baseType];
