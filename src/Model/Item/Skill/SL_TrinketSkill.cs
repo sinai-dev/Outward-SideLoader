@@ -9,7 +9,10 @@ namespace SideLoader
         public override void ApplyToItem(Item item)
         {
             base.ApplyToItem(item);
+        }
 
+        public override void LateApply(Skill skill)
+        {
             if (this.CompatibleItemIDs != null)
             {
                 var list = new List<Item>();
@@ -21,7 +24,7 @@ namespace SideLoader
                     }
                 }
 
-                (item as TrinketSkill).CompatibleItems = list.ToArray();
+                (skill as TrinketSkill).CompatibleItems = list.ToArray();
             }
         }
 

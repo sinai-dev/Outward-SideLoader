@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using SideLoader.SLPacks;
+using System;
+using System.Collections.Generic;
 
 namespace SideLoader
 {
@@ -9,7 +11,10 @@ namespace SideLoader
         public override void ApplyToItem(Item item)
         {
             base.ApplyToItem(item);
+        }
 
+        public override void LateApply(Skill skill)
+        {
             if (this.ThrowableItemIDs != null)
             {
                 var list = new List<Item>();
@@ -21,7 +26,7 @@ namespace SideLoader
                     }
                 }
 
-                (item as ThrowSkill).ThrowableItems = list.ToArray();
+                (skill as ThrowSkill).ThrowableItems = list.ToArray();
             }
         }
 

@@ -1,6 +1,7 @@
 ﻿using SideLoader.Helpers;
 using SideLoader.Model;
 using SideLoader.Model.Status;
+using SideLoader.SLPacks;
 using SideLoader.SLPacks.Categories;
 using System;
 using System.Collections.Generic;
@@ -147,6 +148,8 @@ namespace SideLoader
         {
             SL.Log("Applying Status Effect template: " + Name ?? status.name);
 
+            SLPackManager.AddLateApplyListener(OnLateApply, status);
+
             CustomStatusEffects.SetStatusLocalization(status, Name, Description);
 
             if (status.StatusData == null)
@@ -188,20 +191,6 @@ namespace SideLoader
             if (this.ActionOnHit != null)
                 At.SetField(status, "m_actionOnHit", (StatusEffect.ActionsOnHit)this.ActionOnHit);
 
-            if (!string.IsNullOrEmpty(this.ComplicationStatusIdentifier))
-            {
-                var complicStatus = ResourcesPrefabManager.Instance.GetStatusEffectPrefab(this.ComplicationStatusIdentifier);
-                if (complicStatus)
-                    status.ComplicationStatus = complicStatus;
-            }
-
-            if (!string.IsNullOrEmpty(RequiredStatusIdentifier))
-            {
-                var required = ResourcesPrefabManager.Instance.GetStatusEffectPrefab(this.RequiredStatusIdentifier);
-                if (required)
-                    status.RequiredStatus = required;
-            }
-
             if (this.RemoveRequiredStatus != null)
                 status.RemoveRequiredStatus = (bool)this.RemoveRequiredStatus;
 
@@ -210,15 +199,6 @@ namespace SideLoader
 
             if (this.IgnoreBarrier != null)
                 status.IgnoreBarrier = (bool)this.IgnoreBarrier;
-
-            if (!string.IsNullOrEmpty(this.AmplifiedStatusIdentifier))
-            {
-                var amp = ResourcesPrefabManager.Instance.GetStatusEffectPrefab(AmplifiedStatusIdentifier);
-                if (amp)
-                    At.SetField(status, "m_amplifiedStatus", amp);
-                else
-                    SL.Log("StatusEffect.ApplyTemplate - could not find AmplifiedStatusIdentifier " + this.AmplifiedStatusIdentifier);
-            }
 
             if (IsCreatingNewID)
                 At.SetField(status, "m_effectType", new TagSourceSelector(Tag.None));
@@ -291,6 +271,52 @@ namespace SideLoader
                     At.SetField(status, "m_stackingFamily", new StatusEffectFamilySelector() { SelectorValue = this.ReferenceFamilyUID });
             }
 
+            // check for custom icon
+            if (!string.IsNullOrEmpty(SLPackName) && !string.IsNullOrEmpty(SubfolderName) && SL.GetSLPack(SLPackName) is SLPack pack)
+            {
+                var path = $@"{pack.GetPathForCategory<StatusCategory>()}\{SubfolderName}\icon.png";
+
+                if (File.Exists(path))
+                {
+                    var tex = CustomTextures.LoadTexture(path, false, false);
+                    var sprite = CustomTextures.CreateSprite(tex, CustomTextures.SpriteBorderTypes.NONE);
+
+                    status.OverrideIcon = sprite;
+                    //At.SetField(status, "m_defaultStatusIcon", new StatusTypeIcon(Tag.None) { Icon = sprite });
+                }
+            }
+        }
+
+        private void OnLateApply(object[] obj)
+        {
+            var status = obj[0] as StatusEffect;
+
+            if (!status)
+                return;
+
+            if (!string.IsNullOrEmpty(this.ComplicationStatusIdentifier))
+            {
+                var complicStatus = ResourcesPrefabManager.Instance.GetStatusEffectPrefab(this.ComplicationStatusIdentifier);
+                if (complicStatus)
+                    status.ComplicationStatus = complicStatus;
+            }
+
+            if (!string.IsNullOrEmpty(RequiredStatusIdentifier))
+            {
+                var required = ResourcesPrefabManager.Instance.GetStatusEffectPrefab(this.RequiredStatusIdentifier);
+                if (required)
+                    status.RequiredStatus = required;
+            }
+
+            if (!string.IsNullOrEmpty(this.AmplifiedStatusIdentifier))
+            {
+                var amp = ResourcesPrefabManager.Instance.GetStatusEffectPrefab(AmplifiedStatusIdentifier);
+                if (amp)
+                    At.SetField(status, "m_amplifiedStatus", amp);
+                else
+                    SL.Log("StatusEffect.ApplyTemplate - could not find AmplifiedStatusIdentifier " + this.AmplifiedStatusIdentifier);
+            }
+
             // setup signature and finalize
 
             if (EffectBehaviour == EditBehaviours.Destroy)
@@ -313,21 +339,6 @@ namespace SideLoader
                     SL_EffectTransform.ApplyTransformList(signature, Effects, EffectBehaviour);
                 else
                     SL.Log("Could not get effect signature!");
-            }
-
-            // check for custom icon
-            if (!string.IsNullOrEmpty(SLPackName) && !string.IsNullOrEmpty(SubfolderName) && SL.GetSLPack(SLPackName) is SLPack pack)
-            {
-                var path = $@"{pack.GetPathForCategory<StatusCategory>()}\{SubfolderName}\icon.png";
-
-                if (File.Exists(path))
-                {
-                    var tex = CustomTextures.LoadTexture(path, false, false);
-                    var sprite = CustomTextures.CreateSprite(tex, CustomTextures.SpriteBorderTypes.NONE);
-
-                    status.OverrideIcon = sprite;
-                    //At.SetField(status, "m_defaultStatusIcon", new StatusTypeIcon(Tag.None) { Icon = sprite });
-                }
             }
 
             // fix StatusData for the new effects

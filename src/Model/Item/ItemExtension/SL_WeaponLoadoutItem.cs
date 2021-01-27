@@ -9,9 +9,7 @@
             base.ApplyToComponent(component);
 
             if (this.ReduceAmmunitionOnLoad != null)
-            {
                 (component as WeaponLoadoutItem).ReduceAmmunitionOnLoad = (bool)this.ReduceAmmunitionOnLoad;
-            }
         }
 
         public override void SerializeComponent<T>(T extension)

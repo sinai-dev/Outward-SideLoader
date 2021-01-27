@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using SideLoader.SLPacks;
+using System.Collections.Generic;
 
 namespace SideLoader
 {
@@ -6,13 +7,19 @@ namespace SideLoader
     {
         public int[] Recipes;
 
-        public override bool ShouldApplyLate => true;
-
         public override void ApplyToItem(Item item)
         {
             base.ApplyToItem(item);
 
-            var comp = item as EnchantmentRecipeItem;
+            SLPackManager.AddLateApplyListener(OnLateApply, item);
+        }
+
+        private void OnLateApply(object[] obj)
+        {
+            var comp = obj[0] as EnchantmentRecipeItem;
+
+            if (!comp)
+                return;
 
             if (this.Recipes != null)
             {

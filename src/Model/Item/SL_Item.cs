@@ -200,6 +200,8 @@ namespace SideLoader
 
             CustomItems.SetNameAndDescription(item, this.Name ?? item.Name, this.Description ?? item.Description);
 
+            SLPackManager.AddLateApplyListener(OnLateApply, item);
+
             if (this.LegacyItemID != null)
                 item.LegacyItemID = (int)this.LegacyItemID;
 
@@ -274,9 +276,14 @@ namespace SideLoader
                 SL_ItemExtension.ApplyExtensionList(item, this.ItemExtensions, this.ExtensionsEditBehaviour);
             }
 
-            SL_EffectTransform.ApplyTransformList(item.transform, this.EffectTransforms, this.EffectBehaviour);
-
             ApplyItemVisuals(item);
+        }
+
+        private void OnLateApply(object[] obj)
+        {
+            var item = obj[0] as Item;
+
+            SL_EffectTransform.ApplyTransformList(item.transform, this.EffectTransforms, this.EffectBehaviour);
         }
 
         /// <summary>

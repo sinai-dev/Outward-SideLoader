@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using SideLoader.SLPacks;
+using System;
+using System.Collections.Generic;
 
 namespace SideLoader
 {
@@ -17,6 +19,16 @@ namespace SideLoader
 
             if (this.BuildingType != null)
                 comp.BuildingType = (Building.BuildingTypes)this.BuildingType;
+
+            SLPackManager.AddLateApplyListener(OnLateApply, comp);
+        }
+
+        private void OnLateApply(object[] obj)
+        {
+            var comp = obj[0] as Building;
+
+            if (!comp)
+                return;
 
             if (this.ConstructionPhases != null)
             {

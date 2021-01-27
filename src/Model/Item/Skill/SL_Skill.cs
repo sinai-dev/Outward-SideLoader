@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using SideLoader.SLPacks;
+using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace SideLoader
@@ -24,6 +26,8 @@ namespace SideLoader
         public override void ApplyToItem(Item item)
         {
             base.ApplyToItem(item);
+
+            SLPackManager.AddLateApplyListener(OnLateApply, item);
 
             var skill = item as Skill;
 
@@ -65,24 +69,6 @@ namespace SideLoader
                 }
             }
 
-            if (this.RequiredItems != null)
-            {
-                var list = new List<Skill.ItemRequired>();
-                foreach (var req in this.RequiredItems)
-                {
-                    if (ResourcesPrefabManager.Instance.GetItemPrefab(req.ItemID) is Item reqItem)
-                    {
-                        list.Add(new Skill.ItemRequired()
-                        {
-                            Item = reqItem,
-                            Consume = req.Consume,
-                            Quantity = req.Quantity
-                        });
-                    }
-                }
-                skill.RequiredItems = list.ToArray();
-            }
-
             var activationConditions = new List<Skill.ActivationCondition>();
 
             if (skill.transform.childCount > 0)
@@ -121,6 +107,37 @@ namespace SideLoader
             else
                 s_customSkills.Add(skill.ItemID, skill);
         }
+
+        private void OnLateApply(object[] obj)
+        {
+            var skill = obj[0] as Skill;
+
+            if (!skill)
+                return;
+
+            if (this.RequiredItems != null)
+            {
+                var list = new List<Skill.ItemRequired>();
+                foreach (var req in this.RequiredItems)
+                {
+                    if (ResourcesPrefabManager.Instance.GetItemPrefab(req.ItemID) is Item reqItem)
+                    {
+                        list.Add(new Skill.ItemRequired()
+                        {
+                            Item = reqItem,
+                            Consume = req.Consume,
+                            Quantity = req.Quantity
+                        });
+                    }
+                }
+
+                skill.RequiredItems = list.ToArray();
+            }
+
+            LateApply(skill);
+        }
+
+        public virtual void LateApply(Skill skill) { }
 
         public override void SerializeItem(Item item)
         {

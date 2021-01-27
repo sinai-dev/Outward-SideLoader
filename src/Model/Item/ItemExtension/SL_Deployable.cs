@@ -1,4 +1,6 @@
-﻿using UnityEngine;
+﻿using SideLoader.SLPacks;
+using System;
+using UnityEngine;
 
 namespace SideLoader
 {
@@ -17,18 +19,13 @@ namespace SideLoader
         {
             var comp = component as Deployable;
 
+            SLPackManager.AddLateApplyListener(OnLateApply, comp);
+
             if (this.AutoTake != null)
                 comp.AutoTake = (bool)this.AutoTake;
 
             if (this.CastAnim != null)
                 comp.CastAnim = (Character.SpellCastType)this.CastAnim;
-
-            if (this.DeployedStateItemID != null)
-            {
-                var deployedItem = ResourcesPrefabManager.Instance.GetItemPrefab((int)this.DeployedStateItemID);
-                if (deployedItem)
-                    comp.DeployedStateItemPrefab = deployedItem;
-            }
 
             if (this.DeploymentSound != null)
                 comp.DeploySound = (GlobalAudioManager.Sounds)this.DeploymentSound;
@@ -39,15 +36,30 @@ namespace SideLoader
             if (this.DisassembleSound != null)
                 comp.DisassembleSound = (GlobalAudioManager.Sounds)this.DisassembleSound;
 
+            if (this.State != null)
+                comp.State = (Deployable.DeployStates)this.State;
+        }
+
+        private void OnLateApply(object[] obj)
+        {
+            var comp = obj[0] as Deployable;
+
+            if (!comp)
+                return;
+
+            if (this.DeployedStateItemID != null)
+            {
+                var deployedItem = ResourcesPrefabManager.Instance.GetItemPrefab((int)this.DeployedStateItemID);
+                if (deployedItem)
+                    comp.DeployedStateItemPrefab = deployedItem;
+            }
+
             if (this.PackedItemPrefabID != null)
             {
                 var packeditem = ResourcesPrefabManager.Instance.GetItemPrefab((int)this.PackedItemPrefabID);
                 if (packeditem)
                     comp.PackedStateItemPrefab = packeditem;
             }
-
-            if (this.State != null)
-                comp.State = (Deployable.DeployStates)this.State;
         }
 
         public override void SerializeComponent<T>(T extension)

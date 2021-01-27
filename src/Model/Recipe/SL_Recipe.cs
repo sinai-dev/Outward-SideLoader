@@ -45,7 +45,6 @@ namespace SideLoader
 
         public string UID = "";
 
-        // public string Name = "";
         public Recipe.CraftingType StationType = Recipe.CraftingType.Survival;
 
         public List<Ingredient> Ingredients = new List<Ingredient>();

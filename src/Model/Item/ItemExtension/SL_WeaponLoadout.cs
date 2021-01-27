@@ -1,4 +1,7 @@
-﻿namespace SideLoader
+﻿using SideLoader.SLPacks;
+using System;
+
+namespace SideLoader
 {
     public class SL_WeaponLoadout : SL_ItemExtension
     {
@@ -13,32 +16,35 @@
         {
             var comp = component as WeaponLoadout;
 
+            SLPackManager.AddLateApplyListener(OnLateApply, comp);
+
             if (this.AmmunitionType != null)
-            {
                 comp.AmunitionType = (WeaponLoadout.CompatibleAmmunitionType)this.AmmunitionType;
-            }
+            
+            if (this.CompatibleEquipmentType != null)
+                comp.CompatibleEquipment = (Weapon.WeaponType)this.CompatibleEquipmentType;
+
+            if (this.MaxProjectileLoaded != null)
+                comp.MaxProjectileLoaded = (int)this.MaxProjectileLoaded;
+
+            if (this.SaveRemainingShots != null)
+                comp.SaveRemainingShots = (bool)this.SaveRemainingShots;
+
+            if (this.ShowLoadedAmmunition != null)
+                comp.ShowLoadedAmmunition = (bool)this.ShowLoadedAmmunition;
+        }
+
+        private void OnLateApply(object[] obj)
+        {
+            var comp = obj[0] as WeaponLoadout;
+
+            if (!comp)
+                return;
+
             if (this.CompatibleItemID != null)
             {
                 if (ResourcesPrefabManager.Instance.GetItemPrefab((int)this.CompatibleItemID) is Item compatibleItem)
-                {
                     comp.CompatibleAmmunition = compatibleItem;
-                }
-            }
-            if (this.CompatibleEquipmentType != null)
-            {
-                comp.CompatibleEquipment = (Weapon.WeaponType)this.CompatibleEquipmentType;
-            }
-            if (this.MaxProjectileLoaded != null)
-            {
-                comp.MaxProjectileLoaded = (int)this.MaxProjectileLoaded;
-            }
-            if (this.SaveRemainingShots != null)
-            {
-                comp.SaveRemainingShots = (bool)this.SaveRemainingShots;
-            }
-            if (this.ShowLoadedAmmunition != null)
-            {
-                comp.ShowLoadedAmmunition = (bool)this.ShowLoadedAmmunition;
             }
         }
 

@@ -30,6 +30,8 @@ namespace SideLoader.SLPacks
 
         internal static readonly List<IContentTemplate> m_pendingLateTemplates = new List<IContentTemplate>();
 
+        public override bool HasLateContent => true;
+
         public abstract bool ShouldApplyLate(IContentTemplate template);
 
         public abstract void ApplyTemplate(IContentTemplate template, SLPack pack);

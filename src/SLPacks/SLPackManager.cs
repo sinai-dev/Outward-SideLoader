@@ -8,6 +8,22 @@ namespace SideLoader.SLPacks
 {
     public static class SLPackManager
     {
+        //public static event Action<object[]> OnLateApply;
+        internal static readonly Dictionary<Action<object[]>, object[]> s_onLateApplyListeners = new Dictionary<Action<object[]>, object[]>();
+
+        public static void AddLateApplyListener(Action<object[]> listener, params object[] args)
+        {
+            try
+            {
+                s_onLateApplyListeners.Add(listener, args);
+            }
+            catch (Exception ex)
+            {
+                SL.LogWarning("Exception adding OnLateApply listener!");
+                SL.LogInnerException(ex);
+            }
+        }
+
         internal static Dictionary<Type, SLPackCategory> s_slPackCategories;
         public static IEnumerable<SLPackCategory> SLPackCategories
         {
@@ -55,6 +71,25 @@ namespace SideLoader.SLPacks
             foreach (var ctg in SLPackCategoriesWithLateContent)
                 foreach (var pack in packs)
                     ctg.ApplyLateContent(pack, !firstSetup);
+
+            if (s_onLateApplyListeners.Any())
+            {
+                SL.Log("Invoking " + s_onLateApplyListeners.Count + " OnLateApply listeners...");
+                foreach (var entry in s_onLateApplyListeners)
+                {
+                    try
+                    {
+                        entry.Key.Invoke(entry.Value);
+                    }
+                    catch (Exception ex)
+                    {
+                        SL.LogWarning("Exception invoking OnLateApply listener!");
+                        SL.LogInnerException(ex);
+                    }
+                }
+
+                s_onLateApplyListeners.Clear();
+            }
         }
 
         private static void LoadPackCategory(SLPack pack, SLPackCategory ctg, bool firstSetup)
@@ -140,9 +175,6 @@ namespace SideLoader.SLPacks
 
             s_lastTypeCache = allTypes;
 
-            //foreach (var type in allTypes)
-            //    SL.Log(type.ToString());
-
             var list = new List<SLPackCategory>();
             var lateList = new List<SLPackCategory>();
 
@@ -172,8 +204,9 @@ namespace SideLoader.SLPacks
                 s_slPackCategories.Add(instance.GetType(), instance);
 
             s_slPackLateCategories = new Dictionary<Type, SLPackCategory>();
-            foreach (var instance in lateList.OrderBy(it => it.LoadOrder))
-                s_slPackLateCategories.Add(instance.GetType(), instance);
+            if (lateList.Any())
+                foreach (var instance in lateList.OrderBy(it => it.LoadOrder))
+                    s_slPackLateCategories.Add(instance.GetType(), instance);
         }
     }
 }

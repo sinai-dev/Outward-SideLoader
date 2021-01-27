@@ -1,11 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using SideLoader.SLPacks;
+using System;
+using System.Collections.Generic;
 
 namespace SideLoader
 {
     public class SL_DeployableTrap : SL_ItemContainer
     {
-        public override bool ShouldApplyLate => true;
-
         public bool? OneTimeUse;
         public SL_TrapEffectRecipe[] TrapRecipeEffects;
 
@@ -17,6 +17,16 @@ namespace SideLoader
 
             if (this.OneTimeUse != null)
                 At.SetField(trap, "m_oneTimeUse", (bool)this.OneTimeUse);
+
+            SLPackManager.AddLateApplyListener(OnLateApply, trap);
+        }
+
+        private void OnLateApply(object[] obj)
+        {
+            var trap = obj[0] as DeployableTrap;
+
+            if (!trap)
+                return;
 
             if (this.TrapRecipeEffects != null)
             {

@@ -1,5 +1,6 @@
 ﻿using SideLoader.Model;
 using SideLoader.Model.Status;
+using SideLoader.SLPacks;
 using SideLoader.SLPacks.Categories;
 using System;
 using System.Collections.Generic;
@@ -95,6 +96,8 @@ namespace SideLoader
 
             var preset = CustomStatusEffects.CreateCustomImbue(this);
 
+            SLPackManager.AddLateApplyListener(OnLateApply, preset);
+
             CustomStatusEffects.SetImbueLocalization(preset, Name, Description);
 
             // check for custom icon
@@ -111,9 +114,14 @@ namespace SideLoader
                 }
             }
 
-            SL_EffectTransform.ApplyTransformList(preset.transform, Effects, EffectBehaviour);
-
             return preset;
+        }
+
+        private void OnLateApply(object[] obj)
+        {
+            var preset = obj[0] as ImbueEffectPreset;
+
+            SL_EffectTransform.ApplyTransformList(preset.transform, Effects, EffectBehaviour);
         }
 
         public static SL_ImbueEffect ParseImbueEffect(ImbueEffectPreset imbue)
