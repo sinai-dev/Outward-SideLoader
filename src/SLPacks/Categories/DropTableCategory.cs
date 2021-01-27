@@ -8,7 +8,7 @@ namespace SideLoader.SLPacks.Categories
 
         public override int LoadOrder => 25;
 
-        public override void ApplyTemplate(IContentTemplate template, SLPack pack)
+        public override void ApplyTemplate(IContentTemplate template)
         {
             var table = template as SL_DropTable;
 

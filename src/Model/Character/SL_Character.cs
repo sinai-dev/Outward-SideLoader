@@ -30,7 +30,7 @@ namespace SideLoader
         [XmlIgnore] public string SerializedSubfolderName { get; set; }
         [XmlIgnore] public string SerializedFilename { get; set; }
 
-        public void ApplyActualTemplate() => this.Prepare();
+        public void ApplyActualTemplate() => Internal_Apply();
 
         #endregion
 
@@ -148,8 +148,7 @@ namespace SideLoader
         [Obsolete("Use SL_Character.AI instead")] [XmlIgnore] public bool? CanBlock;
 
         /// <summary>
-        /// Prepares callbacks. Only do this after you have set the UID! This is called by SLPack.LoadCharacters().
-        /// This adds a callback for the OnSpawn event, and also the Spawner (if you set SpawnLocation and SceneToSpawn).
+        /// Prepares callbacks and register the template.
         /// </summary>
         public void Prepare()
         {

@@ -8,7 +8,7 @@ namespace SideLoader.SLPacks.Categories
 
         public override int LoadOrder => 5;
 
-        public override void ApplyTemplate(IContentTemplate template, SLPack pack)
+        public override void ApplyTemplate(IContentTemplate template)
         {
             var family = template as SL_StatusEffectFamily;
             family.Apply();

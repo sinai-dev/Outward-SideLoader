@@ -10,7 +10,7 @@ namespace SideLoader.SLPacks.Categories
 
         public override bool ShouldApplyLate(IContentTemplate template) => false;
 
-        public override void ApplyTemplate(IContentTemplate template, SLPack pack)
+        public override void ApplyTemplate(IContentTemplate template)
         {
             var manifest = template as SL_TagManifest;
             manifest.ApplyActualTemplate();

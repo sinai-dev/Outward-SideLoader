@@ -34,71 +34,108 @@ namespace SideLoader.SLPacks
 
         public abstract bool ShouldApplyLate(IContentTemplate template);
 
-        public abstract void ApplyTemplate(IContentTemplate template, SLPack pack);
+        public abstract void ApplyTemplate(IContentTemplate template);
 
-        internal override Dictionary<string, object> InternalLoad(SLPack pack, bool isHotReload)
+        internal override void InternalLoad(List<SLPack> packs, bool isHotReload)
         {
-            var dict = new Dictionary<string, object>();
-
-            var dirPath = pack.GetPathForCategory(this.GetType());
-
-            if (!Directory.Exists(dirPath))
-                return dict;
-
             var list = new List<IContentTemplate>();
 
-            foreach (var filePath in Directory.GetFiles(dirPath, "*.xml"))
-                DeserializeTemplate(filePath);
-
-            // check one-level subfolders
-            foreach (var subDir in Directory.GetDirectories(dirPath))
+            foreach (var pack in packs)
             {
-                foreach (var filePath in Directory.GetFiles(subDir, "*.xml"))
-                    DeserializeTemplate(filePath, Path.GetFileName(subDir));
+                try
+                {
+                    var dict = new Dictionary<string, object>();
+
+                    var dirPath = pack.GetPathForCategory(this.GetType());
+
+                    if (!Directory.Exists(dirPath))
+                        continue;
+
+                    foreach (var filePath in Directory.GetFiles(dirPath, "*.xml"))
+                        DeserializeTemplate(filePath);
+
+                    // check one-level subfolders
+                    foreach (var subDir in Directory.GetDirectories(dirPath))
+                    {
+                        foreach (var filePath in Directory.GetFiles(subDir, "*.xml"))
+                            DeserializeTemplate(filePath, Path.GetFileName(subDir));
+                    }
+
+                    AddToSLPackDictionary(pack, dict);
+
+                    void DeserializeTemplate(string pathOfFile, string subFolder = null)
+                    {
+                        var template = (IContentTemplate)Serializer.LoadFromXml(pathOfFile);
+
+                        if (template != null)
+                        {
+                            template.SerializedSLPackName = pack.Name;
+                            template.SerializedFilename = Path.GetFileNameWithoutExtension(pathOfFile);
+
+                            if (!string.IsNullOrEmpty(subFolder))
+                                template.SerializedSubfolderName = subFolder;
+
+                            dict.Add(pathOfFile, template);
+                            list.Add(template);
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    SL.LogWarning("Exception loading " + this.FolderName + " from '" + pack.Name + "'");
+                    SL.LogInnerException(ex);
+                }
             }
 
             if (m_registeredCSharpTemplates != null && m_registeredCSharpTemplates.Any())
+            {
+                SL.Log(m_registeredCSharpTemplates.Count + " registered C# templates found...");
                 list.AddRange(m_registeredCSharpTemplates);
+            }
 
             list = TemplateDependancySolver.SolveDependencies(list);
 
             foreach (var template in list)
             {
-                if (ShouldApplyLate(template))
-                    m_pendingLateTemplates.Add(template);
-                else
-                    ApplyTemplate(template, pack);
+                try
+                {
+                    if (ShouldApplyLate(template))
+                        m_pendingLateTemplates.Add(template);
+                    else
+                        ApplyTemplate(template);
+                }
+                catch (Exception ex)
+                {
+                    SL.LogWarning("Exception applying template!");
+                    SL.LogInnerException(ex);
+                }
             }
 
             //m_registeredCSharpTemplates.Clear();
 
-            return dict;
-
-            void DeserializeTemplate(string pathOfFile, string subFolder = null)
-            {
-                var template = (IContentTemplate)Serializer.LoadFromXml(pathOfFile);
-
-                if (template != null)
-                {
-                    template.SerializedSLPackName = pack.Name;
-                    template.SerializedFilename = Path.GetFileNameWithoutExtension(pathOfFile);
-
-                    if (!string.IsNullOrEmpty(subFolder))
-                        template.SerializedSubfolderName = subFolder;
-
-                    dict.Add(pathOfFile, template);
-                    list.Add(template);
-                }
-            }
+            return;
         }
 
-        public override void ApplyLateContent(SLPack pack, bool isHotReload)
+        public override void ApplyLateContent(bool isHotReload)
         {
             if (!m_pendingLateTemplates.Any())
                 return;
 
             foreach (var template in m_pendingLateTemplates)
-                ApplyTemplate(template, pack);
+            {
+                try
+                {
+                    if (ShouldApplyLate(template))
+                        m_pendingLateTemplates.Add(template);
+                    else
+                        ApplyTemplate(template);
+                }
+                catch (Exception ex)
+                {
+                    SL.LogWarning("Exception applying template!");
+                    SL.LogInnerException(ex);
+                }
+            }
 
             m_pendingLateTemplates.Clear();
         }

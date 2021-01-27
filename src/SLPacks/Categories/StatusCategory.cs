@@ -9,7 +9,7 @@ namespace SideLoader.SLPacks.Categories
 
         public override int LoadOrder => 10;
 
-        public override void ApplyTemplate(IContentTemplate template, SLPack pack)
+        public override void ApplyTemplate(IContentTemplate template)
         {
             var status = (SL_StatusBase)template;
 

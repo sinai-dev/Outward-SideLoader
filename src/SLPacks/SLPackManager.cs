@@ -64,13 +64,11 @@ namespace SideLoader.SLPacks
 
             // Normal load order
             foreach (var ctg in SLPackCategories)
-                foreach (var pack in packs)
-                    LoadPackCategory(pack, ctg, firstSetup);
+                LoadPackCategory(packs, ctg, firstSetup);
 
             // Late apply
             foreach (var ctg in SLPackCategoriesWithLateContent)
-                foreach (var pack in packs)
-                    ctg.ApplyLateContent(pack, !firstSetup);
+                ctg.ApplyLateContent(!firstSetup);
 
             if (s_onLateApplyListeners.Any())
             {
@@ -92,30 +90,17 @@ namespace SideLoader.SLPacks
             }
         }
 
-        private static void LoadPackCategory(SLPack pack, SLPackCategory ctg, bool firstSetup)
+        private static void LoadPackCategory(List<SLPack> packs, SLPackCategory ctg, bool firstSetup)
         {
             // SL.Log("Loading category '" + ctg.ToString() + "' from pack '" + pack.Name + "'");
 
             try
             {
-                var serialized = ctg.InternalLoad(pack, !firstSetup);
-
-                var ctgType = ctg.GetType();
-
-                if (!pack.LoadedContent.ContainsKey(ctgType))
-                    pack.LoadedContent.Add(ctgType, serialized);
-                else
-                {
-                    foreach (var entry in serialized)
-                    {
-                        if (!pack.LoadedContent[ctgType].ContainsKey(entry.Key))
-                            pack.LoadedContent[ctgType].Add(entry.Key, entry.Value);
-                    }
-                }
+                ctg.InternalLoad(packs, !firstSetup);
             }
             catch (Exception ex)
             {
-                SL.LogWarning($"Exception loading {ctg.FolderName} from '{pack.Name}'!");
+                SL.LogWarning($"Exception loading {ctg.FolderName}!");
                 SL.LogInnerException(ex);
             }
         }
@@ -163,17 +148,17 @@ namespace SideLoader.SLPacks
             return packs;
         }
 
-        private static HashSet<Type> s_lastTypeCache;
+        private static int s_lastTypeCount = -1;
 
         public static void CheckTypeCache()
         {
             //SL.Log("Getting implementations of SLPackCategory in all assemblies...");
             var allTypes = At.GetImplementationsOf(typeof(SLPackCategory));
 
-            if (s_lastTypeCache != null && allTypes.Count == s_lastTypeCache.Count)
+            if (allTypes.Count == s_lastTypeCount)
                 return;
 
-            s_lastTypeCache = allTypes;
+            s_lastTypeCount = allTypes.Count;
 
             var list = new List<SLPackCategory>();
             var lateList = new List<SLPackCategory>();
@@ -182,12 +167,17 @@ namespace SideLoader.SLPacks
             {
                 try
                 {
-                    var dummy = (SLPackCategory)At.TryCreateDefault(type);
-                    if (dummy != null)
+                    SLPackCategory ctg;
+                    if (s_slPackCategories != null && s_slPackCategories.ContainsKey(type))
+                        ctg = s_slPackCategories[type];
+                    else
+                        ctg = (SLPackCategory)At.TryCreateDefault(type);
+
+                    if (ctg != null)
                     {
-                        list.Add(dummy);
-                        if (dummy.HasLateContent)
-                            lateList.Add(dummy);
+                        list.Add(ctg);
+                        if (ctg.HasLateContent)
+                            lateList.Add(ctg);
                     }
                     else
                         SL.Log("SLPack categories internal: could not create instance of type '" + type.FullName + "'");

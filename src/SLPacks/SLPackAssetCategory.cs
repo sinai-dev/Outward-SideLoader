@@ -6,9 +6,14 @@ namespace SideLoader.SLPacks
     {
         public override int LoadOrder => 0;
 
-        internal override Dictionary<string, object> InternalLoad(SLPack pack, bool isHotReload)
+        internal override void InternalLoad(List<SLPack> packs, bool isHotReload)
         {
-            return LoadContent(pack, isHotReload);
+            foreach (var pack in packs)
+            {
+                var dict = LoadContent(pack, isHotReload);
+                if (dict != null)
+                    this.AddToSLPackDictionary(pack, dict);
+            }
         }
 
         public abstract Dictionary<string, object> LoadContent(SLPack pack, bool isHotReload);
