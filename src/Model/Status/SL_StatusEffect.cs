@@ -58,11 +58,11 @@ namespace SideLoader
         /// <summary>Invoked when this template is applied during SideLoader's start or hot-reload.</summary>
         public event Action<StatusEffect> OnTemplateApplied;
 
-        /// <summary> [NOT SERIALIZED] The name of the SLPack this custom status template comes from (or is using).
-        /// If defining from C#, you can set this to the name of the pack you want to load assets from.</summary>
-        [XmlIgnore] public string SLPackName;
-        /// <summary> [NOT SERIALIZED] The name of the folder this custom status is using for the icon.png (MyPack/StatusEffects/[SubfolderName]/icon.png).</summary>
-        [XmlIgnore] public string SubfolderName;
+        ///// <summary> [NOT SERIALIZED] The name of the SLPack this custom status template comes from (or is using).
+        ///// If defining from C#, you can set this to the name of the pack you want to load assets from.</summary>
+        //[XmlIgnore] public string SLPackName;
+        ///// <summary> [NOT SERIALIZED] The name of the folder this custom status is using for the icon.png (MyPack/StatusEffects/[SubfolderName]/icon.png).</summary>
+        //[XmlIgnore] public string SubfolderName;
 
         /// <summary> The StatusEffect you would like to clone from. Can also use TargetStatusID (checks for a Preset ID), but this takes priority.</summary>
         public string TargetStatusIdentifier;
@@ -272,9 +272,9 @@ namespace SideLoader
             }
 
             // check for custom icon
-            if (!string.IsNullOrEmpty(SLPackName) && !string.IsNullOrEmpty(SubfolderName) && SL.GetSLPack(SLPackName) is SLPack pack)
+            if (!string.IsNullOrEmpty(SerializedSLPackName) && !string.IsNullOrEmpty(SerializedSubfolderName) && SL.GetSLPack(SerializedSLPackName) is SLPack pack)
             {
-                var path = $@"{pack.GetPathForCategory<StatusCategory>()}\{SubfolderName}\icon.png";
+                var path = $@"{pack.GetPathForCategory<StatusCategory>()}\{SerializedSubfolderName}\icon.png";
 
                 if (File.Exists(path))
                 {
@@ -282,7 +282,7 @@ namespace SideLoader
                     var sprite = CustomTextures.CreateSprite(tex, CustomTextures.SpriteBorderTypes.NONE);
 
                     status.OverrideIcon = sprite;
-                    //At.SetField(status, "m_defaultStatusIcon", new StatusTypeIcon(Tag.None) { Icon = sprite });
+                    At.SetField(status, "m_defaultStatusIcon", new StatusTypeIcon(Tag.None) { Icon = sprite });
                 }
             }
         }

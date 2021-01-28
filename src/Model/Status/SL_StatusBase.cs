@@ -11,7 +11,7 @@ namespace SideLoader.Model.Status
     {
         #region IContentTemplate
 
-        public string DefaultTemplateName => $"Tags";
+        public string DefaultTemplateName => Internal_DefaultTemplateName();
         public bool CanParseContent => true;
         public bool TemplateAllowedInSubfolder => true;
         public bool IsCreatingNewID => Internal_IsCreatingNewID();

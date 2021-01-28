@@ -52,9 +52,9 @@ namespace SideLoader
             }
 
             // check for custom level icons
-            if (!string.IsNullOrEmpty(SLPackName) && !string.IsNullOrEmpty(SubfolderName) && SL.Packs[SLPackName] is SLPack pack)
+            if (!string.IsNullOrEmpty(SerializedSLPackName) && !string.IsNullOrEmpty(SerializedSubfolderName) && SL.GetSLPack(SerializedSLPackName) is SLPack pack)
             {
-                var dir = $@"{pack.GetPathForCategory<StatusCategory>()}\{SubfolderName}";
+                var dir = $@"{pack.GetPathForCategory<StatusCategory>()}\{SerializedSubfolderName}";
                 for (int i = 0; i < newMax - 1; i++)
                 {
                     var path = dir + $@"\icon{i + 2}.png";
