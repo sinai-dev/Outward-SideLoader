@@ -14,6 +14,6 @@ namespace SideLoader.SLPacks.Categories
             family.Apply();
         }
 
-        public override bool ShouldApplyLate(IContentTemplate template) => false;
+        //public override bool ShouldApplyLate(IContentTemplate template) => false;
     }
 }

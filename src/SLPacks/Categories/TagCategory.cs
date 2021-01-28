@@ -8,7 +8,7 @@ namespace SideLoader.SLPacks.Categories
 
         public override int LoadOrder => 5;
 
-        public override bool ShouldApplyLate(IContentTemplate template) => false;
+        //public override bool ShouldApplyLate(IContentTemplate template) => false;
 
         public override void ApplyTemplate(IContentTemplate template)
         {

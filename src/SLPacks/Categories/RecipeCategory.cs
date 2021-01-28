@@ -14,6 +14,6 @@ namespace SideLoader.SLPacks.Categories
             recipe.ApplyActualTemplate();
         }
 
-        public override bool ShouldApplyLate(IContentTemplate template) => false;
+        //public override bool ShouldApplyLate(IContentTemplate template) => false;
     }
 }

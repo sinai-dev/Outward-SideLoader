@@ -15,6 +15,6 @@ namespace SideLoader.SLPacks.Categories
             item.ApplyActualTemplate();
         }
 
-        public override bool ShouldApplyLate(IContentTemplate template) => (template as SL_Item).ShouldApplyLate;
+        //public override bool ShouldApplyLate(IContentTemplate template) => (template as SL_Item).ShouldApplyLate;
     }
 }

@@ -18,7 +18,7 @@ namespace SideLoader
         // Mod Info
         public const string GUID = "com.sinai." + MODNAME;
         public const string MODNAME = "SideLoader";
-        public const string VERSION = "3.2.10";
+        public const string VERSION = "3.2.11";
 
         // ================ Main Setup ====================
 
@@ -43,22 +43,13 @@ namespace SideLoader
 
             SceneManager.sceneLoaded += SL.Instance.SceneLoaded;
 
-            /* setup custom textures */
+            /* Initialize custom textures callbacks */
 
             CustomTextures.Init();
 
             /* Setup keybinding */
 
             CustomKeybindings.AddAction(UIManager.MENU_TOGGLE_KEY, KeybindingsCategory.CustomKeybindings);
-
-            /* Setup Behaviour gameobject */
-
-            //var obj = new GameObject("SideLoader_Behaviour");
-            //GameObject.DontDestroyOnLoad(obj);
-            //obj.hideFlags = HideFlags.HideAndDontSave;
-
-            /* Add Behaviour Components */
-            //obj.AddComponent<SLGUI>();
         }
 
         // ========== Update ==========

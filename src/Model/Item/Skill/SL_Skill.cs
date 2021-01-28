@@ -69,38 +69,6 @@ namespace SideLoader
                 }
             }
 
-            var activationConditions = new List<Skill.ActivationCondition>();
-
-            if (skill.transform.childCount > 0)
-            {
-                foreach (Transform child in skill.transform)
-                {
-                    if (child.name.Contains("Activation"))
-                    {
-                        foreach (var condition in child.GetComponentsInChildren<EffectCondition>())
-                        {
-                            var skillCondition = new Skill.ActivationCondition
-                            {
-                                Condition = condition
-                            };
-
-                            // Todo: do this properly. There's no easy way to get the right loc.
-                            string msgLoc;
-                            if (condition is WindAltarActivatedCondition)
-                                msgLoc = "Notification_Skill_WindAltarRequired";
-                            else
-                                msgLoc = "Notification_Skill_RequirementsNotMet";
-
-                            At.SetField(skillCondition, "m_messageLocKey", msgLoc);
-
-                            activationConditions.Add(skillCondition);
-                        }
-                    }
-                }
-            }
-
-            At.SetField(skill, "m_additionalConditions", activationConditions.ToArray());
-
             // Add to internal dictionary of custom skills (for F3 menu fix)
             if (s_customSkills.ContainsKey(skill.ItemID))
                 s_customSkills[skill.ItemID] = skill;
@@ -133,6 +101,38 @@ namespace SideLoader
 
                 skill.RequiredItems = list.ToArray();
             }
+
+            var activationConditions = new List<Skill.ActivationCondition>();
+
+            if (skill.transform.childCount > 0)
+            {
+                foreach (Transform child in skill.transform)
+                {
+                    if (child.name.Contains("Activation"))
+                    {
+                        foreach (var condition in child.GetComponentsInChildren<EffectCondition>())
+                        {
+                            var skillCondition = new Skill.ActivationCondition
+                            {
+                                Condition = condition
+                            };
+
+                            // Todo: do this properly. There's no easy way to get the right loc.
+                            string msgLoc;
+                            if (condition is WindAltarActivatedCondition)
+                                msgLoc = "Notification_Skill_WindAltarRequired";
+                            else
+                                msgLoc = "Notification_Skill_RequirementsNotMet";
+
+                            At.SetField(skillCondition, "m_messageLocKey", msgLoc);
+
+                            activationConditions.Add(skillCondition);
+                        }
+                    }
+                }
+            }
+
+            At.SetField(skill, "m_additionalConditions", activationConditions.ToArray());
 
             LateApply(skill);
         }

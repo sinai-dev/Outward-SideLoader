@@ -98,7 +98,7 @@ namespace SideLoader
         [XmlIgnore] public string SubfolderName;
         internal string m_serializedFilename;
 
-        [XmlIgnore] public virtual bool ShouldApplyLate => false;
+        // [XmlIgnore] public virtual bool ShouldApplyLate => false;
 
         /// <summary>The Item ID of the Item you are cloning FROM</summary>
         public int Target_ItemID = -1;

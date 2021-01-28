@@ -12,10 +12,10 @@ namespace SideLoader.SLPacks
 
         public abstract int LoadOrder { get; }
 
-        public virtual bool HasLateContent => false;
+        //public virtual bool HasLateContent => false;
 
-        public virtual void ApplyLateContent(bool isHotReload)
-            => throw new NotImplementedException("This SLPackCategory does not have late content.");
+        //public virtual void ApplyLateContent(bool isHotReload)
+        //    => throw new NotImplementedException("This SLPackCategory does not have late content.");
 
         internal abstract void InternalLoad(List<SLPack> packs, bool isHotReload);
 

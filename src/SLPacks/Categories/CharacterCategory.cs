@@ -23,6 +23,6 @@ namespace SideLoader.SLPacks.Categories
             }
         }
 
-        public override bool ShouldApplyLate(IContentTemplate template) => false;
+        //public override bool ShouldApplyLate(IContentTemplate template) => false;
     }
 }

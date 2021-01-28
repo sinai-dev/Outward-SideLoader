@@ -30,15 +30,17 @@ namespace SideLoader.SLPacks
 
         internal static readonly List<IContentTemplate> m_pendingLateTemplates = new List<IContentTemplate>();
 
-        public override bool HasLateContent => true;
+        //public override bool HasLateContent => true;
 
-        public abstract bool ShouldApplyLate(IContentTemplate template);
+        //public abstract bool ShouldApplyLate(IContentTemplate template);
 
         public abstract void ApplyTemplate(IContentTemplate template);
 
         internal override void InternalLoad(List<SLPack> packs, bool isHotReload)
         {
             var list = new List<IContentTemplate>();
+
+            // Load SL packs first 
 
             foreach (var pack in packs)
             {
@@ -87,6 +89,8 @@ namespace SideLoader.SLPacks
                 }
             }
 
+            // Load CSharp templates
+
             if (m_registeredCSharpTemplates != null && m_registeredCSharpTemplates.Any())
             {
                 SL.Log(m_registeredCSharpTemplates.Count + " registered C# templates found...");
@@ -99,10 +103,12 @@ namespace SideLoader.SLPacks
             {
                 try
                 {
-                    if (ShouldApplyLate(template))
-                        m_pendingLateTemplates.Add(template);
-                    else
-                        ApplyTemplate(template);
+                    ApplyTemplate(template);
+
+                    //if (ShouldApplyLate(template))
+                    //    m_pendingLateTemplates.Add(template);
+                    //else
+                    //    ApplyTemplate(template);
                 }
                 catch (Exception ex)
                 {
@@ -116,28 +122,28 @@ namespace SideLoader.SLPacks
             return;
         }
 
-        public override void ApplyLateContent(bool isHotReload)
-        {
-            if (!m_pendingLateTemplates.Any())
-                return;
+        //public override void ApplyLateContent(bool isHotReload)
+        //{
+        //    if (!m_pendingLateTemplates.Any())
+        //        return;
 
-            foreach (var template in m_pendingLateTemplates)
-            {
-                try
-                {
-                    if (ShouldApplyLate(template))
-                        m_pendingLateTemplates.Add(template);
-                    else
-                        ApplyTemplate(template);
-                }
-                catch (Exception ex)
-                {
-                    SL.LogWarning("Exception applying template!");
-                    SL.LogInnerException(ex);
-                }
-            }
+        //    foreach (var template in m_pendingLateTemplates)
+        //    {
+        //        try
+        //        {
+        //            if (ShouldApplyLate(template))
+        //                m_pendingLateTemplates.Add(template);
+        //            else
+        //                ApplyTemplate(template);
+        //        }
+        //        catch (Exception ex)
+        //        {
+        //            SL.LogWarning("Exception applying template!");
+        //            SL.LogInnerException(ex);
+        //        }
+        //    }
 
-            m_pendingLateTemplates.Clear();
-        }
+        //    m_pendingLateTemplates.Clear();
+        //}
     }
 }

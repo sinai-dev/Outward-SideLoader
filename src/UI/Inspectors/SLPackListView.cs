@@ -21,12 +21,13 @@ namespace SideLoader.UI.Inspectors
 
             m_currentCategory = SLPackManager.GetCategoryInstance<ItemCategory>();
 
-            s_templateTypes = At.GetImplementationsOf(typeof(IContentTemplate));
+            var list = At.GetImplementationsOf(typeof(IContentTemplate));
+            s_templateTypes = list.OrderBy(it => it.Name).ToList();
 
             ConstructUI();
         }
 
-        internal static HashSet<Type> s_templateTypes = new HashSet<Type>();
+        internal static List<Type> s_templateTypes = new List<Type>();
         internal static List<Type> s_currentTemplateTypes = new List<Type>();
 
         public static SLPackListView Instance;

@@ -11,6 +11,12 @@ namespace SideLoader.SLPacks
         //public static event Action<object[]> OnLateApply;
         internal static readonly Dictionary<Action<object[]>, object[]> s_onLateApplyListeners = new Dictionary<Action<object[]>, object[]>();
 
+        /// <summary>
+        /// Add a listener to the "late apply" part of SideLoader's setup. Use this to apply references to other prefabs, to ensure that those references
+        /// have been set up first when you try to reference them.
+        /// </summary>
+        /// <param name="listener">Your action which will be invoked during the late apply process.</param>
+        /// <param name="args">Your custom arguments of any type, to be passed along to your late apply method.</param>
         public static void AddLateApplyListener(Action<object[]> listener, params object[] args)
         {
             try
@@ -34,15 +40,15 @@ namespace SideLoader.SLPacks
             }
         }
 
-        internal static Dictionary<Type, SLPackCategory> s_slPackLateCategories;
-        public static IEnumerable<SLPackCategory> SLPackCategoriesWithLateContent
-        {
-            get
-            {
-                CheckTypeCache();
-                return s_slPackLateCategories.Values;
-            }
-        }
+        //internal static Dictionary<Type, SLPackCategory> s_slPackLateCategories;
+        //public static IEnumerable<SLPackCategory> SLPackCategoriesWithLateContent
+        //{
+        //    get
+        //    {
+        //        CheckTypeCache();
+        //        return s_slPackLateCategories.Values;
+        //    }
+        //}
 
         public static T GetCategoryInstance<T>() where T : SLPackCategory
             => (T)GetCategoryInstance(typeof(T));
@@ -66,10 +72,11 @@ namespace SideLoader.SLPacks
             foreach (var ctg in SLPackCategories)
                 LoadPackCategory(packs, ctg, firstSetup);
 
-            // Late apply
-            foreach (var ctg in SLPackCategoriesWithLateContent)
-                ctg.ApplyLateContent(!firstSetup);
+            //// Late apply (not actually using this anymore)
+            //foreach (var ctg in SLPackCategoriesWithLateContent)
+            //    ctg.ApplyLateContent(!firstSetup);
 
+            // Invoke late apply listeners, this is what SL uses instead of late apply now.
             if (s_onLateApplyListeners.Any())
             {
                 SL.Log("Invoking " + s_onLateApplyListeners.Count + " OnLateApply listeners...");
@@ -161,7 +168,7 @@ namespace SideLoader.SLPacks
             s_lastTypeCount = allTypes.Count;
 
             var list = new List<SLPackCategory>();
-            var lateList = new List<SLPackCategory>();
+            //var lateList = new List<SLPackCategory>();
 
             foreach (var type in allTypes)
             {
@@ -176,8 +183,8 @@ namespace SideLoader.SLPacks
                     if (ctg != null)
                     {
                         list.Add(ctg);
-                        if (ctg.HasLateContent)
-                            lateList.Add(ctg);
+                        //if (ctg.HasLateContent)
+                        //    lateList.Add(ctg);
                     }
                     else
                         SL.Log("SLPack categories internal: could not create instance of type '" + type.FullName + "'");
@@ -193,10 +200,10 @@ namespace SideLoader.SLPacks
             foreach (var instance in list.OrderBy(it => it.LoadOrder))
                 s_slPackCategories.Add(instance.GetType(), instance);
 
-            s_slPackLateCategories = new Dictionary<Type, SLPackCategory>();
-            if (lateList.Any())
-                foreach (var instance in lateList.OrderBy(it => it.LoadOrder))
-                    s_slPackLateCategories.Add(instance.GetType(), instance);
+            //s_slPackLateCategories = new Dictionary<Type, SLPackCategory>();
+            //if (lateList.Any())
+            //    foreach (var instance in lateList.OrderBy(it => it.LoadOrder))
+            //        s_slPackLateCategories.Add(instance.GetType(), instance);
         }
     }
 }
