@@ -27,5 +27,9 @@ namespace SideLoader.SLPacks.Categories
 
             return dict;
         }
+
+        protected internal override void OnHotReload()
+        {
+        }
     }
 }

@@ -8,7 +8,7 @@ namespace SideLoader.SLPacks.Categories
 
         public override int LoadOrder => 20;
 
-        public override void ApplyTemplate(IContentTemplate template)
+        public override void ApplyTemplate(ContentTemplate template)
         {
             var enchant = template as SL_EnchantmentRecipe;
             enchant.ApplyActualTemplate();

@@ -15,7 +15,7 @@ namespace SideLoader.SLPacks.Categories
         {
             var dict = new Dictionary<string, object>();
 
-            var dirPath = pack.GetPathForCategory<AssetBundleCategory>();
+            var dirPath = pack.GetPathForCategory<Texture2DCategory>();
 
             if (!Directory.Exists(dirPath))
                 return dict;
@@ -61,6 +61,11 @@ namespace SideLoader.SLPacks.Categories
                 else
                     CustomTextures.Textures.Add(name, texture);
             }
+        }
+
+        protected internal override void OnHotReload()
+        {
+            CustomTextures.Textures.Clear();
         }
     }
 }

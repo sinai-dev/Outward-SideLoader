@@ -8,7 +8,8 @@ namespace SideLoader.SLPacks
 {
     public interface ITemplateCategory
     {
-        List<IContentTemplate> CSharpTemplates { get; }
+        List<ContentTemplate> CSharpTemplates { get; }
+        List<ContentTemplate> AllCurrentTemplates { get; }
 
         // implicit
         string FolderName { get; }
@@ -16,29 +17,29 @@ namespace SideLoader.SLPacks
         Type BaseContainedType { get; }
     }
 
-    public abstract class SLPackTemplateCategory<T> : SLPackCategory, ITemplateCategory where T : IContentTemplate
+    public abstract class SLPackTemplateCategory<T> : SLPackCategory, ITemplateCategory where T : ContentTemplate
     {
-        #region ITemplateCategory
-
-        public List<IContentTemplate> CSharpTemplates => m_registeredCSharpTemplates;
-
-        #endregion
+        public List<ContentTemplate> CSharpTemplates => m_registeredCSharpTemplates;
 
         public override Type BaseContainedType => typeof(T);
 
-        internal static readonly List<IContentTemplate> m_registeredCSharpTemplates = new List<IContentTemplate>();
+        public List<ContentTemplate> AllCurrentTemplates => m_allCurrentTemplates;
+        private readonly List<ContentTemplate> m_allCurrentTemplates = new List<ContentTemplate>();
 
-        internal static readonly List<IContentTemplate> m_pendingLateTemplates = new List<IContentTemplate>();
+        internal static readonly List<ContentTemplate> m_registeredCSharpTemplates = new List<ContentTemplate>();
 
-        //public override bool HasLateContent => true;
+        public abstract void ApplyTemplate(ContentTemplate template);
 
-        //public abstract bool ShouldApplyLate(IContentTemplate template);
-
-        public abstract void ApplyTemplate(IContentTemplate template);
-
-        internal override void InternalLoad(List<SLPack> packs, bool isHotReload)
+        protected internal override void OnHotReload()
         {
-            var list = new List<IContentTemplate>();
+        }
+
+        protected internal override void InternalLoad(List<SLPack> packs, bool isHotReload)
+        {
+            if (AllCurrentTemplates.Any())
+                AllCurrentTemplates.Clear();
+
+            var list = new List<ContentTemplate>();
 
             // Load SL packs first 
 
@@ -67,7 +68,7 @@ namespace SideLoader.SLPacks
 
                     void DeserializeTemplate(string pathOfFile, string subFolder = null)
                     {
-                        var template = (IContentTemplate)Serializer.LoadFromXml(pathOfFile);
+                        var template = (T)Serializer.LoadFromXml(pathOfFile);
 
                         if (template != null)
                         {
@@ -104,6 +105,8 @@ namespace SideLoader.SLPacks
                 try
                 {
                     ApplyTemplate(template);
+
+                    AllCurrentTemplates.Add(template);
 
                     //if (ShouldApplyLate(template))
                     //    m_pendingLateTemplates.Add(template);

@@ -99,8 +99,6 @@ namespace SideLoader.SLPacks
 
         private static void LoadPackCategory(List<SLPack> packs, SLPackCategory ctg, bool firstSetup)
         {
-            // SL.Log("Loading category '" + ctg.ToString() + "' from pack '" + pack.Name + "'");
-
             try
             {
                 ctg.InternalLoad(packs, !firstSetup);
@@ -122,16 +120,7 @@ namespace SideLoader.SLPacks
                 if (!Directory.Exists($@"{dir}\SideLoader"))
                     continue;
 
-                var name = Path.GetFileName(dir);
-
-                var pack = new SLPack()
-                {
-                    InMainSLFolder = false,
-                    Name = name,
-                };
-
-                packs.Add(pack);
-                SL.Packs.Add(name, pack);
+                AddSLPack(Path.GetFileName(dir), false);
             }
 
             // 'Mods\SideLoader\...' packs:
@@ -140,11 +129,14 @@ namespace SideLoader.SLPacks
                 if (dir == SL.INTERNAL_FOLDER || dir == SLSaveManager.SAVEDATA_FOLDER || dir.Contains("_GENERATED"))
                     continue;
 
-                var name = Path.GetFileName(dir);
+                AddSLPack(Path.GetFileName(dir), true);
+            }
 
+            void AddSLPack(string name, bool inMainFolder)
+            {
                 var pack = new SLPack
                 {
-                    InMainSLFolder = true,
+                    InMainSLFolder = inMainFolder,
                     Name = name
                 };
 

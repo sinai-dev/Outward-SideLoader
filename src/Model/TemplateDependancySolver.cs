@@ -5,12 +5,12 @@ namespace SideLoader.Model
 {
     public static class TemplateDependancySolver
     {
-        public static List<IContentTemplate> SolveDependencies(List<IContentTemplate> allTemplates)
+        public static List<ContentTemplate> SolveDependencies(List<ContentTemplate> allTemplates)
         {
             if (allTemplates == null || !allTemplates.Any())
                 return allTemplates;
 
-            List<IContentTemplate> sorted;
+            List<ContentTemplate> sorted;
 
             // Check if there are any actual dependencies
             var dependencies = allTemplates.Where(it => !it.DoesTargetExist).ToList();
@@ -18,7 +18,7 @@ namespace SideLoader.Model
             if (dependencies.Any())
             {
                 // Toplogical sort dependencies and full list.
-                if (!TopologicalSort(allTemplates, dependencies, out List<IContentTemplate> resolved))
+                if (!TopologicalSort(allTemplates, dependencies, out List<ContentTemplate> resolved))
                 {
                     // sort returning false means some templates weren't resolved.
                     // these will still exist in the "dependencies" list.
@@ -34,11 +34,11 @@ namespace SideLoader.Model
             return sorted;
         }
 
-        internal static bool TopologicalSort(List<IContentTemplate> allTemplates, List<IContentTemplate> dependencies, out List<IContentTemplate> output)
+        internal static bool TopologicalSort(List<ContentTemplate> allTemplates, List<ContentTemplate> dependencies, out List<ContentTemplate> output)
         {
-            output = new List<IContentTemplate>();
+            output = new List<ContentTemplate>();
 
-            var graph = new HashSet<IContentTemplate>(allTemplates.Where(it => it.DoesTargetExist));
+            var graph = new HashSet<ContentTemplate>(allTemplates.Where(it => it.DoesTargetExist));
 
             while (graph.Any())
             {
@@ -58,7 +58,7 @@ namespace SideLoader.Model
             return !dependencies.Any();
         }
 
-        internal static bool IsDependancyOf(this IContentTemplate outgoing, IContentTemplate incoming)
+        internal static bool IsDependancyOf(this ContentTemplate outgoing, ContentTemplate incoming)
         {
             var type = outgoing.AppliedID?.GetType();
             if (type == null)

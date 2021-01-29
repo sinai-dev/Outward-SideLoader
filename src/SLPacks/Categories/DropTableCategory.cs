@@ -8,13 +8,16 @@ namespace SideLoader.SLPacks.Categories
 
         public override int LoadOrder => 25;
 
-        public override void ApplyTemplate(IContentTemplate template)
+        public override void ApplyTemplate(ContentTemplate template)
         {
             var table = template as SL_DropTable;
 
             table.ApplyActualTemplate();
         }
 
-        //public override bool ShouldApplyLate(IContentTemplate template) => false;
+        protected internal override void OnHotReload()
+        {
+            SL_DropTable.s_registeredTables.Clear();
+        }
     }
 }

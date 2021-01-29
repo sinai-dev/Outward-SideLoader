@@ -9,31 +9,14 @@ using UnityEngine;
 namespace SideLoader
 {
     [SL_Serialized]
-    public class SL_DropTable : IContentTemplate
+    public class SL_DropTable : ContentTemplate
     {
         #region IContentTemplate
 
-        public object TargetID => this.UID;
-        public object AppliedID => this.UID;
+        public override ITemplateCategory PackCategory => SLPackManager.GetCategoryInstance<DropTableCategory>();
+        public override string DefaultTemplateName => "Untitled Droptable";
 
-        [XmlIgnore] public string SerializedSLPackName { get; set; }
-        [XmlIgnore] public string SerializedFilename { get; set; }
-        [XmlIgnore] public string SerializedSubfolderName { get; set; }
-
-        public bool IsCreatingNewID => true;
-        public bool DoesTargetExist => true;
-
-        public bool CanParseContent => false;
-        public bool TemplateAllowedInSubfolder => false;
-
-        public ITemplateCategory PackCategory => SLPackManager.GetCategoryInstance<DropTableCategory>();
-
-        public string DefaultTemplateName => "Untitled Droptable";
-
-        public void ApplyActualTemplate() => Prepare();
-
-        public IContentTemplate ParseToTemplate(object content) => throw new NotImplementedException();
-        public object GetContentFromID(object id) => throw new NotImplementedException();
+        public override void ApplyActualTemplate() => Internal_ApplyTemplate();
 
         #endregion
 
@@ -45,7 +28,12 @@ namespace SideLoader
 
         public List<SL_RandomDropGenerator> RandomTables = new List<SL_RandomDropGenerator>();
 
-        public void Prepare()
+        public override void ApplyTemplate()
+        {
+            base.ApplyTemplate();
+        }
+
+        internal void Internal_ApplyTemplate()
         {
             if (string.IsNullOrEmpty(this.UID))
             {

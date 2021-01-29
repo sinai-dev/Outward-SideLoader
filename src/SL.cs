@@ -164,18 +164,22 @@ namespace SideLoader
 
         internal static void ResetForHotReload()
         {
+            foreach (var ctg in SLPackManager.SLPackCategories)
+            {
+                try
+                {
+                    ctg.OnHotReload();
+                }
+                catch (Exception e)
+                {
+                    LogWarning("Exception Hot Reloading category: " + ctg.ToString());
+                    LogInnerException(e);
+                }
+            }
+
             // Reset packs
             PacksLoaded = false;
             Packs.Clear();
-
-            // Reset internal dictionaries/lists
-            SL_Item.CurrentlyAppliedTemplates.Clear();
-            SL_Skill.s_customSkills.Clear();
-            CustomCharacters.Templates.Clear();
-
-            SL_DropTable.s_registeredTables.Clear();
-
-            CustomTextures.Textures.Clear();
         }
 
         // ==================== Helpers ==================== //

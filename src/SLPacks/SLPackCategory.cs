@@ -17,9 +17,14 @@ namespace SideLoader.SLPacks
         //public virtual void ApplyLateContent(bool isHotReload)
         //    => throw new NotImplementedException("This SLPackCategory does not have late content.");
 
-        internal abstract void InternalLoad(List<SLPack> packs, bool isHotReload);
+        protected internal abstract void InternalLoad(List<SLPack> packs, bool isHotReload);
 
-        internal void AddToSLPackDictionary(SLPack pack, Dictionary<string, object> dict)
+        /// <summary>
+        /// Called for all SLPack Categories before a Hot Reload is about to happen.
+        /// </summary>
+        protected internal abstract void OnHotReload();
+
+        protected void AddToSLPackDictionary(SLPack pack, Dictionary<string, object> dict)
         {
             var ctgType = this.GetType();
 

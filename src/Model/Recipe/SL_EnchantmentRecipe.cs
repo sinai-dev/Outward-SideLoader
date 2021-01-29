@@ -1,6 +1,7 @@
 ﻿using SideLoader.Model;
 using SideLoader.SLPacks;
 using SideLoader.SLPacks.Categories;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Xml.Serialization;
@@ -9,20 +10,16 @@ using UnityEngine;
 namespace SideLoader
 {
     [SL_Serialized]
-    public class SL_EnchantmentRecipe : IContentTemplate
+    public class SL_EnchantmentRecipe : ContentTemplate
     {
         #region IContentTemplate
-        [XmlIgnore] public string DefaultTemplateName => "Untitled EnchantmentRecipe";
-        [XmlIgnore] public bool IsCreatingNewID => true;
-        [XmlIgnore] public bool DoesTargetExist => true;
-        [XmlIgnore] public object TargetID => this.EnchantmentID;
-        [XmlIgnore] public object AppliedID => this.EnchantmentID;
-        [XmlIgnore] public ITemplateCategory PackCategory => SLPackManager.GetCategoryInstance<EnchantmentCategory>();
-        [XmlIgnore] public bool TemplateAllowedInSubfolder => false;
+        public override string DefaultTemplateName => "Untitled EnchantmentRecipe";
+        public override ITemplateCategory PackCategory => SLPackManager.GetCategoryInstance<EnchantmentCategory>();
+        public override bool TemplateAllowedInSubfolder => false;
 
-        [XmlIgnore] public bool CanParseContent => true;
-        public IContentTemplate ParseToTemplate(object content) => SerializeEnchantment(content as EnchantmentRecipe);
-        public object GetContentFromID(object id)
+        public override bool CanParseContent => true;
+        public override ContentTemplate ParseToTemplate(object content) => SerializeEnchantment(content as EnchantmentRecipe);
+        public override object GetContentFromID(object id)
         {
             if (!int.TryParse(id.ToString(), out int parsed))
                 return null;
@@ -31,11 +28,7 @@ namespace SideLoader
             return ret;
         }
 
-        [XmlIgnore] public string SerializedSLPackName { get; set; }
-        [XmlIgnore] public string SerializedSubfolderName { get; set; }
-        [XmlIgnore] public string SerializedFilename { get; set; }
-
-        public void ApplyActualTemplate() => this.ApplyTemplate();
+        public override void ApplyActualTemplate() => this.Internal_ApplyTemplate();
 
         #endregion
 
@@ -74,21 +67,11 @@ namespace SideLoader
         public float GlobalStatusResistance;
         public string QuestEventUID;
 
-        /// <summary>
-        /// Call this to prepare/apply your template. If you call this in the Awake() of your mod, it will be added to a queue and applied a bit later.
-        /// </summary>
+        [Obsolete("Use 'ApplyTemplate' instead (name change).")]
         public void Apply()
-        {
-            if (SL.PacksLoaded)
-            {
-                SL.LogWarning("Applying a template AFTER SL.OnPacksLoaded has been called. This is not recommended, use SL.BeforePacksLoaded instead.");
-                ApplyTemplate();
-            }
-            else
-                PackCategory.CSharpTemplates.Add(this);
-        }
+            => ApplyTemplate();
 
-        internal void ApplyTemplate()
+        internal void Internal_ApplyTemplate()
         {
             SL.Log($"Applying Enchantment Recipe, ID: {this.EnchantmentID}, Name: {this.Name}");
 

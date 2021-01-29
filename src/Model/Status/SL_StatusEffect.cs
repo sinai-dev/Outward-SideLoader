@@ -47,7 +47,7 @@ namespace SideLoader
             return ret;
         }
 
-        internal override IContentTemplate Internal_ParseToTemplate(object content) => ParseStatusEffect((StatusEffect)content);
+        internal override ContentTemplate Internal_ParseToTemplate(object content) => ParseStatusEffect((StatusEffect)content);
 
         internal override void Internal_ActualCreate() => Internal_Apply();
 
@@ -122,16 +122,9 @@ namespace SideLoader
         [Obsolete("Use SL_StatusEffect.BindFamily or SL_StatusFamily instead")]
         [XmlIgnore] public StatusEffectFamily.LengthTypes? LengthType;
 
-        /// <summary>
-        /// Call this to apply your template at Awake or BeforePacksLoaded.
-        /// </summary>
+        [Obsolete("Use 'ApplyTemplate' instead (name change).")]
         public void Apply()
-        {
-            if (SL.PacksLoaded)
-                Internal_Apply();
-            else
-                PackCategory.CSharpTemplates.Add(this);
-        }
+            => ApplyTemplate();
 
         internal void Internal_Apply()
         {
@@ -200,7 +193,7 @@ namespace SideLoader
             if (this.IgnoreBarrier != null)
                 status.IgnoreBarrier = (bool)this.IgnoreBarrier;
 
-            if (IsCreatingNewID)
+            if (this.StatusIdentifier != this.TargetStatusIdentifier)
                 At.SetField(status, "m_effectType", new TagSourceSelector(Tag.None));
 
             if (Tags != null)
@@ -239,7 +232,7 @@ namespace SideLoader
                 status.PlaySpecialFXOnStop = (bool)this.PlaySpecialFXOnStop;
 
             // setup family 
-            if (this.FamilyMode == null && IsCreatingNewID)
+            if (this.FamilyMode == null && this.StatusIdentifier != this.TargetStatusIdentifier)
             {
                 // Creating a new status, but no unique bind family was declared. Create one.
                 var family = new StatusEffectFamily
@@ -260,7 +253,7 @@ namespace SideLoader
                 if (this.BindFamily != null)
                 {
                     // set bind using SL_StatusEffectFamily template
-                    At.SetField(status, "m_bindFamily", this.BindFamily.CreateFamily());
+                    At.SetField(status, "m_bindFamily", this.BindFamily.CreateAsBindFamily());
                 }
             }
             else if (this.FamilyMode == StatusEffect.FamilyModes.Reference)

@@ -7,30 +7,26 @@ using UnityEngine;
 namespace SideLoader.Model.Status
 {
     [SL_Serialized]
-    public abstract class SL_StatusBase : IContentTemplate
+    public abstract class SL_StatusBase : ContentTemplate
     {
         #region IContentTemplate
 
-        public string DefaultTemplateName => Internal_DefaultTemplateName();
-        public bool CanParseContent => true;
-        public bool TemplateAllowedInSubfolder => true;
-        public bool IsCreatingNewID => Internal_IsCreatingNewID();
-        public bool DoesTargetExist => Internal_DoesTargetExist();
-        public object TargetID => Internal_TargetID();
-        public object AppliedID => Internal_AppliedID();
+        public override ITemplateCategory PackCategory => SLPackManager.GetCategoryInstance<StatusCategory>();
+        public override string DefaultTemplateName => Internal_DefaultTemplateName();
+        public override bool TemplateAllowedInSubfolder => true;
 
-        public ITemplateCategory PackCategory => (ITemplateCategory)SLPackManager.GetCategoryInstance<StatusCategory>();
+        public override bool DoesTargetExist => Internal_DoesTargetExist();
+        public override object TargetID => Internal_TargetID();
+        public override object AppliedID => Internal_AppliedID();
 
-        [XmlIgnore] public string SerializedSLPackName { get; set; }
-        [XmlIgnore] public string SerializedSubfolderName { get; set; }
-        [XmlIgnore] public string SerializedFilename { get; set; }
+        public override bool CanParseContent => true;
 
-        public void ApplyActualTemplate() => this.Internal_ActualCreate();
+        public override void ApplyActualTemplate() => this.Internal_ActualCreate();
 
-        public object GetContentFromID(object id)
+        public override object GetContentFromID(object id)
             => Internal_GetContent(id);
 
-        public IContentTemplate ParseToTemplate(object content)
+        public override ContentTemplate ParseToTemplate(object content)
             => Internal_ParseToTemplate(content);
 
         #endregion
@@ -42,7 +38,7 @@ namespace SideLoader.Model.Status
         internal abstract object Internal_AppliedID();
 
         internal abstract object Internal_GetContent(object id);
-        internal abstract IContentTemplate Internal_ParseToTemplate(object content);
+        internal abstract ContentTemplate Internal_ParseToTemplate(object content);
 
         internal abstract void Internal_ActualCreate();
 

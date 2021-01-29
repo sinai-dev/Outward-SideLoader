@@ -21,7 +21,7 @@ namespace SideLoader.UI.Inspectors
 
             m_currentCategory = SLPackManager.GetCategoryInstance<ItemCategory>();
 
-            var list = At.GetImplementationsOf(typeof(IContentTemplate));
+            var list = At.GetImplementationsOf(typeof(ContentTemplate));
             s_templateTypes = list.OrderBy(it => it.Name).ToList();
 
             ConstructUI();
@@ -93,13 +93,13 @@ namespace SideLoader.UI.Inspectors
 
         internal bool CanSelectedTypeBeInSubfolder()
         {
-            var temp = (IContentTemplate)Activator.CreateInstance(m_currentGeneratorType);
+            var temp = (ContentTemplate)Activator.CreateInstance(m_currentGeneratorType);
             return temp.TemplateAllowedInSubfolder;
         }
 
         internal bool CanSelectedTypeCloneFromTarget()
         {
-            var temp = (IContentTemplate)Activator.CreateInstance(m_currentGeneratorType);
+            var temp = (ContentTemplate)Activator.CreateInstance(m_currentGeneratorType);
             return temp.CanParseContent;
         }
 
@@ -166,7 +166,7 @@ namespace SideLoader.UI.Inspectors
             if (dict == null)
                 return;
             foreach (var entry in dict.Values)
-                AddSLPackTemplateButton(entry as IContentTemplate);
+                AddSLPackTemplateButton(entry as ContentTemplate);
         }
 
         private void CreatePack()
@@ -521,12 +521,12 @@ namespace SideLoader.UI.Inspectors
                     return;
                 }
 
-                var newTemplate = (IContentTemplate)Activator.CreateInstance(this.m_currentGeneratorType);
+                var newTemplate = (ContentTemplate)Activator.CreateInstance(this.m_currentGeneratorType);
                 if (newTemplate.CanParseContent)
                 {
                     var content = newTemplate.GetContentFromID(m_generatorTargetInput.text);
 
-                    if (content != null && newTemplate.ParseToTemplate(content) is IContentTemplate parsed)
+                    if (content != null && newTemplate.ParseToTemplate(content) is ContentTemplate parsed)
                     {
                         newTemplate = parsed;
                     }
@@ -569,7 +569,7 @@ namespace SideLoader.UI.Inspectors
                         }
                         else if (exportIconsWanted && newTemplate is SL_StatusBase slstatus)
                         {
-                            var template = slstatus as IContentTemplate;
+                            var template = slstatus as ContentTemplate;
 
                             if (string.IsNullOrEmpty(template.SerializedSubfolderName))
                             {
@@ -600,7 +600,7 @@ namespace SideLoader.UI.Inspectors
             genBtnText.text = "Create Template";
         }
 
-        internal bool CheckTemplateName(IContentTemplate template, InputField subfolderInput, InputField nameInput)
+        internal bool CheckTemplateName(ContentTemplate template, InputField subfolderInput, InputField nameInput)
         {
             template.SerializedSLPackName = m_currentPack.Name;
 
@@ -673,7 +673,7 @@ namespace SideLoader.UI.Inspectors
             return true;
         }
 
-        internal void AddSLPackTemplateButton(IContentTemplate template)
+        internal void AddSLPackTemplateButton(ContentTemplate template)
         {
             var rowObj = UIFactory.CreateHorizontalGroup(m_pageContent, new Color(0.15f, 0.15f, 0.15f));
             var rowLayout = rowObj.AddComponent<LayoutElement>();

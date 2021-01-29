@@ -53,7 +53,7 @@ namespace SideLoader.UI.Inspectors
             }
 
             ReflectionInspector inspector;
-            if (obj is IContentTemplate)
+            if (obj is ContentTemplate)
                 inspector = new TemplateInspector(obj, pack);
             else if (obj is SL_Material)
                 inspector = new MaterialInspector(obj);

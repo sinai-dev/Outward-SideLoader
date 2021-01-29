@@ -43,7 +43,7 @@ namespace SideLoader
                 return null;
         }
 
-        internal override IContentTemplate Internal_ParseToTemplate(object content)
+        internal override ContentTemplate Internal_ParseToTemplate(object content)
             => ParseImbueEffect((ImbueEffectPreset)content);
 
         internal override void Internal_ActualCreate() => Internal_Apply();
@@ -72,24 +72,17 @@ namespace SideLoader
         public EditBehaviours EffectBehaviour = EditBehaviours.Override;
         public SL_EffectTransform[] Effects;
 
-        /// <summary>
-        /// Call this to apply your template at Awake or BeforePacksLoaded.
-        /// </summary>
-        public void Apply()
-        {
-            if (SL.PacksLoaded)
-                Internal_Apply();
-            else
-                PackCategory.CSharpTemplates.Add(this);
-        }
+        [Obsolete("Use 'ApplyTemplate' instead (name change).")]
+        public void Apply()	
+            => Internal_ApplyTemplate();
 
         private void Internal_Apply()
         {
-            var imbue = ApplyTemplate();
+            var imbue = Internal_ApplyTemplate();
             this.OnTemplateApplied?.Invoke(imbue);
         }
 
-        internal ImbueEffectPreset ApplyTemplate()
+        internal ImbueEffectPreset Internal_ApplyTemplate()
         {
             if (this.NewStatusID <= 0)
                 this.NewStatusID = this.TargetStatusID;

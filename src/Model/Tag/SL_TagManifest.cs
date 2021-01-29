@@ -8,28 +8,15 @@ using System.Xml.Serialization;
 namespace SideLoader
 {
     [SL_Serialized]
-    public class SL_TagManifest : IContentTemplate
+    public class SL_TagManifest : ContentTemplate
     {
         #region IContentTemplate
 
-        public string DefaultTemplateName => $"Tags";
-        public bool IsCreatingNewID => true;
-        public bool DoesTargetExist => true;
-        public object TargetID => null;
-        public object AppliedID => null;
-        public bool CanParseContent => false;
-        public bool TemplateAllowedInSubfolder => false;
+        public override string DefaultTemplateName => $"Tags";
+        public override bool TemplateAllowedInSubfolder => false;
+        public override ITemplateCategory PackCategory => SLPackManager.GetCategoryInstance<TagCategory>();
 
-        public ITemplateCategory PackCategory => SLPackManager.GetCategoryInstance<TagCategory>();
-
-        [XmlIgnore] public string SerializedSLPackName { get; set; }
-        [XmlIgnore] public string SerializedSubfolderName { get; set; }
-        [XmlIgnore] public string SerializedFilename { get; set; }
-
-        public void ApplyActualTemplate() => this.Internal_Create();
-
-        public object GetContentFromID(object id) => null;
-        public IContentTemplate ParseToTemplate(object content) => throw new NotImplementedException();
+        public override void ApplyActualTemplate() => this.Internal_Create();
 
         #endregion
 

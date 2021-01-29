@@ -48,6 +48,7 @@
     <Compile Include="Helpers\UnityHelpers.cs" />
     <Compile Include="Model\Character\SL_CharacterAI.cs" />
     <Compile Include="Model\Character\SL_CharacterTrainer.cs" />
+    <Compile Include="Model\ContentTemplate.cs" />
     <Compile Include="Model\TemplateDependancySolver.cs" />
     <Compile Include="Model\DropTables\SL_ItemDrop.cs" />
     <Compile Include="Model\DropTables\SL_ItemDropChance.cs" />

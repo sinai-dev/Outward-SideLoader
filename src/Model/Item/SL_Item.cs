@@ -11,43 +11,46 @@ using UnityEngine;
 namespace SideLoader
 {
     [SL_Serialized]
-    public class SL_Item : IContentTemplate
+    public class SL_Item : ContentTemplate
     {
         #region IContentTemplate
 
-        [XmlIgnore] public string DefaultTemplateName => $"{this.AppliedID}_{this.Name}";
-        [XmlIgnore] public bool IsCreatingNewID => this.New_ItemID != -1 && this.New_ItemID != this.Target_ItemID;
-        [XmlIgnore] public bool DoesTargetExist => ResourcesPrefabManager.Instance.GetItemPrefab(this.Target_ItemID);
-        [XmlIgnore] public object TargetID => this.Target_ItemID;
-        [XmlIgnore] public object AppliedID => IsCreatingNewID ? this.New_ItemID : this.Target_ItemID;
-        [XmlIgnore] public ITemplateCategory PackCategory => (ITemplateCategory)SLPackManager.GetCategoryInstance<ItemCategory>();
-        [XmlIgnore] public bool TemplateAllowedInSubfolder => true;
+        public override ITemplateCategory PackCategory => SLPackManager.GetCategoryInstance<ItemCategory>();
+        public override string DefaultTemplateName => $"{this.AppliedID}_{this.Name}";
 
-        [XmlIgnore] public bool CanParseContent => true;
-        public IContentTemplate ParseToTemplate(object content) => ParseItemToTemplate(content as Item);
+        public override object TargetID => this.Target_ItemID;
+        public override object AppliedID => New_ItemID != -1 ? this.New_ItemID  : this.Target_ItemID;
+
+        //public override bool IsCreatingNewID => this.New_ItemID != -1 && this.New_ItemID != this.Target_ItemID;
+        public override bool DoesTargetExist => ResourcesPrefabManager.Instance.GetItemPrefab(this.Target_ItemID);
+
+        public override bool TemplateAllowedInSubfolder => true;
+
+        public override bool CanParseContent => true;
+        public override ContentTemplate ParseToTemplate(object content) => ParseItemToTemplate(content as Item);
 
         [XmlIgnore]
-        public string SerializedSLPackName
+        public override string SerializedSLPackName
         {
             get => SLPackName;
             set => SLPackName = value;
         }
         [XmlIgnore]
-        public string SerializedSubfolderName
+        public override string SerializedSubfolderName
         {
             get => SubfolderName;
             set => SubfolderName = value;
         }
         [XmlIgnore]
-        public string SerializedFilename
+        public override string SerializedFilename
         {
             get => m_serializedFilename;
             set => m_serializedFilename = value;
         }
 
-        public void ApplyActualTemplate() => Internal_Create();
+        public override void ApplyActualTemplate() => Internal_Create();
 
-        public object GetContentFromID(object id)
+        public override object GetContentFromID(object id)
         {
             if (string.IsNullOrEmpty((string)id))
                 return null;
@@ -150,16 +153,9 @@ namespace SideLoader
         public SL_ItemVisual SpecialItemVisuals;
         public SL_ItemVisual SpecialFemaleItemVisuals;
 
-        /// <summary>
-        /// The normal (and safest) way to apply the template. Call this some time before or at SL.BeforePacksLoaded.
-        /// </summary>
+        [Obsolete("Use 'ApplyTemplate' instead (name change).")]
         public void Apply()
-        {
-            if (SL.PacksLoaded)
-                Internal_Create();
-            else
-                PackCategory.CSharpTemplates.Add(this);
-        }
+            => ApplyTemplate();
 
         internal void Internal_Create()
         {

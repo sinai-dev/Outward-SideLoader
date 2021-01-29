@@ -8,13 +8,19 @@ namespace SideLoader.SLPacks.Categories
 
         public override int LoadOrder => 15;
 
-        public override void ApplyTemplate(IContentTemplate template)
+        public override void ApplyTemplate(ContentTemplate template)
         {
             var item = template as SL_Item;
 
             item.ApplyActualTemplate();
         }
 
-        //public override bool ShouldApplyLate(IContentTemplate template) => (template as SL_Item).ShouldApplyLate;
+        protected internal override void OnHotReload()
+        {
+            base.OnHotReload();
+
+            SL_Item.CurrentlyAppliedTemplates.Clear();
+            SL_Skill.s_customSkills.Clear();
+        }
     }
 }

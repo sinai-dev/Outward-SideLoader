@@ -11,26 +11,15 @@ namespace SideLoader
 {
     /// <summary>SideLoader's wrapper for Custom Characters.</summary>
     [SL_Serialized]
-    public class SL_Character : IContentTemplate
+    public class SL_Character : ContentTemplate
     {
         #region IContentTemplate
-        [XmlIgnore] public string DefaultTemplateName => "Untitled Character";
-        [XmlIgnore] public bool IsCreatingNewID => true;
-        [XmlIgnore] public bool DoesTargetExist => true;
-        [XmlIgnore] public object TargetID => this.UID;
-        [XmlIgnore] public object AppliedID => this.UID;
-        [XmlIgnore] public ITemplateCategory PackCategory => SLPackManager.GetCategoryInstance<CharacterCategory>();
-        [XmlIgnore] public bool TemplateAllowedInSubfolder => false;
 
-        [XmlIgnore] public bool CanParseContent => false;
-        public IContentTemplate ParseToTemplate(object _) => throw new NotImplementedException();
-        public object GetContentFromID(object id) => throw new NotImplementedException();
+        public override string DefaultTemplateName => "Untitled Character";
+        public override ITemplateCategory PackCategory => SLPackManager.GetCategoryInstance<CharacterCategory>();
+        public override bool TemplateAllowedInSubfolder => false;
 
-        [XmlIgnore] public string SerializedSLPackName { get; set; }
-        [XmlIgnore] public string SerializedSubfolderName { get; set; }
-        [XmlIgnore] public string SerializedFilename { get; set; }
-
-        public void ApplyActualTemplate() => Internal_Apply();
+        public override void ApplyActualTemplate() => Internal_Apply();
 
         #endregion
 
@@ -147,16 +136,9 @@ namespace SideLoader
         //[Obsolete("Use SL_Character.AI instead")] [XmlIgnore] public bool? CanDodge;
         //[Obsolete("Use SL_Character.AI instead")] [XmlIgnore] public bool? CanBlock;
 
-        /// <summary>
-        /// Prepares callbacks and register the template.
-        /// </summary>
+        [Obsolete("Use 'ApplyTemplate' instead (name change).")]
         public void Prepare()
-        {
-            if (SL.PacksLoaded)
-                Internal_Apply();
-            else
-                PackCategory.CSharpTemplates.Add(this);
-        }
+            => ApplyTemplate();
 
         internal void Internal_Apply()
         {

@@ -8,30 +8,15 @@ using System.Xml.Serialization;
 namespace SideLoader
 {
     [SL_Serialized]
-    public class SL_StatusEffectFamily : IContentTemplate
+    public class SL_StatusEffectFamily : ContentTemplate
     {
         #region IContentTemplate
 
-        public object TargetID => this.UID;
-        public object AppliedID => this.UID;
-        public bool IsCreatingNewID => true;
-        public bool DoesTargetExist => true;
-        public ITemplateCategory PackCategory => SLPackManager.GetCategoryInstance<StatusFamilyCategory>();
-        public bool TemplateAllowedInSubfolder => false;
-        public string DefaultTemplateName => this.UID;
+        public override ITemplateCategory PackCategory => SLPackManager.GetCategoryInstance<StatusFamilyCategory>();
+        public override bool TemplateAllowedInSubfolder => false;
+        public override string DefaultTemplateName => this.UID ?? "Untitled StatusFamily";
 
-        [XmlIgnore] public bool CanParseContent => false;
-        public IContentTemplate ParseToTemplate(object _) => throw new NotImplementedException();
-        public object GetContentFromID(object id)
-        {
-            return StatusEffectFamilyLibrary.Instance.StatusEffectFamilies.FirstOrDefault(it => it.UID == (string)id);
-        }
-
-        [XmlIgnore] public string SerializedSLPackName { get; set; }
-        [XmlIgnore] public string SerializedSubfolderName { get; set; }
-        [XmlIgnore] public string SerializedFilename { get; set; }
-
-        public void ApplyActualTemplate() => CreateFamily();
+        public override void ApplyActualTemplate() => Internal_ApplyTemplate();
 
         #endregion
 
@@ -43,27 +28,12 @@ namespace SideLoader
 
         public StatusEffectFamily.LengthTypes? LengthType;
 
-        /// <summary>
-        /// Call this to register the template and create the status family.
-        /// </summary>
+        [Obsolete("Use 'ApplyTemplate' instead (name change).")]
         public void Apply()
-        {
-            CreateFamily();
-        }
+            => ApplyTemplate();
 
-        internal static SL_StatusEffectFamily ParseEffectFamily(StatusEffectFamily family)
-        {
-            return new SL_StatusEffectFamily
-            {
-                UID = family.UID,
-                Name = family.Name,
-                LengthType = family.LengthType,
-                MaxStackCount = family.MaxStackCount,
-                StackBehaviour = family.StackBehavior
-            };
-        }
-
-        internal StatusEffectFamily CreateFamily()
+        // used by SL_StatusEffect Bind Families
+        public StatusEffectFamily CreateAsBindFamily()
         {
             var ret = new StatusEffectFamily
             {
@@ -78,7 +48,8 @@ namespace SideLoader
             return ret;
         }
 
-        internal void ApplyTemplate()
+        // Normal template apply method
+        internal void Internal_ApplyTemplate()
         {
             if (!StatusEffectFamilyLibrary.Instance)
                 return;
@@ -116,6 +87,18 @@ namespace SideLoader
 
             if (this.LengthType != null)
                 family.LengthType = (StatusEffectFamily.LengthTypes)this.LengthType;
+        }
+
+        internal static SL_StatusEffectFamily ParseEffectFamily(StatusEffectFamily family)
+        {
+            return new SL_StatusEffectFamily
+            {
+                UID = family.UID,
+                Name = family.Name,
+                LengthType = family.LengthType,
+                MaxStackCount = family.MaxStackCount,
+                StackBehaviour = family.StackBehavior
+            };
         }
     }
 }

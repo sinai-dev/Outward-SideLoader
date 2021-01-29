@@ -9,23 +9,19 @@ using UnityEngine;
 namespace SideLoader
 {
     [SL_Serialized]
-    public class SL_Recipe : IContentTemplate
+    public class SL_Recipe : ContentTemplate
     {
         #region IContentTemplate
 
-        [XmlIgnore] public string DefaultTemplateName => "UntitledRecipe";
-        [XmlIgnore] public bool IsCreatingNewID => true;
-        [XmlIgnore] public bool DoesTargetExist => true;
-        [XmlIgnore] public object TargetID => this.UID;
-        [XmlIgnore] public object AppliedID => this.UID;
-        [XmlIgnore] public ITemplateCategory PackCategory => (ITemplateCategory)SLPackManager.GetCategoryInstance<RecipeCategory>();
-        [XmlIgnore] public bool TemplateAllowedInSubfolder => false;
+        public override ITemplateCategory PackCategory => SLPackManager.GetCategoryInstance<RecipeCategory>();
+        public override string DefaultTemplateName => "Untitled Recipe";
 
-        [XmlIgnore] public bool CanParseContent => true;
+        public override bool TemplateAllowedInSubfolder => false;
+        public override bool CanParseContent => true;
 
-        public IContentTemplate ParseToTemplate(object content) => ParseRecipe(content as Recipe);
+        public override ContentTemplate ParseToTemplate(object content) => ParseRecipe(content as Recipe);
 
-        public object GetContentFromID(object id)
+        public override object GetContentFromID(object id)
         {
             if (string.IsNullOrEmpty((string)id))
                 return null;
@@ -33,11 +29,7 @@ namespace SideLoader
             return ret;
         }
 
-        [XmlIgnore] public string SerializedSLPackName { get; set; }
-        [XmlIgnore] public string SerializedSubfolderName { get; set; }
-        [XmlIgnore] public string SerializedFilename { get; set; }
-
-        public void ApplyActualTemplate() => this.ApplyRecipe();
+        public override void ApplyActualTemplate() => this.Internal_ApplyRecipe();
 
         #endregion
 
@@ -51,7 +43,11 @@ namespace SideLoader
         public List<Ingredient> Ingredients = new List<Ingredient>();
         public List<ItemQty> Results = new List<ItemQty>();
 
+        [Obsolete("Use 'ApplyTemplate' instead (name change).")]
         public void ApplyRecipe()
+            => this.ApplyTemplate();
+
+        internal void Internal_ApplyRecipe()
         {
             try
             {

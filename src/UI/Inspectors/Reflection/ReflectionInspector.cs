@@ -94,7 +94,7 @@ namespace SideLoader.UI.Inspectors
             At.CopyFields(newInstance, Target, null, true);
             Target = newInstance;
             if (this is TemplateInspector ti)
-                ti.Template = Target as IContentTemplate;
+                ti.Template = Target as ContentTemplate;
 
             if (this.ParentMember is CacheObjectBase parentCache)
             {
@@ -417,7 +417,7 @@ namespace SideLoader.UI.Inspectors
             {
                 baseType = this.m_targetType;
                 while (baseType.BaseType != null
-                    && typeof(IContentTemplate).IsAssignableFrom(baseType.BaseType)
+                    && typeof(ContentTemplate).IsAssignableFrom(baseType.BaseType)
                     && !baseType.BaseType.IsAbstract
                     && !baseType.BaseType.IsInterface)
                 {

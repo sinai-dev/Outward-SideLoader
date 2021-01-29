@@ -8,7 +8,7 @@ namespace SideLoader.SLPacks.Categories
 
         public override int LoadOrder => 25;
 
-        public override void ApplyTemplate(IContentTemplate template)
+        public override void ApplyTemplate(ContentTemplate template)
         {
             var character = template as SL_Character;
             character.ApplyActualTemplate();
@@ -23,6 +23,9 @@ namespace SideLoader.SLPacks.Categories
             }
         }
 
-        //public override bool ShouldApplyLate(IContentTemplate template) => false;
+        protected internal override void OnHotReload()
+        {
+            CustomCharacters.Templates.Clear();
+        }
     }
 }

@@ -6,7 +6,7 @@ namespace SideLoader.SLPacks
     {
         public override int LoadOrder => 0;
 
-        internal override void InternalLoad(List<SLPack> packs, bool isHotReload)
+        protected internal override void InternalLoad(List<SLPack> packs, bool isHotReload)
         {
             foreach (var pack in packs)
             {

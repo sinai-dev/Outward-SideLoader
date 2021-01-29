@@ -10,7 +10,7 @@ namespace SideLoader.UI.Inspectors.Reflection
     {
         public override string TabLabel => $" <color=cyan>[T]</color> {this.Template.SerializedFilename} ({base.TabLabel})";
 
-        internal IContentTemplate Template;
+        internal ContentTemplate Template;
 
         public SLPack RefPack;
 
@@ -31,7 +31,7 @@ namespace SideLoader.UI.Inspectors.Reflection
 
         public TemplateInspector(object target, SLPack pack) : base(target)
         {
-            Template = target as IContentTemplate;
+            Template = target as ContentTemplate;
             RefPack = pack;
         }
 
@@ -43,7 +43,7 @@ namespace SideLoader.UI.Inspectors.Reflection
 
             base.ChangeType(newType);
 
-            Template = Target as IContentTemplate;
+            Template = Target as ContentTemplate;
 
             Template.SerializedFilename = origFile;
             Template.SerializedSubfolderName = origSub;
@@ -60,7 +60,7 @@ namespace SideLoader.UI.Inspectors.Reflection
 
             At.CopyFields(Target, data, null, true);
 
-            Template = Target as IContentTemplate;
+            Template = Target as ContentTemplate;
 
             Template.SerializedFilename = origFile;
             Template.SerializedSubfolderName = origSub;
@@ -121,7 +121,7 @@ namespace SideLoader.UI.Inspectors.Reflection
                 return;
             }
 
-            if (Serializer.LoadFromXml(path) is IContentTemplate loadedData)
+            if (Serializer.LoadFromXml(path) is ContentTemplate loadedData)
             {
                 var loadedType = loadedData.GetType();
                 SL.Log("Loaded xml, replacing template with " + loadedType);
