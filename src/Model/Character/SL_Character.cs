@@ -41,20 +41,20 @@ namespace SideLoader
         public event Action<Character, string> OnSpawn;
 
         /// <summary>
-        /// This event is invoked locally when save data is loaded and applied to a character using this template. 
+        /// This delegate is invoked locally when save data is loaded and applied to a character using this template. 
         /// Use this to do any custom setup you might need there.
         /// <list type="bullet">The character is the Character your template was applied to.</list>
         /// <list type="bullet">The first string is the optional extraRpcData provided when you spawned the character.</list>
         /// <list type="bullet">The second string is the optional extra save data from your OnCharacterBeingSaved method, if used.</list>
         /// </summary>
-        public event Action<Character, string, string> OnSaveApplied;
+        [XmlIgnore] public Action<Character, string, string> OnSaveApplied;
 
         /// <summary>
         /// Invoked when the character is being saved.
         /// <list type="bullet">The (in) character is the character being saved</list>
         /// <list type="bullet">The (out) string is your extra save data you want to keep.</list>
         /// </summary>
-        public event Func<Character, string> OnCharacterBeingSaved;
+        [XmlIgnore] public Func<Character, string> OnCharacterBeingSaved;
 
         /// <summary>If you define this with a function, the return bool will be used to decide if the character should spawn or not (for scene spawns).</summary>
         [XmlIgnore] public Func<bool> ShouldSpawn;
@@ -143,9 +143,9 @@ namespace SideLoader
         // ~~~~~~~~~~ AI States ~~~~~~~~~~
         public SL_CharacterAI AI;
 
-        [Obsolete("Use SL_Character.AI instead")] [XmlIgnore] public bool AddCombatAI;
-        [Obsolete("Use SL_Character.AI instead")] [XmlIgnore] public bool? CanDodge;
-        [Obsolete("Use SL_Character.AI instead")] [XmlIgnore] public bool? CanBlock;
+        //[Obsolete("Use SL_Character.AI instead")] [XmlIgnore] public bool AddCombatAI;
+        //[Obsolete("Use SL_Character.AI instead")] [XmlIgnore] public bool? CanDodge;
+        //[Obsolete("Use SL_Character.AI instead")] [XmlIgnore] public bool? CanBlock;
 
         /// <summary>
         /// Prepares callbacks and register the template.
@@ -287,8 +287,9 @@ namespace SideLoader
                 }
                 catch (Exception ex)
                 {
-                    SL.LogWarning("Exception invoking ShouldSpawn callback for " + this.Name + " (" + this.UID + ")");
+                    SL.LogWarning("Exception invoking ShouldSpawn callback for " + this.Name + " (" + this.UID + "), not spawning.");
                     SL.LogInnerException(ex);
+                    return false;
                 }
             }
 
@@ -641,7 +642,7 @@ namespace SideLoader
                     hidehair = visuals.ActiveVisualsHead.HideHair;
                 }
 
-                SL.Log("hideface: " + hideface);
+                //SL.Log("hideface: " + hideface);
 
                 if (!hideface)
                     visuals.LoadCharacterCreationHead(data.SkinIndex, (int)data.Gender, data.HeadVariationIndex);
@@ -722,6 +723,9 @@ namespace SideLoader
         // Minimum is always 0 obviously, but the max index varies between gender and skin index.
         private static void ClampHeadVariation(ref int index, int gender, int skinindex)
         {
+            if (skinindex == -999)
+                return;
+
             // get the first letter of the gender name (either M or F)
             // Could cast to Character.Gender and then Substring(0, 1), but that seems unnecessary over a simple if/else.
             string sex = gender == 0 ? "M" : "F";

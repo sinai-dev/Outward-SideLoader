@@ -80,7 +80,7 @@ namespace SideLoader
             if (content == null || !content.Any())
                 return default;
 
-            var query = content.Where(it => string.Equals(Path.GetFileName(it.Key), fileName, stringComparison))
+            var query = content.Where(it => string.Equals(Path.GetFileNameWithoutExtension(it.Key), fileName, stringComparison))
                                .Select(it => it.Value);
 
             return query.FirstOrDefault();

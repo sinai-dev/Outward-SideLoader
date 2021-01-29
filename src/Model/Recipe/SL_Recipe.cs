@@ -8,6 +8,7 @@ using UnityEngine;
 
 namespace SideLoader
 {
+    [SL_Serialized]
     public class SL_Recipe : IContentTemplate
     {
         #region IContentTemplate
