@@ -84,7 +84,6 @@
     <Compile Include="Model\Effect\Effects\SL_WeaponDamageProjectileWeapon.cs" />
     <Compile Include="Model\Effect\Effects\SL_WeaponDamageStatusOnKill.cs" />
     <Compile Include="Model\Effect\Effects\SL_WeaponDamageTargetHealth.cs" />
-    <Compile Include="Model\IContentTemplate.cs" />
     <Compile Include="Model\Item\Building\SL_Building.cs" />
     <Compile Include="Model\Item\Building\SL_BuildingRequirement.cs" />
     <Compile Include="Model\Item\Building\SL_ConstructionPhase.cs" />

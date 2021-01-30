@@ -38,7 +38,7 @@ namespace SideLoader.Model
 
         /// <summary>
         /// Only used when DoesTargetExist returns false. Should point to the "new / applied" ID field in the template, or otherwise the target.
-        /// </summary>                                                           $"DoesTargetExist returned false, but TargetID was not implemented!");
+        /// </summary>
         public virtual object AppliedID => throw new NotImplementedException($"'{this.GetType()}' did not implement dependency support!" +
                                                                             $"DoesTargetExist returned false, but AppliedID was not implemented!");
 

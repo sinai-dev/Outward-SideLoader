@@ -252,7 +252,7 @@ namespace SideLoader
             }
             catch (Exception e)
             {
-                SL.LogError("Exception reading the XML file, logging exceptions...");
+                SL.LogError($"Exception reading the XML file: '{path}'!");
                 SL.LogInnerException(e);
 
                 return null;
