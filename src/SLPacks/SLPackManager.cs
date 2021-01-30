@@ -19,15 +19,21 @@ namespace SideLoader.SLPacks
         /// <param name="args">Your custom arguments of any type, to be passed along to your late apply method.</param>
         public static void AddLateApplyListener(Action<object[]> listener, params object[] args)
         {
-            try
+            if (listener == null)
             {
-                s_onLateApplyListeners.Add(listener, args);
+                SL.LogWarning("Trying to AddLateApplyListener but the listener is null!");
+                return;
             }
-            catch (Exception ex)
+
+            // If we already did our setup (and not hot reloading) just invoke now.
+            if (SL.PacksLoaded)
             {
-                SL.LogWarning("Exception adding OnLateApply listener!");
-                SL.LogInnerException(ex);
+                InvokeLateApplyListener(listener, args);
+                return;
             }
+
+            // Else, add the listener.
+            s_onLateApplyListeners.Add(listener, args);
         }
 
         internal static Dictionary<Type, SLPackCategory> s_slPackCategories;
@@ -39,16 +45,6 @@ namespace SideLoader.SLPacks
                 return s_slPackCategories.Values;
             }
         }
-
-        //internal static Dictionary<Type, SLPackCategory> s_slPackLateCategories;
-        //public static IEnumerable<SLPackCategory> SLPackCategoriesWithLateContent
-        //{
-        //    get
-        //    {
-        //        CheckTypeCache();
-        //        return s_slPackLateCategories.Values;
-        //    }
-        //}
 
         public static T GetCategoryInstance<T>() where T : SLPackCategory
             => (T)GetCategoryInstance(typeof(T));
@@ -72,28 +68,27 @@ namespace SideLoader.SLPacks
             foreach (var ctg in SLPackCategories)
                 LoadPackCategory(packs, ctg, firstSetup);
 
-            //// Late apply (not actually using this anymore)
-            //foreach (var ctg in SLPackCategoriesWithLateContent)
-            //    ctg.ApplyLateContent(!firstSetup);
-
             // Invoke late apply listeners, this is what SL uses instead of late apply now.
             if (s_onLateApplyListeners.Any())
             {
                 SL.Log("Invoking " + s_onLateApplyListeners.Count + " OnLateApply listeners...");
                 foreach (var entry in s_onLateApplyListeners)
-                {
-                    try
-                    {
-                        entry.Key.Invoke(entry.Value);
-                    }
-                    catch (Exception ex)
-                    {
-                        SL.LogWarning("Exception invoking OnLateApply listener!");
-                        SL.LogInnerException(ex);
-                    }
-                }
+                    InvokeLateApplyListener(entry.Key, entry.Value);
 
                 s_onLateApplyListeners.Clear();
+            }
+        }
+
+        private static void InvokeLateApplyListener(Action<object[]> listener, params object[] args)
+        {
+            try
+            {
+                listener.Invoke(args);
+            }
+            catch (Exception ex)
+            {
+                SL.LogWarning("Exception invoking OnLateApply listener!");
+                SL.LogInnerException(ex);
             }
         }
 
