@@ -1,7 +1,7 @@
-﻿using SideLoader.UI.Inspectors;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
+using SideLoader.UI.SLPackViewer;
 
 namespace SideLoader.UI
 {

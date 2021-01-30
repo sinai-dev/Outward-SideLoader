@@ -194,7 +194,6 @@ namespace SideLoader
             => InternalSpawn(position, rotation, characterUID, extraRpcData, false);
 
         // main actual spawn method
-
         internal Character InternalSpawn(Vector3 position, Vector3 rotation, string characterUID, string extraRpcData, bool loadingFromSave)
         {
             characterUID = characterUID ?? this.UID;

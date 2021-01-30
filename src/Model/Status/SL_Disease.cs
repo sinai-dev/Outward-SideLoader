@@ -8,9 +8,9 @@
         public Diseases? DiseaseType;
         public int? SleepHealTime;
 
-        internal override void ApplyTemplate(StatusEffect status)
+        internal override void Internal_ApplyTemplate(StatusEffect status)
         {
-            base.ApplyTemplate(status);
+            base.Internal_ApplyTemplate(status);
 
             var comp = status as Disease;
 

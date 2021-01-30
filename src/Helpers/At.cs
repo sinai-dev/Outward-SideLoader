@@ -11,22 +11,35 @@ namespace SideLoader
     {
         public static readonly BF FLAGS = BF.Public | BF.Instance | BF.NonPublic | BF.Static;
 
+        // ============ Main public API ============
+
+        /// <summary>
+        /// Try to create an instance of the provided type. This is not guaranteed to work, but it should work if the type
+        /// has a default constructor, or is a string or Array.
+        /// </summary>
+        /// <param name="type">The type to try to create an instance of. Guaranteed to work only for strings, Arrays, and types with a default constructor.</param>
+        /// <returns>An instance of the type, if successful, otherwise null.</returns>
         public static object TryCreateDefault(Type type)
         {
-            object value;
+            object instance;
             if (type == typeof(string))
-                value = string.Empty;
+                instance = string.Empty;
             else if (type.IsArray)
-                value = Array.CreateInstance(type.GetElementType(), 0);
+                instance = Array.CreateInstance(type.GetElementType(), 0);
             else
-                value = Activator.CreateInstance(type);
-            return value;
+                instance = Activator.CreateInstance(type);
+            return instance;
         }
 
         internal static readonly Dictionary<Type, HashSet<Type>> s_cachedTypeInheritance = new Dictionary<Type, HashSet<Type>>();
         internal static int s_lastAssemblyCount;
 
-        internal static HashSet<Type> GetImplementationsOf(this Type baseType)
+        /// <summary>
+        /// Get all non-abstract implementations of the provided type (include itself, if not abstract) in the current AppDomain.
+        /// </summary>
+        /// <param name="baseType">The base type, which can optionally be abstract / interface.</param>
+        /// <returns>All implementations of the type in the current AppDomain.</returns>
+        public static HashSet<Type> GetImplementationsOf(this Type baseType)
         {
             var assemblies = AppDomain.CurrentDomain.GetAssemblies();
 
@@ -57,8 +70,6 @@ namespace SideLoader
 
             return s_cachedTypeInheritance[baseType];
         }
-
-        // ============ Main public API ============
 
         /// <summary>
         /// Helper to get a Type by providing the 'Type.FullName'.

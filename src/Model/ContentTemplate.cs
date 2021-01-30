@@ -84,13 +84,13 @@ namespace SideLoader.Model
         /// </summary>
         public virtual void ApplyTemplate()
         {
+            PackCategory.Internal_CSharpTemplates.Add(this);
+            
             if (SL.PacksLoaded)
             { 
                 ApplyActualTemplate(); 
-                PackCategory.AllCurrentTemplates.Add(this);
+                PackCategory.Internal_AllCurrentTemplates.Add(this);
             }
-            else
-                PackCategory.CSharpTemplates.Add(this);
         }
     }
 }

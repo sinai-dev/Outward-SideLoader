@@ -1,4 +1,5 @@
-﻿using SideLoader.SLPacks.Categories;
+﻿using SideLoader.SLPacks;
+using SideLoader.SLPacks.Categories;
 using System;
 using System.IO;
 using System.Linq;
@@ -10,11 +11,18 @@ namespace SideLoader
     {
         public int? MaxLevel;
 
-        internal override void ApplyTemplate(StatusEffect status)
+        internal override void Internal_ApplyTemplate(StatusEffect status)
         {
-            base.ApplyTemplate(status);
+            base.Internal_ApplyTemplate(status);
 
             var comp = status as LevelStatusEffect;
+
+            SLPackManager.AddLateApplyListener(OnLateApply, comp);
+        }
+
+        private void OnLateApply(object[] obj)
+        {
+            var comp = obj[0] as LevelStatusEffect;
 
             int origMax = (int)At.GetField(comp, "m_maxLevel");
             int newMax = MaxLevel ?? origMax;

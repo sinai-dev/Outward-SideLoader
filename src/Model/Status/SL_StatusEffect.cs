@@ -133,11 +133,11 @@ namespace SideLoader
 
             var status = CustomStatusEffects.CreateCustomStatus(this);
 
-            ApplyTemplate(status);
+            Internal_ApplyTemplate(status);
             OnTemplateApplied?.Invoke(status);
         }
 
-        internal virtual void ApplyTemplate(StatusEffect status)
+        internal virtual void Internal_ApplyTemplate(StatusEffect status)
         {
             SL.Log("Applying Status Effect template: " + Name ?? status.name);
 
