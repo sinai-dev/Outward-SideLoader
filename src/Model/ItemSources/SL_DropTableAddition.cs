@@ -20,6 +20,13 @@ namespace SideLoader
             base.ApplyActualTemplate();
 
             s_registeredDropTableSources.Add(this);
+
+            for (int i = 0; i < SelectorTargets.Count; i++)
+            {
+                var entry = SelectorTargets[i];
+                if (entry.StartsWith("DT_"))
+                    SelectorTargets[i] = $"DropTable_{entry.Substring(3, entry.Length - 3)}";
+            }
         }
 
         public bool IsTargeting(string targetUID)
