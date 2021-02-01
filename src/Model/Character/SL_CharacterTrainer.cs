@@ -39,7 +39,10 @@ namespace SideLoader
 
             // get "Trainer" component, and set the SkillTreeUID to our custom tree UID
             var trainerComp = trainertemplate.GetComponentInChildren<Trainer>();
-            At.SetField(trainerComp, "m_skillTreeUID", new UID(SkillTree.UID));
+            if (this.SkillTree != null)
+                At.SetField(trainerComp, "m_skillTreeUID", new UID(SkillTree.UID));
+            else
+                SL.LogWarning("Setting up an SL_CharacterTrainer (" + this.UID + ") but no SL_SkillTree has been created for it!");
 
             // setup dialogue tree
             var graphController = trainertemplate.GetComponentInChildren<DialogueTreeController>();

@@ -11,29 +11,10 @@ namespace SideLoader.Patches
         [HarmonyPostfix]
         public static void Postfix(SaveInstance __instance)
         {
-            try
-            {
-                if (__instance.CharSave == null || string.IsNullOrEmpty(__instance.CharSave.CharacterUID))
-                    return;
-
-                var worldhost = CharacterManager.Instance?.GetWorldHostCharacter();
-                var charUID = __instance.CharSave.CharacterUID;
-
-                if (worldhost && charUID == worldhost.UID)
-                    SLCharacterSaveManager.SaveCharacters();
-
-                PlayerSaveExtension.SaveAllExtensions(CharacterManager.Instance.GetCharacter(charUID));
-            }
-            catch (Exception ex)
-            {
-                SL.LogWarning("Exception on SaveInstance.Save!");
-                SL.LogInnerException(ex);
-            }
+            SLSaveManager.OnSaveInstanceSave(__instance);
         }
     }
 
-
-    //ApplyLoadedSaveToChar(Character _character)
     [HarmonyPatch(typeof(CharacterSaveInstanceHolder), "ApplyLoadedSaveToChar")]
     public class CharacterSaveInstanceHolder_ApplyLoadedSaveToChar
     {
@@ -46,9 +27,19 @@ namespace SideLoader.Patches
             }
             catch (Exception ex)
             {
-                SL.LogWarning("Exception on CharacterSaveInstanceHolder.ApplyLoadedSvaeToChar!");
+                SL.LogWarning("Exception on loading SL PlayerSaveExtensions!");
                 SL.LogInnerException(ex);
             }
+        }
+    }
+
+    [HarmonyPatch(typeof(SaveManager), nameof(SaveManager.LoadEnvironment))]
+    public class SaveManager_LoadEnvironment
+    {
+        [HarmonyPrefix]
+        public static void Prefix(DictionaryExt<string, CharacterSaveInstanceHolder> ___m_charSaves)
+        {
+            SLSaveManager.OnEnvironmentSaveLoaded(___m_charSaves);
         }
     }
 }

@@ -6,7 +6,7 @@ namespace SideLoader.SLPacks.Categories
     {
         public override string FolderName => "StatusFamilies";
 
-        public override int LoadOrder => 5;
+        public override int LoadOrder => (int)SLPackManager.LoadOrder.StatusFamily;
 
         public override void ApplyTemplate(ContentTemplate template)
         {

@@ -6,7 +6,7 @@ namespace SideLoader.SLPacks.Categories
     {
         public override string FolderName => "Enchantments";
 
-        public override int LoadOrder => 20;
+        public override int LoadOrder => (int)SLPackManager.LoadOrder.Recipe;
 
         public override void ApplyTemplate(ContentTemplate template)
         {

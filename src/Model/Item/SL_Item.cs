@@ -63,8 +63,6 @@ namespace SideLoader
 
         // ~~~~~~~~~~~~~~ Events ~~~~~~~~~~~~~~
 
-        public static readonly List<SL_Item> CurrentlyAppliedTemplates = new List<SL_Item>();
-
         internal static readonly Dictionary<int, List<Action<Item>>> s_initCallbacks = new Dictionary<int, List<Action<Item>>>();
 
         /// <summary>
@@ -89,6 +87,10 @@ namespace SideLoader
 
         /// <summary>Invoked when this template is applied during SideLoader's start or hot-reload.</summary>
         public event Action<Item> OnTemplateApplied;
+
+        /// <summary>If SL has loaded the template, this should point to the reference prefab that was created for it.</summary>
+        public Item CurrentPrefab => m_item;
+        protected internal Item m_item;
 
         // ~~~~~~~~~~~~~~ Actual Template ~~~~~~~~~~~~~~
 
@@ -167,7 +169,7 @@ namespace SideLoader
             ApplyToItem(item);
             item.IsPrefab = true;
 
-            CurrentlyAppliedTemplates.Add(this);
+            m_item = item;
 
             try
             {

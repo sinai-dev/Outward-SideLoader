@@ -26,13 +26,13 @@ namespace SideLoader.UI.Editor
             base.OnValueUpdated();
         }
 
-        //internal override void QuickSave()
-        //{
-        //    if (this.m_subContentConstructed)
-        //        this.OnApplyClicked();
+        internal override void QuickSave()
+        {
+            if (this.m_subContentConstructed)
+                this.OnApplyClicked();
 
-        //    base.QuickSave();
-        //}
+            base.QuickSave();
+        }
 
         public override void RefreshUIForValue()
         {

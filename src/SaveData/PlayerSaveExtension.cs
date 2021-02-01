@@ -20,6 +20,10 @@ namespace SideLoader.SaveData
             s_registeredModels = At.GetImplementationsOf(typeof(PlayerSaveExtension));
         }
 
+        public static string GetSaveFilePath<T>(string characterUID) 
+            => SLSaveManager.GetSaveFolderForCharacter(characterUID)
+               + "\\" + SLSaveManager.CUSTOM_FOLDER + "\\" + $"{typeof(T).FullName}.xml";
+
         /// <summary>
         /// Helper to manually try to load the saved data for an extension of type T, with the given character UID.
         /// </summary>
@@ -31,8 +35,7 @@ namespace SideLoader.SaveData
             if (string.IsNullOrEmpty(characterUID))
                 throw new ArgumentNullException("characterUID");
 
-            var filePath = SLSaveManager.GetSaveFolderForCharacter(characterUID)
-                          + "\\" + SLSaveManager.CUSTOM_FOLDER + $@"\{typeof(T).FullName}.xml";
+            var filePath = GetSaveFilePath<T>(characterUID);
 
             T ret = null;
             if (File.Exists(filePath))
@@ -63,8 +66,7 @@ namespace SideLoader.SaveData
             if (string.IsNullOrEmpty(characterUID))
                 throw new ArgumentNullException("characterUID");
 
-            var filePath = SLSaveManager.GetSaveFolderForCharacter(characterUID)
-                          + "\\" + SLSaveManager.CUSTOM_FOLDER + $@"\{typeof(T).FullName}.xml";
+            var filePath = GetSaveFilePath<T>(characterUID);
 
             if (File.Exists(filePath))
                 File.Delete(filePath);
@@ -114,12 +116,12 @@ namespace SideLoader.SaveData
         }
 
         // Internal save all extensions
-        internal static void SaveAllExtensions(Character character)
+        internal static void SaveAllExtensions(Character character, bool isWorldHost)
         {
             var baseDir = SLSaveManager.GetSaveFolderForCharacter(character)
                           + "\\" + SLSaveManager.CUSTOM_FOLDER + "\\";
 
-            bool isWorldHost = character.UID == CharacterManager.Instance.GetWorldHostCharacter()?.UID;
+            //bool isWorldHost = character.UID == CharacterManager.Instance.GetWorldHostCharacter()?.UID;
 
             foreach (var type in s_registeredModels)
             {

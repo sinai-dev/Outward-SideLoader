@@ -36,8 +36,8 @@ namespace SideLoader.SLPacks
 
         protected internal override void InternalLoad(List<SLPack> packs, bool isHotReload)
         {
-            if (Internal_AllCurrentTemplates.Count < 1)
-                Internal_AllCurrentTemplates.Clear();
+            if (AllCurrentTemplates.Count > 0)
+                AllCurrentTemplates.Clear();
 
             var list = new List<ContentTemplate>();
 

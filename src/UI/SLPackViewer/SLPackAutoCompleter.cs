@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 namespace SideLoader.UI.SLPackViewer
@@ -195,6 +196,16 @@ namespace SideLoader.UI.SLPackViewer
 
                 foreach (var obj in Resources.FindObjectsOfTypeAll(gameType))
                 {
+                    // skip scene objects
+                    if (obj is Component comp && comp.gameObject)
+                    {
+                        if (comp.gameObject.scene != default && comp.gameObject.scene.name != "DontDestroyOnLoad")
+                            continue;
+
+                        if (comp.GetComponentInParent<Character>())
+                            continue;
+                    }
+
                     var suggest = new ContentSuggestion
                     {
                         DisplayedValue = obj.name,

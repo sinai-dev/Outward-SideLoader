@@ -263,7 +263,6 @@ namespace SideLoader
             {
                 try
                 {
-                    // If user's ShouldSpawn returns false, return.
                     return ShouldSpawn.Invoke();
                 }
                 catch (Exception ex)
@@ -575,6 +574,9 @@ namespace SideLoader
             var visuals = character.GetComponentInChildren<CharacterVisuals>(true);
 
             var newData = CharacterVisualData.CreateFromNetworkData(visualData);
+
+            if (newData.SkinIndex == -999)
+                yield break;
 
             float start = Time.time;
             while (!visuals && Time.time - start < 5f)

@@ -31,6 +31,9 @@ namespace SideLoader.Model.Status
 
         #endregion
 
+        public GameObject CurrentPrefab => m_status;
+        protected internal GameObject m_status;
+
         internal abstract string Internal_DefaultTemplateName();
         internal abstract bool Internal_IsCreatingNewID();
         internal abstract bool Internal_DoesTargetExist();

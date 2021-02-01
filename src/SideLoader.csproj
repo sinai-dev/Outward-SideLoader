@@ -49,6 +49,9 @@
     <Compile Include="Model\Character\SL_CharacterAI.cs" />
     <Compile Include="Model\Character\SL_CharacterTrainer.cs" />
     <Compile Include="Model\ContentTemplate.cs" />
+    <Compile Include="Model\ItemSources\SL_DropTableAddition.cs" />
+    <Compile Include="Model\ItemSources\SL_ItemSource.cs" />
+    <Compile Include="Model\ItemSources\SL_ItemSpawn.cs" />
     <Compile Include="Model\TemplateDependancySolver.cs" />
     <Compile Include="Model\DropTables\SL_ItemDrop.cs" />
     <Compile Include="Model\DropTables\SL_ItemDropChance.cs" />
@@ -109,11 +112,13 @@
     <Compile Include="Patches\CorePatch.cs" />
     <Compile Include="Patches\DebugPatches.cs" />
     <Compile Include="Patches\ItemPatches.cs" />
+    <Compile Include="Patches\ItemSourcePatches.cs" />
     <Compile Include="Patches\SavePatches.cs" />
     <Compile Include="Patches\ScenePatches.cs" />
     <Compile Include="Patches\ShooterPatches.cs" />
     <Compile Include="Patches\StatusPatches.cs" />
     <Compile Include="SaveData\SLCharacterSaveManager.cs" />
+    <Compile Include="SaveData\SLItemSpawnSaveManager.cs" />
     <Compile Include="SaveData\SLSaveManager.cs" />
     <Compile Include="Model\Character\CustomSpawnInfo.cs" />
     <Compile Include="Model\Character\CharSaveType.cs" />
@@ -157,6 +162,7 @@
     <Compile Include="SLPacks\Categories\AudioClipCategory.cs" />
     <Compile Include="SLPacks\Categories\CharacterCategory.cs" />
     <Compile Include="SLPacks\Categories\EnchantmentCategory.cs" />
+    <Compile Include="SLPacks\Categories\ItemSourceCategory.cs" />
     <Compile Include="SLPacks\Categories\RecipeCategory.cs" />
     <Compile Include="SLPacks\Categories\DropTableCategory.cs" />
     <Compile Include="SLPacks\Categories\ItemCategory.cs" />

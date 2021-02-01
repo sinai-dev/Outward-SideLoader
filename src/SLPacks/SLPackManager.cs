@@ -8,6 +8,17 @@ namespace SideLoader.SLPacks
 {
     public static class SLPackManager
     {
+        public enum LoadOrder
+        {
+            Assets = 0,
+            Tags = 5,
+            StatusFamily = 10,
+            Status = 15,
+            Item = 20,
+            Recipe = 25,
+            IndependantLast = 30,
+        }
+
         //public static event Action<object[]> OnLateApply;
         internal static readonly Dictionary<Action<object[]>, object[]> s_onLateApplyListeners = new Dictionary<Action<object[]>, object[]>();
 

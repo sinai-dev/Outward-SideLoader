@@ -93,6 +93,7 @@ namespace SideLoader.UI.Editor
             var newInstance = Activator.CreateInstance(newType);
 
             At.CopyFields(newInstance, Target, null, true);
+
             Target = newInstance;
             if (this is TemplateInspector ti)
                 ti.Template = Target as ContentTemplate;
@@ -130,7 +131,6 @@ namespace SideLoader.UI.Editor
         internal virtual void CopyValuesFrom(object data)
         {
             At.CopyFields(Target, data, null, true);
-
             UpdateValues();
         }
 
@@ -489,9 +489,30 @@ namespace SideLoader.UI.Editor
             nameInput.onValueChanged.AddListener((string val) => { FilterMembers(val); });
             m_nameFilterText = nameInput.textComponent;
 
+            // apply all button
+
+            var saveAllButtonObj = UIFactory.CreateButton(nameFilterRowObj, new Color(0.2f, 0.4f, 0.2f));
+            var saveBtnLayout = saveAllButtonObj.AddComponent<LayoutElement>();
+            saveBtnLayout.minWidth = 110;
+            saveBtnLayout.minHeight = 25;
+            saveBtnLayout.flexibleWidth = 0;
+            var saveText = saveAllButtonObj.GetComponentInChildren<Text>();
+            saveText.text = "Apply All Values";
+            var saveBtn = saveAllButtonObj.GetComponent<Button>();
+            saveBtn.onClick.AddListener(() =>
+            {
+                foreach (var member in m_allMembers.Where(it => it.m_constructedUI))
+                {
+                    if (member.IValue != null)
+                        member.IValue.QuickSave();
+                    else
+                        member.SetValue();
+                }
+            });
+
             // update button
 
-            var updateButtonObj = UIFactory.CreateButton(nameFilterRowObj, new Color(0.2f, 0.2f, 0.2f));
+            var updateButtonObj = UIFactory.CreateButton(nameFilterRowObj, new Color(0.2f, 0.4f, 0.2f));
             var updateBtnLayout = updateButtonObj.AddComponent<LayoutElement>();
             updateBtnLayout.minWidth = 110;
             updateBtnLayout.minHeight = 25;

@@ -63,7 +63,7 @@ namespace SideLoader
                 return;
             }
 
-            if (this.GuaranteedDrops != null)
+            if (this.GuaranteedDrops != null && GuaranteedDrops.Count > 0)
             {
                 //SL.Log("Generating Guaranteed drops...");
 
@@ -71,7 +71,7 @@ namespace SideLoader
                     drop.GenerateDrop(container);
             }
 
-            if (this.RandomTables != null)
+            if (this.RandomTables != null && RandomTables.Count > 0)
             {
                 //SL.Log("Generating Random Tables...");
 

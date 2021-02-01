@@ -13,11 +13,11 @@ namespace SideLoader.UI.Editor
 
         public override bool WantInspectBtn => false;
 
-        //internal override void QuickSave()
-        //{
-        //    OnApplyClicked();
-        //    base.QuickSave();
-        //}
+        internal override void QuickSave()
+        {
+            OnApplyClicked();
+            base.QuickSave();
+        }
 
         public override void RefreshUIForValue()
         {

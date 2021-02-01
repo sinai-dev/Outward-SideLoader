@@ -34,13 +34,16 @@ namespace SideLoader.UI.Editor
         internal readonly CacheEnumerated[] m_displayedEntries = new CacheEnumerated[30];
         internal bool m_recacheWanted = true;
 
-        //internal override void QuickSave()
-        //{
-        //    foreach (var entry in this.m_entries)
-        //        entry.IValue.QuickSave();
+        internal override void QuickSave()
+        {
+            if (m_subContentConstructed)
+            {
+                foreach (var entry in this.m_entries)
+                    entry?.IValue?.QuickSave();
+            }
 
-        //    base.QuickSave();
-        //}
+            base.QuickSave();
+        }
 
         public override void OnValueUpdated()
         {

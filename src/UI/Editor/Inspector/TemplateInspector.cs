@@ -38,16 +38,16 @@ namespace SideLoader.UI.Editor
         internal override void ChangeType(Type newType)
         {
             var origPack = RefPack.Name;
-            var origSub = this.Template.SerializedFilename;
-            var origFile = this.Template.SerializedSubfolderName;
+            var origSub = this.Template.SerializedSubfolderName;
+            var origFile = this.Template.SerializedFilename;
 
             base.ChangeType(newType);
 
             Template = Target as ContentTemplate;
 
-            Template.SerializedFilename = origFile;
-            Template.SerializedSubfolderName = origSub;
             Template.SerializedSLPackName = origPack;
+            Template.SerializedSubfolderName = origSub;
+            Template.SerializedFilename = origFile;
 
             UpdateFullPathText();
         }
@@ -59,14 +59,15 @@ namespace SideLoader.UI.Editor
             var origFile = this.Template.SerializedFilename;
 
             At.CopyFields(Target, data, null, true);
+            UpdateValues();
+
+            //base.CopyValuesFrom(data);
 
             Template = Target as ContentTemplate;
 
             Template.SerializedFilename = origFile;
             Template.SerializedSubfolderName = origSub;
             Template.SerializedSLPackName = origPack;
-
-            UpdateValues();
         }
 
         internal void Save()
@@ -76,15 +77,6 @@ namespace SideLoader.UI.Editor
                 SL.LogWarning("Error - RefPack is null on TemplateInspector.Save!");
                 return;
             }
-
-            //// make sure all members set their values first (that have been opened)
-            //foreach (var member in this.m_allMembers)
-            //{
-            //    if (!member.m_constructedUI)
-            //        continue;
-
-            //    member.IValue.QuickSave();
-            //}
 
             var directory = RefPack.GetPathForCategory(Template.PackCategory.GetType());
 
@@ -103,7 +95,7 @@ namespace SideLoader.UI.Editor
         {
             if (RefPack == null)
             {
-                SL.LogWarning("Error - RefPack is null on TemplateInspector.Save!");
+                SL.LogWarning("Error - RefPack is null on TemplateInspector.Load!");
                 return;
             }
 
@@ -124,7 +116,7 @@ namespace SideLoader.UI.Editor
             if (Serializer.LoadFromXml(path) is ContentTemplate loadedData)
             {
                 var loadedType = loadedData.GetType();
-                SL.Log("Loaded xml, replacing template with " + loadedType);
+                SL.Log("Loaded xml, loaded type is " + loadedType);
 
                 if (loadedType != m_targetType)
                     ChangeType(loadedType);
@@ -187,7 +179,7 @@ namespace SideLoader.UI.Editor
             var saveBtnLayout = saveBtnObj.AddComponent<LayoutElement>();
             saveBtnLayout.minHeight = 25;
             var saveBtnText = saveBtnObj.GetComponentInChildren<Text>();
-            saveBtnText.text = "Save";
+            saveBtnText.text = "Save XML";
             var saveBtn = saveBtnObj.GetComponent<Button>();
             saveBtn.onClick.AddListener(() =>
             {
@@ -198,7 +190,7 @@ namespace SideLoader.UI.Editor
             var loadLayout = loadBtnObj.AddComponent<LayoutElement>();
             loadLayout.minHeight = 25;
             var loadBtnText = loadBtnObj.GetComponentInChildren<Text>();
-            loadBtnText.text = "Load";
+            loadBtnText.text = "Load XML";
             var loadBtn = loadBtnObj.GetComponent<Button>();
             loadBtn.onClick.AddListener(() =>
             {

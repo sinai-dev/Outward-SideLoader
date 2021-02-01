@@ -6,7 +6,7 @@ namespace SideLoader.SLPacks.Categories
     {
         public override string FolderName => "DropTables";
 
-        public override int LoadOrder => 25;
+        public override int LoadOrder => (int)SLPackManager.LoadOrder.IndependantLast;
 
         public override void ApplyTemplate(ContentTemplate template)
         {

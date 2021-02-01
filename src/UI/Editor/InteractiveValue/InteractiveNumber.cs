@@ -19,12 +19,11 @@ namespace SideLoader.UI.Editor
             base.OnValueUpdated();
         }
 
-        //internal override void QuickSave()
-        //{
-        //    this.OnApplyClicked();
-
-        //    base.QuickSave();
-        //}
+        internal override void QuickSave()
+        {
+            this.OnApplyClicked();
+            base.QuickSave();
+        }
 
         public override void OnException(CacheMember member)
         {

@@ -14,6 +14,17 @@ namespace SideLoader.Patches
             if (___m_allSkills == null)
                 ___m_allSkills = ResourcesPrefabManager.Instance.EDITOR_GetPlayerSkillPrefabs();
 
+            for (int i = 0; i < ___m_allSkills.Count; i++)
+            {
+                var entry = ___m_allSkills[i];
+                if (!entry)
+                {
+                    ___m_allSkills.RemoveAt(i);
+                    i--;
+                    GameObject.Destroy(entry);
+                }
+            }
+
             foreach (var skill in SL_Skill.s_customSkills)
             {
                 if (!___m_allSkills.Contains(skill.Value))
@@ -29,6 +40,17 @@ namespace SideLoader.Patches
             DT_SkillDisplayCheat ___m_skillDisplayTemplate, CharacterUI ___m_characterUI, List<int> ___m_knownSkillDisplay,
             List<int> ___m_unknownSkillDisplay, RectTransform ___m_knownSkillHolder, RectTransform ___m_unknownSkillHolder)
         {
+            for (int i = 0; i < ___m_skillDisplays.Count; i++)
+            {
+                var entry = ___m_skillDisplays[i];
+                if (!entry.RefSkill)
+                {
+                    ___m_skillDisplays.RemoveAt(i);
+                    GameObject.Destroy(entry.gameObject);
+                    i--;
+                }
+            }
+
             foreach (var skill in SL_Skill.s_customSkills)
             {
                 if (!skill.Value)

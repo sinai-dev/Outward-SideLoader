@@ -193,11 +193,11 @@ namespace SideLoader.UI.Editor
 
         public IStructInfo StructInfo;
 
-        //internal override void QuickSave()
-        //{
-        //    this.OnApplyClicked();
-        //    base.QuickSave();
-        //}
+        internal override void QuickSave()
+        {
+            this.OnApplyClicked();
+            base.QuickSave();
+        }
 
         public override void RefreshUIForValue()
         {

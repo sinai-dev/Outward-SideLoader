@@ -76,10 +76,10 @@ namespace SideLoader.UI.Editor
 
         public bool m_UIConstructed;
 
-        //internal virtual void QuickSave()
-        //{
-        //    SetValueFromThis();
-        //}
+        internal virtual void QuickSave()
+        {
+            SetValueFromThis();
+        }
 
         public virtual void OnDestroy()
         {
@@ -95,7 +95,7 @@ namespace SideLoader.UI.Editor
 
         public virtual void DestroySubContent()
         {
-            if (this.m_subContentParent && HasSubContent)
+            if (this.m_subContentParent && m_subContentParent.transform.childCount > 0)
             {
                 for (int i = 0; i < this.m_subContentParent.transform.childCount; i++)
                 {

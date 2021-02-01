@@ -6,7 +6,7 @@ namespace SideLoader.SLPacks.Categories
     {
         public override string FolderName => "Tags";
 
-        public override int LoadOrder => 5;
+        public override int LoadOrder => (int)SLPackManager.LoadOrder.Tags;
 
         //public override bool ShouldApplyLate(IContentTemplate template) => false;
 

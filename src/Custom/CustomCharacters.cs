@@ -66,10 +66,6 @@ namespace SideLoader
 
         internal static readonly List<CustomSpawnInfo> ActiveCharacters = new List<CustomSpawnInfo>();
 
-        //internal static event Action INTERNAL_SpawnSceneCharacters;
-
-        // public static bool IsRealScene(Scene scene) => true; // CustomScenes.IsRealScene(scene);
-
         internal static void InvokeSpawnCharacters()
         {
             if (PhotonNetwork.isNonMasterClientInRoom)
@@ -149,7 +145,11 @@ namespace SideLoader
             SLRPCManager.Instance.photonView.RPC(nameof(SLRPCManager.RPC_RequestCharacters), PhotonTargets.MasterClient);
         }
 
-        // Main internal spawn method
+        // ~~~~~~~~~ Main internal spawn method ~~~~~~~~~
+
+        public const string PLAYER_PREFAB_NAME = "NewPlayerPrefab";
+        public const string TROG_PREFAB_NAME = "TrogPlayerPrefab";
+
         internal static GameObject InternalSpawn(Vector3 position, Vector3 rotation, string UID, string name,
             string visualData, string spawnCallbackUID, string extraRpcData, bool loadingFromSave)
         {
@@ -160,15 +160,25 @@ namespace SideLoader
                 GameObject prefab;
                 Character character;
 
+                string prefabToMake = PLAYER_PREFAB_NAME;
+
+                if (!string.IsNullOrEmpty(visualData))
+                {
+                    var vData = CharacterVisualData.CreateFromNetworkData(visualData);
+                    if (vData != null && vData.SkinIndex == -999)
+                        prefabToMake = TROG_PREFAB_NAME;
+                }
+
+
                 var args = new object[]
                 {
                     (int)CharacterManager.CharacterInstantiationTypes.Temporary,
-                    "NewPlayerPrefab",
+                    prefabToMake,
                     UID,
                     string.Empty // dont send a creator UID, otherwise it links the current summon (used by Conjure Ghost)
                 };
 
-                prefab = PhotonNetwork.InstantiateSceneObject("_characters/NewPlayerPrefab", position, Quaternion.Euler(rotation), 0, args);
+                prefab = PhotonNetwork.InstantiateSceneObject($"_characters/{prefabToMake}", position, Quaternion.Euler(rotation), 0, args);
                 prefab.SetActive(false);
 
                 character = prefab.GetComponent<Character>();

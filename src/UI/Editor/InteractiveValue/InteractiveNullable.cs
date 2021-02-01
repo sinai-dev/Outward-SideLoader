@@ -31,13 +31,13 @@ namespace SideLoader.UI.Editor
             ElementType = valueType.GetGenericArguments()[0];
         }
 
-        //internal override void QuickSave()
-        //{
-        //    if (this.SubIValue != null)
-        //        this.SubIValue.QuickSave();
+        internal override void QuickSave()
+        {
+            if (this.SubIValue != null)
+                this.SubIValue.QuickSave();
 
-        //    base.QuickSave();
-        //}
+            base.QuickSave();
+        }
 
         public override void OnValueUpdated()
         {

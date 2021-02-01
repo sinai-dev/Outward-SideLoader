@@ -58,8 +58,15 @@ namespace SideLoader
         /// <summary>Use this to safely make changes to a scene when it is truly loaded. (All players 
         /// loaded, gameplay may not yet be resumed).</summary>
         public static event Action OnSceneLoaded;
+
         /// <summary>This event is invoked when gameplay actually resumes after a scene is loaded.</summary>
         public static event Action OnGameplayResumedAfterLoading;
+
+        /// <summary>
+        /// Whether or not the last scene loaded had an Area Reset performed on it (ie, 7 days passed or was first ever load).<br/><br/>
+        /// <b>NOTE: </b> this is only reliable when you are the host character!
+        /// </summary>
+        public static bool WasLastSceneReset;
 
         // ======== Scene Change Event ========
 

@@ -23,6 +23,14 @@ namespace SideLoader.UI.Editor
 
         internal Type m_lastEnumType;
 
+        internal override void QuickSave()
+        {
+            if (m_subContentConstructed)
+                SetValueFromDropdown();
+
+            base.QuickSave();
+        }
+
         internal void GetNames()
         {
             var type = Value?.GetType() ?? FallbackType;
@@ -75,13 +83,27 @@ namespace SideLoader.UI.Editor
 
             if (m_subContentConstructed)
             {
-                m_dropdownText.text = Value?.ToString() ?? "<no value set>";
+                if (Value != null)
+                    m_dropdown.value = (int)Value;
+                else
+                    m_dropdownText.text = "<no value set>";
             }
         }
 
         internal override void OnToggleSubcontent(bool toggle)
         {
             base.OnToggleSubcontent(toggle);
+
+            var intVal = (int)Value;
+            for (int i = 0; i < m_values.Length; i++)
+            {
+                var entry = m_values[i];
+                if (entry.Key == intVal)
+                {
+                    m_dropdown.value = i;
+                    break;
+                }
+            }
 
             RefreshUIForValue();
         }

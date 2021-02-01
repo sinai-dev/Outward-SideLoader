@@ -10,16 +10,13 @@ namespace SideLoader.SaveData
     /// </summary>
     public static class SLCharacterSaveManager
     {
-        public static bool SceneResetWanted { get; internal set; }
+        internal static bool SceneResetWanted { get; set; }
 
         // ~~~~~ Saving ~~~~~
 
         // called from SLSaveManager.Save()
         internal static void SaveCharacters()
         {
-            if (PhotonNetwork.isNonMasterClientInRoom || (bool)At.GetField(NetworkLevelLoader.Instance, "m_saveOnHostLost"))
-                return;
-
             //SL.LogWarning("~~~~~~~~~~ Saving Characters ~~~~~~~~~~");
             //SL.Log(SceneManager.GetActiveScene().name);
 
