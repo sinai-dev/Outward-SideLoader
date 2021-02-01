@@ -23,6 +23,8 @@ namespace SideLoader
 
         public float? HealthCost;
 
+        public PlayerSystem.PlayerTypes? RequiredPlayerType;
+
         public override void ApplyToItem(Item item)
         {
             base.ApplyToItem(item);
@@ -68,6 +70,9 @@ namespace SideLoader
                     skill.StartVFX = copy.GetComponent<VFXSystem>();
                 }
             }
+
+            if (this.RequiredPlayerType != null)
+                skill.RequiredPType = (PlayerSystem.PlayerTypes)this.RequiredPlayerType;
 
             // Add to internal dictionary of custom skills (for F3 menu fix)
             if (s_customSkills.ContainsKey(skill.ItemID))

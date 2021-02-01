@@ -8,11 +8,16 @@
 
         public float? VisualDetectabilityAdd;
 
+        public PlayerSystem.PlayerTypes? RequiredPlayerType;
+
         public override void ApplyToItem(Item item)
         {
             base.ApplyToItem(item);
 
             var equipment = item as Equipment;
+
+            if (this.RequiredPlayerType != null)
+                equipment.RequiredPType = (PlayerSystem.PlayerTypes)this.RequiredPlayerType;
 
             if (this.EquipSlot != null)
                 equipment.EquipSlot = (EquipmentSlot.EquipmentSlotIDs)this.EquipSlot;
