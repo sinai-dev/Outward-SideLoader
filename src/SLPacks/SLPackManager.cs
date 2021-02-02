@@ -147,7 +147,7 @@ namespace SideLoader.SLPacks
                 };
 
                 packs.Add(pack);
-                SL.Packs.Add(name, pack);
+                SL.s_packs.Add(name, pack);
             }
 
             return packs;

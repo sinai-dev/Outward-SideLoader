@@ -321,7 +321,7 @@ namespace SideLoader
             }
 
             // Texture Replacements
-            if (!string.IsNullOrEmpty(SLPackName) && SL.Packs.ContainsKey(SLPackName) && !string.IsNullOrEmpty(this.SubfolderName))
+            if (!string.IsNullOrEmpty(SLPackName) && SL.GetSLPack(SLPackName) is SLPack && !string.IsNullOrEmpty(this.SubfolderName))
             {
                 ReadAndApplyTexturesFolder(item);
             }
@@ -329,36 +329,36 @@ namespace SideLoader
 
         public void ReadAndApplyTexturesFolder(Item item)
         {
-            var packpath = SL.GetSLPack(this.SLPackName).GetPathForCategory<ItemCategory>();
+            var pack = SL.GetSLPack(this.SLPackName);
 
-            var texturesFolder = $@"{packpath}\{this.SubfolderName}\Textures";
+            var ctgPath = pack.GetPathForCategory<ItemCategory>();
 
-            if (!Directory.Exists(texturesFolder))
+            var texturesFolder = $@"{ctgPath}\{this.SubfolderName}\Textures";
+
+            if (!pack.DirectoryExists(texturesFolder))
                 return;
 
-            ApplyIconsFromFolder(texturesFolder, item);
+            ApplyIconsFromFolder(pack, texturesFolder, item);
 
-            var textures = GetTexturesFromFolder(texturesFolder, out m_serializedMaterials);
+            var textures = GetTexturesFromFolder(pack, texturesFolder, out m_serializedMaterials);
             ApplyTexAndMats(textures, m_serializedMaterials, item);
         }
 
-        private void ApplyIconsFromFolder(string dir, Item item)
+        private void ApplyIconsFromFolder(SLPack pack, string dir, Item item)
         {
-            var iconPath = dir + @"\icon.png";
-            if (File.Exists(iconPath))
+            if (pack.FileExists(dir, "icon.png"))
             {
-                var tex = CustomTextures.LoadTexture(iconPath, false, false);
+                var tex = pack.LoadTexture2D(dir, "icon.png", false, false);
                 var sprite = CustomTextures.CreateSprite(tex, CustomTextures.SpriteBorderTypes.ItemIcon);
                 UnityEngine.Object.DontDestroyOnLoad(sprite);
                 sprite.name = "icon";
                 CustomItemVisuals.SetSpriteLink(item, sprite, false);
             }
 
-            // check for Skill icon (if skill)
-            var skillPath = dir + @"\skillicon.png";
-            if (File.Exists(skillPath))
+            // check for Skill icon
+            if (pack.FileExists(dir, "skillicon.png"))
             {
-                var tex = CustomTextures.LoadTexture(skillPath, false, false);
+                var tex = pack.LoadTexture2D(dir, "skillicon.png");
                 var sprite = CustomTextures.CreateSprite(tex, CustomTextures.SpriteBorderTypes.SkillTreeIcon);
                 UnityEngine.Object.DontDestroyOnLoad(sprite);
                 sprite.name = "skillicon";
@@ -366,15 +366,7 @@ namespace SideLoader
             }
         }
 
-        /// <summary>
-        /// Checks the provided folder for sub-folders, each sub-folder should be the name of a material.
-        /// Inside this folder there should be the texture PNG files (named after Shader Layers), and the properties.xml file.
-        /// SideLoader will load everything and return it to you in two dictionaries.
-        /// </summary>
-        /// <param name="dir">The base directory to check (eg. "SLPack\Items\MyItem\Textures\")</param>
-        /// <param name="slMaterials">Secondary out paramater for the SL Material templates. Key: Material Name, Value: SL_Material.</param>
-        /// <returns>Key: Material name, Value: List of Texture2D for the material.</returns>
-        public static Dictionary<string, List<Texture2D>> GetTexturesFromFolder(string dir, out Dictionary<string, SL_Material> slMaterials)
+        internal static Dictionary<string, List<Texture2D>> GetTexturesFromFolder(SLPack pack, string dir, out Dictionary<string, SL_Material> slMaterials)
         {
             // build dictionary of textures per material
             // Key: Material name (Safe), Value: Texture
@@ -383,21 +375,22 @@ namespace SideLoader
             // also keep a dict of the SL_Material templates
             slMaterials = new Dictionary<string, SL_Material>();
 
-            foreach (var subfolder in Directory.GetDirectories(dir))
+            foreach (var subfolder in pack.GetDirectories(dir))
             {
                 var matname = Path.GetFileName(subfolder).ToLower();
 
                 if (slMaterials.ContainsKey(matname))
                     continue;
 
-                SL.Log("Reading folder " + matname);
+                SL.Log("Reading material folder " + matname);
 
                 // check for the SL_Material xml
                 Dictionary<string, SL_Material.TextureConfig> texCfgDict = null;
-                string matPath = subfolder + @"\properties.xml";
-                if (File.Exists(matPath))
+
+                if (pack.FileExists(subfolder, "properties.xml"))
                 {
-                    var matHolder = Serializer.LoadFromXml(matPath) as SL_Material;
+                    var matHolder = pack.ReadXmlDocument<SL_Material>(subfolder, "properties.xml");
+
                     matHolder.Name = matname;
                     matHolder.m_serializedFolderPath = subfolder;
                     texCfgDict = matHolder.TextureConfigsToDict();
@@ -405,7 +398,7 @@ namespace SideLoader
                 }
 
                 // read the textures
-                var texFiles = Directory.GetFiles(subfolder, "*.png");
+                var texFiles = pack.GetFiles(subfolder, ".png");
                 if (texFiles.Length > 0)
                 {
                     textures.Add(matname, new List<Texture2D>());
@@ -426,7 +419,7 @@ namespace SideLoader
                         // at this point we can safely turn it lower case for compatibility going forward
                         name = name.ToLower();
 
-                        var tex = CustomTextures.LoadTexture(filepath, mipmap, linear);
+                        var tex = pack.LoadTexture2D(subfolder, Path.GetFileName(filepath), mipmap, linear);
                         tex.name = name;
                         textures[matname].Add(tex);
                     }

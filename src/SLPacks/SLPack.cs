@@ -10,7 +10,7 @@ namespace SideLoader
 {
     public class SLPack
     {
-        /// <summary>The Folder Name of this SLPack</summary>
+        /// <summary>The unique Name of this SLPack</summary>
         public string Name { get; internal set; }
 
         /// <summary>
@@ -23,7 +23,7 @@ namespace SideLoader
         /// <summary>
         /// Returns the folder path for this SL Pack (relative to Outward directory).
         /// </summary>
-        public string FolderPath => InMainSLFolder ?
+        public virtual string FolderPath => InMainSLFolder ?
             $@"{SL.SL_FOLDER}\{Name}" :
             $@"{SL.PLUGINS_FOLDER}\{Name}\SideLoader";
 
@@ -38,7 +38,13 @@ namespace SideLoader
         /// <summary>SL_Characters loaded from the `Characters\` folder. Dictionary Key is the file name without xml.</summary>
         public Dictionary<string, SL_Character> CharacterTemplates = new Dictionary<string, SL_Character>();
 
+        /// <summary>Loaded SLPack ZIPs from the "PackArchives" folder.</summary>
+        public readonly Dictionary<string, SLPackArchive> PackArchives = new Dictionary<string, SLPackArchive>();
+        public readonly Dictionary<string, SLPackBundle> PackBundles = new Dictionary<string, SLPackBundle>();
+
         internal SLPackContent LoadedContent = new SLPackContent();
+
+        // ============ FILE IO ============ //
 
         /// <summary>
         /// Returns the folder path for this SLPack, plus the given SLPackCategory's FolderPath.
@@ -62,8 +68,69 @@ namespace SideLoader
             if (instance == null)
                 throw new Exception($"Trying to get folder path for '{type.FullName}', but category instance is null!");
 
-            return $@"{this.FolderPath}\{instance.FolderName}";
+            string folderPath = this.FolderPath;
+            if (!string.IsNullOrEmpty(folderPath))
+                folderPath += "\\";
+
+            return $@"{folderPath}{instance.FolderName}";
         }
+
+        public virtual bool DirectoryExists(string relativeDirectory)
+            => Directory.Exists(relativeDirectory);
+
+        public virtual bool FileExists(string relativeDirectory, string file)
+            => File.Exists(Path.Combine(relativeDirectory, file));
+
+        public virtual string[] GetDirectories(string relativeDirectory)
+            => Directory.GetDirectories(relativeDirectory);
+
+        public virtual string[] GetFiles(string relativeDirectory)
+            => Directory.GetFiles(relativeDirectory);
+
+        public string[] GetFiles(string relativeDirectory, string endsWith)
+        {
+            var files = GetFiles(relativeDirectory);
+
+            return files.Where(it => it.EndsWith(endsWith, StringComparison.InvariantCultureIgnoreCase))
+                        .ToArray();
+        }
+
+        protected internal virtual T ReadXmlDocument<T>(string relativeDirectory, string file)
+        {
+            return (T)Serializer.LoadFromXml(Path.Combine(relativeDirectory, file));
+        }
+
+        protected internal virtual AssetBundle LoadAssetBundle(string relativeDirectory, string file)
+        {
+            var path = Path.Combine(relativeDirectory, file);
+
+            if (!File.Exists(path))
+                return null;
+
+            return AssetBundle.LoadFromFile(path);
+        }
+
+        protected internal virtual AudioClip LoadAudioClip(string relativeDirectory, string file)
+        {
+            var path = Path.Combine(relativeDirectory, file);
+
+            if (!File.Exists(path))
+                return null;
+
+            return CustomAudio.LoadAudioClip(path, this);
+        }
+
+        protected internal virtual Texture2D LoadTexture2D(string relativeDirectory, string file, bool mipmap = false, bool linear = false)
+        {
+            var path = Path.Combine(relativeDirectory, file);
+
+            if (!File.Exists(path))
+                return null;
+
+            return CustomTextures.LoadTexture(path, mipmap, linear);
+        }
+
+        // ============================================= //
 
         /// <summary>
         /// Get content of type T by the file name. If there are duplicates, it will return the first found (unknown order).<br/><br/>
@@ -73,7 +140,7 @@ namespace SideLoader
         /// <param name="fileName">The content's file name (without extension)</param>
         /// <param name="stringComparison">The string comparison type to use, default is to culture- and case-insensitive.</param>
         /// <returns></returns>
-        public T GetContentByFileName<T>(string fileName, StringComparison stringComparison = StringComparison.InvariantCultureIgnoreCase)
+        public virtual T GetContentByFileName<T>(string fileName, StringComparison stringComparison = StringComparison.InvariantCultureIgnoreCase)
         {
             var content = GetContentOfType<T>();
 
@@ -92,7 +159,7 @@ namespace SideLoader
         /// </summary>
         /// <typeparam name="T">The type of content to load from the SL Pack.</typeparam>
         /// <returns>A dictionary of the loaded content if any found, otherwise null. Keys are the file paths, Values are the content.</returns>
-        public Dictionary<string, T> GetContentOfType<T>()
+        public virtual Dictionary<string, T> GetContentOfType<T>()
         {
             var ret = new Dictionary<string, T>();
 
@@ -123,7 +190,7 @@ namespace SideLoader
         /// </summary>
         /// <param name="type">The SLPackCategory type to get content for.</param>
         /// <returns>A dictionary of the loaded content if any found, otherwise null. Keys are the file paths, Values are the content.</returns>
-        public Dictionary<string, object> GetContentForCategory(Type type)
+        public virtual Dictionary<string, object> GetContentForCategory(Type type)
         {
             if (type == null || !typeof(SLPackCategory).IsAssignableFrom(type))
                 throw new ArgumentException("type");

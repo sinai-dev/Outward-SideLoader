@@ -60,16 +60,16 @@ namespace SideLoader
             }
 
             // check for custom level icons
-            if (!string.IsNullOrEmpty(SerializedSLPackName) && !string.IsNullOrEmpty(SerializedSubfolderName) && SL.GetSLPack(SerializedSLPackName) is SLPack pack)
+            if (!string.IsNullOrEmpty(SerializedSLPackName) 
+                && !string.IsNullOrEmpty(SerializedSubfolderName) 
+                && SL.GetSLPack(SerializedSLPackName) is SLPack pack)
             {
                 var dir = $@"{pack.GetPathForCategory<StatusCategory>()}\{SerializedSubfolderName}";
                 for (int i = 0; i < newMax - 1; i++)
                 {
-                    var path = dir + $@"\icon{i + 2}.png";
-
-                    if (File.Exists(path))
+                    if (pack.FileExists(dir, $@"icon{i + 2}.png"))
                     {
-                        var tex = CustomTextures.LoadTexture(path, false, false);
+                        var tex = pack.LoadTexture2D(dir, $@"icon{i + 2}.png");
                         var sprite = CustomTextures.CreateSprite(tex, CustomTextures.SpriteBorderTypes.NONE);
 
                         //list.Add(sprite);

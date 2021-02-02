@@ -62,55 +62,65 @@ namespace SideLoader
             SL.Log("Replaced " + _sound + " AudioSource with new clip!");
         }
 
-        /// <summary>Coroutine used to load an AudioClip.</summary>
-        public static IEnumerator LoadClip(string path, SLPack pack = null, Dictionary<string, object> dict = null)
+        public static AudioClip LoadAudioClip(string filePath, SLPack pack = null)
         {
-            var fullPath = @"file://" + Path.GetFullPath(path);
+            if (!File.Exists(filePath))
+                return null;
 
-            using (var www = UnityWebRequestMultimedia.GetAudioClip(fullPath, AudioType.WAV))
+            var data = File.ReadAllBytes(filePath);
+
+            return LoadAudioClip(data, Path.GetFileNameWithoutExtension(filePath), pack);
+        }
+
+        public static AudioClip LoadAudioClip(byte[] data, string name, SLPack pack = null)
+        {
+            try
             {
-                SL.Log("Loading audio clip " + path);
-
-                www.SendWebRequest();
-
-                while (!www.isDone)
-                    yield return null;
-
-                if (www.error != null)
+                float[] floatArr = new float[data.Length / 4];
+                for (int i = 0; i < floatArr.Length; i++)
                 {
-                    SL.Log($"Could not load clip: {www.error}");
-                    yield break;
+                    if (BitConverter.IsLittleEndian)
+                        Array.Reverse(data, i * 4, 4);
+
+                    floatArr[i] = BitConverter.ToSingle(data, i * 4) / 0x80000000;
                 }
 
-                var name = Path.GetFileNameWithoutExtension(path);
-                var clip = DownloadHandlerAudioClip.GetContent(www);
-                GameObject.DontDestroyOnLoad(clip);
+                AudioClip clip = AudioClip.Create(name, floatArr.Length, 1, 44100, false);
+                clip.SetData(floatArr, 0);
 
-                if (pack != null)
-                {
-                    if (pack.AudioClips.ContainsKey(name))
-                    {
-                        SL.LogWarning("Replacing clip '" + name + "' in pack '" + pack.Name + "'");
-
-                        if (pack.AudioClips[name])
-                            GameObject.Destroy(pack.AudioClips[name]);
-
-                        pack.AudioClips.Remove(name);
-                    }
-
-                    pack.AudioClips.Add(name, clip);
-
-                    if (dict != null)
-                    {
-                        dict.Add(path, clip);
-                    }
-                }
-
-                if (Enum.TryParse(name, out GlobalAudioManager.Sounds sound))
-                {
-                    ReplaceAudio(sound, clip);
-                }
+                return LoadAudioClip(clip, name, pack);
             }
+            catch (Exception ex)
+            {
+                SL.LogWarning("Exception loading AudioClip!");
+                SL.LogInnerException(ex);
+                return null;
+            }
+        }
+
+        public static AudioClip LoadAudioClip(AudioClip clip, string name, SLPack pack = null)
+        {
+            clip.name = name;
+
+            if (pack != null)
+            {
+                if (pack.AudioClips.ContainsKey(name))
+                {
+                    SL.LogWarning("Replacing clip '" + name + "' in pack '" + pack.Name + "'");
+
+                    if (pack.AudioClips[name])
+                        GameObject.Destroy(pack.AudioClips[name]);
+
+                    pack.AudioClips.Remove(name);
+                }
+
+                pack.AudioClips.Add(name, clip);
+            }
+
+            if (Enum.TryParse(name, out GlobalAudioManager.Sounds sound))
+                ReplaceAudio(sound, clip);
+
+            return clip;
         }
     }
 }

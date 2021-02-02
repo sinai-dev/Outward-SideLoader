@@ -22,22 +22,21 @@ namespace SideLoader.SLPacks.Categories
 
             var dirPath = pack.GetPathForCategory<AssetBundleCategory>();
 
-            if (!Directory.Exists(dirPath))
+            if (!pack.DirectoryExists(dirPath))
                 return dict;
 
-            var fileQuery = Directory.GetFiles(dirPath)
-                                     .Where(x => !x.EndsWith(".meta")
-                                                 && !x.EndsWith(".manifest"));
+            var fileQuery = pack.GetFiles(dirPath)
+                                .Where(x => !x.EndsWith(".meta")
+                                         && !x.EndsWith(".manifest"));
 
             foreach (var bundlePath in fileQuery)
             {
                 try
                 {
-                    var bundle = AssetBundle.LoadFromFile(bundlePath);
-                    if (bundle is AssetBundle)
-                    {
-                        string name = Path.GetFileName(bundlePath);
+                    string name = Path.GetFileName(bundlePath);
 
+                    if (pack.LoadAssetBundle(dirPath, name) is AssetBundle bundle)
+                    {
                         pack.AssetBundles.Add(name, bundle);
 
                         dict.Add(bundlePath, bundle);

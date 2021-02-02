@@ -74,9 +74,9 @@ namespace SideLoader.UI.SLPackViewer
                 text = "No SLPack selected"
             });
 
-            for (int i = 0; i < SL.Packs.Count; i++)
+            for (int i = 0; i < SL.s_packs.Count; i++)
             {
-                var pack = SL.Packs.ElementAt(i).Value;
+                var pack = SL.s_packs.ElementAt(i).Value;
                 m_slPackDropdown.options.Add(new Dropdown.OptionData
                 {
                     text = pack.Name
@@ -111,14 +111,14 @@ namespace SideLoader.UI.SLPackViewer
 
         internal void SetSLPackFromDowndown(int val)
         {
-            if (val < 1 || val > SL.Packs.Count)
+            if (val < 1 || val > SL.s_packs.Count)
             {
                 m_scrollObj.gameObject.SetActive(false);
                 m_generateObj.gameObject.SetActive(false);
                 return;
             }
 
-            m_currentPack = SL.Packs.ElementAt(val - 1).Value;
+            m_currentPack = SL.s_packs.ElementAt(val - 1).Value;
             //m_slPackLabel.text = $"<b>Inspecting:</b> {m_currentPack.Name}";
 
             m_scrollObj.gameObject.SetActive(true);
@@ -195,7 +195,7 @@ namespace SideLoader.UI.SLPackViewer
             };
 
             Directory.CreateDirectory(SL.SL_FOLDER + $@"\{name}");
-            SL.Packs.Add(name, slPack);
+            SL.s_packs.Add(name, slPack);
 
             RefreshLoadedSLPacks();
 

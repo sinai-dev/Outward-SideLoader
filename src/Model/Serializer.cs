@@ -179,16 +179,36 @@ namespace SideLoader
 
             var xml = GetXmlSerializer(obj.GetType());
 
-            FileStream file = File.Create(path);
-            xml.Serialize(file, obj);
-            file.Close();
+            using (var file = File.OpenWrite(path))
+            {
+                try
+                {
+                    xml.Serialize(file, obj);
+                }
+                catch (Exception ex)
+                {
+                    SL.LogWarning("Exception saving object to XML!");
+                    SL.LogInnerException(ex);
+                }
+            }
         }
 
-        public static string GetBaseTypeOfXmlDocument(string path)
+        internal static readonly Dictionary<string, Type> s_typesByName = new Dictionary<string, Type>();
+
+        public static Type GetBaseTypeOfXmlDocument(string path)
         {
-            // First we have to find out what kind of Type this xml was serialized as.
+            Type ret;
+            using (var file = File.OpenRead(path))
+            {
+                ret = GetBaseTypeOfXmlDocument(file);
+            }
+            return ret;
+        }
+
+        public static Type GetBaseTypeOfXmlDocument(Stream stream)
+        {
             string typeName = "";
-            using (XmlReader reader = XmlReader.Create(path))
+            using (var reader = XmlReader.Create(stream))
             {
                 while (reader.Read()) // just get the first element (root) then break.
                 {
@@ -204,13 +224,6 @@ namespace SideLoader
                 }
             }
 
-            return typeName;
-        }
-
-        internal static readonly Dictionary<string, Type> s_typesByName = new Dictionary<string, Type>();
-
-        public static Type GetTypeFromDocumentRootName(string typeName)
-        {
             s_typesByName.TryGetValue(typeName, out Type type);
 
             if (type == null)
@@ -239,22 +252,48 @@ namespace SideLoader
 
             try
             {
-                var typeName = GetBaseTypeOfXmlDocument(path);
+                var type = GetBaseTypeOfXmlDocument(path);
 
-                var type = GetTypeFromDocumentRootName(typeName);
-
+                object ret;
                 using (var file = File.OpenRead(path))
                 {
-                    var xml = GetXmlSerializer(type);
-                    var obj = xml.Deserialize(file);
-                    return obj;
+                    ret = LoadFromXml(file, type);
                 }
+                return ret;
             }
             catch (Exception e)
             {
                 SL.LogError($"Exception reading the XML file: '{path}'!");
                 SL.LogInnerException(e);
 
+                return null;
+            }
+        }
+
+        public static T LoadFromXml<T>(Stream stream)
+        {
+            return (T)LoadFromXml(stream, typeof(T));
+        }
+
+        public static object LoadFromXml(Stream stream, Type baseType)
+        {
+            try
+            {
+                var xml = GetXmlSerializer(baseType);
+
+                object obj = null;
+
+                using (var reader = new StreamReader(stream))
+                {
+                    obj = xml.Deserialize(reader);
+                }
+
+                return obj;
+            }
+            catch (Exception ex)
+            {
+                SL.LogWarning("Exception loading XML stream!");
+                SL.LogInnerException(ex);
                 return null;
             }
         }

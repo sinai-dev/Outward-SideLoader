@@ -17,12 +17,15 @@ namespace SideLoader.SLPacks.Categories
 
             var dirPath = pack.GetPathForCategory<AudioClipCategory>();
 
-            if (!Directory.Exists(dirPath))
+            if (!pack.DirectoryExists(dirPath))
                 return dict;
 
-            foreach (var clipPath in Directory.GetFiles(dirPath, "*.wav"))
+            foreach (var clipPath in pack.GetFiles(dirPath, ".wav"))
             {
-                SLPlugin.Instance.StartCoroutine(CustomAudio.LoadClip(clipPath, pack, dict));
+                var clip = pack.LoadAudioClip(dirPath, Path.GetFileName(clipPath));
+
+                if (clip != null)
+                    dict.Add(clipPath, clip);
             }
 
             return dict;

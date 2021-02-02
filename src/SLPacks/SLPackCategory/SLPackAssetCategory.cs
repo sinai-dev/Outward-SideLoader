@@ -13,6 +13,19 @@ namespace SideLoader.SLPacks
                 var dict = LoadContent(pack, isHotReload);
                 if (dict != null)
                     this.AddToSLPackDictionary(pack, dict);
+
+                if (pack.PackArchives != null && pack.PackArchives.Count > 0)
+                {
+                    foreach (var archive in pack.PackArchives.Values)
+                        LoadContent(archive, isHotReload);
+                }
+
+                if (pack.PackBundles != null && pack.PackBundles.Count > 0)
+                {
+                    SL.Log("Checking pack bundles for category '" + this.GetType().Name + "' in pack " + pack.Name);
+                    foreach (var archive in pack.PackBundles.Values)
+                        LoadContent(archive, isHotReload);
+                }
             }
         }
 

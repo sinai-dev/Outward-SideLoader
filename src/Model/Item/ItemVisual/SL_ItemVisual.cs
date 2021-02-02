@@ -44,10 +44,8 @@ namespace SideLoader
                 bool setPrefab = false;
 
                 // Check for AssetBundle Prefabs first
-                if (!string.IsNullOrEmpty(Prefab_SLPack) && SL.Packs.ContainsKey(Prefab_SLPack))
+                if (!string.IsNullOrEmpty(Prefab_SLPack) && SL.GetSLPack(Prefab_SLPack) is SLPack pack)
                 {
-                    var pack = SL.Packs[this.Prefab_SLPack];
-
                     if (pack.AssetBundles.ContainsKey(Prefab_AssetBundle))
                     {
                         var newVisuals = pack.AssetBundles[Prefab_AssetBundle].LoadAsset<GameObject>(Prefab_Name);

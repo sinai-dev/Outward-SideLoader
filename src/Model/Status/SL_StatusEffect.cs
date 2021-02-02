@@ -265,13 +265,15 @@ namespace SideLoader
             }
 
             // check for custom icon
-            if (!string.IsNullOrEmpty(SerializedSLPackName) && !string.IsNullOrEmpty(SerializedSubfolderName) && SL.GetSLPack(SerializedSLPackName) is SLPack pack)
+            if (!string.IsNullOrEmpty(SerializedSLPackName) 
+                && !string.IsNullOrEmpty(SerializedSubfolderName) 
+                && SL.GetSLPack(SerializedSLPackName) is SLPack pack)
             {
-                var path = $@"{pack.GetPathForCategory<StatusCategory>()}\{SerializedSubfolderName}\icon.png";
+                var dir = $@"{pack.GetPathForCategory<StatusCategory>()}\{SerializedSubfolderName}";
 
-                if (File.Exists(path))
+                if (pack.FileExists(dir, "icon.png"))
                 {
-                    var tex = CustomTextures.LoadTexture(path, false, false);
+                    var tex = pack.LoadTexture2D(dir, "icon.png");
                     var sprite = CustomTextures.CreateSprite(tex, CustomTextures.SpriteBorderTypes.NONE);
 
                     status.OverrideIcon = sprite;

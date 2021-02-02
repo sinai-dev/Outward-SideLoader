@@ -44,6 +44,7 @@
             VisualDetectabilityAdd = equipment.VisualDetectabilityAdd;
             TwoHandType = equipment.TwoHand;
             IKType = equipment.IKType;
+            RequiredPlayerType = equipment.RequiredPType;
         }
     }
 }

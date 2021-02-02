@@ -46,16 +46,17 @@ namespace SideLoader
             }
 
             // check for custom level icons
-            if (!string.IsNullOrEmpty(SLPackName) && !string.IsNullOrEmpty(SubfolderName) && SL.Packs[SLPackName] is SLPack pack)
+            if (!string.IsNullOrEmpty(SLPackName) && !string.IsNullOrEmpty(SubfolderName) && SL.GetSLPack(SLPackName) is SLPack pack)
             {
                 var dir = $@"{pack.GetPathForCategory<ItemCategory>()}\{SubfolderName}\Textures";
+
                 for (int i = 0; i < newMax; i++)
                 {
-                    var path = dir + $@"\icon{i + 2}.png";
+                    //var path = dir + $@"\icon{i + 2}.png";
 
-                    if (File.Exists(path))
+                    if (pack.FileExists(dir, $@"icon{i + 2}.png"))
                     {
-                        var tex = CustomTextures.LoadTexture(path, false, false);
+                        var tex = pack.LoadTexture2D(dir, $@"icon{i + 2}.png");
                         var sprite = CustomTextures.CreateSprite(tex, CustomTextures.SpriteBorderTypes.NONE);
 
                         stages[i].StageIcon = sprite;

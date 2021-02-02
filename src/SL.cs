@@ -21,17 +21,17 @@ namespace SideLoader
 
         // Folders
         public const string SL_FOLDER = @"Mods\SideLoader";
-        public static string PLUGINS_FOLDER => Paths.PluginPath;
+        public static string PLUGINS_FOLDER => @"BepInEx\plugins\";
+
         public static string INTERNAL_FOLDER => $@"{SL_FOLDER}\{_INTERNAL}";
         public const string _INTERNAL = "_INTERNAL";
-
-        //public static string GENERATED_FOLDER => $@"{SL_FOLDER}\{_GENERATED}";
-        //public const string _GENERATED = "_GENERATED";
 
         internal static Transform s_cloneHolder;
 
         // SL Packs
-        internal static Dictionary<string, SLPack> Packs = new Dictionary<string, SLPack>();
+        internal static readonly Dictionary<string, SLPack> s_packs = new Dictionary<string, SLPack>();
+        internal static readonly Dictionary<string, SLPackArchive> s_archivePacks = new Dictionary<string, SLPackArchive>();
+        internal static readonly Dictionary<string, SLPackBundle> s_bundlePacks = new Dictionary<string, SLPackBundle>();
 
         /// <summary>
         /// Get an SLPack from a provided SLPack folder name.
@@ -40,7 +40,16 @@ namespace SideLoader
         /// <returns>The SLPack instance, if one was loaded with that name.</returns>
         public static SLPack GetSLPack(string name)
         {
-            Packs.TryGetValue(name, out SLPack pack);
+            s_packs.TryGetValue(name, out SLPack pack);
+
+            if (pack == null && s_archivePacks.TryGetValue(name, out SLPackArchive archive))
+            { 
+                pack = archive;
+
+                if (pack == null && s_bundlePacks.TryGetValue(name, out SLPackBundle bundle))
+                    pack = bundle;
+            }
+
             return pack;
         }
 
@@ -99,6 +108,8 @@ namespace SideLoader
 
         internal static void Setup(bool isFirstSetup = true)
         {
+            var start = Time.realtimeSinceStartup;
+
             s_cloneHolder = new GameObject("SL_CloneHolder").transform;
             GameObject.DontDestroyOnLoad(s_cloneHolder.gameObject);
 
@@ -120,7 +131,7 @@ namespace SideLoader
 
             if (isFirstSetup)
             {
-                foreach (var pack in SL.Packs)
+                foreach (var pack in SL.s_packs)
                     pack.Value.TryApplyItemTextureBundles();
             }
 
@@ -128,6 +139,10 @@ namespace SideLoader
             PacksLoaded = true;
             Log("SideLoader Setup Finished");
             Log("-------------------------");
+
+            var end = Time.realtimeSinceStartup - start;
+
+            SL.Log("SL Setup took " + end + " seconds");
 
             if (isFirstSetup)
             {
@@ -186,7 +201,9 @@ namespace SideLoader
 
             // Reset packs
             PacksLoaded = false;
-            Packs.Clear();
+            s_packs.Clear();
+            s_archivePacks.Clear();
+            s_bundlePacks.Clear();
         }
 
         // ==================== Helpers ==================== //

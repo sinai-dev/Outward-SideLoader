@@ -17,28 +17,29 @@ namespace SideLoader.SLPacks.Categories
 
             var dirPath = pack.GetPathForCategory<Texture2DCategory>();
 
-            if (!Directory.Exists(dirPath))
+            if (!pack.DirectoryExists(dirPath))
                 return dict;
 
-            foreach (var texPath in Directory.GetFiles(dirPath, "*.png"))
+            foreach (var texPath in pack.GetFiles(dirPath, ".png"))
             {
-                LoadTexture(pack, dict, texPath, true);
+                LoadTexture(pack, dict, dirPath, texPath, true);
 
                 var localDir = dirPath + @"\Local";
                 if (Directory.Exists(localDir))
                 {
-                    foreach (var localTex in Directory.GetFiles(localDir, "*.png"))
-                        LoadTexture(pack, dict, localTex, false);
+                    foreach (var localTex in pack.GetFiles(localDir, ".png"))
+                        LoadTexture(pack, dict, localDir, localTex, false);
                 }
             }
 
             return dict;
         }
 
-        private void LoadTexture(SLPack pack, Dictionary<string, object> dict, string texPath, bool addGlobal)
+        private void LoadTexture(SLPack pack, Dictionary<string, object> dict, string dirPath, string texFile, bool addGlobal)
         {
-            var texture = CustomTextures.LoadTexture(texPath, false, false);
-            var name = Path.GetFileNameWithoutExtension(texPath);
+            var texture = pack.LoadTexture2D(dirPath, texFile, false, false);
+
+            var name = Path.GetFileNameWithoutExtension(texFile);
 
             // add to the Texture2D dict for this pack
             if (pack.Texture2D.ContainsKey(name))
@@ -48,7 +49,8 @@ namespace SideLoader.SLPacks.Categories
             }
 
             pack.Texture2D.Add(name, texture);
-            dict.Add(texPath, texture);
+
+            dict.Add(Path.Combine(dirPath, texFile), texture);
 
             if (addGlobal)
             {

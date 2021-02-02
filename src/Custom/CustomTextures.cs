@@ -60,29 +60,30 @@ namespace SideLoader
         /// <returns>The Texture2D (or null if there was an error)</returns>
         public static Texture2D LoadTexture(string filePath, bool mipmap, bool linear)
         {
-            if (File.Exists(filePath))
-            {
-                var fileData = File.ReadAllBytes(filePath);
-                Texture2D tex = new Texture2D(4, 4, TextureFormat.DXT5, mipmap, linear);
-
-                try
-                {
-                    tex.LoadImage(fileData);
-                }
-                catch (Exception e)
-                {
-                    SL.Log("Error loading texture! Message: " + e.Message + "\r\nStack: " + e.StackTrace);
-                }
-
-                tex.filterMode = FilterMode.Bilinear;
-
-                return tex;
-            }
-            else
-            {
-                SL.LogError("Could not find " + filePath);
+            if (!File.Exists(filePath))
                 return null;
+
+            var file = File.ReadAllBytes(filePath);
+
+            return LoadTexture(file, mipmap, linear);
+        }
+
+        public static Texture2D LoadTexture(byte[] data, bool mipmap, bool linear)
+        {
+            Texture2D tex = new Texture2D(4, 4, TextureFormat.DXT5, mipmap, linear);
+
+            try
+            {
+                tex.LoadImage(data);
             }
+            catch (Exception e)
+            {
+                SL.Log("Error loading texture! Message: " + e.Message + "\r\nStack: " + e.StackTrace);
+            }
+
+            tex.filterMode = FilterMode.Bilinear;
+
+            return tex;
         }
 
         /// <summary> Helper for creating a generic sprite with no border, from a Texture2D. Use CustomTextures.LoadTexture() to load a tex from a filepath. </summary>

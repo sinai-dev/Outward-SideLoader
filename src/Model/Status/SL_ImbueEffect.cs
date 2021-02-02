@@ -94,13 +94,13 @@ namespace SideLoader
             CustomStatusEffects.SetImbueLocalization(preset, Name, Description);
 
             // check for custom icon
-            if (!string.IsNullOrEmpty(SLPackName) && !string.IsNullOrEmpty(SubfolderName) && SL.Packs[SLPackName] is SLPack pack)
+            if (!string.IsNullOrEmpty(SLPackName) && !string.IsNullOrEmpty(SubfolderName) && SL.GetSLPack(SLPackName) is SLPack pack)
             {
-                var path = $@"{pack.GetPathForCategory<StatusCategory>()}\{SubfolderName}\icon.png";
+                var dir = $@"{pack.GetPathForCategory<StatusCategory>()}\{SubfolderName}";
 
-                if (File.Exists(path))
+                if (pack.FileExists(dir, "icon.png"))
                 {
-                    var tex = CustomTextures.LoadTexture(path, false, false);
+                    var tex = pack.LoadTexture2D(dir, "icon.png");
                     var sprite = CustomTextures.CreateSprite(tex, CustomTextures.SpriteBorderTypes.NONE);
 
                     preset.ImbueStatusIcon = sprite;

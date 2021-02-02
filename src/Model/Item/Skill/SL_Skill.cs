@@ -160,6 +160,8 @@ namespace SideLoader
             VFXOnStart = skill.VFXOnStart;
             StopStartVFXOnEnd = skill.StopVFX;
 
+            RequiredPlayerType = skill.RequiredPType;
+
             if (skill.StartVFX)
                 StartVFX = SL_PlayVFX.GetVFXSystemEnum(skill.StartVFX);
 
