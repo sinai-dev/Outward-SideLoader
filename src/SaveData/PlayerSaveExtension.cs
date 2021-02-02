@@ -82,7 +82,7 @@ namespace SideLoader.SaveData
         internal static void LoadExtensions(Character character)
         {
             var dir = SLSaveManager.GetSaveFolderForCharacter(character)
-                          + "\\" + SLSaveManager.CUSTOM_FOLDER + "\\";
+                      + "\\" + SLSaveManager.CUSTOM_FOLDER + "\\";
 
             bool isWorldHost = character.UID == CharacterManager.Instance.GetWorldHostCharacter()?.UID;
 
@@ -181,8 +181,5 @@ namespace SideLoader.SaveData
                 SL.LogInnerException(ex);
             }
         }
-
-        [Obsolete("No longer required, defining the class is enough.")]
-        public void Prepare() { }
     }
 }

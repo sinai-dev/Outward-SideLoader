@@ -36,7 +36,7 @@ namespace SideLoader.SLPacks.Categories
 
                     var assetbundle = AssetBundle.LoadFromFile(bundlePath);
 
-                    var bundlePack = new SLPackBundle(Path.GetFileNameWithoutExtension(bundlePath), pack, assetbundle);
+                    var bundlePack = new SLPackBundle(Path.GetFileName(bundlePath), pack, assetbundle);
 
                     pack.PackBundles.Add(bundlePack.Name, bundlePack);
 

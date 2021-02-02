@@ -47,16 +47,8 @@ namespace SideLoader.SLPacks
             {
                 DeserializePack(pack, list);
 
-                if (pack.PackArchives != null && pack.PackArchives.Count > 0)
-                {
-                    foreach (var archive in pack.PackArchives.Values)
-                        DeserializePack(archive, list);
-                }
-
                 if (pack.PackBundles != null && pack.PackBundles.Count > 0)
                 {
-                    SL.Log("Checking pack bundles for category '" + this.GetType().Name + "' in pack " + pack.Name);
-
                     foreach (var bundle in pack.PackBundles.Values)
                         DeserializePack(bundle, list);
                 }

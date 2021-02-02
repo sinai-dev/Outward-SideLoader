@@ -9,25 +9,35 @@ namespace SideLoader.SLPacks
 {
     public class SLPackArchive : SLPack
     {
-        public SLPackArchive(string name, SLPack parentPack, ZipArchive archive)
+        /// <summary>
+        /// Create and prepare an SLPackArchive from a zipped SLPack stream.
+        /// </summary>
+        /// <param name="resourceStream">The stream for the zipped SLPack, eg. from calling typeof(MyPlugin).Assembly.GetManifestResourceStream("...")</param>
+        /// <param name="packName">The unique name you are giving to this SLPack.</param>
+        public static SLPackArchive CreatePackFromStream(Stream resourceStream, string packName)
         {
-            this.Name = $"{parentPack.Name}.{name}";
+            var zip = new ZipArchive(resourceStream);
+            var archive = new SLPackArchive(packName, zip);
 
-            if (SL.s_archivePacks.ContainsKey(Name))
+            return archive;
+        }
+
+        public SLPackArchive(string name, ZipArchive archive)
+        {
+            this.Name = name;
+            this.RefZipArchive = archive;
+
+            if (SL.s_embeddedArchivePacks.ContainsKey(Name))
             {
-                SL.LogWarning("Two SLPackArchives with duplicate name: " + Name + ", not loading!");
+                SL.LogWarning("Two embedded SLPackArchives with duplicate name: " + Name + ", not loading!");
                 return;
             }
 
-            SL.s_archivePacks.Add(Name, this);
-
-            this.ParentSLPack = parentPack;
-            this.RefZipArchive = archive;
+            SL.s_embeddedArchivePacks.Add(Name, this);
 
             CachePaths();
         }
 
-        public readonly SLPack ParentSLPack;
         public readonly ZipArchive RefZipArchive;
 
         internal Dictionary<string, List<string>> m_fileStructure = new Dictionary<string, List<string>>();
@@ -43,9 +53,9 @@ namespace SideLoader.SLPacks
 
             foreach (var entry in RefZipArchive.Entries)
             {
-                var fullpath = entry.FullName.Replace('/', '\\');
+                var fullpath = entry.FullName.Replace('/', Path.DirectorySeparatorChar);
 
-                if (fullpath.EndsWith("\\"))
+                if (fullpath.EndsWith(Path.DirectorySeparatorChar.ToString()))
                 {
                     fullpath = fullpath.Substring(0, fullpath.Length - 1);
 
@@ -101,7 +111,7 @@ namespace SideLoader.SLPacks
             if (!query.Any())
                 return new string[0];
 
-            // now filter those results and only use top-level results.
+            // now filter those results and only use real results.
             var list = new List<string>();
 
             string parentName = Path.GetFileName(relativeDirectory);

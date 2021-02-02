@@ -15,7 +15,7 @@ namespace SideLoader.SLPacks
         {
             this.Name = $"{parentPack.Name}.{name}";
 
-            if (SL.s_archivePacks.ContainsKey(Name))
+            if (SL.s_bundlePacks.ContainsKey(Name))
             {
                 SL.LogWarning("Two SLPackBundles with duplicate name: " + Name + ", not loading!");
                 return;
@@ -45,10 +45,11 @@ namespace SideLoader.SLPacks
 
             foreach (var entry in RefAssetBundle.GetAllAssetNames())
             {
-                var fullpath = entry.Replace('/', '\\');
+                var fullpath = entry.Replace('/', Path.DirectorySeparatorChar);
 
-                if (fullpath.StartsWith("assets\\"))
-                    fullpath = fullpath.Substring(7, fullpath.Length - 7);
+                var assetsString = $"assets{Path.DirectorySeparatorChar}";
+                if (fullpath.StartsWith(assetsString))
+                    fullpath = fullpath.Substring(assetsString.Length, fullpath.Length - assetsString.Length);
 
                 //SL.Log("Caching entry " + fullpath);
 
@@ -79,12 +80,9 @@ namespace SideLoader.SLPacks
             }
         }
 
-        public override bool DirectoryExists(string relativeDirectory)
-        {
-            var query = relativeDirectory.ToLower();
-
-            return m_fileStructure.Keys.Any(it => it.StartsWith(query, StringComparison.InvariantCultureIgnoreCase));
-        }
+        public override bool DirectoryExists(string dir)
+            => m_fileStructure.Keys.Any(it => it.Equals(dir, StringComparison.InvariantCultureIgnoreCase)
+                                           || it.StartsWith($"{dir}{Path.DirectorySeparatorChar}", StringComparison.InvariantCultureIgnoreCase));
 
         public override string[] GetDirectories(string relativeDirectory)
         {
@@ -158,12 +156,14 @@ namespace SideLoader.SLPacks
 
             var orig = GetAsset<Texture2D>(relativeDirectory, file);
 
-            if (!orig)
-                return null;
+            return orig;
 
-            var data = orig.GetRawTextureData();
+            //if (!orig)
+            //    return null;
 
-            return CustomTextures.LoadTexture(data, mipmap, linear);
+            //var data = orig.GetRawTextureData();
+
+            //return CustomTextures.LoadTexture(data, mipmap, linear);
         }
 
         private T GetAsset<T>(string relativePath, string file) where T : Object

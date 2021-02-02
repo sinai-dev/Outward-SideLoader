@@ -38,8 +38,9 @@ namespace SideLoader
         /// <summary>SL_Characters loaded from the `Characters\` folder. Dictionary Key is the file name without xml.</summary>
         public Dictionary<string, SL_Character> CharacterTemplates = new Dictionary<string, SL_Character>();
 
-        /// <summary>Loaded SLPack ZIPs from the "PackArchives" folder.</summary>
-        public readonly Dictionary<string, SLPackArchive> PackArchives = new Dictionary<string, SLPackArchive>();
+        /// <summary>
+        /// SLPackBundles loaded from the `PackBundles\` folder. Key is the file name of the bundle, including any extension if provided.
+        /// </summary>
         public readonly Dictionary<string, SLPackBundle> PackBundles = new Dictionary<string, SLPackBundle>();
 
         internal SLPackContent LoadedContent = new SLPackContent();
@@ -68,11 +69,11 @@ namespace SideLoader
             if (instance == null)
                 throw new Exception($"Trying to get folder path for '{type.FullName}', but category instance is null!");
 
-            string folderPath = this.FolderPath;
-            if (!string.IsNullOrEmpty(folderPath))
-                folderPath += "\\";
+            string ret = this.FolderPath;
+            if (!string.IsNullOrEmpty(ret))
+                ret += Path.DirectorySeparatorChar;
 
-            return $@"{folderPath}{instance.FolderName}";
+            return $@"{ret}{instance.FolderName}";
         }
 
         public virtual bool DirectoryExists(string relativeDirectory)

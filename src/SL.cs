@@ -24,14 +24,14 @@ namespace SideLoader
         public static string PLUGINS_FOLDER => @"BepInEx\plugins\";
 
         public static string INTERNAL_FOLDER => $@"{SL_FOLDER}\{_INTERNAL}";
-        public const string _INTERNAL = "_INTERNAL";
+        private const string _INTERNAL = "_INTERNAL";
 
         internal static Transform s_cloneHolder;
 
         // SL Packs
         internal static readonly Dictionary<string, SLPack> s_packs = new Dictionary<string, SLPack>();
-        internal static readonly Dictionary<string, SLPackArchive> s_archivePacks = new Dictionary<string, SLPackArchive>();
         internal static readonly Dictionary<string, SLPackBundle> s_bundlePacks = new Dictionary<string, SLPackBundle>();
+        internal static readonly Dictionary<string, SLPackArchive> s_embeddedArchivePacks = new Dictionary<string, SLPackArchive>();
 
         /// <summary>
         /// Get an SLPack from a provided SLPack folder name.
@@ -40,17 +40,17 @@ namespace SideLoader
         /// <returns>The SLPack instance, if one was loaded with that name.</returns>
         public static SLPack GetSLPack(string name)
         {
-            s_packs.TryGetValue(name, out SLPack pack);
+            if (s_packs.TryGetValue(name, out SLPack pack))
+                return pack;
 
-            if (pack == null && s_archivePacks.TryGetValue(name, out SLPackArchive archive))
-            { 
-                pack = archive;
+            if (s_bundlePacks.TryGetValue(name, out SLPackBundle bundle))
+                return bundle;
 
-                if (pack == null && s_bundlePacks.TryGetValue(name, out SLPackBundle bundle))
-                    pack = bundle;
-            }
+            if (s_embeddedArchivePacks.TryGetValue(name, out SLPackArchive archive))
+                return archive;
 
-            return pack;
+            LogWarning("Could not get SLPack by name '" + name + "'!");
+            return null;
         }
 
         /// <summary>Have SL Packs been loaded yet?</summary>
@@ -76,33 +76,6 @@ namespace SideLoader
         /// <b>NOTE: </b> this is only reliable when you are the host character!
         /// </summary>
         public static bool WasLastSceneReset;
-
-        // ======== Scene Change Event ========
-
-        // This is called when Unity says the scene is done loading, but we still want to wait for Outward to be done.
-        internal void SceneLoaded(Scene scene, LoadSceneMode _)
-        {
-            if (!scene.name.ToLower().Contains("lowmemory") && !scene.name.ToLower().Contains("mainmenu"))
-                SLPlugin.Instance.StartCoroutine(WaitForSceneReady());
-        }
-
-        private IEnumerator WaitForSceneReady()
-        {
-            while (!NetworkLevelLoader.Instance.IsOverallLoadingDone || !NetworkLevelLoader.Instance.AllPlayerDoneLoading)
-                yield return null;
-
-            TryInvoke(OnSceneLoaded);
-
-            SLPlugin.Instance.StartCoroutine(WaitForGameplayResumed());
-        }
-
-        private IEnumerator WaitForGameplayResumed()
-        {
-            while (NetworkLevelLoader.Instance.IsGameplayPaused)
-                yield return null;
-
-            TryInvoke(OnGameplayResumedAfterLoading);
-        }
 
         // ======== SL Setup ========
 
@@ -157,6 +130,29 @@ namespace SideLoader
             }
         }
 
+        internal static void ResetForHotReload()
+        {
+            foreach (var ctg in SLPackManager.SLPackCategories)
+            {
+                try
+                {
+                    ctg.OnHotReload();
+                }
+                catch (Exception e)
+                {
+                    LogWarning("Exception Hot Reloading category: " + ctg.ToString());
+                    LogInnerException(e);
+                }
+            }
+
+            // Reset packs
+            PacksLoaded = false;
+            s_packs.Clear();
+            s_bundlePacks.Clear();
+
+            //s_embeddedArchivePacks.Clear();
+        }
+
         internal static void CheckPrefabDictionaries()
         {
             //// This debug is for when we need to dump prefab names for enums.
@@ -184,26 +180,31 @@ namespace SideLoader
             SL.Log("Built FX prefab dictionaries");
         }
 
-        internal static void ResetForHotReload()
-        {
-            foreach (var ctg in SLPackManager.SLPackCategories)
-            {
-                try
-                {
-                    ctg.OnHotReload();
-                }
-                catch (Exception e)
-                {
-                    LogWarning("Exception Hot Reloading category: " + ctg.ToString());
-                    LogInnerException(e);
-                }
-            }
+        // ======== Scene Change Event ========
 
-            // Reset packs
-            PacksLoaded = false;
-            s_packs.Clear();
-            s_archivePacks.Clear();
-            s_bundlePacks.Clear();
+        // This is called when Unity says the scene is done loading, but we still want to wait for Outward to be done.
+        internal void SceneLoaded(Scene scene, LoadSceneMode _)
+        {
+            if (!scene.name.ToLower().Contains("lowmemory") && !scene.name.ToLower().Contains("mainmenu"))
+                SLPlugin.Instance.StartCoroutine(WaitForSceneReady());
+        }
+
+        private IEnumerator WaitForSceneReady()
+        {
+            while (!NetworkLevelLoader.Instance.IsOverallLoadingDone || !NetworkLevelLoader.Instance.AllPlayerDoneLoading)
+                yield return null;
+
+            TryInvoke(OnSceneLoaded);
+
+            SLPlugin.Instance.StartCoroutine(WaitForGameplayResumed());
+        }
+
+        private IEnumerator WaitForGameplayResumed()
+        {
+            while (NetworkLevelLoader.Instance.IsGameplayPaused)
+                yield return null;
+
+            TryInvoke(OnGameplayResumedAfterLoading);
         }
 
         // ==================== Helpers ==================== //

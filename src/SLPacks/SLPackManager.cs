@@ -75,6 +75,12 @@ namespace SideLoader.SLPacks
         {
             var packs = LoadBaseSLPacks();
 
+            if (SL.s_embeddedArchivePacks.Any())
+            { 
+                packs.AddRange(SL.s_embeddedArchivePacks.Values);
+                SL.Log("Added " + SL.s_embeddedArchivePacks.Count + " embedded packs to load order...");
+            }
+
             // Normal load order
             foreach (var ctg in SLPackCategories)
                 LoadPackCategory(packs, ctg, firstSetup);

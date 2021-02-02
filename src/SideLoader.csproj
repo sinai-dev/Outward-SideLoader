@@ -163,7 +163,6 @@
     <Compile Include="SLPacks\Categories\CharacterCategory.cs" />
     <Compile Include="SLPacks\Categories\EnchantmentCategory.cs" />
     <Compile Include="SLPacks\Categories\ItemSourceCategory.cs" />
-    <Compile Include="SLPacks\Categories\PackArchiveCategory.cs" />
     <Compile Include="SLPacks\Categories\PackBundleCategory.cs" />
     <Compile Include="SLPacks\Categories\RecipeCategory.cs" />
     <Compile Include="SLPacks\Categories\DropTableCategory.cs" />
@@ -336,6 +335,7 @@
     <Compile Include="SLPlugin.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Helpers\At.cs" />
+    <!-- <EmbeddedResource Include="Resources\*" /> -->
   </ItemGroup>
   <ItemGroup>
     <Reference Include="0Harmony">
@@ -383,17 +383,8 @@
       <HintPath>..\..\..\..\..\Steam\steamapps\common\Outward\Outward_Data\Managed\System.EnterpriseServices.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="System.IO.Compression, Version=4.1.2.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
-      <HintPath>packages\System.IO.Compression.4.3.0\lib\net46\System.IO.Compression.dll</HintPath>
-      <Private>True</Private>
-      <Private>True</Private>
-    </Reference>
+    <Reference Include="System.IO.Compression" />
     <Reference Include="System.IO.Compression.FileSystem" />
-    <Reference Include="System.IO.Compression.ZipFile, Version=4.0.2.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
-      <HintPath>packages\System.IO.Compression.ZipFile.4.3.0\lib\net46\System.IO.Compression.ZipFile.dll</HintPath>
-      <Private>True</Private>
-      <Private>True</Private>
-    </Reference>
     <Reference Include="System.XML" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="UnityEngine">
@@ -473,7 +464,6 @@
     <None Include="..\.editorconfig">
       <Link>.editorconfig</Link>
     </None>
-    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
