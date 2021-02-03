@@ -14,18 +14,16 @@ namespace SideLoader
         public string Name { get; internal set; }
 
         /// <summary>
-        /// Used internally to track where this SL Pack was loaded from.
-        /// True = folder is `Outward\Mods\SideLoader\{Name}`. 
-        /// False = folder is `Outward\BepInEx\plugins\{Name}\SideLoader\`.
+        /// Is this pack in the legacy 'Mods\SideLoader\{name}\' format?
         /// </summary>
-        public bool InMainSLFolder { get; internal set; }
+        public bool IsInLegacyFolder { get; internal set; }
 
         /// <summary>
         /// Returns the folder path for this SL Pack (relative to Outward directory).
         /// </summary>
-        public virtual string FolderPath => InMainSLFolder ?
-            $@"{SL.SL_FOLDER}\{Name}" :
-            $@"{SL.PLUGINS_FOLDER}\{Name}\SideLoader";
+        public virtual string FolderPath => !IsInLegacyFolder ?
+            $@"{SL.PLUGINS_FOLDER}\{Name}\SideLoader" :
+            $@"{SL.LEGACY_SL_FOLDER}\{Name}";
 
         // Hard-coded dictionaries for easy access:
 

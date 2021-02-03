@@ -190,11 +190,10 @@ namespace SideLoader.UI.SLPackViewer
 
             var slPack = new SLPack
             {
-                Name = name,
-                InMainSLFolder = true,
+                Name = name
             };
 
-            Directory.CreateDirectory(SL.SL_FOLDER + $@"\{name}");
+            Directory.CreateDirectory(SL.PLUGINS_FOLDER + $@"\{name}");
             SL.s_packs.Add(name, slPack);
 
             RefreshLoadedSLPacks();

@@ -132,24 +132,27 @@ namespace SideLoader.SLPacks
                 if (!Directory.Exists($@"{dir}\SideLoader"))
                     continue;
 
-                AddSLPack(Path.GetFileName(dir), false);
+                AddSLPack(Path.GetFileName(dir));
             }
 
             // 'Mods\SideLoader\...' packs:
-            foreach (var dir in Directory.GetDirectories(SL.SL_FOLDER))
+            if (Directory.Exists(SL.LEGACY_SL_FOLDER))
             {
-                if (dir == SL.INTERNAL_FOLDER || dir == SLSaveManager.SAVEDATA_FOLDER || dir.Contains("_GENERATED"))
-                    continue;
+                foreach (var dir in Directory.GetDirectories(SL.LEGACY_SL_FOLDER))
+                {
+                    if (dir == SL.INTERNAL_FOLDER || dir == SLSaveManager.SAVEDATA_FOLDER || dir.Contains("_GENERATED"))
+                        continue;
 
-                AddSLPack(Path.GetFileName(dir), true);
+                    AddSLPack(Path.GetFileName(dir), true);
+                }
             }
 
-            void AddSLPack(string name, bool inMainFolder)
+            void AddSLPack(string name, bool isLegacyFolder = false)
             {
                 var pack = new SLPack
                 {
-                    InMainSLFolder = inMainFolder,
-                    Name = name
+                    Name = name,
+                    IsInLegacyFolder = isLegacyFolder,
                 };
 
                 packs.Add(pack);

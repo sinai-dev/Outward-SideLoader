@@ -19,19 +19,20 @@ namespace SideLoader
             Instance = this;
         }
 
-        // Folders
-        public const string SL_FOLDER = @"Mods\SideLoader";
-        public static string PLUGINS_FOLDER => @"BepInEx\plugins\";
+        // Core Folders
+        internal const string PLUGINS_FOLDER = @"BepInEx\plugins\";
+        internal const string SL_FOLDER = PLUGINS_FOLDER + @"\SideLoader";
+        internal const string INTERNAL_FOLDER = SL_FOLDER + @"\_INTERNAL";
 
-        public static string INTERNAL_FOLDER => $@"{SL_FOLDER}\{_INTERNAL}";
-        private const string _INTERNAL = "_INTERNAL";
-
-        internal static Transform s_cloneHolder;
+        internal const string LEGACY_SL_FOLDER = @"Mods\SideLoader";
 
         // SL Packs
         internal static readonly Dictionary<string, SLPack> s_packs = new Dictionary<string, SLPack>();
         internal static readonly Dictionary<string, SLPackBundle> s_bundlePacks = new Dictionary<string, SLPackBundle>();
         internal static readonly Dictionary<string, SLPackArchive> s_embeddedArchivePacks = new Dictionary<string, SLPackArchive>();
+
+        // clone holder
+        internal static Transform s_cloneHolder;
 
         /// <summary>
         /// Get an SLPack from a provided SLPack folder name.

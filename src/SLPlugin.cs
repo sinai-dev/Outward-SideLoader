@@ -18,7 +18,7 @@ namespace SideLoader
         // Mod Info
         public const string GUID = "com.sinai." + MODNAME;
         public const string MODNAME = "SideLoader";
-        public const string VERSION = "3.3.0";
+        public const string VERSION = "3.4.0";
 
         // ================ Main Setup ====================
 
@@ -28,11 +28,6 @@ namespace SideLoader
             new SL();
 
             SL.Log($"Version {VERSION} starting...");
-
-            /* Create base SL folder */
-
-            if (!Directory.Exists(SL.SL_FOLDER))
-                Directory.CreateDirectory(SL.SL_FOLDER);
 
             /* setup Harmony */
 

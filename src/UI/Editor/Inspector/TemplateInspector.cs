@@ -18,7 +18,7 @@ namespace SideLoader.UI.Editor
         {
             var path = $@"<b>XML Path:</b> ";
 
-            if (RefPack.InMainSLFolder)
+            if (RefPack.IsInLegacyFolder)
                 path += $@"Mods\SideLoader\{RefPack.Name}\{Template.PackCategory.FolderName}\";
             else
                 path += $@"BepInEx\plugins\{RefPack.Name}\SideLoader\{Template.PackCategory.FolderName}\";
