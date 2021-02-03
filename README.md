@@ -33,5 +33,4 @@ Thanks to:
 * ehaugw for lots of feedback, ideas, and help with testing
 * Everyone who gave feedback, ideas and reported bugs
 
-## Mefino Tags
-`outward-mefino-mod`
+[//]: # (outward-mefino-mod)
