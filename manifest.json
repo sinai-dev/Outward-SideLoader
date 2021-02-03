@@ -1,7 +1,7 @@
 {
 	"Author": "sinai-dev",
 	"PackageName": "Outward-SideLoader",
-	"Version": "3.3.0",
+	"Version": "3.4.0",
 	"Description": "API and Mod Development Toolkit for Outward",
 	"Dependencies": [],
 	"OverrideFolderName": "SideLoader"
