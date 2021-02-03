@@ -1,0 +1,7 @@
+{
+	"GUID": "com.sinai.SideLoader",
+	"Name": "SideLoader",
+	"Version": "3.3.0",
+	"Description": "API and Mod Development Toolkit for Outward",
+	"Dependencies": []
+}
