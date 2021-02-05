@@ -106,11 +106,9 @@ namespace SideLoader.SLPacks
 
                 void DeserializeTemplate(string directory, string filepath, string subfolder = null)
                 {
-                    filepath = Path.GetFileName(filepath);
-
                     //SL.Log($@"Deserializing template from '{directory}\{filepath}'");
 
-                    var template = pack.ReadXmlDocument<T>(directory, filepath);
+                    var template = pack.ReadXmlDocument<T>(directory, Path.GetFileName(filepath));
 
                     dict.Add(filepath, template);
                     list.Add(template);
