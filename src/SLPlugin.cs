@@ -3,6 +3,7 @@ using BepInEx.Logging;
 using HarmonyLib;
 using SideLoader.UI;
 using SideLoader.UI.Modules;
+using System;
 using System.IO;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -10,15 +11,13 @@ using UnityEngine.SceneManagement;
 namespace SideLoader
 {
     /// <summary> SideLoader's BepInEx plugin class. </summary>
-    [BepInPlugin(GUID, MODNAME, VERSION)]
+    [BepInPlugin(SL.GUID, SL.MODNAME, SL.VERSION)]
     public class SLPlugin : BaseUnityPlugin
     {
         public static SLPlugin Instance;
 
-        // Mod Info
-        public const string GUID = "com.sinai." + MODNAME;
-        public const string MODNAME = "SideLoader";
-        public const string VERSION = "3.4.0";
+        [Obsolete("Use SL.GUID now.")]
+        public static readonly string GUID = SL.GUID;
 
         // ================ Main Setup ====================
 
@@ -27,11 +26,11 @@ namespace SideLoader
             Instance = this;
             new SL();
 
-            SL.Log($"Version {VERSION} starting...");
+            SL.Log($"Version {SL.VERSION} starting...");
 
             /* setup Harmony */
 
-            var harmony = new Harmony(GUID);
+            var harmony = new Harmony(SL.GUID);
             harmony.PatchAll();
 
             /* SceneManager.sceneLoaded event */

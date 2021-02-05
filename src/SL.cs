@@ -19,9 +19,14 @@ namespace SideLoader
             Instance = this;
         }
 
+        // Mod Info
+        public const string GUID = "com.sinai." + MODNAME;
+        public const string MODNAME = "SideLoader";
+        public const string VERSION = "3.3.1";
+
         // Core Folders
         internal const string PLUGINS_FOLDER = @"BepInEx\plugins\";
-        internal const string SL_FOLDER = PLUGINS_FOLDER + @"\SideLoader";
+        internal const string SL_FOLDER = PLUGINS_FOLDER + @"\sinai-dev SideLoader";
         internal const string INTERNAL_FOLDER = SL_FOLDER + @"\_INTERNAL";
 
         internal const string LEGACY_SL_FOLDER = @"Mods\SideLoader";

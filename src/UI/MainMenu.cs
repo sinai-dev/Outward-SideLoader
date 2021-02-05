@@ -172,7 +172,7 @@ namespace SideLoader.UI
             GameObject textObj = UIFactory.CreateLabel(titleBar, TextAnchor.MiddleLeft);
 
             Text text = textObj.GetComponent<Text>();
-            text.text = $"<b>SideLoader</b> <i>v{SLPlugin.VERSION}</i>";
+            text.text = $"<b>SideLoader</b> <i>v{SL.VERSION}</i>";
             text.fontSize = 15;
             LayoutElement textLayout = textObj.AddComponent<LayoutElement>();
             textLayout.flexibleWidth = 5000;

@@ -140,7 +140,7 @@ namespace SideLoader.SLPacks
             {
                 foreach (var dir in Directory.GetDirectories(SL.LEGACY_SL_FOLDER))
                 {
-                    if (dir == SL.INTERNAL_FOLDER || dir == SLSaveManager.SAVEDATA_FOLDER || dir.Contains("_GENERATED"))
+                    if (dir.Contains("_INTERNAL") || dir.Contains("_SAVEDATA") || dir.Contains("_GENERATED"))
                         continue;
 
                     AddSLPack(Path.GetFileName(dir), true);

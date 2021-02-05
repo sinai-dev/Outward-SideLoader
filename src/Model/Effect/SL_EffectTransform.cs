@@ -86,14 +86,8 @@ namespace SideLoader
         /// <param name="behaviour">Desired EffectBehaviour</param>
         public Transform ApplyToTransform(Transform parent, EditBehaviours behaviour)
         {
-            Transform transform;
-            if (parent.Find(this.TransformName) is Transform found)
-                transform = found;
-            else
-            {
-                transform = new GameObject(this.TransformName).transform;
-                transform.parent = parent;
-            }
+            Transform transform = new GameObject(this.TransformName).transform;
+            transform.parent = parent;
 
             if (this.Position != null)
                 transform.localPosition = (Vector3)this.Position;
