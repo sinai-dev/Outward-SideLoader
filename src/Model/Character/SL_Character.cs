@@ -633,10 +633,10 @@ namespace SideLoader
                 if (!hidehair)
                     ApplyHairVisuals(visuals, data.HairStyleIndex, data.HairColorIndex);
 
-                if (!visuals.ActiveVisualsBody)
+                if (!character.Inventory.Equipment.GetEquippedItem(EquipmentSlot.EquipmentSlotIDs.Chest))
                     visuals.LoadCharacterCreationBody((int)data.Gender, data.SkinIndex);
 
-                if (!visuals.ActiveVisualsFoot)
+                if (!character.Inventory.Equipment.GetEquippedItem(EquipmentSlot.EquipmentSlotIDs.Foot))
                     visuals.LoadCharacterCreationBoots((int)data.Gender, data.SkinIndex);
             }
             else

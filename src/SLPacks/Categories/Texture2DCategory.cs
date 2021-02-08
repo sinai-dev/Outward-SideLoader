@@ -23,13 +23,13 @@ namespace SideLoader.SLPacks.Categories
             foreach (var texPath in pack.GetFiles(dirPath, ".png"))
             {
                 LoadTexture(pack, dict, dirPath, texPath, true);
+            }
 
-                var localDir = dirPath + @"\Local";
-                if (Directory.Exists(localDir))
-                {
-                    foreach (var localTex in pack.GetFiles(localDir, ".png"))
-                        LoadTexture(pack, dict, localDir, localTex, false);
-                }
+            var localDir = dirPath + @"\Local";
+            if (Directory.Exists(localDir))
+            {
+                foreach (var localTex in pack.GetFiles(localDir, ".png"))
+                    LoadTexture(pack, dict, localDir, localTex, false);
             }
 
             return dict;

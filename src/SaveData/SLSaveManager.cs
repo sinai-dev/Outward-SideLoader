@@ -1,11 +1,26 @@
-﻿using System;
+﻿using BepInEx;
+using System;
 using System.IO;
 
 namespace SideLoader.SaveData
 {
     public class SLSaveManager
     {
-        internal const string SAVEDATA_FOLDER = SL.SL_FOLDER + @"\_SAVEDATA";
+        static SLSaveManager()
+        {
+            string oldSaveFolder = Path.Combine(SL.SL_FOLDER, "_SAVEDATA");
+            if (Directory.Exists(oldSaveFolder))
+            {
+                Directory.CreateDirectory(SAVEDATA_FOLDER);
+
+                foreach (var entry in Directory.GetDirectories(oldSaveFolder))
+                {
+                    Directory.Move(entry, SAVEDATA_FOLDER);
+                }
+            }
+        }
+
+        internal static string SAVEDATA_FOLDER => Path.Combine(Paths.ConfigPath, "sinai-dev SideLoader", "SaveData");
 
         internal const string CHARACTERS_FOLDER = "Characters";
         internal const string ITEMSPAWNS_FOLDER = "ItemSpawns";

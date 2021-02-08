@@ -5,6 +5,7 @@ using SideLoader.UI;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -22,12 +23,11 @@ namespace SideLoader
         // Mod Info
         public const string GUID = "com.sinai.SideLoader";
         public const string MODNAME = "SideLoader";
-        public const string VERSION = "3.3.1";
+        public const string VERSION = "3.3.2";
 
         // Core Folders
-        internal const string PLUGINS_FOLDER = @"BepInEx\plugins\";
-        internal const string SL_FOLDER = PLUGINS_FOLDER + @"\sinai-dev SideLoader";
-        internal const string INTERNAL_FOLDER = SL_FOLDER + @"\_INTERNAL";
+        internal static string SL_FOLDER => Path.Combine(Paths.PluginPath, "sinai-dev SideLoader");
+        internal static string INTERNAL_FOLDER => Path.Combine(SL_FOLDER, "_INTERNAL");
 
         internal const string LEGACY_SL_FOLDER = @"Mods\SideLoader";
 

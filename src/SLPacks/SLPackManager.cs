@@ -1,4 +1,5 @@
-﻿using SideLoader.SaveData;
+﻿using BepInEx;
+using SideLoader.SaveData;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -127,7 +128,7 @@ namespace SideLoader.SLPacks
             var packs = new List<SLPack>();
 
             // 'BepInEx\plugins\...' packs:
-            foreach (var dir in Directory.GetDirectories(SL.PLUGINS_FOLDER))
+            foreach (var dir in Directory.GetDirectories(Paths.PluginPath))
             {
                 if (!Directory.Exists($@"{dir}\SideLoader"))
                     continue;

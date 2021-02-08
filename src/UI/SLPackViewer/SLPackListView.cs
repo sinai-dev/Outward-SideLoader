@@ -1,4 +1,5 @@
-﻿using SideLoader.Model;
+﻿using BepInEx;
+using SideLoader.Model;
 using SideLoader.Model.Status;
 using SideLoader.SLPacks;
 using SideLoader.SLPacks.Categories;
@@ -176,6 +177,10 @@ namespace SideLoader.UI.SLPackViewer
             var name = m_createInput.text;
 
             var safename = Serializer.ReplaceInvalidChars(name);
+
+            if (string.IsNullOrEmpty(safename))
+                return;
+
             if (name != safename)
             {
                 SL.LogWarning("SLPack name contains invalid path characters! Try '" + safename + "'");
@@ -193,7 +198,7 @@ namespace SideLoader.UI.SLPackViewer
                 Name = name
             };
 
-            Directory.CreateDirectory(SL.PLUGINS_FOLDER + $@"\{name}");
+            Directory.CreateDirectory(Paths.PluginPath + $@"\{name}");
             SL.s_packs.Add(name, slPack);
 
             RefreshLoadedSLPacks();

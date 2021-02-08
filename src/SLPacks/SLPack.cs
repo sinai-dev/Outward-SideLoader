@@ -1,4 +1,5 @@
-﻿using SideLoader.SLPacks;
+﻿using BepInEx;
+using SideLoader.SLPacks;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -22,7 +23,7 @@ namespace SideLoader
         /// Returns the folder path for this SL Pack (relative to Outward directory).
         /// </summary>
         public virtual string FolderPath => !IsInLegacyFolder ?
-            $@"{SL.PLUGINS_FOLDER}\{Name}\SideLoader" :
+            $@"{Paths.PluginPath}\{Name}\SideLoader" :
             $@"{SL.LEGACY_SL_FOLDER}\{Name}";
 
         // Hard-coded dictionaries for easy access:
