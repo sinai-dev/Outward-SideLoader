@@ -17,7 +17,24 @@ namespace SideLoader.UI.Editor
             else if (valueType.IsArray)
                 m_baseEntryType = valueType.GetElementType();
             else
-                m_baseEntryType = typeof(object);
+            {
+                if (valueType.BaseType != null)
+                {
+                    var baseT = valueType.BaseType;
+                    while (baseT != null)
+                    {
+                        if (baseT.IsGenericType)
+                        {
+                            m_baseEntryType = baseT.GetGenericArguments()[0];
+                            break;
+                        }
+                        else
+                            baseT = baseT.BaseType;
+                    }
+                }
+                else
+                    m_baseEntryType = typeof(object);
+            }
 
             m_typeToAdd = m_baseEntryType;
         }
