@@ -28,6 +28,13 @@ namespace SideLoader
 
         public List<SL_RandomDropGenerator> RandomTables = new List<SL_RandomDropGenerator>();
 
+        // ~~~~~~ Internal ~~~~~~
+
+        /// <summary>
+        /// Internal dictionary, only use this as a reference, do not modify it directly unless you're sure you know what you're doing.
+        /// </summary>
+        public static readonly Dictionary<string, SL_DropTable> s_registeredTables = new Dictionary<string, SL_DropTable>();
+
         public override void ApplyTemplate()
         {
             base.ApplyTemplate();
@@ -50,10 +57,6 @@ namespace SideLoader
             s_registeredTables.Add(this.UID, this);
             SL.Log("Registered SL_DropTable '" + this.UID + "'");
         }
-
-        // ~~~~~~ Internal ~~~~~~
-
-        internal static readonly Dictionary<string, SL_DropTable> s_registeredTables = new Dictionary<string, SL_DropTable>();
 
         public void GenerateDrops(Transform container)
         {
