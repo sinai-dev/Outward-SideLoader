@@ -55,9 +55,7 @@ namespace SideLoader
 
             for (int i = 0; i < numRolls; i++)
             {
-                // also +1 on the max dice value.
-                // We did -1 on it just before so we could have just not done that,
-                // but I'm being safe and thinking about future expansion.
+                // also +1 on the max dice value to cancel out the "-1 because 0 is included"
                 int roll = Random.Range(0, this.MaxDiceValue + 1);
 
                 if (GetDropForDiceRoll(roll) is SL_ItemDropChance drop)

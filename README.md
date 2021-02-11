@@ -1,5 +1,5 @@
 <p align="center">
-<img align="center" src="https://i.imgur.com/DWezCnm.png">
+  <img align="center" src="https://i.imgur.com/DWezCnm.png">
 </p>
 
 <p align="center">
@@ -13,7 +13,7 @@
     <img src="https://img.shields.io/badge/NexusMods-red?link=https://www.nexusmods.com/outward/mods/96" />
   </a>
   <a href="https://discord.gg/zKyfGmy7TR">
-    <img src="https://img.shields.io/badge/Discord-chat-blue?style=social&logo=discord" />
+    <img src="https://img.shields.io/discord/293810842225606656.svg?color=7289da&label=Discord&logo=discord&style=flat-square" />
   </a>
   
 </p>

@@ -33,8 +33,6 @@ namespace SideLoader.UI.Editor
                 return typeof(InteractiveUnityStruct);
             else if (typeof(Transform).IsAssignableFrom(type))
                 return typeof(InteractiveValue);
-            //else if (typeof(IDictionary).IsAssignableFrom(type))
-            //    return typeof(InteractiveDictionary);
             else if (typeof(IList).IsAssignableFrom(type))
                 return typeof(InteractiveList);
             else
