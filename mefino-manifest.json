@@ -1,0 +1,14 @@
+{
+	"author": "sinai-dev",
+	"repository": "Outward-SideLoader",
+	"name": "SideLoader",
+	"version": "3.3.2",
+	"description": "API and Mod Development Toolkit for Outward",
+	"tags": [
+		"Library"
+	],
+	"dependencies": [
+	],
+	"require_sync": false,
+	"download_filename": "mefino-package"
+}
