@@ -13,6 +13,29 @@ namespace SideLoader
 
         // ============ Main public API ============
 
+        public static IEnumerable<Type> GetTypesSafe(this Assembly asm)
+        {
+            try
+            {
+                return asm.GetTypes();
+            }
+            catch (ReflectionTypeLoadException e)
+            {
+                try
+                {
+                    return asm.GetExportedTypes();
+                }
+                catch
+                {
+                    return e.Types.Where(it => it != null);
+                }
+            }
+            catch
+            {
+                return Enumerable.Empty<Type>();
+            }
+        }
+
         /// <summary>
         /// Try to create an instance of the provided type. This is not guaranteed to work, but it should work if the type
         /// has a default constructor, or is a string or Array.
@@ -58,7 +81,7 @@ namespace SideLoader
 
                 foreach (var asm in assemblies)
                 {
-                    foreach (var t in asm.GetExportedTypes().Where(t => !t.IsAbstract && !t.IsInterface))
+                    foreach (var t in asm.GetTypesSafe().Where(t => !t.IsAbstract && !t.IsInterface))
                     {
                         if (baseType.IsAssignableFrom(t) && !set.Contains(t))
                             set.Add(t);
@@ -80,7 +103,7 @@ namespace SideLoader
         {
             foreach (var asm in AppDomain.CurrentDomain.GetAssemblies())
             {
-                foreach (var type in asm.GetExportedTypes())
+                foreach (var type in asm.GetTypesSafe())
                 {
                     if (type.FullName == fullName)
                     {

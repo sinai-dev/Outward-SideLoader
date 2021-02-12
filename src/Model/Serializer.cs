@@ -51,7 +51,7 @@ namespace SideLoader
             {
                 try
                 {
-                    foreach (var type in asm.GetExportedTypes())
+                    foreach (var type in asm.GetTypesSafe())
                     {
                         if (type.GetCustomAttribute(typeof(SL_Serialized)) is SL_Serialized)
                             list.Add(type);
