@@ -17,7 +17,7 @@ namespace SideLoader
         public static SLPlugin Instance;
 
         [Obsolete("Use SL.GUID now.")]
-        public static readonly string GUID = SL.GUID;
+        public const string GUID = SL.GUID;
 
         // ================ Main Setup ====================
 
