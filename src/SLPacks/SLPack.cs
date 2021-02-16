@@ -34,7 +34,7 @@ namespace SideLoader
         public Dictionary<string, Texture2D> Texture2D = new Dictionary<string, Texture2D>();
         /// <summary>AudioClips loaded from the WAV files in the `AudioClip\` folder. Dictionary Key is the file name (without ".wav")</summary>
         public Dictionary<string, AudioClip> AudioClips = new Dictionary<string, AudioClip>();
-        /// <summary>SL_Characters loaded from the `Characters\` folder. Dictionary Key is the file name without xml.</summary>
+        /// <summary>SL_Characters loaded from the `Characters\` folder. Dictionary Key is the character UID.</summary>
         public Dictionary<string, SL_Character> CharacterTemplates = new Dictionary<string, SL_Character>();
 
         /// <summary>

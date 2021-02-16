@@ -20,50 +20,58 @@ namespace SideLoader.SaveData
             //SL.LogWarning("~~~~~~~~~~ Saving Characters ~~~~~~~~~~");
             //SL.Log(SceneManager.GetActiveScene().name);
 
-            var savedUIDs = new HashSet<string>();
-            var activeScene = SceneManager.GetActiveScene().name;
-
-            var sceneSaveDataList = new List<SL_CharacterSaveData>();
-            var followerDataList = new List<SL_CharacterSaveData>();
-
-            foreach (var info in CustomCharacters.ActiveCharacters)
+            try
             {
-                if (info.Template != null && info.ActiveCharacter)
-                {
-                    if (savedUIDs.Contains(info.ActiveCharacter.UID))
-                        continue;
+                var savedUIDs = new HashSet<string>();
+                var activeScene = SceneManager.GetActiveScene().name;
 
-                    if (info.Template.SaveType == CharSaveType.Scene)
+                var sceneSaveDataList = new List<SL_CharacterSaveData>();
+                var followerDataList = new List<SL_CharacterSaveData>();
+
+                foreach (var info in CustomCharacters.ActiveCharacters)
+                {
+                    if (info.Template != null && info.ActiveCharacter)
                     {
-                        if (activeScene != info.Template.SceneToSpawn)
+                        if (savedUIDs.Contains(info.ActiveCharacter.UID))
                             continue;
 
-                        var data = info.ToSaveData();
-                        if (data != null)
+                        if (info.Template.SaveType == CharSaveType.Scene)
                         {
-                            sceneSaveDataList.Add(data);
-                            savedUIDs.Add(info.ActiveCharacter.UID);
+                            if (activeScene != info.Template.SceneToSpawn)
+                                continue;
+
+                            var data = info.ToSaveData();
+                            if (data != null)
+                            {
+                                sceneSaveDataList.Add(data);
+                                savedUIDs.Add(info.ActiveCharacter.UID);
+                            }
                         }
-                    }
-                    else if (info.Template.SaveType == CharSaveType.Follower)
-                    {
-                        var data = info.ToSaveData();
-                        if (data != null)
+                        else if (info.Template.SaveType == CharSaveType.Follower)
                         {
-                            followerDataList.Add(data);
-                            savedUIDs.Add(info.ActiveCharacter.UID);
+                            var data = info.ToSaveData();
+                            if (data != null)
+                            {
+                                followerDataList.Add(data);
+                                savedUIDs.Add(info.ActiveCharacter.UID);
+                            }
                         }
                     }
                 }
+
+                int count = (sceneSaveDataList.Count + followerDataList.Count);
+
+                if (count > 0)
+                    SL.Log("Saving " + count + " characters");
+
+                SaveCharacterList(sceneSaveDataList.ToArray(), CharSaveType.Scene);
+                SaveCharacterList(followerDataList.ToArray(), CharSaveType.Follower);
             }
-
-            int count = (sceneSaveDataList.Count + followerDataList.Count);
-
-            if (count > 0)
-                SL.Log("Saving " + count + " characters");
-
-            SaveCharacterList(sceneSaveDataList.ToArray(), CharSaveType.Scene);
-            SaveCharacterList(followerDataList.ToArray(), CharSaveType.Follower);
+            catch (Exception ex)
+            {
+                SL.Log("Exception saving characters!");
+                SL.Log(ex.ToString());
+            }
         }
 
         private static void SaveCharacterList(SL_CharacterSaveData[] list, CharSaveType type)
@@ -100,36 +108,45 @@ namespace SideLoader.SaveData
 
         internal static SL_CharacterSaveData[] TryLoadSaveData(CharSaveType type)
         {
-            var savePath = GetCurrentSavePath(type);
-
-            if (!File.Exists(savePath))
-                return null;
-
-            using (var file = File.OpenRead(savePath))
+            try
             {
-                var serializer = Serializer.GetXmlSerializer(typeof(SL_CharacterSaveData[]));
+                var savePath = GetCurrentSavePath(type);
 
-                var list = new List<SL_CharacterSaveData>();
-                if (serializer.Deserialize(file) is SL_CharacterSaveData[] array)
+                if (!File.Exists(savePath))
+                    return null;
+
+                using (var file = File.OpenRead(savePath))
                 {
-                    foreach (var entry in array)
+                    var serializer = Serializer.GetXmlSerializer(typeof(SL_CharacterSaveData[]));
+
+                    var list = new List<SL_CharacterSaveData>();
+                    if (serializer.Deserialize(file) is SL_CharacterSaveData[] array)
                     {
-                        if (CustomCharacters.Templates.TryGetValue(entry.TemplateUID, out SL_Character template))
+                        foreach (var entry in array)
                         {
-                            // if template was changed to temporary, ignore the save data.
-                            if (template.SaveType == CharSaveType.Temporary)
-                                continue;
+                            if (CustomCharacters.Templates.TryGetValue(entry.TemplateUID, out SL_Character template))
+                            {
+                                // if template was changed to temporary, ignore the save data.
+                                if (template.SaveType == CharSaveType.Temporary)
+                                    continue;
 
-                            // update save data type to template current type
-                            if (entry.SaveType != template.SaveType)
-                                entry.SaveType = template.SaveType;
+                                // update save data type to template current type
+                                if (entry.SaveType != template.SaveType)
+                                    entry.SaveType = template.SaveType;
 
-                            list.Add(entry);
+                                list.Add(entry);
+                            }
                         }
                     }
-                }
 
-                return list.ToArray();
+                    return list.ToArray();
+                }
+            }
+            catch (Exception ex)
+            {
+                SL.Log("Exception loading SL_Characters!");
+                SL.Log(ex.ToString());
+                return new SL_CharacterSaveData[0];
             }
         }
     }

@@ -2,7 +2,7 @@
 	"author": "sinai-dev",
 	"repository": "Outward-SideLoader",
 	"name": "SideLoader",
-	"version": "3.3.3",
+	"version": "3.3.4",
 	"description": "API and Mod Development Toolkit for Outward",
 	"tags": [
 		"Library"
