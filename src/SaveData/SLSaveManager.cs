@@ -6,20 +6,6 @@ namespace SideLoader.SaveData
 {
     public class SLSaveManager
     {
-        static SLSaveManager()
-        {
-            string oldSaveFolder = Path.Combine(SL.SL_FOLDER, "_SAVEDATA");
-            if (Directory.Exists(oldSaveFolder))
-            {
-                Directory.CreateDirectory(SAVEDATA_FOLDER);
-
-                foreach (var entry in Directory.GetDirectories(oldSaveFolder))
-                {
-                    Directory.Move(entry, SAVEDATA_FOLDER);
-                }
-            }
-        }
-
         internal static string SAVEDATA_FOLDER => Path.Combine(Paths.ConfigPath, "sinai-dev SideLoader", "SaveData");
 
         internal const string CHARACTERS_FOLDER = "Characters";

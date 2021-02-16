@@ -43,6 +43,7 @@
     <Compile Include="Custom\CustomKeybindings.cs" />
     <Compile Include="Custom\CustomStatusEffects.cs" />
     <Compile Include="Custom\CustomTags.cs" />
+    <Compile Include="Helpers\Extensions\AtExtensions.cs" />
     <Compile Include="Helpers\ForceUnlockCursor.cs" />
     <Compile Include="Helpers\References.cs" />
     <Compile Include="Helpers\UnityHelpers.cs" />
