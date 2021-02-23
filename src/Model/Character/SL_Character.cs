@@ -379,10 +379,6 @@ namespace SideLoader
                 lootable.EnabledPouch = this.DropPouchContents;
 
                 At.SetField(lootable, "m_character", character);
-
-                // todo droptables
-                lootable.SkinDrops = new DropInstance[0];
-                lootable.LootDrops = new DropInstance[0];
             }
 
             character.gameObject.SetActive(true);
