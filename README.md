@@ -27,3 +27,11 @@
 
 ## Credits
 Written by Sinai.
+
+Thanks to:
+* Elec0 for the initial idea
+* ehaugw for lots of feedback, ideas, and help with testing
+* Everyone who gave feedback, ideas and reported bugs
+
+## Mefino Tags
+`outward-mefino-mod`
