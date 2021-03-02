@@ -14,6 +14,9 @@ namespace SideLoader
         /// <summary>The unique Name of this SLPack</summary>
         public string Name { get; internal set; }
 
+        public string ActualFolderName => s_actualFolderName ?? Name;
+        internal string s_actualFolderName;
+
         /// <summary>
         /// Is this pack in the legacy 'Mods\SideLoader\{name}\' format?
         /// </summary>
@@ -23,8 +26,8 @@ namespace SideLoader
         /// Returns the folder path for this SL Pack (relative to Outward directory).
         /// </summary>
         public virtual string FolderPath => !IsInLegacyFolder ?
-            $@"{Paths.PluginPath}\{Name}\SideLoader" :
-            $@"{SL.LEGACY_SL_FOLDER}\{Name}";
+            $@"{Paths.PluginPath}\{ActualFolderName}\SideLoader" :
+            $@"{SL.LEGACY_SL_FOLDER}\{ActualFolderName}";
 
         // Hard-coded dictionaries for easy access:
 

@@ -133,10 +133,17 @@ namespace SideLoader.SLPacks
                 if (!Directory.Exists($@"{dir}\SideLoader"))
                     continue;
 
-                AddSLPack(Path.GetFileName(dir));
+                string name;
+                string manifestPath = Path.Combine(dir, "SideLoader", "manifest.txt");
+                if (File.Exists(manifestPath))
+                    name = File.ReadAllText(manifestPath).Trim();
+                else
+                    name = Path.GetFileName(dir);
+
+                AddSLPack(name, false, Path.GetFileName(dir));
             }
 
-            // 'Mods\SideLoader\...' packs:
+            // LEGACY 'Mods\SideLoader\...' packs:
             if (Directory.Exists(SL.LEGACY_SL_FOLDER))
             {
                 foreach (var dir in Directory.GetDirectories(SL.LEGACY_SL_FOLDER))
@@ -144,20 +151,32 @@ namespace SideLoader.SLPacks
                     if (dir.Contains("_INTERNAL") || dir.Contains("_SAVEDATA") || dir.Contains("_GENERATED"))
                         continue;
 
-                    AddSLPack(Path.GetFileName(dir), true);
+                    //AddSLPack(Path.GetFileName(dir), true);
+
+                    string name;
+                    string manifestPath = Path.Combine(dir, "manifest.txt");
+                    if (File.Exists(manifestPath))
+                        name = File.ReadAllText(manifestPath).Trim();
+                    else
+                        name = Path.GetFileName(dir);
+
+                    AddSLPack(name, true, Path.GetFileName(dir));
                 }
             }
 
-            void AddSLPack(string name, bool isLegacyFolder = false)
+            void AddSLPack(string name, bool isLegacyFolder = false, string actualFolderName = null)
             {
                 var pack = new SLPack
                 {
                     Name = name,
                     IsInLegacyFolder = isLegacyFolder,
+                    s_actualFolderName = actualFolderName,
                 };
 
                 packs.Add(pack);
                 SL.s_packs.Add(name, pack);
+
+                SL.Log($"Found SLPack '{name}'");
             }
 
             return packs;
