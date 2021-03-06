@@ -399,8 +399,16 @@ namespace SideLoader
                         comp.Knockback.ToString()
                     };
                 }
+                else if (typeof(AffectNeed).IsAssignableFrom(type))
+                {
+                    var fi = At.GetFieldInfo(typeof(AffectNeed), "m_affectQuantity");
+                    data.Data = new string[]
+                    {
+                        ((float)fi.GetValue(effect) * level).ToString()
+                    };
+                }
                 // For most AffectStat components, the only thing that is serialized is the AffectQuantity.
-                else if (type.GetField("AffectQuantity", At.FLAGS) is FieldInfo fi_AffectQuantity)
+                else if (At.GetFieldInfo(type, "AffectQuantity") is FieldInfo fi_AffectQuantity)
                 {
                     data.Data = new string[]
                     {
@@ -408,14 +416,14 @@ namespace SideLoader
                     };
                 }
                 // AffectMana uses "Value" instead of AffectQuantity for some reason...
-                else if (type.GetField("Value", At.FLAGS) is FieldInfo fi_Value)
+                else if (At.GetFieldInfo(type, "Value") is FieldInfo fi_Value)
                 {
                     data.Data = new string[]
                     {
                         ((float)fi_Value.GetValue(effect) * level).ToString()
                     };
                 }
-                else // otherwise I need to add support for this effect (maybe).
+                else // otherwise maybe I need to add support for this effect...
                 {
                     //SL.Log("[StatusEffect] Unsupported effect: " + type, 1);
                 }

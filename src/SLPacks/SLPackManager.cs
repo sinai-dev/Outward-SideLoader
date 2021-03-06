@@ -166,6 +166,12 @@ namespace SideLoader.SLPacks
 
             void AddSLPack(string name, bool isLegacyFolder = false, string actualFolderName = null)
             {
+                if (SL.s_packs.ContainsKey(name))
+                {
+                    SL.LogWarning("Trying to load the same SLPack name twice? Name: " + name);
+                    return;
+                }
+
                 var pack = new SLPack
                 {
                     Name = name,
