@@ -146,7 +146,7 @@ namespace SideLoader.SLPacks
             if (!clip)
                 return null;
 
-            return CustomAudio.LoadAudioClip(clip, Path.GetFileNameWithoutExtension(file), this);
+            return CustomAudio.FinalizeAudioClip(clip, Path.GetFileNameWithoutExtension(file), this);
         }
 
         protected internal override Texture2D LoadTexture2D(string relativeDirectory, string file, bool mipmap = false, bool linear = false)

@@ -22,6 +22,8 @@ namespace SideLoader.SLPacks.Categories
 
             foreach (var clipPath in pack.GetFiles(dirPath, ".wav"))
             {
+                SL.Log("Loading audio clip from '" + clipPath + "'");
+
                 var clip = pack.LoadAudioClip(dirPath, Path.GetFileName(clipPath));
 
                 if (clip != null)
