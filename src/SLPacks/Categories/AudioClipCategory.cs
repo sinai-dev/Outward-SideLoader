@@ -26,7 +26,7 @@ namespace SideLoader.SLPacks.Categories
 
                 var clip = pack.LoadAudioClip(dirPath, Path.GetFileName(clipPath));
 
-                if (clip != null)
+                if (clip)
                     dict.Add(clipPath, clip);
             }
 
