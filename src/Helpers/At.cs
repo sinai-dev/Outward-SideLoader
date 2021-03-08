@@ -285,18 +285,11 @@ namespace SideLoader
         {
             try
             {
-                return asm.GetTypes();
+                return asm.GetExportedTypes();
             }
             catch (ReflectionTypeLoadException e)
             {
-                try
-                {
-                    return asm.GetExportedTypes();
-                }
-                catch
-                {
-                    return e.Types.Where(it => it != null);
-                }
+                return e.Types.Where(it => it != null);
             }
             catch
             {

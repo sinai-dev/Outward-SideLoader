@@ -109,6 +109,7 @@
     <Compile Include="Model\Status\SL_StatusBase.cs" />
     <Compile Include="Model\Status\StatusFamily\SL_StatusEffectFamily.cs" />
     <Compile Include="Patches\AudioPatches.cs" />
+    <Compile Include="Patches\ReflectionPatch.cs" />
     <Compile Include="Patches\CharacterPatches.cs" />
     <Compile Include="Patches\CorePatch.cs" />
     <Compile Include="Patches\DebugPatches.cs" />
