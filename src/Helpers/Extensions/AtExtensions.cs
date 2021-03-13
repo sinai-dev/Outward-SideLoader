@@ -38,7 +38,7 @@ namespace SideLoader.Helpers
         /// <typeparam name="R">The Type of the return value you are expecting</typeparam>
         /// <param name="type">The type which contains the field you want to get.</param>
         /// <param name="fieldName">The name of the field to get</param>
-        /// <returns></returns>
+        /// <returns>The value from the field if successful, and/or null.</returns>
         public static R GetField<R>(this Type type, string fieldName)
             => At.Internal_GetField<R>(type, fieldName, null);
 

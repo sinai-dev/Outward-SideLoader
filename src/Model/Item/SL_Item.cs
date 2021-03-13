@@ -269,17 +269,17 @@ namespace SideLoader
                 At.SetField(item, "m_stats", stats);
             }
 
-            if (this.ItemExtensions != null)
-            {
-                SL_ItemExtension.ApplyExtensionList(item, this.ItemExtensions, this.ExtensionsEditBehaviour);
-            }
-
             ApplyItemVisuals(item);
         }
 
         private void OnLateApply(object[] obj)
         {
             var item = obj[0] as Item;
+
+            if (this.ItemExtensions != null)
+            {
+                SL_ItemExtension.ApplyExtensionList(item, this.ItemExtensions, this.ExtensionsEditBehaviour);
+            }
 
             SL_EffectTransform.ApplyTransformList(item.transform, this.EffectTransforms, this.EffectBehaviour);
         }

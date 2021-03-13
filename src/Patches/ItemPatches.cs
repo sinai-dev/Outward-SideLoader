@@ -1,6 +1,7 @@
 ﻿using HarmonyLib;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace SideLoader.Patches
@@ -39,36 +40,24 @@ namespace SideLoader.Patches
 
     #region Localization
 
-    [HarmonyPatch(typeof(Item), "GetLocalizedName")]
-    public class Item_GetLocalizedName
+    [HarmonyPatch(typeof(LocalizationManager), "StartLoading")]
+    public class LocalizationManager_StartLoading
     {
         [HarmonyPostfix]
-        public static void Postfix(Item __instance, ref string __result)
+        public static void Postfix()
         {
-            if (CustomItems.s_customLocalizations.ContainsKey(__instance.ItemID))
-                __result = CustomItems.s_customLocalizations[__instance.ItemID][0];
-        }
-    }
+            if (CustomItems.s_customLocalizations.Any())
+            {
+                for (int i = CustomItems.s_customLocalizations.Count - 1; i >= 0; i--)
+                {
+                    var entry = CustomItems.s_customLocalizations.ElementAt(i);
 
-    [HarmonyPatch(typeof(LocalizationManager), "GetItemName", new Type[] { typeof(int) })]
-    public class LocalizationManager_GetItemName
-    {
-        [HarmonyPostfix]
-        public static void Postfix(ref string __result, int _itemID)
-        {
-            if (CustomItems.s_customLocalizations.ContainsKey(_itemID))
-                __result = CustomItems.s_customLocalizations[_itemID][0];
-        }
-    }
+                    if (!(ResourcesPrefabManager.Instance.GetItemPrefab(entry.Key) is Item item))
+                        continue;
 
-    [HarmonyPatch(typeof(Item), "Description", MethodType.Getter)]
-    public class Item_get_Description
-    {
-        [HarmonyPostfix]
-        public static void Postfix(Item __instance, ref string __result)
-        {
-            if (CustomItems.s_customLocalizations.ContainsKey(__instance.ItemID))
-                __result = CustomItems.s_customLocalizations[__instance.ItemID][1];
+                    CustomItems.SetNameAndDescription(item, entry.Value.Name, entry.Value.Desc);
+                }
+            }
         }
     }
 

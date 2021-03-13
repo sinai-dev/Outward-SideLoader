@@ -68,7 +68,7 @@ namespace SideLoader
         public string TargetStatusIdentifier;
 
         /// <summary>The new Preset ID for your Status Effect.</summary>
-        public int NewStatusID;
+        public int NewStatusID = -1;
         /// <summary>The new Status Identifier name for your Status Effect. Used by ResourcesPrefabManager.GetStatusEffect(string identifier)</summary>
         public string StatusIdentifier;
 

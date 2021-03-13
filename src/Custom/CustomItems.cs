@@ -136,42 +136,46 @@ namespace SideLoader
             SetNameAndDescription(item, item.Name, description);
         }
 
+        internal static readonly Dictionary<int, ItemLocalization> s_customLocalizations = new Dictionary<int, ItemLocalization>();
+
         /// <summary> Set both name and description. Used by SetName and SetDescription. </summary>
         public static void SetNameAndDescription(Item item, string _name, string _description)
         {
             var name = _name ?? "";
             var desc = _description ?? "";
 
+            // set the local fields on the item (this should be enough for 99% of cases)
+
             At.SetField(item, "m_name", name);
             At.SetField(item, "m_localizedName", name);
+            At.SetField(item, "m_lastNameLang", LocalizationManager.Instance.CurrentLanguage);
+
             At.SetField(item, "m_localizedDescription", desc);
             At.SetField(item, "m_lastDescLang", LocalizationManager.Instance.CurrentLanguage);
+            
+            // set the localization to the LocalizationManager dictionary
 
-            SetCustomLocalization(item.ItemID, name, desc);
+            var loc = new ItemLocalization(name, desc);
 
             if (References.ITEM_LOCALIZATION.ContainsKey(item.ItemID))
-            {
-                References.ITEM_LOCALIZATION[item.ItemID].Name = name;
-                References.ITEM_LOCALIZATION[item.ItemID].Desc = desc;
-            }
+                References.ITEM_LOCALIZATION[item.ItemID] = loc;
             else
-            {
-                ItemLocalization loc = new ItemLocalization(name, desc);
                 References.ITEM_LOCALIZATION.Add(item.ItemID, loc);
-            }
-        }
 
-        internal static Dictionary<int, string[]> s_customLocalizations = new Dictionary<int, string[]>();
+            // keep track of the custom localization in case the user changes language
 
-        internal static void SetCustomLocalization(int id, string name, string desc)
-        {
-            if (s_customLocalizations.ContainsKey(id))
-            {
-                s_customLocalizations[id][0] = name;
-                s_customLocalizations[id][1] = desc;
-            }
+            if (s_customLocalizations.ContainsKey(item.ItemID))
+                s_customLocalizations[item.ItemID] = loc;
             else
-                s_customLocalizations.Add(id, new string[] { name, desc });
+                s_customLocalizations.Add(item.ItemID, loc);
+
+            // If the item is in the "duplicate" localization dicts, remove it.
+
+            if (References.LOCALIZATION_DUPLICATE_NAME.ContainsKey(item.ItemID))
+                References.LOCALIZATION_DUPLICATE_NAME.Remove(item.ItemID);
+
+            if (References.LOCALIZATION_DUPLICATE_DESC.ContainsKey(item.ItemID))
+                References.LOCALIZATION_DUPLICATE_DESC.Remove(item.ItemID);
         }
 
         // ================ TAGS ================ //

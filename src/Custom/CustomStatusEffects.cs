@@ -59,7 +59,7 @@ namespace SideLoader
             }
 
             var preset = original.GetComponent<EffectPreset>();
-            if (!preset && template.NewStatusID > 0)
+            if (!preset && template.NewStatusID < -1 || template.NewStatusID > 0)
             {
                 preset = original.gameObject.AddComponent<EffectPreset>();
                 At.SetField(preset, "m_StatusEffectID", template.NewStatusID);
@@ -90,7 +90,7 @@ namespace SideLoader
                 // Set Status identifier
                 At.SetField(status, "m_identifierName", template.StatusIdentifier);
 
-                if (preset && template.NewStatusID > 0)
+                if (preset && (template.NewStatusID < -1 || template.NewStatusID > 0))
                     At.SetField(preset, "m_StatusEffectID", template.NewStatusID);
 
                 // Fix localization
@@ -110,7 +110,7 @@ namespace SideLoader
 
             int presetID = status.GetComponent<EffectPreset>()?.PresetID ?? -1;
             var id = "";
-            if (presetID > 0)
+            if (presetID < -1 || presetID > 0)
                 id += presetID + "_";
             status.gameObject.name = id + status.IdentifierName;
 
@@ -121,7 +121,7 @@ namespace SideLoader
                 References.RPM_STATUS_EFFECTS[status.IdentifierName] = status;
 
             // fix RPM_Presets dictionary
-            if (template.NewStatusID > 0)
+            if (template.NewStatusID < -1 || template.NewStatusID > 0)
             {
                 if (!References.RPM_EFFECT_PRESETS.ContainsKey(template.NewStatusID))
                     References.RPM_EFFECT_PRESETS.Add(template.NewStatusID, status.GetComponent<EffectPreset>());

@@ -64,7 +64,7 @@ namespace SideLoader
         /// <summary>This is the Preset ID of the Status Effect you want to base from.</summary>
         public int TargetStatusID;
         /// <summary>The new Preset ID for your Status Effect</summary>
-        public int NewStatusID;
+        public int NewStatusID = -1;
 
         public string Name;
         public string Description;
@@ -84,7 +84,7 @@ namespace SideLoader
 
         internal ImbueEffectPreset Internal_ApplyTemplate()
         {
-            if (this.NewStatusID <= 0)
+            if (this.NewStatusID == -1)
                 this.NewStatusID = this.TargetStatusID;
 
             var preset = CustomStatusEffects.CreateCustomImbue(this);
