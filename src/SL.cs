@@ -56,7 +56,7 @@ namespace SideLoader
             if (s_embeddedArchivePacks.TryGetValue(name, out SLPackArchive archive))
                 return archive;
 
-            LogWarning("Could not get SLPack by name '" + name + "'!");
+            LogWarning($"Could not get SLPack by name '{name}'!");
             return null;
         }
 
@@ -90,11 +90,11 @@ namespace SideLoader
         {
             var start = Time.realtimeSinceStartup;
 
-            s_cloneHolder = new GameObject("SL_CloneHolder").transform;
-            GameObject.DontDestroyOnLoad(s_cloneHolder.gameObject);
-
             if (isFirstSetup)
             {
+                s_cloneHolder = new GameObject("SL_CloneHolder").transform;
+                GameObject.DontDestroyOnLoad(s_cloneHolder.gameObject);
+
                 SLRPCManager.Setup();
 
                 PlayerSaveExtension.LoadExtensionTypes();
