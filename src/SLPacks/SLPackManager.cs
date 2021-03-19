@@ -86,12 +86,15 @@ namespace SideLoader.SLPacks
             foreach (var ctg in SLPackCategories)
                 LoadPackCategory(packs, ctg, firstSetup);
 
-            // Invoke late apply listeners, this is what SL uses instead of late apply now.
+            // Invoke late apply listeners
             if (s_onLateApplyListeners.Any())
             {
                 SL.Log("Invoking " + s_onLateApplyListeners.Count + " OnLateApply listeners...");
-                foreach (var entry in s_onLateApplyListeners)
+                for (int i = s_onLateApplyListeners.Count - 1; i >= 0; i--)
+                {
+                    var entry = s_onLateApplyListeners.ElementAt(i);
                     InvokeLateApplyListener(entry.Key, entry.Value);
+                }
 
                 s_onLateApplyListeners.Clear();
             }

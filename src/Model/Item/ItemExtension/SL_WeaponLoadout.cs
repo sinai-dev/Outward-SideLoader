@@ -16,8 +16,6 @@ namespace SideLoader
         {
             var comp = component as WeaponLoadout;
 
-            SLPackManager.AddLateApplyListener(OnLateApply, comp);
-
             if (this.AmmunitionType != null)
                 comp.AmunitionType = (WeaponLoadout.CompatibleAmmunitionType)this.AmmunitionType;
             
@@ -32,14 +30,6 @@ namespace SideLoader
 
             if (this.ShowLoadedAmmunition != null)
                 comp.ShowLoadedAmmunition = (bool)this.ShowLoadedAmmunition;
-        }
-
-        private void OnLateApply(object[] obj)
-        {
-            var comp = obj[0] as WeaponLoadout;
-
-            if (!comp)
-                return;
 
             if (this.CompatibleItemID != null)
             {

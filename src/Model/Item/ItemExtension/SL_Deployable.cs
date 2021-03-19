@@ -19,8 +19,6 @@ namespace SideLoader
         {
             var comp = component as Deployable;
 
-            SLPackManager.AddLateApplyListener(OnLateApply, comp);
-
             if (this.AutoTake != null)
                 comp.AutoTake = (bool)this.AutoTake;
 
@@ -38,14 +36,6 @@ namespace SideLoader
 
             if (this.State != null)
                 comp.State = (Deployable.DeployStates)this.State;
-        }
-
-        private void OnLateApply(object[] obj)
-        {
-            var comp = obj[0] as Deployable;
-
-            if (!comp)
-                return;
 
             if (this.DeployedStateItemID != null)
             {

@@ -17,17 +17,7 @@ namespace SideLoader
 
             if (this.OneTimeUse != null)
                 At.SetField(trap, "m_oneTimeUse", (bool)this.OneTimeUse);
-
-            SLPackManager.AddLateApplyListener(OnLateApply, trap);
-        }
-
-        private void OnLateApply(object[] obj)
-        {
-            var trap = obj[0] as DeployableTrap;
-
-            if (!trap)
-                return;
-
+           
             if (this.TrapRecipeEffects != null)
             {
                 var list = new List<TrapEffectRecipe>();

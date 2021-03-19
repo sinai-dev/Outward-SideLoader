@@ -20,16 +20,6 @@ namespace SideLoader
             if (this.BuildingType != null)
                 comp.BuildingType = (Building.BuildingTypes)this.BuildingType;
 
-            SLPackManager.AddLateApplyListener(OnLateApply, comp);
-        }
-
-        private void OnLateApply(object[] obj)
-        {
-            var comp = obj[0] as Building;
-
-            if (!comp)
-                return;
-
             if (this.ConstructionPhases != null)
             {
                 var list = new List<Building.ConstructionPhase>();

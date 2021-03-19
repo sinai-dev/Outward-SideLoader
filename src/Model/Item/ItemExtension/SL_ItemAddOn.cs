@@ -15,18 +15,8 @@ namespace SideLoader
 
             var comp = component as ItemAddOn;
 
-            SLPackManager.AddLateApplyListener(OnLateApply, comp);
-
             if (this.SnappingRadius != null)
                 At.SetField(comp, "m_snappingRadius", (float)this.SnappingRadius);
-        }
-
-        private void OnLateApply(object[] obj)
-        {
-            var comp = obj[0] as ItemAddOn;
-
-            if (!comp)
-                return;
 
             if (this.AddOnCompatibleItemID != null)
             {
