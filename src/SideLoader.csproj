@@ -111,10 +111,10 @@
     <Compile Include="Patches\AudioPatches.cs" />
     <Compile Include="Patches\ReflectionPatch.cs" />
     <Compile Include="Patches\CharacterPatches.cs" />
-    <Compile Include="Patches\CorePatch.cs" />
     <Compile Include="Patches\DebugPatches.cs" />
     <Compile Include="Patches\ItemPatches.cs" />
     <Compile Include="Patches\ItemSourcePatches.cs" />
+    <Compile Include="Patches\ResourcePatches.cs" />
     <Compile Include="Patches\SavePatches.cs" />
     <Compile Include="Patches\ScenePatches.cs" />
     <Compile Include="Patches\ShooterPatches.cs" />

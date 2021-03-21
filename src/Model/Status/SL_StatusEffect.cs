@@ -337,18 +337,24 @@ namespace SideLoader
             // fix StatusData for the new effects
             CompileEffectsToData(status);
 
+            var sigComp = signature.GetComponent<EffectSignature>();
+            sigComp.enabled = true;
+
+            var effects = signature.GetComponentsInChildren<Effect>();
+            sigComp.Effects = effects.ToList();
+
+            // Fix the effect signature for reference families
             if (status.FamilyMode == StatusEffect.FamilyModes.Reference)
             {
                 signature.transform.parent = SL.s_cloneHolder;
-                var sigComp = signature.GetComponent<EffectSignature>();
-                sigComp.enabled = true;
-
-                sigComp.Effects = signature.GetComponentsInChildren<Effect>().ToList();
 
                 var family = status.EffectFamily;
                 family.EffectSignature = sigComp;
                 status.StatusData.EffectSignature = sigComp;
             }
+
+            // Need to reset description after changing effects.
+            At.Invoke(status, "RefreshLoc");
         }
 
         // Generate StatusData for the 
