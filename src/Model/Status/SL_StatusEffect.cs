@@ -246,15 +246,13 @@ namespace SideLoader
                 At.SetField(status, "m_bindFamily", family);
                 At.SetField(status, "m_familyMode", StatusEffect.FamilyModes.Bind);
             }
+
             if (this.FamilyMode == StatusEffect.FamilyModes.Bind)
             {
                 At.SetField(status, "m_familyMode", StatusEffect.FamilyModes.Bind);
 
                 if (this.BindFamily != null)
-                {
-                    // set bind using SL_StatusEffectFamily template
                     At.SetField(status, "m_bindFamily", this.BindFamily.CreateAsBindFamily());
-                }
             }
             else if (this.FamilyMode == StatusEffect.FamilyModes.Reference)
             {
@@ -338,6 +336,19 @@ namespace SideLoader
 
             // fix StatusData for the new effects
             CompileEffectsToData(status);
+
+            if (status.FamilyMode == StatusEffect.FamilyModes.Reference)
+            {
+                signature.transform.parent = SL.s_cloneHolder;
+                var sigComp = signature.GetComponent<EffectSignature>();
+                sigComp.enabled = true;
+
+                sigComp.Effects = signature.GetComponentsInChildren<Effect>().ToList();
+
+                var family = status.EffectFamily;
+                family.EffectSignature = sigComp;
+                status.StatusData.EffectSignature = sigComp;
+            }
         }
 
         // Generate StatusData for the 
@@ -351,6 +362,7 @@ namespace SideLoader
             // Get and Set the Effects list
             var effects = signature.GetComponentsInChildren<Effect>()?.ToList() ?? new List<Effect>();
             signature.Effects = effects;
+            At.SetField(status, "m_effectList", effects);
 
             // Finally, set the EffectsData[] array.
             status.StatusData.EffectsData = GenerateEffectsData(effects);
