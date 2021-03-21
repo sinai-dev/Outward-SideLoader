@@ -19,7 +19,7 @@ namespace SideLoader.Patches
             {
                 if (__exception != null)
                 {
-                    SL.Log("Exception on ResourcesPrefabManager.Load: " + __exception.GetType().FullName);
+                    SL.Log($"Exception on ResourcesPrefabManager.Load: {__exception.GetType().Name}, {__exception.Message}");
                     SL.LogInnerException(__exception);
                 }
 
@@ -28,6 +28,8 @@ namespace SideLoader.Patches
                 return null;
             }
         }
+
+        // Patches for StatusEffects and EffectPresets to fix duplicates.
 
         [HarmonyPatch(typeof(ResourcesPrefabManager), "LoadStatusEffectPrefabs")]
         public class RPM_LoadStatusEffectPrefabs
@@ -42,16 +44,16 @@ namespace SideLoader.Patches
                 foreach (var status in statuses)
                 {
                     if (dict.ContainsKey(status.IdentifierName))
-                    {
-                        //SL.LogWarning($"Duplicate status identifier: {status.IdentifierName}");
-                        var old = dict[status.IdentifierName];
-                        GameObject.Destroy(old.gameObject);
                         dict[status.IdentifierName] = status;
-                        continue;
-                    }
+                    else
+                        dict.Add(status.IdentifierName, status);
+                }
 
-                    dict.Add(status.IdentifierName, status);
-                    //SL.Log($"Loaded status: {status.IdentifierName}");
+                var resources = Resources.LoadAll("_StatusEffects", typeof(StatusEffect));
+                foreach (StatusEffect status in resources)
+                {
+                    if (!dict.ContainsKey(status.IdentifierName))
+                        dict.Add(status.IdentifierName, status);
                 }
 
                 return false;
@@ -71,16 +73,16 @@ namespace SideLoader.Patches
                 foreach (var effect in statuses)
                 {
                     if (dict.ContainsKey(effect.PresetID))
-                    {
-                        //SL.LogWarning($"Duplicate effect preset ID: {effect.PresetID} (skipping {effect.name})");
-                        var old = dict[effect.PresetID];
-                        GameObject.Destroy(old.gameObject);
                         dict[effect.PresetID] = effect;
-                        continue;
-                    }
+                    else
+                        dict.Add(effect.PresetID, effect);
+                }
 
-                    dict.Add(effect.PresetID, effect);
-                    //SL.Log($"Loaded effect preset: {effect.name}");
+                var resources = Resources.LoadAll("_StatusEffects", typeof(EffectPreset));
+                foreach (EffectPreset effect in resources)
+                {
+                    if (!dict.ContainsKey(effect.PresetID))
+                        dict.Add(effect.PresetID, effect);
                 }
 
                 return false;
