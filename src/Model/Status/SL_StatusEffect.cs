@@ -437,11 +437,15 @@ namespace SideLoader
 
         public static SL_StatusEffect ParseStatusEffect(StatusEffect status)
         {
-            var type = Serializer.GetBestSLType(status.GetType());
+            // Status Effects dont serialize properly unless you instantiate a clone
+            var clone = GameObject.Instantiate(status.gameObject).GetComponent<StatusEffect>();
 
+            var type = Serializer.GetBestSLType(clone.GetType());
             var template = (SL_StatusEffect)Activator.CreateInstance(type);
+            template.SerializeStatus(clone);
 
-            template.SerializeStatus(status);
+            // destroy the clone now that we're done with it
+            GameObject.Destroy(clone);
 
             return template;
         }
