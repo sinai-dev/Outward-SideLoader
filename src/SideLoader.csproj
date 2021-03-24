@@ -53,6 +53,7 @@
     <Compile Include="Model\ItemSources\SL_DropTableAddition.cs" />
     <Compile Include="Model\ItemSources\SL_ItemSource.cs" />
     <Compile Include="Model\ItemSources\SL_ItemSpawn.cs" />
+    <Compile Include="Model\Item\ItemExtension\SL_SummonedEquipment.cs" />
     <Compile Include="Model\TemplateDependancySolver.cs" />
     <Compile Include="Model\DropTables\SL_ItemDrop.cs" />
     <Compile Include="Model\DropTables\SL_ItemDropChance.cs" />
