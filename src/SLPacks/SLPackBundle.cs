@@ -136,17 +136,19 @@ namespace SideLoader.SLPacks
         protected internal override AssetBundle LoadAssetBundle(string relativeDirectory, string file)
             => throw new NotImplementedException("An AssetBundle cannot load AssetBundles!");
 
-        protected internal override AudioClip LoadAudioClip(string relativeDirectory, string file)
+        protected internal override void LoadAudioClip(string relativeDirectory, string file, Action<AudioClip> onClipLoaded)
         {
             if (!FileExists(relativeDirectory, file))
-                return null;
+                return;
 
             var clip = GetAsset<AudioClip>(relativeDirectory, file);
 
             if (!clip)
-                return null;
+                return;
 
-            return CustomAudio.FinalizeAudioClip(clip, Path.GetFileNameWithoutExtension(file), this);
+            CustomAudio.FinalizeAudioClip(clip, Path.GetFileNameWithoutExtension(file), this);
+
+            onClipLoaded?.Invoke(clip);
         }
 
         protected internal override Texture2D LoadTexture2D(string relativeDirectory, string file, bool mipmap = false, bool linear = false)

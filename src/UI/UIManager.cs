@@ -10,7 +10,7 @@ namespace SideLoader.UI
         public static GameObject CanvasRoot { get; private set; }
 
         internal static Font ConsoleFont { get; private set; }
-        internal static Sprite ResizeCursor { get; private set; }
+        // internal static Sprite ResizeCursor { get; private set; }
 
         internal const string MENU_TOGGLE_KEY = "SideLoader Menu";
 
@@ -96,7 +96,7 @@ namespace SideLoader.UI
 
             //BackupShader = bundle.LoadAsset<Shader>("DefaultUI");
 
-            ResizeCursor = bundle.LoadAsset<Sprite>("cursor");
+            //ResizeCursor = bundle.LoadAsset<Sprite>("cursor");
 
             ConsoleFont = bundle.LoadAsset<Font>("CONSOLA");
 

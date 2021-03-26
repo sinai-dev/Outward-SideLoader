@@ -17,25 +17,52 @@ namespace SideLoader
         /// List of AudioClips which have been replaced.
         /// </summary>
         public static readonly List<GlobalAudioManager.Sounds> ReplacedClips = new List<GlobalAudioManager.Sounds>();
-        
+
         /// <summary>
-        /// Load an Audio Clip from a given file path, and optionally put it in the provided SL Pack.
+        /// Load an Audio Clip from a given file path (on disk), and optionally put it in the provided SL Pack.
         /// </summary>
         /// <param name="filePath">The file path (must be a .WAV file) to load from</param>
         /// <param name="pack">Optional SL Pack to put the audio clip inside.</param>
+        /// <param name="onClipLoaded">Event invoked when the AudioClip has finished loading, if successful.</param>
         /// <returns>The loaded audio clip, if successful.</returns>
-        public static AudioClip LoadAudioClip(string filePath, SLPack pack = null)
+        public static void LoadAudioClip(string filePath, SLPack pack = null, Action<AudioClip> onClipLoaded = null)
         {
             if (!File.Exists(filePath))
-                return null;
+                return;
 
-            var data = File.ReadAllBytes(filePath);
+            //var data = File.ReadAllBytes(filePath);
+            //return LoadAudioClip(data, Path.GetFileNameWithoutExtension(filePath), pack);
 
-            return LoadAudioClip(data, Path.GetFileNameWithoutExtension(filePath), pack);
+            SLPlugin.Instance.StartCoroutine(LoadAudioFromFileCoroutine(filePath, pack, onClipLoaded));
+        }
+
+        private static IEnumerator LoadAudioFromFileCoroutine(string filePath, SLPack pack, Action<AudioClip> onClipLoaded)
+        {
+            var name = Path.GetFileNameWithoutExtension(filePath);
+            var request = UnityWebRequestMultimedia.GetAudioClip($@"file://{Path.GetFullPath(filePath)}", AudioType.WAV);
+
+            yield return request.SendWebRequest();
+
+            while (!request.isDone)
+                yield return null;
+
+            if (!string.IsNullOrEmpty(request.error))
+            {
+                SL.LogWarning(request.error);
+                yield break;
+            }
+
+            SL.Log($"Loaded audio clip: {Path.GetFileName(filePath)}");
+
+            var clip = DownloadHandlerAudioClip.GetContent(request);
+            FinalizeAudioClip(clip, name, pack);
+
+            onClipLoaded?.Invoke(clip);
         }
 
         /// <summary>
-        /// Load an Audio Clip from a given byte array, and optionally put it in the provided SL Pack.
+        /// Load an Audio Clip from a given byte array, and optionally put it in the provided SL Pack.<br/><br/>
+        /// WARNING: AudioClips loaded from byte arrays are currently unreliable and may be glitched, use at own risk!
         /// </summary>
         /// <param name="data">The byte[] array from <see cref="File.ReadAllBytes(string)"/> on the wav file path.</param>
         /// <param name="name">The name to give to the audio clip.</param>
@@ -43,6 +70,8 @@ namespace SideLoader
         /// <returns>The loaded audio clip, if successful.</returns>
         public static AudioClip LoadAudioClip(byte[] data, string name, SLPack pack = null)
         {
+            SL.LogWarning("WARNING: AudioClips loaded from embedded .zip archives are currently unreliable and may be glitched, use at own risk!");
+
             try
             {
                 var clip = ConvertByteArrayToAudioClip(data, name);
@@ -136,6 +165,8 @@ namespace SideLoader
 
         #region WAV BYTE[] TO AUDIOCLIP CONVERSION
 
+        // Not working properly at the moment. Only works for one specific format of PCM 16-bit int, not exactly sure which.
+
         /// <summary>
         /// Convert a byte[] array from an uncompressed WAV file (PCM or WaveFormatExtensable) into an AudioClip.
         /// </summary>
@@ -179,7 +210,6 @@ namespace SideLoader
                 int offset;
                 int i = 0;
 
-                // do actual conversion iteration. Each one is different so switch-case is faster here.
                 switch (bitDepth)
                 {
                     case 8:
@@ -242,7 +272,7 @@ namespace SideLoader
                 return null;
             }
         }
-       
+
         #endregion
     }
 }

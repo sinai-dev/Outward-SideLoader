@@ -152,14 +152,15 @@ namespace SideLoader.SLPacks
             return AssetBundle.LoadFromMemory(data);
         }
 
-        protected internal override AudioClip LoadAudioClip(string relativeDirectory, string file)
+        protected internal override void LoadAudioClip(string relativeDirectory, string file, Action<AudioClip> onClipLoaded)
         {
             if (!FileExists(relativeDirectory, file))
-                return null;
+                return;
 
             var data = ReadAllBytes(relativeDirectory, file);
 
-            return CustomAudio.LoadAudioClip(data, Path.GetFileNameWithoutExtension(file), this);
+            var clip = CustomAudio.LoadAudioClip(data, Path.GetFileNameWithoutExtension(file), this);
+            onClipLoaded?.Invoke(clip);
         }
 
         protected internal override Texture2D LoadTexture2D(string relativeDirectory, string file, bool mipmap = false, bool linear = false)

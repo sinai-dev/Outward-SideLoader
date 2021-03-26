@@ -22,12 +22,16 @@ namespace SideLoader.SLPacks.Categories
 
             foreach (var clipPath in pack.GetFiles(dirPath, ".wav"))
             {
-                SL.Log("Loading audio clip from '" + clipPath + "'");
+                //SL.Log($"Loading audio clip from '{clipPath}'");
 
-                var clip = pack.LoadAudioClip(dirPath, Path.GetFileName(clipPath));
-
-                if (clip)
-                    dict.Add(clipPath, clip);
+                pack.LoadAudioClip(dirPath, 
+                    Path.GetFileName(clipPath), 
+                    (AudioClip clip) => 
+                    {
+                        if (clip)
+                            dict.Add(clipPath, clip);
+                    }
+                );
             }
 
             return dict;

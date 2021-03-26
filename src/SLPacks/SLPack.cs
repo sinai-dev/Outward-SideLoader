@@ -113,14 +113,14 @@ namespace SideLoader
             return AssetBundle.LoadFromFile(path);
         }
 
-        protected internal virtual AudioClip LoadAudioClip(string relativeDirectory, string file)
+        protected internal virtual void LoadAudioClip(string relativeDirectory, string file, Action<AudioClip> onClipLoaded)
         {
             var path = Path.Combine(relativeDirectory, file);
 
             if (!File.Exists(path))
-                return null;
+                return;
 
-            return CustomAudio.LoadAudioClip(path, this);
+            CustomAudio.LoadAudioClip(path, this, (AudioClip clip) => { onClipLoaded?.Invoke(clip); });
         }
 
         protected internal virtual Texture2D LoadTexture2D(string relativeDirectory, string file, bool mipmap = false, bool linear = false)
