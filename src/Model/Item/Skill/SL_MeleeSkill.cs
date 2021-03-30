@@ -50,6 +50,7 @@
             var skill = item as MeleeSkill;
 
             Blockable = skill.Blockable;
+            NoWeaponAtkTag = skill.NoWeaponAtkTag;
 
             if (skill.MeleeHitDetector is MeleeHitDetector detector)
             {
