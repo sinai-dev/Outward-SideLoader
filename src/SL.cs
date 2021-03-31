@@ -23,7 +23,7 @@ namespace SideLoader
         // Mod Info
         public const string GUID = "com.sinai.SideLoader";
         public const string MODNAME = "SideLoader";
-        public const string VERSION = "3.4.4";
+        public const string VERSION = "3.4.5";
 
         // Core Folders
         internal static string SL_FOLDER => s_slFolder ?? (s_slFolder = Path.GetDirectoryName(typeof(SL).Assembly.Location));
