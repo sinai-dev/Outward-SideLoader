@@ -64,6 +64,9 @@ namespace SideLoader
             this.DisassembleSound = comp.DisassembleSound;
             this.PackedItemPrefabID = comp.PackedStateItemPrefab?.ItemID;
             this.State = comp.State;
+            this.CantDeployInNoBedZones = comp.CantDeployInNoBedZones;
+            this.DeploymentDirection = comp.DeploymentDirection;
+            this.DeploymentOffset = comp.DeploymentOffset;
         }
     }
 }

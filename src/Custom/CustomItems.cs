@@ -68,6 +68,7 @@ namespace SideLoader
                     var cached = GameObject.Instantiate(original.gameObject).GetComponent<Item>();
                     cached.gameObject.SetActive(false);
                     GameObject.DontDestroyOnLoad(cached.gameObject);
+                    cached.transform.parent = SL.CloneHolder;
                     OrigItemPrefabs.Add(cached.ItemID, cached);
                 }
 
@@ -99,6 +100,9 @@ namespace SideLoader
             // Do this so that any changes we make are not destroyed on scene changes.
             // This is needed whether this is a clone or a new item.
             GameObject.DontDestroyOnLoad(item.gameObject);
+
+            item.transform.parent = SL.CloneHolder;
+            item.gameObject.SetActive(true);
 
             return item;
         }

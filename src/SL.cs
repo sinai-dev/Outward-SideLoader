@@ -23,7 +23,7 @@ namespace SideLoader
         // Mod Info
         public const string GUID = "com.sinai.SideLoader";
         public const string MODNAME = "SideLoader";
-        public const string VERSION = "3.4.5";
+        public const string VERSION = "3.4.6";
 
         // Core Folders
         internal static string SL_FOLDER => s_slFolder ?? (s_slFolder = Path.GetDirectoryName(typeof(SL).Assembly.Location));
@@ -38,7 +38,7 @@ namespace SideLoader
         internal static readonly Dictionary<string, SLPackArchive> s_embeddedArchivePacks = new Dictionary<string, SLPackArchive>();
 
         // clone holder
-        internal static Transform s_cloneHolder;
+        internal static Transform CloneHolder;
 
         /// <summary>
         /// Get an SLPack from a provided SLPack folder name.
@@ -92,8 +92,10 @@ namespace SideLoader
 
             if (isFirstSetup)
             {
-                s_cloneHolder = new GameObject("SL_CloneHolder").transform;
-                GameObject.DontDestroyOnLoad(s_cloneHolder.gameObject);
+                CloneHolder = new GameObject("SL_CloneHolder").transform;
+                GameObject.DontDestroyOnLoad(CloneHolder.gameObject);
+                CloneHolder.hideFlags |= HideFlags.HideAndDontSave;
+                CloneHolder.gameObject.SetActive(false);
 
                 SLRPCManager.Setup();
 
@@ -174,13 +176,13 @@ namespace SideLoader
             SL_PlayVFX.BuildPrefabDictionary();
 
             foreach (var vfx in SL_ShootProjectile.ProjectilePrefabCache.Values)
-                vfx.transform.parent = SL.s_cloneHolder;
+                vfx.transform.parent = SL.CloneHolder;
 
             foreach (var vfx in SL_PlayVFX.VfxPrefabCache.Values)
-                vfx.transform.parent = SL.s_cloneHolder;
+                vfx.transform.parent = SL.CloneHolder;
 
             foreach (var vfx in SL_ShootBlast.BlastPrefabCache.Values)
-                vfx.transform.parent = SL.s_cloneHolder;
+                vfx.transform.parent = SL.CloneHolder;
 
             SL.Log("Built FX prefab dictionaries");
         }

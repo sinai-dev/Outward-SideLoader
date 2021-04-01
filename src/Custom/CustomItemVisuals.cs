@@ -190,6 +190,8 @@ namespace SideLoader
                 mesh.materials = mats;
             }
 
+            newVisuals.transform.parent = SL.CloneHolder;
+
             return newVisuals;
         }
 
@@ -232,22 +234,6 @@ namespace SideLoader
 
             //SL.Log("No material found for this prefab/item!");
             return null;
-        }
-
-        /// <summary>Try apply textures to an item from the specified directory 'texturesFolder'.</summary>
-        [Obsolete("Moved into SL_Item class itself")]
-        public static void TryApplyCustomTextures(string texturesFolder, Item item)
-        {
-        }
-
-        [Obsolete("Moved into SL_Item class itself.")]
-        public static void TryApplyCustomTextures(SL_Item template, Item newItem)
-        {
-        }
-
-        [Obsolete("Moved into SL_Item class itself.")]
-        internal static void ApplyTexAndMats(Dictionary<string, List<Texture2D>> textures, Dictionary<string, SL_Material> slMaterials, Item item)
-        {
         }
 
         #endregion

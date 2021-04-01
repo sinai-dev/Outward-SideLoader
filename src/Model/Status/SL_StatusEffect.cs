@@ -346,7 +346,7 @@ namespace SideLoader
             // Fix the effect signature for reference families
             if (status.FamilyMode == StatusEffect.FamilyModes.Reference)
             {
-                signature.transform.parent = SL.s_cloneHolder;
+                signature.transform.parent = SL.CloneHolder;
 
                 var family = status.EffectFamily;
                 family.EffectSignature = sigComp;
