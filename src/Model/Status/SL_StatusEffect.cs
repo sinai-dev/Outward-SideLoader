@@ -58,12 +58,6 @@ namespace SideLoader
         /// <summary>Invoked when this template is applied during SideLoader's start or hot-reload.</summary>
         public event Action<StatusEffect> OnTemplateApplied;
 
-        ///// <summary> [NOT SERIALIZED] The name of the SLPack this custom status template comes from (or is using).
-        ///// If defining from C#, you can set this to the name of the pack you want to load assets from.</summary>
-        //[XmlIgnore] public string SLPackName;
-        ///// <summary> [NOT SERIALIZED] The name of the folder this custom status is using for the icon.png (MyPack/StatusEffects/[SubfolderName]/icon.png).</summary>
-        //[XmlIgnore] public string SubfolderName;
-
         /// <summary> The StatusEffect you would like to clone from. Can also use TargetStatusID (checks for a Preset ID), but this takes priority.</summary>
         public string TargetStatusIdentifier;
 
@@ -149,10 +143,7 @@ namespace SideLoader
                 status.StatusData = new StatusData();
 
             if (Lifespan != null)
-            {
-                var data = status.StatusData;
-                data.LifeSpan = (float)Lifespan;
-            }
+                status.StatusData.LifeSpan = (float)Lifespan;
 
             if (RefreshRate != null)
                 status.RefreshRate = (float)RefreshRate;
@@ -287,6 +278,11 @@ namespace SideLoader
             if (!status)
                 return;
 
+            LateApplyStatusEffects(status);
+        }
+
+        protected internal void LateApplyStatusEffects(StatusEffect status)
+        {
             if (!string.IsNullOrEmpty(this.ComplicationStatusIdentifier))
             {
                 var complicStatus = ResourcesPrefabManager.Instance.GetStatusEffectPrefab(this.ComplicationStatusIdentifier);
@@ -357,7 +353,7 @@ namespace SideLoader
             At.Invoke(status, "RefreshLoc");
         }
 
-        // Generate StatusData for the 
+        // Generate StatusData for the StatusEffect automatically
         public static void CompileEffectsToData(StatusEffect status)
         {
             // Get the EffectSignature component

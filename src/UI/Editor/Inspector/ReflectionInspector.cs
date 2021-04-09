@@ -503,10 +503,14 @@ namespace SideLoader.UI.Editor
             {
                 foreach (var member in m_allMembers.Where(it => it.m_constructedUI))
                 {
-                    if (member.IValue != null)
-                        member.IValue.QuickSave();
-                    else
-                        member.SetValue();
+                    if (member.IValue == null)
+                        continue;
+
+                    member.IValue.QuickSave();
+                    //if (member.IValue != null)
+                    //    member.IValue.QuickSave();
+                    //else
+                    //    member.SetValue();
                 }
             });
 

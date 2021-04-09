@@ -76,6 +76,9 @@ namespace SideLoader.UI.Editor
 
         internal virtual void QuickSave()
         {
+            if (IsEditedValueNull)
+                Value = null;
+
             SetValueFromThis();
         }
 
@@ -200,26 +203,30 @@ namespace SideLoader.UI.Editor
             }
         }
 
+        internal bool IsEditedValueNull;
+
         internal virtual void UpdateCreateDestroyBtnState()
         {
             if (!WantCreateDestroyBtn || this.Owner is CacheEnumerated)
                 return;
 
-            if (Value != null) // destroying value
+            if (Value != null) // created value
             {
                 m_createDestroyBtn.GetComponentInChildren<Text>().text = "X";
                 var colors = m_createDestroyBtn.colors;
                 colors.normalColor = new Color(0.45f, 0.15f, 0.15f);
                 colors.pressedColor = new Color(0.45f, 0.15f, 0.15f);
                 m_createDestroyBtn.colors = colors;
+                IsEditedValueNull = false;
             }
-            else // creating new value
+            else // destroyed value
             {
                 m_createDestroyBtn.GetComponentInChildren<Text>().text = "+";
                 var colors = m_createDestroyBtn.colors;
                 colors.normalColor = new Color(0.15f, 0.45f, 0.15f);
                 colors.pressedColor = new Color(0.15f, 0.45f, 0.15f);
                 m_createDestroyBtn.colors = colors;
+                IsEditedValueNull = true;
             }
         }
 

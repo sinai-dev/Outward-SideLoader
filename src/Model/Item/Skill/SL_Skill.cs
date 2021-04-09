@@ -122,7 +122,6 @@ namespace SideLoader
                                 Condition = condition
                             };
 
-                            // Todo: do this properly. There's no easy way to get the right loc.
                             string msgLoc;
                             if (condition is WindAltarActivatedCondition)
                                 msgLoc = "Notification_Skill_WindAltarRequired";

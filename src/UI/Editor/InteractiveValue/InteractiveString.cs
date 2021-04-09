@@ -15,7 +15,9 @@ namespace SideLoader.UI.Editor
 
         internal override void QuickSave()
         {
-            OnApplyClicked();
+            if (!IsEditedValueNull)
+                OnApplyClicked();
+
             base.QuickSave();
         }
 

@@ -6,6 +6,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -23,7 +24,7 @@ namespace SideLoader
         // Mod Info
         public const string GUID = "com.sinai.SideLoader";
         public const string MODNAME = "SideLoader";
-        public const string VERSION = "3.4.6";
+        public const string VERSION = "3.4.7";
 
         // Core Folders
         internal static string SL_FOLDER => s_slFolder ?? (s_slFolder = Path.GetDirectoryName(typeof(SL).Assembly.Location));

@@ -90,7 +90,7 @@ namespace SideLoader.SLPacks
             if (s_onLateApplyListeners.Any())
             {
                 SL.Log("Invoking " + s_onLateApplyListeners.Count + " OnLateApply listeners...");
-                for (int i = s_onLateApplyListeners.Count - 1; i >= 0; i--)
+                for (int i = 0; i < s_onLateApplyListeners.Count; i++)
                 {
                     var entry = s_onLateApplyListeners.ElementAt(i);
                     InvokeLateApplyListener(entry.Key, entry.Value);
