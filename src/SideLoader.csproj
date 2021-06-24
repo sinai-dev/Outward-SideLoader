@@ -20,12 +20,12 @@
     <DebugSymbols>false</DebugSymbols>
     <DebugType>none</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>..\Release\BepInEx\plugins\sinai-dev SideLoader\</OutputPath>
+    <OutputPath>..\Release\BepInEx\plugins\sinai-dev-SideLoader\</OutputPath>
     <DefineConstants>
     </DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <DocumentationFile>D:\source\Outward\SideLoader\Release\BepInEx\plugins\SideLoader\SideLoader.xml</DocumentationFile>
+    <DocumentationFile>..\Release\BepInEx\plugins\sinai-dev-SideLoader\SideLoader.xml</DocumentationFile>
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">

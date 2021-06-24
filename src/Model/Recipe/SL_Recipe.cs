@@ -113,7 +113,7 @@ namespace SideLoader
                         var ingredientItem = ResourcesPrefabManager.Instance.GetItemPrefab(id);
                         if (!ingredientItem)
                         {
-                            SL.Log("Error: Could not get ingredient id : " + id);
+                            SL.Log("Error: Could not get ingredient id: " + id);
                             return;
                         }
 
@@ -152,13 +152,9 @@ namespace SideLoader
                     foreach (var ing in recipe.Ingredients)
                     {
                         if (ing.AddedIngredient != null)
-                        {
                             uid += $"{ing.AddedIngredient.ItemID}";
-                        }
                         else if (ing.AddedIngredientType != null)
-                        {
                             uid += $"{ing.AddedIngredientType.Tag.TagName}";
-                        }
                     }
                     this.UID = uid;
                     At.SetField(recipe, "m_uid", new UID(uid));
