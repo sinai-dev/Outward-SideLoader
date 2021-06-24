@@ -283,27 +283,48 @@ namespace SideLoader
 
         protected internal void LateApplyStatusEffects(StatusEffect status)
         {
-            if (!string.IsNullOrEmpty(this.ComplicationStatusIdentifier))
+            if (ComplicationStatusIdentifier != null)
             {
-                var complicStatus = ResourcesPrefabManager.Instance.GetStatusEffectPrefab(this.ComplicationStatusIdentifier);
-                if (complicStatus)
-                    status.ComplicationStatus = complicStatus;
-            }
-
-            if (!string.IsNullOrEmpty(RequiredStatusIdentifier))
-            {
-                var required = ResourcesPrefabManager.Instance.GetStatusEffectPrefab(this.RequiredStatusIdentifier);
-                if (required)
-                    status.RequiredStatus = required;
-            }
-
-            if (!string.IsNullOrEmpty(this.AmplifiedStatusIdentifier))
-            {
-                var amp = ResourcesPrefabManager.Instance.GetStatusEffectPrefab(AmplifiedStatusIdentifier);
-                if (amp)
-                    At.SetField(status, "m_amplifiedStatus", amp);
+                if (!string.IsNullOrEmpty(ComplicationStatusIdentifier))
+                {
+                    var complicStatus = ResourcesPrefabManager.Instance.GetStatusEffectPrefab(this.ComplicationStatusIdentifier);
+                    if (complicStatus)
+                        status.ComplicationStatus = complicStatus;
+                }
                 else
-                    SL.Log("StatusEffect.ApplyTemplate - could not find AmplifiedStatusIdentifier " + this.AmplifiedStatusIdentifier);
+                {
+                    status.ComplicationStatus = null;
+                }
+            }
+
+            if (RequiredStatusIdentifier != null)
+            {
+                if (!string.IsNullOrEmpty(RequiredStatusIdentifier))
+                {
+                    var required = ResourcesPrefabManager.Instance.GetStatusEffectPrefab(this.RequiredStatusIdentifier);
+                    if (required)
+                        status.RequiredStatus = required;
+                }
+                else
+                {
+                    status.RequiredStatus = null;
+                }
+            }
+
+            if (AmplifiedStatusIdentifier != null)
+            {
+                if (!string.IsNullOrEmpty(this.AmplifiedStatusIdentifier))
+                {
+                    var amp = ResourcesPrefabManager.Instance.GetStatusEffectPrefab(AmplifiedStatusIdentifier);
+                    if (amp)
+                        At.SetField(status, "m_amplifiedStatus", amp);
+                    else
+                        SL.Log("StatusEffect.ApplyTemplate - could not find AmplifiedStatusIdentifier " + this.AmplifiedStatusIdentifier);
+                }
+                else
+                {
+                    At.SetField(status, "m_amplifiedStatus", null);
+                }
             }
 
             // setup signature and finalize
@@ -324,10 +345,7 @@ namespace SideLoader
 
             if (Effects != null)
             {
-                if (signature)
-                    SL_EffectTransform.ApplyTransformList(signature, Effects, EffectBehaviour);
-                else
-                    SL.Log("Could not get effect signature!");
+                SL_EffectTransform.ApplyTransformList(signature, Effects, EffectBehaviour);
             }
 
             // fix StatusData for the new effects
