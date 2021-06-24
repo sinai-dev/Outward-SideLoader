@@ -28,6 +28,7 @@ namespace SideLoader
 
             this.Position = itemVisual.transform.position;
             this.Rotation = itemVisual.transform.rotation.eulerAngles;
+            this.Scale = itemVisual.transform.localScale;
 
             HideFace = armorVis.HideFace;
             HideHair = armorVis.HideHair;

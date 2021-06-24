@@ -27,6 +27,8 @@ namespace SideLoader
         public Vector3? Position;
         /// <summary>Optional, directly set the rotation</summary>
         public Vector3? Rotation;
+        /// <summary>Optional, directly set the scale</summary>
+        public Vector3? Scale;
 
         /// <summary>Optional, add offset to position</summary>
         public Vector3? PositionOffset;
@@ -55,9 +57,12 @@ namespace SideLoader
                         SL.Log("Loaded custom visual prefab: " + newVisuals.name);
                         setPrefab = true;
                     }
+                    else
+                        SL.LogWarning($"Cannot find asset bundle by name of '{Prefab_AssetBundle}'!");
                 }
-                // Not using AssetBundle, check for ResourcesPrefabPath.
-                else if (!string.IsNullOrEmpty(ResourcesPrefabPath))
+
+                // if not set, check for ResourcesPrefabPath.
+                if (!setPrefab && !string.IsNullOrEmpty(ResourcesPrefabPath))
                 {
                     // Only set this if the user has defined a different value than what exists on the item.
                     bool set = false;
@@ -127,6 +132,11 @@ namespace SideLoader
                     var visualComp = origPrefab.GetComponent<ItemVisual>();
 
                     ApplyItemVisualSettings(visualComp, actualVisuals);
+                }
+                else
+                {
+                    SL.LogWarning($"Could not find the visual model for '{origPrefab.name}'! " +
+                        $"Ensure the model has a BoxCollider and MeshRenderer on the same GameObject!");
                 }
             }
         }
@@ -203,6 +213,8 @@ namespace SideLoader
                 visuals.localPosition = (Vector3)Position;
             if (Rotation != null)
                 visuals.eulerAngles = (Vector3)Rotation;
+            if (Scale != null)
+                visuals.localScale = (Vector3)Scale;
             if (PositionOffset != null)
                 visuals.localPosition += (Vector3)PositionOffset;
             if (RotationOffset != null)
@@ -237,6 +249,7 @@ namespace SideLoader
                     {
                         Position = child.localPosition;
                         Rotation = child.eulerAngles;
+                        Scale = child.localScale;
 
                         break;
                     }
@@ -246,6 +259,7 @@ namespace SideLoader
             {
                 Position = itemVisual.transform.position;
                 Rotation = itemVisual.transform.rotation.eulerAngles;
+                Scale = itemVisual.transform.localScale;
             }
         }
     }
