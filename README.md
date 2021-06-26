@@ -17,8 +17,6 @@
   </a>
 </p>
 
-[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/C1C14TRZG)
-
 ## Install [![Version](https://img.shields.io/badge/BepInEx-5.4.5-green.svg)](https://github.com/BepInEx/BepInEx)
 
 * [How To Install](https://sinai-dev.github.io/OSLDocs/#/Main/Installation)
