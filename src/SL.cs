@@ -1,5 +1,4 @@
-﻿using BepInEx;
-using SideLoader.SaveData;
+﻿using SideLoader.SaveData;
 using SideLoader.SLPacks;
 using SideLoader.UI;
 using System;
@@ -24,7 +23,7 @@ namespace SideLoader
         // Mod Info
         public const string GUID = "com.sinai.SideLoader";
         public const string MODNAME = "SideLoader";
-        public const string VERSION = "3.4.8";
+        public const string VERSION = "3.4.9";
 
         // Core Folders
         internal static string SL_FOLDER => s_slFolder ?? (s_slFolder = Path.GetDirectoryName(typeof(SL).Assembly.Location));

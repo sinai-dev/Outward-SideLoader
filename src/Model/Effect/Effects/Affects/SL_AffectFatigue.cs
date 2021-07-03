@@ -6,7 +6,7 @@
 
         public override void ApplyToComponent<T>(T component)
         {
-            (component as AffectDrink).SetAffectDrinkQuantity(AffectQuantity);
+            (component as AffectFatigue).SetAffectFatigueQuantity(AffectQuantity);
         }
 
         public override void SerializeEffect<T>(T effect)
