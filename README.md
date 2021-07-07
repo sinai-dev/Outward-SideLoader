@@ -9,6 +9,9 @@
     <img src="https://img.shields.io/github/release/sinai-dev/Outward-SideLoader.svg" />
   </a> 
   <img src="https://img.shields.io/github/downloads/sinai-dev/Outward-SideLoader/total.svg" /> 
+  <a href="https://outward.thunderstore.io/package/sinai-dev/SideLoader/">
+    <img src="https://img.shields.io/badge/Thunderstore-blue?link=https://outward.thunderstore.io/package/sinai-dev/SideLoader" />
+  </a>
   <a href="https://www.nexusmods.com/outward/mods/96">
     <img src="https://img.shields.io/badge/NexusMods-red?link=https://www.nexusmods.com/outward/mods/96" />
   </a>
@@ -17,12 +20,12 @@
   </a>
 </p>
 
-## Install [![Version](https://img.shields.io/badge/BepInEx-5.4.5-green.svg)](https://github.com/BepInEx/BepInEx)
+## Install
 
-* [How To Install](https://sinai-dev.github.io/OSLDocs/#/Main/Installation)
+* [See install guide here](https://sinai-dev.github.io/OSLDocs/#/Main/Installation)
 
 ## Documentation
-* <b>[SideLoader Docs](https://sinai-dev.github.io/OSLDocs/#/)</b>
+* [SideLoader Docs](https://sinai-dev.github.io/OSLDocs/#/)
 
 ## Credits
 Written by Sinai.
